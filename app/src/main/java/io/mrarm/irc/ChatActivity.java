@@ -70,6 +70,7 @@ public class ChatActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(mConnectionInfo.getName());
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), mConnectionInfo);
 
         mViewPager = (ViewPager) findViewById(R.id.container);
