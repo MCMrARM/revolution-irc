@@ -4,6 +4,6 @@
 :test-user!~test-user@localhost JOIN #test-channel
 :test-user!~test-user@localhost JOIN #android
 :test-user!~test-user@localhost JOIN #irc-client
-:another-user!~another@test/user1 PRIVMSG #test-channel Test
-:another-user!~another@test/user1 PRIVMSG #test-channel Another test
-:another-user!~another@test/user1 PRIVMSG #test-channel Yet another test
+:another-user!~another@test/user1 PRIVMSG #test-channel :Test
+:another-user!~another@test/user1 PRIVMSG #test-channel :Another test
+:another-user!~another@test/user1 PRIVMSG #test-channel :Yet another test

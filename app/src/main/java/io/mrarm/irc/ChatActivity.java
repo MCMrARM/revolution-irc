@@ -4,6 +4,8 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 
 import android.support.v4.app.Fragment;
@@ -13,6 +15,7 @@ import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,9 +28,11 @@ import android.widget.ImageView;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import io.mrarm.chatlib.dto.MessageList;
 import io.mrarm.chatlib.test.TestApiImpl;
 import io.mrarm.irc.drawer.DrawerHelper;
 
@@ -133,17 +138,17 @@ public class ChatActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public static class PlaceholderFragment extends Fragment {
+    public static class ChatFragment extends Fragment {
 
         private static final String ARG_SERVER_UUID = "server_uuid";
         private static final String ARG_CHANNEL_NAME = "channel";
 
-        public PlaceholderFragment() {
+        public ChatFragment() {
         }
 
-        public static PlaceholderFragment newInstance(ServerConnectionInfo server,
+        public static ChatFragment newInstance(ServerConnectionInfo server,
                                                       String channelName) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
+            ChatFragment fragment = new ChatFragment();
             Bundle args = new Bundle();
             args.putString(ARG_SERVER_UUID, server.getUUID().toString());
             if (channelName != null)
@@ -158,8 +163,25 @@ public class ChatActivity extends AppCompatActivity {
             UUID connectionUUID = UUID.fromString(getArguments().getString(ARG_SERVER_UUID));
             ServerConnectionInfo connectionInfo = ServerConnectionManager.getInstance()
                     .getConnection(connectionUUID);
+            String channelName = getArguments().getString(ARG_CHANNEL_NAME);
 
-            View rootView = inflater.inflate(R.layout.fragment_chat, container, false);
+            View rootView = inflater.inflate(R.layout.chat_fragment, container, false);
+            RecyclerView recyclerView = (RecyclerView) rootView;
+            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+            ChatMessagesAdapter adapter = new ChatMessagesAdapter(new MessageList(new ArrayList<>()));
+            recyclerView.setAdapter(adapter);
+
+            if (channelName != null) {
+                Log.i("ChatFragment", "Request message list for: " + channelName);
+                connectionInfo.getApiInstance().getMessages(channelName, 100, null,
+                        (MessageList messages) -> {
+                    Log.i("ChatFragment", "Got message list for " + channelName + ": " +
+                            messages.getMessages().size() + " messages");
+                    adapter.setMessages(messages);
+                }, null);
+            }
+
             return rootView;
         }
 
@@ -177,8 +199,8 @@ public class ChatActivity extends AppCompatActivity {
         @Override
         public Fragment getItem(int position) {
             if (position == 0)
-                return PlaceholderFragment.newInstance(connectionInfo, null);
-            return PlaceholderFragment.newInstance(connectionInfo,
+                return ChatFragment.newInstance(connectionInfo, null);
+            return ChatFragment.newInstance(connectionInfo,
                     connectionInfo.getChannels().get(position - 1));
         }
 
@@ -191,7 +213,7 @@ public class ChatActivity extends AppCompatActivity {
 
         @Override
         public CharSequence getPageTitle(int position) {
-            if (connectionInfo.getChannels() == null || position == 0)
+            if (position == 0)
                 return getString(R.string.tab_server);
             return connectionInfo.getChannels().get(position - 1);
         }
