@@ -22,14 +22,12 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.UUID;
 
-import io.mrarm.chatlib.ChatApi;
 import io.mrarm.chatlib.test.TestApiImpl;
 import io.mrarm.irc.drawer.DrawerHelper;
 
@@ -108,9 +106,9 @@ public class ChatActivity extends AppCompatActivity {
                 wasEmpty = isEmpty;
                 int accentColor = getResources().getColor(R.color.colorAccent);
                 if (s.length() > 0)
-                    ImageViewTintUtils.animateTint(mSendIcon, 0x54000000, accentColor, 200);
+                    ImageViewTintUtils.setTint(mSendIcon, accentColor);
                 else
-                    ImageViewTintUtils.animateTint(mSendIcon, accentColor, 0x54000000, 200);
+                    ImageViewTintUtils.setTint(mSendIcon, 0x54000000);
             }
 
             @Override
