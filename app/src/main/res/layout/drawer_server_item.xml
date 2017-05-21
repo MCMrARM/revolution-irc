@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="48dp" android:background="?attr/selectableItemBackground"
+    android:layout_marginTop="8dp" android:id="@+id/server_entry">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_server_connected"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="16dp"
+        android:id="@+id/server_icon" />
+
+    <TextView
+        android:id="@+id/server_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="72dp"
+        android:layout_marginStart="72dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_toLeftOf="@+id/server_expand_icon"
+        android:layout_toStartOf="@+id/server_expand_icon" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_action_expand"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="16dp"
+        android:id="@+id/server_expand_icon" />
+
+</RelativeLayout>

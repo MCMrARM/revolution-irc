@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content" android:background="?attr/selectableItemBackground"
+    android:id="@+id/channel_entry">
+
+    <TextView
+        android:id="@+id/channel_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:paddingLeft="72dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:paddingRight="16dp" />
+
+</LinearLayout>

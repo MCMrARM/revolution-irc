@@ -1,0 +1,10 @@
+:localhost NOTICE * :*** Test
+:localhost 001 test-user :This is a test log file test-user
+:test-user MODE test-user :+i
+:test-user!~test-user@localhost JOIN #test-channel
+:test-user!~test-user@localhost JOIN #test-channel-2
+:test-user!~test-user@localhost JOIN #test-channel-3
+:test-user!~test-user@localhost JOIN #test-channel-4
+:test-user!~test-user@localhost JOIN #test-channel-5
+:test-user!~test-user@localhost JOIN #test-channel-6
+:test-user!~test-user@localhost JOIN #test-channel-7
