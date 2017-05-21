@@ -34,6 +34,12 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public DrawerMenuListAdapter(List<ServerConnectionInfo> servers) {
         mServers = servers;
         notifyServerListChanged();
+        for (ServerConnectionInfo connectionInfo : servers) {
+            connectionInfo.addOnChannelListChangeListener((ServerConnectionInfo connection,
+                                                           List<String> newChannels) -> {
+                notifyServerListChanged();
+            });
+        }
     }
 
     public void addMenuItem(DrawerMenuItem item) {
@@ -116,7 +122,8 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         Map.Entry<Integer, ServerConnectionInfo> entry = mItemIndexToServerMap.floorEntry(position);
         if (entry == null || entry.getKey() == position)
             return TYPE_SERVER_HEADER;
-        if (position == entry.getKey() + (entry.getValue().isExpandedInDrawer() ?
+        if (position == entry.getKey() + (entry.getValue().isExpandedInDrawer() &&
+                entry.getValue().getChannels() != null ?
                 entry.getValue().getChannels().size() : 0) + 1)
             return TYPE_SEPARATOR;
         return TYPE_CHANNEL;
@@ -158,7 +165,7 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             mAdapter.updateItemIndexToServerMap();
             for (Map.Entry<Integer, ServerConnectionInfo> entry :
                     mAdapter.mItemIndexToServerMap.entrySet()) {
-                if (entry.getValue() == mServerInfo) {
+                if (entry.getValue() == mServerInfo && mServerInfo.getChannels() != null) {
                     if (mServerInfo.isExpandedInDrawer())
                         mAdapter.notifyItemRangeInserted(entry.getKey() + 1,
                                 mServerInfo.getChannels().size());

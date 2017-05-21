@@ -27,6 +27,7 @@ import android.widget.TextView;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.UUID;
 
 import io.mrarm.chatlib.ChatApi;
 import io.mrarm.chatlib.test.TestApiImpl;
@@ -34,15 +35,15 @@ import io.mrarm.irc.drawer.DrawerHelper;
 
 public class ChatActivity extends AppCompatActivity {
 
+    private ServerConnectionInfo mConnectionInfo;
+
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
     private DrawerHelper mDrawerHelper;
     private EditText mSendText;
     private ImageView mSendIcon;
 
-    private ChatApi api;
-
-    private ChatApi createApi() {
+    private ServerConnectionInfo createTestConnection() {
         TestApiImpl api = new TestApiImpl("test-user");
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(getResources().openRawResource(R.raw.testdata)));
@@ -52,7 +53,9 @@ public class ChatActivity extends AppCompatActivity {
             throw new RuntimeException(t);
         }
 
-        return api;
+        ServerConnectionInfo connection = new ServerConnectionInfo(UUID.randomUUID(), "Test Connection", api);
+        ServerConnectionManager.getInstance().addConnection(connection);
+        return connection;
     }
 
     @Override
@@ -60,14 +63,19 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        api = createApi();
+        mConnectionInfo = createTestConnection();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), api);
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), mConnectionInfo);
 
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+
+        mConnectionInfo.addOnChannelListChangeListener((ServerConnectionInfo connection,
+                                                        List<String> newChannels) -> {
+            mSectionsPagerAdapter.notifyDataSetChanged();
+        });
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
@@ -110,16 +118,7 @@ public class ChatActivity extends AppCompatActivity {
 
             }
         });
-
-        refreshChannelList();
     }
-
-    public void refreshChannelList() {
-        api.getJoinedChannelList((List<String> channels) -> {
-            mSectionsPagerAdapter.updateChannelList(channels);
-        }, null);
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -137,15 +136,20 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     public static class PlaceholderFragment extends Fragment {
-        private static final String ARG_SECTION_NUMBER = "section_number";
+
+        private static final String ARG_SERVER_UUID = "server_uuid";
+        private static final String ARG_CHANNEL_NAME = "channel";
 
         public PlaceholderFragment() {
         }
 
-        public static PlaceholderFragment newInstance(int sectionNumber) {
+        public static PlaceholderFragment newInstance(ServerConnectionInfo server,
+                                                      String channelName) {
             PlaceholderFragment fragment = new PlaceholderFragment();
             Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+            args.putString(ARG_SERVER_UUID, server.getUUID().toString());
+            if (channelName != null)
+                args.putString(ARG_CHANNEL_NAME, channelName);
             fragment.setArguments(args);
             return fragment;
         }
@@ -153,45 +157,46 @@ public class ChatActivity extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
+            UUID connectionUUID = UUID.fromString(getArguments().getString(ARG_SERVER_UUID));
+            ServerConnectionInfo connectionInfo = ServerConnectionManager.getInstance()
+                    .getConnection(connectionUUID);
+
             View rootView = inflater.inflate(R.layout.fragment_chat, container, false);
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            textView.setText("Tab: " + getArguments().getInt(ARG_SECTION_NUMBER));
             return rootView;
         }
+
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-        private ChatApi api;
-        private List<String> joinedChannelList;
+        private ServerConnectionInfo connectionInfo;
 
-        public SectionsPagerAdapter(FragmentManager fm, ChatApi api) {
+        public SectionsPagerAdapter(FragmentManager fm, ServerConnectionInfo connectionInfo) {
             super(fm);
-            this.api = api;
-        }
-
-        void updateChannelList(List<String> list) {
-            joinedChannelList = list;
-            notifyDataSetChanged();
+            this.connectionInfo = connectionInfo;
         }
 
         @Override
         public Fragment getItem(int position) {
-            return PlaceholderFragment.newInstance(position + 1);
+            if (position == 0)
+                return PlaceholderFragment.newInstance(connectionInfo, null);
+            return PlaceholderFragment.newInstance(connectionInfo,
+                    connectionInfo.getChannels().get(position - 1));
         }
 
         @Override
         public int getCount() {
-            if (joinedChannelList == null)
+            if (connectionInfo.getChannels() == null)
                 return 1;
-            return joinedChannelList.size() + 1;
+            return connectionInfo.getChannels().size() + 1;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            if (joinedChannelList == null || position == 0)
+            if (connectionInfo.getChannels() == null || position == 0)
                 return getString(R.string.tab_server);
-            return joinedChannelList.get(position - 1);
+            return connectionInfo.getChannels().get(position - 1);
         }
+
     }
 }

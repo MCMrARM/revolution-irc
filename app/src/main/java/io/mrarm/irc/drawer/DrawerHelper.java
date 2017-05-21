@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
+import io.mrarm.irc.ServerConnectionManager;
 
 public class DrawerHelper {
 
@@ -22,23 +23,13 @@ public class DrawerHelper {
 
         Resources r = activity.getResources();
 
-        ArrayList<ServerConnectionInfo> testList = new ArrayList<>();
-        ServerConnectionInfo testInfo = new ServerConnectionInfo("Freenode");
-        ArrayList<String> testChannelList = new ArrayList<>();
-        testChannelList.add("#test-channel");
-        testChannelList.add("#android");
-        testInfo.setChannels(testChannelList);
-        testList.add(testInfo);
-        ServerConnectionInfo testInfo2 = new ServerConnectionInfo("Private IRC network");
-        testInfo2.setChannels(testChannelList);
-        testList.add(testInfo2);
-        ServerConnectionInfo testInfo3 = new ServerConnectionInfo("Slack");
-        testInfo3.setChannels(testChannelList);
-        testList.add(testInfo3);
-        DrawerMenuListAdapter adapter = new DrawerMenuListAdapter(testList);
+        DrawerMenuListAdapter adapter = new DrawerMenuListAdapter(ServerConnectionManager
+                .getInstance().getConnections());
 
         adapter.addMenuItem(new DrawerMenuItem(r.getString(R.string.action_servers),
                 r.getDrawable(R.drawable.ic_edit)));
+        adapter.addMenuItem(new DrawerMenuItem(r.getString(R.string.action_settings),
+                r.getDrawable(R.drawable.ic_settings)));
 
         mRecyclerView.setAdapter(adapter);
     }
