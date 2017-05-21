@@ -1,6 +1,7 @@
 package io.mrarm.irc.drawer;
 
 import android.app.Activity;
+import android.content.res.Resources;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
@@ -19,6 +20,8 @@ public class DrawerHelper {
         mLayoutManager = new LinearLayoutManager(activity);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
+        Resources r = activity.getResources();
+
         ArrayList<ServerConnectionInfo> testList = new ArrayList<>();
         ServerConnectionInfo testInfo = new ServerConnectionInfo("Freenode");
         ArrayList<String> testChannelList = new ArrayList<>();
@@ -33,6 +36,10 @@ public class DrawerHelper {
         testInfo3.setChannels(testChannelList);
         testList.add(testInfo3);
         DrawerMenuListAdapter adapter = new DrawerMenuListAdapter(testList);
+
+        adapter.addMenuItem(new DrawerMenuItem(r.getString(R.string.action_servers),
+                r.getDrawable(R.drawable.ic_edit)));
+
         mRecyclerView.setAdapter(adapter);
     }
 

@@ -9,4 +9,6 @@
     <string name="action_settings">Settings</string>
     <string name="action_servers">Manage servers</string>
 
+    <string name="message_hint">Send a message</string>
+
 </resources>

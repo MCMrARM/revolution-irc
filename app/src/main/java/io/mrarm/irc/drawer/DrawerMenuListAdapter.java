@@ -10,6 +10,7 @@ import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -22,15 +23,25 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private static final int TYPE_DRAWER_HEADER = 0;
     private static final int TYPE_SERVER_HEADER = 1;
     private static final int TYPE_CHANNEL = 2;
-    private static final int TYPE_DRAWER_FOOTER = 10;
+    private static final int TYPE_SEPARATOR = 3;
+    private static final int TYPE_MENU_ITEM = 4;
 
     private List<ServerConnectionInfo> mServers;
+    private ArrayList<DrawerMenuItem> mMenuItems = new ArrayList<>();
     private TreeMap<Integer, ServerConnectionInfo> mItemIndexToServerMap = new TreeMap<>();
     private int mCurrentItemCount;
 
     public DrawerMenuListAdapter(List<ServerConnectionInfo> servers) {
         mServers = servers;
         notifyServerListChanged();
+    }
+
+    public void addMenuItem(DrawerMenuItem item) {
+        this.mMenuItems.add(item);
+    }
+
+    public ArrayList<DrawerMenuItem> getMenuItems() {
+        return mMenuItems;
     }
 
     private void updateItemIndexToServerMap() {
@@ -40,9 +51,9 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             mItemIndexToServerMap.put(currentIndex, info);
             if (info.isExpandedInDrawer() && info.getChannels() != null)
                 currentIndex += info.getChannels().size();
-            currentIndex++;
+            currentIndex += 2;
         }
-        mCurrentItemCount = currentIndex + 1;
+        mCurrentItemCount = currentIndex;
     }
 
     public void notifyServerListChanged() {
@@ -56,9 +67,9 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             View view = LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.drawer_header, viewGroup, false);
             return new SimpleViewHolder(view);
-        } else if (viewType == TYPE_DRAWER_FOOTER) {
+        } else if (viewType == TYPE_SEPARATOR) {
             View view = LayoutInflater.from(viewGroup.getContext())
-                    .inflate(R.layout.drawer_footer, viewGroup, false);
+                    .inflate(R.layout.drawer_separator, viewGroup, false);
             return new SimpleViewHolder(view);
         } else if (viewType == TYPE_SERVER_HEADER) {
             View view = LayoutInflater.from(viewGroup.getContext())
@@ -68,6 +79,10 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             View view = LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.drawer_channel_item, viewGroup, false);
             return new ChannelHolder(view);
+        } else if (viewType == TYPE_MENU_ITEM) {
+            View view = LayoutInflater.from(viewGroup.getContext())
+                    .inflate(R.layout.drawer_menu_item, viewGroup, false);
+            return new MenuItemHolder(view);
         }
         return null;
     }
@@ -82,23 +97,28 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 ((ServerHeaderHolder) holder).bind(entry.getValue());
             else
                 ((ChannelHolder) holder).bind(entry.getValue(), position - entry.getKey() - 1);
+        } else if (viewType == TYPE_MENU_ITEM) {
+            ((MenuItemHolder) holder).bind(mMenuItems.get(position - mCurrentItemCount));
         }
     }
 
     @Override
     public int getItemCount() {
-        return mCurrentItemCount;
+        return mCurrentItemCount + mMenuItems.size();
     }
 
     @Override
     public int getItemViewType(int position) {
         if (position == 0)
             return TYPE_DRAWER_HEADER;
-        if (position == mCurrentItemCount - 1)
-            return TYPE_DRAWER_FOOTER;
+        if (position >= mCurrentItemCount)
+            return TYPE_MENU_ITEM;
         Map.Entry<Integer, ServerConnectionInfo> entry = mItemIndexToServerMap.floorEntry(position);
         if (entry == null || entry.getKey() == position)
             return TYPE_SERVER_HEADER;
+        if (position == entry.getKey() + (entry.getValue().isExpandedInDrawer() ?
+                entry.getValue().getChannels().size() : 0) + 1)
+            return TYPE_SEPARATOR;
         return TYPE_CHANNEL;
     }
 
@@ -178,6 +198,27 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         @Override
         public void onClick(View v) {
             //
+        }
+
+    }
+
+    public static class MenuItemHolder extends RecyclerView.ViewHolder {
+
+        private View mEntry;
+        private TextView mName;
+        private ImageView mIcon;
+
+        public MenuItemHolder(View v) {
+            super(v);
+            mName = (TextView) v.findViewById(R.id.item_name);
+            mIcon = (ImageView) v.findViewById(R.id.item_icon);
+            mEntry = v.findViewById(R.id.item_entry);
+        }
+
+        public void bind(DrawerMenuItem item) {
+            mName.setText(item.getName());
+            mIcon.setImageDrawable(item.getIcon());
+            mEntry.setOnClickListener(item.mListener);
         }
 
     }
