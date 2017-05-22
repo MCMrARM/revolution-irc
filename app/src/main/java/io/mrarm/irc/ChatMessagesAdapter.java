@@ -67,8 +67,8 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         }
 
         public void bind(MessageInfo message) {
-            String senderNick = message.getSenderNick();
-            SpannableString string = new SpannableString("<" + senderNick + "> " + message.getMessage());
+            String senderNick = message.getSender().getNick();
+            SpannableString string = new SpannableString("<" + senderNick + "> (" + message.getSender().getUserUUID() + ") " + message.getMessage());
             //string.setSpan(new StyleSpan(Typeface.BOLD), 0, senderNick.length() + 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             string.setSpan(new ForegroundColorSpan(0xFF757575), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             string.setSpan(new ForegroundColorSpan(0xFF757575), senderNick.length() + 1, senderNick.length() + 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
