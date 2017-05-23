@@ -3,4 +3,21 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+
+    <color name="ircBlack">#000</color>
+    <color name="ircWhite">#fff</color>
+    <color name="ircBlue">#1565C0</color>
+    <color name="ircGreen">#2E7D32</color>
+    <color name="ircLightRed">#FF1744</color>
+    <color name="ircBrown">#5D4037</color>
+    <color name="ircPurple">#6A1B9A</color>
+    <color name="ircOrange">#EF6C00</color>
+    <color name="ircYellow">#F9A825</color>
+    <color name="ircLightGreen">#558B2F</color>
+    <color name="ircCyan">#00838F</color>
+    <color name="ircLightCyan">#00B8D4</color>
+    <color name="ircLightBlue">#0277BD</color>
+    <color name="ircPink">#AD1457</color>
+    <color name="ircGray">#757575</color>
+    <color name="ircLightGray">#9E9E9E</color>
 </resources>

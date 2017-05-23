@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import io.mrarm.chatlib.dto.ChannelInfo;
 import io.mrarm.chatlib.dto.MessageList;
 import io.mrarm.chatlib.test.TestApiImpl;
 import io.mrarm.irc.drawer.DrawerHelper;
@@ -175,12 +176,19 @@ public class ChatActivity extends AppCompatActivity {
 
             if (channelName != null) {
                 Log.i("ChatFragment", "Request message list for: " + channelName);
+                connectionInfo.getApiInstance().getChannelInfo(channelName,
+                        (ChannelInfo channelInfo) -> {
+                            Log.i("ChatFragment", "Got channel info " + channelName);
+                            Log.i("ChatFragment", "Channel member count: " + channelInfo.getMembers().size());
+                            for (int i = 0; i < channelInfo.getMembers().size(); i++)
+                                Log.i("ChatFragment", "Channel member: " + channelInfo.getMembers().get(i));
+                        }, null);
                 connectionInfo.getApiInstance().getMessages(channelName, 100, null,
                         (MessageList messages) -> {
-                    Log.i("ChatFragment", "Got message list for " + channelName + ": " +
-                            messages.getMessages().size() + " messages");
-                    adapter.setMessages(messages);
-                }, null);
+                            Log.i("ChatFragment", "Got message list for " + channelName + ": " +
+                                    messages.getMessages().size() + " messages");
+                            adapter.setMessages(messages);
+                        }, null);
             }
 
             return rootView;

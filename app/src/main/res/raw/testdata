@@ -4,6 +4,8 @@
 :test-user!~test-user@localhost JOIN #test-channel
 :test-user!~test-user@localhost JOIN #android
 :test-user!~test-user@localhost JOIN #irc-client
+:weber.freenode.net 353 test-user = #test-channel :test-user another-user @superuser
+:weber.freenode.net 366 test-user #test-channel :End of /NAMES list.
 :another-user!~another@test/user1 PRIVMSG #test-channel :Test
 :another-user!~another@test/user1 PRIVMSG #test-channel :Another test
 :another-user!~another@test/user1 PRIVMSG #test-channel :Yet another test
