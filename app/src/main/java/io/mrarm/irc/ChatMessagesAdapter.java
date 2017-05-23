@@ -85,7 +85,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                     appendTimestamp(builder, message);
                     builder.append(message.getSender().getNick() + ":", new ForegroundColorSpan(nickColor));
                     builder.append(" ");
-                    builder.append(message.getMessage());
+                    IRCColorUtils.appendFormattedString(mText.getContext(), builder, message.getMessage());
                     mText.setText(builder.getSpannable());
                     break;
                 }

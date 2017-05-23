@@ -11,3 +11,5 @@
 :another-user!~another@test/user1 PRIVMSG #test-channel :Yet another test
 :another-user!~another@test/user1 NICK iamnowsomeoneelse
 :iamnowsomeoneelse!~another@test/user1 PRIVMSG #test-channel :Test
+:iamnowsomeoneelse!~another@test/user1 PRIVMSG #test-channel :08,04testing99,99 color support !
+:iamnowsomeoneelse!~another@test/user1 PRIVMSG #test-channel :3,0C4,1o5,2l6,3o7,4r8,5f9,6u10,7l11,8T12,9e13,10x14,11t0,12T1,13e2,14s3,15t
