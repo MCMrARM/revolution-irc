@@ -29,9 +29,11 @@ import android.widget.ImageView;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import io.mrarm.chatlib.ChannelInfoListener;
 import io.mrarm.chatlib.MessageListener;
 import io.mrarm.chatlib.StatusMessageListener;
 import io.mrarm.chatlib.dto.ChannelInfo;
@@ -42,6 +44,7 @@ import io.mrarm.chatlib.dto.StatusMessageInfo;
 import io.mrarm.chatlib.dto.StatusMessageList;
 import io.mrarm.chatlib.irc.IRCConnection;
 import io.mrarm.chatlib.irc.IRCConnectionRequest;
+import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.chatlib.test.TestApiImpl;
 import io.mrarm.irc.drawer.DrawerHelper;
 
@@ -73,7 +76,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private ServerConnectionInfo createTestNetworkConnection() {
         IRCConnection connection = new IRCConnection();
-        connection.connect(new IRCConnectionRequest().setServerAddress("irc.freenode.net", 8000).addNick("mrarm-testing").setUser("mrarm-testing").setRealName("mrarm-testing"),
+        connection.connect(new IRCConnectionRequest().setServerAddress("irc.freenode.net", 8000).addNick("mrarm-testing2").setUser("mrarm-testing").setRealName("mrarm-testing"),
                 (Void v) -> {
                     ArrayList<String> channels = new ArrayList<>();
                     channels.add("#mrarm-testing");
@@ -178,7 +181,7 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     public static class ChatFragment extends Fragment implements StatusMessageListener,
-            MessageListener {
+            MessageListener, ChannelInfoListener {
 
         private static final String ARG_SERVER_UUID = "server_uuid";
         private static final String ARG_DISPLAY_STATUS = "display_status";
@@ -191,6 +194,7 @@ public class ChatActivity extends AppCompatActivity {
         private ServerStatusMessagesAdapter mStatusAdapter;
         private List<MessageInfo> mMessages;
         private List<StatusMessageInfo> mStatusMessages;
+        private boolean mNeedsUnsubscribeChannelInfo = false;
         private boolean mNeedsUnsubscribeMessages = false;
         private boolean mNeedsUnsubscribeStatusMessages = false;
 
@@ -250,10 +254,13 @@ public class ChatActivity extends AppCompatActivity {
                             Log.i("ChatFragment", "Channel member count: " + channelInfo.getMembers().size());
                             for (int i = 0; i < channelInfo.getMembers().size(); i++)
                                 Log.i("ChatFragment", "Channel member: " + channelInfo.getMembers().get(i));
-                            mMembers = channelInfo.getMembers();
+                            onMemberListChanged(channelInfo.getMembers());
                             if (getUserVisibleHint())
                                 ((ChatActivity) getActivity()).mChannelMembersAdapter.setMembers(mMembers);
                         }, null);
+
+                connectionInfo.getApiInstance().subscribeChannelInfo(channelName, this, null, null);
+                mNeedsUnsubscribeChannelInfo = true;
 
                 connectionInfo.getApiInstance().getMessages(channelName, 100, null,
                         (MessageList messages) -> {
@@ -261,6 +268,7 @@ public class ChatActivity extends AppCompatActivity {
                                     messages.getMessages().size() + " messages");
                             mAdapter.setMessages(messages);
                             mMessages = messages.getMessages();
+                            mNeedsUnsubscribeMessages = true;
 
                             connectionInfo.getApiInstance().subscribeChannelMessages(channelName, ChatFragment.this, null, null);
                         }, null);
@@ -275,6 +283,7 @@ public class ChatActivity extends AppCompatActivity {
                                     messages.getMessages().size() + " messages");
                             mStatusAdapter.setMessages(messages);
                             mStatusMessages = messages.getMessages();
+                            mNeedsUnsubscribeStatusMessages = true;
 
                             connectionInfo.getApiInstance().subscribeStatusMessages(ChatFragment.this, null, null);
                         }, null);
@@ -286,6 +295,8 @@ public class ChatActivity extends AppCompatActivity {
         @Override
         public void onDestroyView() {
             super.onDestroyView();
+            if (mNeedsUnsubscribeChannelInfo)
+                mConnection.getApiInstance().unsubscribeChannelInfo(getArguments().getString(ARG_CHANNEL_NAME), ChatFragment.this, null, null);
             if (mNeedsUnsubscribeMessages)
                 mConnection.getApiInstance().unsubscribeChannelMessages(getArguments().getString(ARG_CHANNEL_NAME), ChatFragment.this, null, null);
             if (mNeedsUnsubscribeStatusMessages)
@@ -306,6 +317,28 @@ public class ChatActivity extends AppCompatActivity {
                 mStatusMessages.add(statusMessageInfo);
                 mStatusAdapter.notifyItemInserted(mStatusMessages.size() - 1);
             });
+        }
+
+        @Override
+        public void onMemberListChanged(List<NickWithPrefix> list) {
+            this.mMembers = list;
+            Collections.sort(list, (NickWithPrefix left, NickWithPrefix right) -> {
+                if (left.getNickPrefixes() != null && right.getNickPrefixes() != null) {
+                    char leftPrefix = left.getNickPrefixes().get(0);
+                    char rightPrefix = right.getNickPrefixes().get(0);
+                    for (char c : ((ServerConnectionApi) mConnection.getApiInstance())
+                            .getServerConnectionData().getSupportedNickPrefixes()) {
+                        if (leftPrefix == c)
+                            return -1;
+                        if (rightPrefix == c)
+                            return 1;
+                    }
+                } else if (left.getNickPrefixes() != null || right.getNickPrefixes() != null)
+                    return left.getNickPrefixes() != null ? -1 : 1;
+                return left.getNick().compareTo(right.getNick());
+            });
+            if (getUserVisibleHint())
+                ((ChatActivity) getActivity()).mChannelMembersAdapter.setMembers(mMembers);
         }
 
     }
