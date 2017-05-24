@@ -186,10 +186,13 @@ public class ChatActivity extends AppCompatActivity {
 
         private List<NickWithPrefix> mMembers = null;
 
+        private ServerConnectionInfo mConnection;
         private ChatMessagesAdapter mAdapter;
         private ServerStatusMessagesAdapter mStatusAdapter;
         private List<MessageInfo> mMessages;
         private List<StatusMessageInfo> mStatusMessages;
+        private boolean mNeedsUnsubscribeMessages = false;
+        private boolean mNeedsUnsubscribeStatusMessages = false;
 
         public ChatFragment() {
         }
@@ -229,6 +232,7 @@ public class ChatActivity extends AppCompatActivity {
             UUID connectionUUID = UUID.fromString(getArguments().getString(ARG_SERVER_UUID));
             ServerConnectionInfo connectionInfo = ServerConnectionManager.getInstance()
                     .getConnection(connectionUUID);
+            mConnection = connectionInfo;
             String channelName = getArguments().getString(ARG_CHANNEL_NAME);
 
             View rootView = inflater.inflate(R.layout.chat_fragment, container, false);
@@ -277,6 +281,15 @@ public class ChatActivity extends AppCompatActivity {
             }
 
             return rootView;
+        }
+
+        @Override
+        public void onDestroyView() {
+            super.onDestroyView();
+            if (mNeedsUnsubscribeMessages)
+                mConnection.getApiInstance().unsubscribeChannelMessages(getArguments().getString(ARG_CHANNEL_NAME), ChatFragment.this, null, null);
+            if (mNeedsUnsubscribeStatusMessages)
+                mConnection.getApiInstance().unsubscribeStatusMessages(ChatFragment.this, null, null);
         }
 
         @Override
