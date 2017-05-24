@@ -11,6 +11,7 @@ import android.widget.TextView;
 import java.util.HashSet;
 import java.util.Set;
 
+import io.mrarm.chatlib.dto.HostInfoMessageInfo;
 import io.mrarm.chatlib.dto.StatusMessageInfo;
 import io.mrarm.chatlib.dto.StatusMessageList;
 
@@ -91,7 +92,16 @@ public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerVi
             ColoredTextBuilder builder = new ColoredTextBuilder();
             ChatMessagesAdapter.appendTimestamp(builder, message.getDate());
             builder.append(message.getSender() + ": ", new ForegroundColorSpan(0xFF555555));
-            IRCColorUtils.appendFormattedString(mText.getContext(), builder, message.getMessage());
+            if (message.getType() == StatusMessageInfo.MessageType.HOST_INFO) {
+                HostInfoMessageInfo hostInfo = (HostInfoMessageInfo) message;
+                builder.append("Server name is " + hostInfo.getServerName() + ", running " +
+                        hostInfo.getVersion() + ". Supported user modes: " +
+                        hostInfo.getUserModes() + ", supported channel modes: " +
+                        hostInfo.getChannelModes(), new ForegroundColorSpan(0xFF555555));
+            } else {
+                IRCColorUtils.appendFormattedString(mText.getContext(), builder,
+                        message.getMessage());
+            }
             mText.setText(builder.getSpannable());
         }
 

@@ -229,6 +229,8 @@ public class ChatActivity extends AppCompatActivity {
                 Log.i("CharFragment", "Request status message list");
                 connectionInfo.getApiInstance().getStatusMessages(null,
                         (StatusMessageList messages) -> {
+                            Log.i("ChatFragment", "Got server status message list: " +
+                                    messages.getMessages().size() + " messages");
                             adapter.setMessages(messages);
                         }, null);
             }
