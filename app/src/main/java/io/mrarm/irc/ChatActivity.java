@@ -153,6 +153,13 @@ public class ChatActivity extends AppCompatActivity {
 
             }
         });
+
+        mSendIcon.setOnClickListener((View view) -> {
+            String text = mSendText.getText().toString();
+            mConnectionInfo.getApiInstance().sendMessage(mSectionsPagerAdapter.getChannel(
+                    mViewPager.getCurrentItem()), text, null, null);
+            mSendText.setText("");
+        });
     }
 
     @Override
@@ -318,6 +325,10 @@ public class ChatActivity extends AppCompatActivity {
         public CharSequence getPageTitle(int position) {
             if (position == 0)
                 return getString(R.string.tab_server);
+            return connectionInfo.getChannels().get(position - 1);
+        }
+
+        public String getChannel(int position) {
             return connectionInfo.getChannels().get(position - 1);
         }
 
