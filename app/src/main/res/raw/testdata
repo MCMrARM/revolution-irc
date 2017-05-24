@@ -6,6 +6,8 @@
 :test-user!~test-user@localhost JOIN #irc-client
 :weber.freenode.net 353 test-user = #test-channel :test-user another-user @superuser
 :weber.freenode.net 366 test-user #test-channel :End of /NAMES list.
+:weber.freenode.net 353 test-user = #android :test-user developer anotherdeveloper another-user SomeoneElse random BetaTester AdminAdmin areallylongusername yetanotheruser Guest1 Guest2 Guest3
+:weber.freenode.net 366 test-user #android :End of /NAMES list.
 :another-user!~another@test/user1 PRIVMSG #test-channel :Test
 :another-user!~another@test/user1 PRIVMSG #test-channel :Another test
 :another-user!~another@test/user1 PRIVMSG #test-channel :Yet another test

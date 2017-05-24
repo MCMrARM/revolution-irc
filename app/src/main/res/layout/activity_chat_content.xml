@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -35,50 +36,81 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <RelativeLayout
-        android:id="@+id/send_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        android:layout_alignParentBottom="true"
-        android:background="#fff"
-        android:elevation="4dp">
-
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:imeOptions="flagNoExtractUi"
-            android:inputType="text"
-            android:id="@+id/send_text"
-            android:layout_marginLeft="16dp"
-            android:hint="@string/message_hint"
-            android:layout_toLeftOf="@+id/send_button"
-            android:layout_toStartOf="@+id/send_button"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:background="@null"/>
-
-        <ImageButton
-            android:id="@+id/send_button"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            app:srcCompat="@drawable/ic_action_send"
-            android:layout_alignBottom="@+id/send_text"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:background="?selectableItemBackgroundBorderless"/>
-
-    </RelativeLayout>
-
-    <android.support.v4.view.ViewPager
-        android:id="@+id/container"
+    <android.support.v4.widget.DrawerLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/appbar"
-        android:layout_above="@id/send_container"
-        android:layout_weight="1" />
+        tools:openDrawer="end"
+        tools:context="io.mrarm.irc.ChatActivity">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <RelativeLayout
+                android:id="@+id/send_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:layout_alignParentBottom="true"
+                android:background="#fff"
+                android:elevation="4dp">
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="flagNoExtractUi"
+                    android:inputType="text"
+                    android:id="@+id/send_text"
+                    android:layout_marginLeft="16dp"
+                    android:hint="@string/message_hint"
+                    android:layout_toLeftOf="@+id/send_button"
+                    android:layout_toStartOf="@+id/send_button"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:background="@null"/>
+
+                <ImageButton
+                    android:id="@+id/send_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    app:srcCompat="@drawable/ic_action_send"
+                    android:layout_alignBottom="@+id/send_text"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    android:background="?selectableItemBackgroundBorderless"/>
+
+            </RelativeLayout>
+
+            <android.support.v4.view.ViewPager
+                android:id="@+id/container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_above="@id/send_container" />
+
+        </RelativeLayout>
+
+
+        <android.support.design.widget.NavigationView
+            android:id="@+id/members_nav_view"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="end">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/members_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:clipToPadding="false" />
+
+        </android.support.design.widget.NavigationView>
+
+    </android.support.v4.widget.DrawerLayout>
+
 
 </RelativeLayout>

@@ -34,6 +34,7 @@ import java.util.UUID;
 
 import io.mrarm.chatlib.dto.ChannelInfo;
 import io.mrarm.chatlib.dto.MessageList;
+import io.mrarm.chatlib.dto.NickWithPrefix;
 import io.mrarm.chatlib.test.TestApiImpl;
 import io.mrarm.irc.drawer.DrawerHelper;
 
@@ -44,6 +45,7 @@ public class ChatActivity extends AppCompatActivity {
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
     private DrawerHelper mDrawerHelper;
+    private ChannelMembersAdapter mChannelMembersAdapter;
     private EditText mSendText;
     private ImageView mSendIcon;
 
@@ -92,6 +94,11 @@ public class ChatActivity extends AppCompatActivity {
         toggle.syncState();
 
         mDrawerHelper = new DrawerHelper(this);
+
+        mChannelMembersAdapter = new ChannelMembersAdapter(null);
+        RecyclerView membersRecyclerView = (RecyclerView) findViewById(R.id.members_list);
+        membersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        membersRecyclerView.setAdapter(mChannelMembersAdapter);
 
         mSendText = (EditText) findViewById(R.id.send_text);
         mSendIcon = (ImageButton) findViewById(R.id.send_button);
@@ -145,11 +152,22 @@ public class ChatActivity extends AppCompatActivity {
         private static final String ARG_SERVER_UUID = "server_uuid";
         private static final String ARG_CHANNEL_NAME = "channel";
 
+        private List<NickWithPrefix> mMembers = null;
+
         public ChatFragment() {
         }
 
+        @Override
+        public void setUserVisibleHint(boolean isVisibleToUser) {
+            super.setUserVisibleHint(isVisibleToUser);
+            if (isVisibleToUser && getActivity() != null) {
+                Log.d("ChatFragment", "setMembers " + (mMembers == null ? -1 : mMembers.size()));
+                ((ChatActivity) getActivity()).mChannelMembersAdapter.setMembers(mMembers);
+            }
+        }
+
         public static ChatFragment newInstance(ServerConnectionInfo server,
-                                                      String channelName) {
+                                               String channelName) {
             ChatFragment fragment = new ChatFragment();
             Bundle args = new Bundle();
             args.putString(ARG_SERVER_UUID, server.getUUID().toString());
@@ -182,6 +200,10 @@ public class ChatActivity extends AppCompatActivity {
                             Log.i("ChatFragment", "Channel member count: " + channelInfo.getMembers().size());
                             for (int i = 0; i < channelInfo.getMembers().size(); i++)
                                 Log.i("ChatFragment", "Channel member: " + channelInfo.getMembers().get(i));
+                            mMembers = channelInfo.getMembers();
+                            if (getUserVisibleHint())
+                                ((ChatActivity) getActivity()).mChannelMembersAdapter.setMembers(mMembers);
+
                         }, null);
                 connectionInfo.getApiInstance().getMessages(channelName, 100, null,
                         (MessageList messages) -> {
