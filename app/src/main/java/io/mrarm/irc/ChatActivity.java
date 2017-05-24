@@ -76,7 +76,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private ServerConnectionInfo createTestNetworkConnection() {
         IRCConnection connection = new IRCConnection();
-        connection.connect(new IRCConnectionRequest().setServerAddress("irc.freenode.net", 8000).addNick("mrarm-testing2").setUser("mrarm-testing").setRealName("mrarm-testing"),
+        connection.connect(new IRCConnectionRequest().setServerAddress("irc.freenode.net", 8000).addNick("mrarm-testing").setUser("mrarm-testing").setRealName("mrarm-testing"),
                 (Void v) -> {
                     ArrayList<String> channels = new ArrayList<>();
                     channels.add("#mrarm-testing");

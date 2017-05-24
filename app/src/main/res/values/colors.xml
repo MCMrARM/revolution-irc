@@ -21,5 +21,9 @@
     <color name="ircGray">#757575</color>
     <color name="ircLightGray">#9E9E9E</color>
 
+    <color name="memberOp">#558B2F</color>
+    <color name="memberVoice">#0277BD</color>
+    <color name="memberNormal">#000</color>
+
     <color name="motdColor">#1976D2</color>
 </resources>
