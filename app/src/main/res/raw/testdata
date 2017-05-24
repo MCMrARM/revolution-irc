@@ -1,5 +1,11 @@
 :localhost NOTICE * :*** Test
 :localhost 001 test-user :This is a test log file test-user
+:localhost 375 mrarm-testing :- localhost Message of the Day -
+:localhost 372 mrarm-testing :-
+:localhost 372 mrarm-testing :- This is a test log file, used to test the chat application.
+:localhost 372 mrarm-testing :- This is not an actual server connection.
+:localhost 372 mrarm-testing :-
+:localhost 376 mrarm-testing :End of /MOTD command.
 :test-user MODE test-user :+i
 :test-user!~test-user@localhost JOIN #test-channel
 :test-user!~test-user@localhost JOIN #android

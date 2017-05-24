@@ -20,4 +20,6 @@
     <color name="ircPink">#AD1457</color>
     <color name="ircGray">#757575</color>
     <color name="ircLightGray">#9E9E9E</color>
+
+    <color name="motdColor">#1976D2</color>
 </resources>

@@ -12,8 +12,6 @@ import io.mrarm.chatlib.dto.NickWithPrefix;
 
 public class ChannelMembersAdapter extends RecyclerView.Adapter<ChannelMembersAdapter.MemberHolder> {
 
-    private static final int TYPE_MESSAGE = 0;
-
     private List<NickWithPrefix> mMembers;
 
     public ChannelMembersAdapter(List<NickWithPrefix> members) {

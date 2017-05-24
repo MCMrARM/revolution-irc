@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 import io.mrarm.chatlib.dto.MessageInfo;
@@ -63,17 +64,10 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     public static class MessageHolder extends RecyclerView.ViewHolder {
 
         private TextView mText;
-        private static SimpleDateFormat messageTimeFormat = new SimpleDateFormat("[HH:mm] ",
-                Locale.getDefault());
 
         public MessageHolder(View v) {
             super(v);
             mText = (TextView) v.findViewById(R.id.chat_message);
-        }
-
-        private void appendTimestamp(ColoredTextBuilder builder, MessageInfo message) {
-            builder.append(messageTimeFormat.format(message.getDate()),
-                    new ForegroundColorSpan(0xFF424242));
         }
 
         public void bind(MessageInfo message) {
@@ -82,7 +76,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             switch (message.getType()) {
                 case NORMAL: {
                     ColoredTextBuilder builder = new ColoredTextBuilder();
-                    appendTimestamp(builder, message);
+                    appendTimestamp(builder, message.getDate());
                     builder.append(message.getSender().getNick() + ":", new ForegroundColorSpan(nickColor));
                     builder.append(" ");
                     IRCColorUtils.appendFormattedString(mText.getContext(), builder, message.getMessage());
@@ -91,7 +85,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 }
                 case JOIN: {
                     ColoredTextBuilder builder = new ColoredTextBuilder();
-                    appendTimestamp(builder, message);
+                    appendTimestamp(builder, message.getDate());
                     builder.appendWithFlags("* ", Spanned.SPAN_EXCLUSIVE_INCLUSIVE, new ForegroundColorSpan(0xFF616161), new StyleSpan(Typeface.ITALIC));
                     builder.append(message.getSender().getNick(), new ForegroundColorSpan(nickColor));
                     builder.append(" has joined", new ForegroundColorSpan(0xFF616161));
@@ -103,7 +97,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                     int newNickColor = IRCColorUtils.getNickColor(mText.getContext(), newNick);
 
                     ColoredTextBuilder builder = new ColoredTextBuilder();
-                    appendTimestamp(builder, message);
+                    appendTimestamp(builder, message.getDate());
                     builder.appendWithFlags("* ", Spanned.SPAN_EXCLUSIVE_INCLUSIVE, new ForegroundColorSpan(0xFF616161), new StyleSpan(Typeface.ITALIC));
                     builder.append(message.getSender().getNick(), new ForegroundColorSpan(nickColor));
                     builder.append(" is now known as ", new ForegroundColorSpan(0xFF616161));
@@ -114,6 +108,13 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             }
         }
 
+    }
+
+    private static SimpleDateFormat messageTimeFormat = new SimpleDateFormat("[HH:mm] ",
+            Locale.getDefault());
+
+    public static void appendTimestamp(ColoredTextBuilder builder, Date date) {
+        builder.append(messageTimeFormat.format(date), new ForegroundColorSpan(0xFF424242));
     }
 
 }
