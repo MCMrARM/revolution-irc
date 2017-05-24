@@ -32,10 +32,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import io.mrarm.chatlib.MessageListener;
+import io.mrarm.chatlib.StatusMessageListener;
 import io.mrarm.chatlib.dto.ChannelInfo;
+import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.dto.MessageList;
 import io.mrarm.chatlib.dto.NickWithPrefix;
+import io.mrarm.chatlib.dto.StatusMessageInfo;
 import io.mrarm.chatlib.dto.StatusMessageList;
+import io.mrarm.chatlib.irc.IRCConnection;
+import io.mrarm.chatlib.irc.IRCConnectionRequest;
 import io.mrarm.chatlib.test.TestApiImpl;
 import io.mrarm.irc.drawer.DrawerHelper;
 
@@ -50,7 +56,7 @@ public class ChatActivity extends AppCompatActivity {
     private EditText mSendText;
     private ImageView mSendIcon;
 
-    private ServerConnectionInfo createTestConnection() {
+    private ServerConnectionInfo createTestFileConnection() {
         TestApiImpl api = new TestApiImpl("test-user");
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(getResources().openRawResource(R.raw.testdata)));
@@ -60,9 +66,23 @@ public class ChatActivity extends AppCompatActivity {
             throw new RuntimeException(t);
         }
 
-        ServerConnectionInfo connection = new ServerConnectionInfo(UUID.randomUUID(), "Test Connection", api);
-        ServerConnectionManager.getInstance().addConnection(connection);
-        return connection;
+        ServerConnectionInfo connectionInfo = new ServerConnectionInfo(UUID.randomUUID(), "Test Connection", api);
+        ServerConnectionManager.getInstance().addConnection(connectionInfo);
+        return connectionInfo;
+    }
+
+    private ServerConnectionInfo createTestNetworkConnection() {
+        IRCConnection connection = new IRCConnection();
+        connection.connect(new IRCConnectionRequest().setServerAddress("irc.freenode.net", 8000).addNick("mrarm-testing").setUser("mrarm-testing").setRealName("mrarm-testing"),
+                (Void v) -> {
+                    ArrayList<String> channels = new ArrayList<>();
+                    channels.add("#mrarm-testing");
+                    connection.joinChannels(channels, null, null);
+                }, null);
+
+        ServerConnectionInfo connectionInfo = new ServerConnectionInfo(UUID.randomUUID(), "Test Connection", connection);
+        ServerConnectionManager.getInstance().addConnection(connectionInfo);
+        return connectionInfo;
     }
 
     @Override
@@ -70,7 +90,7 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        mConnectionInfo = createTestConnection();
+        mConnectionInfo = createTestNetworkConnection();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -82,7 +102,9 @@ public class ChatActivity extends AppCompatActivity {
 
         mConnectionInfo.addOnChannelListChangeListener((ServerConnectionInfo connection,
                                                         List<String> newChannels) -> {
-            mSectionsPagerAdapter.notifyDataSetChanged();
+            runOnUiThread(() -> {
+                mSectionsPagerAdapter.notifyDataSetChanged();
+            });
         });
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -148,13 +170,19 @@ public class ChatActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public static class ChatFragment extends Fragment {
+    public static class ChatFragment extends Fragment implements StatusMessageListener,
+            MessageListener {
 
         private static final String ARG_SERVER_UUID = "server_uuid";
         private static final String ARG_DISPLAY_STATUS = "display_status";
         private static final String ARG_CHANNEL_NAME = "channel";
 
         private List<NickWithPrefix> mMembers = null;
+
+        private ChatMessagesAdapter mAdapter;
+        private ServerStatusMessagesAdapter mStatusAdapter;
+        private List<MessageInfo> mMessages;
+        private List<StatusMessageInfo> mStatusMessages;
 
         public ChatFragment() {
         }
@@ -201,8 +229,8 @@ public class ChatActivity extends AppCompatActivity {
             recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
             if (channelName != null) {
-                ChatMessagesAdapter adapter = new ChatMessagesAdapter(new MessageList(new ArrayList<>()));
-                recyclerView.setAdapter(adapter);
+                mAdapter = new ChatMessagesAdapter(new MessageList(new ArrayList<>()));
+                recyclerView.setAdapter(mAdapter);
 
                 Log.i("ChatFragment", "Request message list for: " + channelName);
                 connectionInfo.getApiInstance().getChannelInfo(channelName,
@@ -214,28 +242,50 @@ public class ChatActivity extends AppCompatActivity {
                             mMembers = channelInfo.getMembers();
                             if (getUserVisibleHint())
                                 ((ChatActivity) getActivity()).mChannelMembersAdapter.setMembers(mMembers);
-
                         }, null);
+
                 connectionInfo.getApiInstance().getMessages(channelName, 100, null,
                         (MessageList messages) -> {
                             Log.i("ChatFragment", "Got message list for " + channelName + ": " +
                                     messages.getMessages().size() + " messages");
-                            adapter.setMessages(messages);
+                            mAdapter.setMessages(messages);
+                            mMessages = messages.getMessages();
+
+                            connectionInfo.getApiInstance().subscribeChannelMessages(channelName, ChatFragment.this, null, null);
                         }, null);
             } else if (getArguments().getBoolean(ARG_DISPLAY_STATUS)) {
-                ServerStatusMessagesAdapter adapter = new ServerStatusMessagesAdapter(new StatusMessageList(new ArrayList<>()));
-                recyclerView.setAdapter(adapter);
+                mStatusAdapter = new ServerStatusMessagesAdapter(new StatusMessageList(new ArrayList<>()));
+                recyclerView.setAdapter(mStatusAdapter);
 
                 Log.i("CharFragment", "Request status message list");
-                connectionInfo.getApiInstance().getStatusMessages(null,
+                connectionInfo.getApiInstance().getStatusMessages(100, null,
                         (StatusMessageList messages) -> {
                             Log.i("ChatFragment", "Got server status message list: " +
                                     messages.getMessages().size() + " messages");
-                            adapter.setMessages(messages);
+                            mStatusAdapter.setMessages(messages);
+                            mStatusMessages = messages.getMessages();
+
+                            connectionInfo.getApiInstance().subscribeStatusMessages(ChatFragment.this, null, null);
                         }, null);
             }
 
             return rootView;
+        }
+
+        @Override
+        public void onMessage(MessageInfo messageInfo) {
+            getActivity().runOnUiThread(() -> {
+                mMessages.add(messageInfo);
+                mAdapter.notifyItemInserted(mMessages.size() - 1);
+            });
+        }
+
+        @Override
+        public void onStatusMessage(StatusMessageInfo statusMessageInfo) {
+            getActivity().runOnUiThread(() -> {
+                mStatusMessages.add(statusMessageInfo);
+                mStatusAdapter.notifyItemInserted(mStatusMessages.size() - 1);
+            });
         }
 
     }

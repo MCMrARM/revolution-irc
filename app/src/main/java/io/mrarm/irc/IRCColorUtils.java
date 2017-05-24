@@ -73,6 +73,10 @@ public class IRCColorUtils {
                     builder.endSpans(Object.class);
                     break;
                 }
+                case '\n': { // newline
+                    builder.endSpans(Object.class);
+                    break;
+                }
                 case 0x03: { // color
                     fg = 0;
                     bg = 0;

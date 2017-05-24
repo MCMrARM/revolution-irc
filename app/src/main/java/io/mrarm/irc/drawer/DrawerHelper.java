@@ -6,6 +6,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
@@ -25,6 +26,14 @@ public class DrawerHelper {
 
         DrawerMenuListAdapter adapter = new DrawerMenuListAdapter(ServerConnectionManager
                 .getInstance().getConnections());
+
+        for (ServerConnectionInfo connectionInfo : ServerConnectionManager.getInstance()
+                .getConnections()) {
+            connectionInfo.addOnChannelListChangeListener((ServerConnectionInfo connection,
+                                                           List<String> newChannels) -> {
+                activity.runOnUiThread(adapter::notifyServerListChanged);
+            });
+        }
 
         adapter.addMenuItem(new DrawerMenuItem(r.getString(R.string.action_servers),
                 r.getDrawable(R.drawable.ic_edit)));

@@ -34,12 +34,6 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public DrawerMenuListAdapter(List<ServerConnectionInfo> servers) {
         mServers = servers;
         notifyServerListChanged();
-        for (ServerConnectionInfo connectionInfo : servers) {
-            connectionInfo.addOnChannelListChangeListener((ServerConnectionInfo connection,
-                                                           List<String> newChannels) -> {
-                notifyServerListChanged();
-            });
-        }
     }
 
     public void addMenuItem(DrawerMenuItem item) {

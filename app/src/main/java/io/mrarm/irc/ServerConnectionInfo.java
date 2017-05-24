@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import io.mrarm.chatlib.ChannelListListener;
 import io.mrarm.chatlib.ChatApi;
 
 public class ServerConnectionInfo {
@@ -22,6 +23,22 @@ public class ServerConnectionInfo {
         api.getJoinedChannelList((List<String> channels) -> {
             setChannels(channels);
         }, null);
+        api.subscribeChannelList(new ChannelListListener() {
+            @Override
+            public void onChannelListChanged(List<String> list) {
+                setChannels(list);
+            }
+
+            @Override
+            public void onChannelJoined(String s) {
+                //
+            }
+
+            @Override
+            public void onChannelLeft(String s) {
+                //
+            }
+        }, null, null);
     }
 
     public UUID getUUID() {
