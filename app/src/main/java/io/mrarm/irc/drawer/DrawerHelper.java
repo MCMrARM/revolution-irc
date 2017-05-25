@@ -16,6 +16,7 @@ public class DrawerHelper {
 
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
+    private DrawerMenuListAdapter mAdapter;
 
     public DrawerHelper(Activity activity) {
         mRecyclerView = (RecyclerView) activity.findViewById(R.id.nav_list);
@@ -24,23 +25,31 @@ public class DrawerHelper {
 
         Resources r = activity.getResources();
 
-        DrawerMenuListAdapter adapter = new DrawerMenuListAdapter(ServerConnectionManager
-                .getInstance().getConnections());
+        mAdapter = new DrawerMenuListAdapter(activity,
+                ServerConnectionManager.getInstance().getConnections());
 
         for (ServerConnectionInfo connectionInfo : ServerConnectionManager.getInstance()
                 .getConnections()) {
             connectionInfo.addOnChannelListChangeListener((ServerConnectionInfo connection,
                                                            List<String> newChannels) -> {
-                activity.runOnUiThread(adapter::notifyServerListChanged);
+                activity.runOnUiThread(mAdapter::notifyServerListChanged);
             });
         }
 
-        adapter.addMenuItem(new DrawerMenuItem(r.getString(R.string.action_servers),
+        mAdapter.addMenuItem(new DrawerMenuItem(r.getString(R.string.action_servers),
                 r.getDrawable(R.drawable.ic_edit)));
-        adapter.addMenuItem(new DrawerMenuItem(r.getString(R.string.action_settings),
+        mAdapter.addMenuItem(new DrawerMenuItem(r.getString(R.string.action_settings),
                 r.getDrawable(R.drawable.ic_settings)));
 
-        mRecyclerView.setAdapter(adapter);
+        mRecyclerView.setAdapter(mAdapter);
+    }
+
+    public void setChannelClickListener(DrawerMenuListAdapter.ChannelClickListener listener) {
+        mAdapter.setChannelClickListener(listener);
+    }
+
+    public void setSelectedChannel(ServerConnectionInfo server, String channel) {
+        mAdapter.setSelectedChannel(server, channel);
     }
 
 }

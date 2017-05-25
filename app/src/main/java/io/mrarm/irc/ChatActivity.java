@@ -120,6 +120,29 @@ public class ChatActivity extends AppCompatActivity {
         toggle.syncState();
 
         mDrawerHelper = new DrawerHelper(this);
+        mDrawerHelper.setChannelClickListener((ServerConnectionInfo server, String channel) -> {
+            if (server == mConnectionInfo) {
+                mViewPager.setCurrentItem(server.getChannels().indexOf(channel) + 1);
+                drawer.closeDrawers();
+            }
+        });
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int i, float v, int i1) {
+
+            }
+
+            @Override
+            public void onPageSelected(int i) {
+                mDrawerHelper.setSelectedChannel(mConnectionInfo,
+                        mSectionsPagerAdapter.getChannel(i));
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int i) {
+
+            }
+        });
 
         mChannelMembersAdapter = new ChannelMembersAdapter(null);
         RecyclerView membersRecyclerView = (RecyclerView) findViewById(R.id.members_list);
@@ -375,6 +398,8 @@ public class ChatActivity extends AppCompatActivity {
         }
 
         public String getChannel(int position) {
+            if (position == 0)
+                return null;
             return connectionInfo.getChannels().get(position - 1);
         }
 

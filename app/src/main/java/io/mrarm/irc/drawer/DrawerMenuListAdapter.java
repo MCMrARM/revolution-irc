@@ -1,5 +1,11 @@
 package io.mrarm.irc.drawer;
 
+import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.support.v4.graphics.ColorUtils;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,10 +36,22 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private ArrayList<DrawerMenuItem> mMenuItems = new ArrayList<>();
     private TreeMap<Integer, ServerConnectionInfo> mItemIndexToServerMap = new TreeMap<>();
     private int mCurrentItemCount;
+    private ChannelClickListener mChannelClickListener;
+    private ServerConnectionInfo mSelectedItemServer;
+    private String mSelectedItemChannel;
+    private Drawable mChannelBackground;
+    private Drawable mChannelSelectedBackground;
 
-    public DrawerMenuListAdapter(List<ServerConnectionInfo> servers) {
+    public DrawerMenuListAdapter(Context context, List<ServerConnectionInfo> servers) {
         mServers = servers;
         notifyServerListChanged();
+
+        TypedArray ta = context.obtainStyledAttributes(new int[] { R.attr.selectableItemBackground, R.attr.colorControlHighlight });
+        mChannelBackground = ta.getDrawable(0);
+        int color = ta.getColor(1, 0);
+        color = ColorUtils.setAlphaComponent(color, Color.alpha(color) / 2);
+        mChannelSelectedBackground = new ColorDrawable(color);
+        ta.recycle();
     }
 
     public void addMenuItem(DrawerMenuItem item) {
@@ -42,6 +60,37 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     public ArrayList<DrawerMenuItem> getMenuItems() {
         return mMenuItems;
+    }
+
+    public void setChannelClickListener(ChannelClickListener listener) {
+        this.mChannelClickListener = listener;
+    }
+
+    public void setSelectedChannel(ServerConnectionInfo server, String channel) {
+        int currentIndex = 1;
+        int oldServerIndex = -1;
+        int newServerIndex = -1;
+        for (ServerConnectionInfo info : mServers) {
+            if (info == server)
+                newServerIndex = currentIndex;
+            if (info == mSelectedItemServer)
+                oldServerIndex = currentIndex;
+            if (info.isExpandedInDrawer() && info.getChannels() != null)
+                currentIndex += info.getChannels().size();
+            currentIndex += 2;
+        }
+        int oldChannelIndex = -1;
+        if (mSelectedItemServer != null)
+            oldChannelIndex = mSelectedItemServer.getChannels().indexOf(mSelectedItemChannel);
+        int newChannelIndex = -1;
+        if (server != null)
+            newChannelIndex = server.getChannels().indexOf(channel);
+        mSelectedItemServer = server;
+        mSelectedItemChannel = channel;
+        if (oldServerIndex != -1 && oldChannelIndex != -1)
+            notifyItemChanged(oldChannelIndex + 1 + oldServerIndex);
+        if (newServerIndex != -1 && newChannelIndex != -1)
+            notifyItemChanged(newChannelIndex + 1 + newServerIndex);
     }
 
     private void updateItemIndexToServerMap() {
@@ -78,7 +127,7 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         } else if (viewType == TYPE_CHANNEL) {
             View view = LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.drawer_channel_item, viewGroup, false);
-            return new ChannelHolder(view);
+            return new ChannelHolder(this, view);
         } else if (viewType == TYPE_MENU_ITEM) {
             View view = LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.drawer_menu_item, viewGroup, false);
@@ -184,21 +233,40 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public static class ChannelHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener {
 
+        private DrawerMenuListAdapter mAdapter;
+        private View mView;
         private TextView mName;
+        private ServerConnectionInfo mConnection;
+        private String mChannel;
 
-        public ChannelHolder(View v) {
+        public ChannelHolder(DrawerMenuListAdapter adapter, View v) {
             super(v);
+            this.mAdapter = adapter;
+            mView = v.findViewById(R.id.channel_entry);
             mName = (TextView) v.findViewById(R.id.channel_name);
-            v.findViewById(R.id.channel_entry).setOnClickListener(this);
+            mView.setOnClickListener(this);
         }
 
         public void bind(ServerConnectionInfo info, int channelIndex) {
-            mName.setText(info.getChannels().get(channelIndex));
+            mConnection = info;
+            mChannel = info.getChannels().get(channelIndex);
+            mName.setText(mChannel);
+
+            mView.setSelected(false);
+            if (mAdapter.mSelectedItemServer != null && mAdapter.mSelectedItemChannel != null &&
+                    mAdapter.mSelectedItemServer == info &&
+                    mAdapter.mSelectedItemChannel.equals(mChannel)) {
+                mView.setSelected(true);
+                mView.setBackgroundDrawable(mAdapter.mChannelSelectedBackground);
+            } else {
+                mView.setBackgroundDrawable(mAdapter.mChannelBackground.getConstantState().newDrawable());
+            }
         }
 
         @Override
         public void onClick(View v) {
-            //
+            if (mAdapter.mChannelClickListener != null)
+                mAdapter.mChannelClickListener.openChannel(mConnection, mChannel);
         }
 
     }
@@ -221,6 +289,12 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             mIcon.setImageDrawable(item.getIcon());
             mEntry.setOnClickListener(item.mListener);
         }
+
+    }
+
+    public interface ChannelClickListener {
+
+        void openChannel(ServerConnectionInfo server, String channel);
 
     }
 
