@@ -41,7 +41,7 @@
         android:layout_height="match_parent"
         android:layout_below="@id/appbar"
         tools:openDrawer="end"
-        tools:context="io.mrarm.irc.ChatActivity">
+        tools:context="io.mrarm.irc.MainActivity">
 
         <RelativeLayout
             android:layout_width="match_parent"

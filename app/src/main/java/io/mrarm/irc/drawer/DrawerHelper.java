@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.res.Resources;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +18,7 @@ public class DrawerHelper {
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
     private DrawerMenuListAdapter mAdapter;
+    private DrawerMenuItem mManageServersItem;
 
     public DrawerHelper(Activity activity) {
         mRecyclerView = (RecyclerView) activity.findViewById(R.id.nav_list);
@@ -36,8 +38,9 @@ public class DrawerHelper {
             });
         }
 
-        mAdapter.addMenuItem(new DrawerMenuItem(r.getString(R.string.action_servers),
-                r.getDrawable(R.drawable.ic_edit)));
+        mManageServersItem = new DrawerMenuItem(r.getString(R.string.action_servers),
+                r.getDrawable(R.drawable.ic_edit));
+        mAdapter.addMenuItem(mManageServersItem);
         mAdapter.addMenuItem(new DrawerMenuItem(r.getString(R.string.action_settings),
                 r.getDrawable(R.drawable.ic_settings)));
 
@@ -48,8 +51,16 @@ public class DrawerHelper {
         mAdapter.setChannelClickListener(listener);
     }
 
+    public DrawerMenuItem getManageServersItem() {
+        return mManageServersItem;
+    }
+
     public void setSelectedChannel(ServerConnectionInfo server, String channel) {
         mAdapter.setSelectedChannel(server, channel);
+    }
+
+    public void setSelectedMenuItem(DrawerMenuItem menuItem) {
+        mAdapter.setSelectedMenuItem(menuItem);
     }
 
 }

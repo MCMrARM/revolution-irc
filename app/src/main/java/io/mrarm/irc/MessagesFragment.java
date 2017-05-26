@@ -52,9 +52,9 @@ public class MessagesFragment extends Fragment implements StatusMessageListener,
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser && getActivity() != null) {
+        if (isVisibleToUser && getParentFragment() != null) {
             Log.d(TAG, "setMembers " + (mMembers == null ? -1 : mMembers.size()));
-            ((ChatActivity) getActivity()).setCurrentChannelMembers(mMembers);
+            ((ChatFragment) getParentFragment()).setCurrentChannelMembers(mMembers);
         }
     }
 
@@ -181,7 +181,7 @@ public class MessagesFragment extends Fragment implements StatusMessageListener,
             return left.getNick().compareTo(right.getNick());
         });
         if (getUserVisibleHint())
-            ((ChatActivity) getActivity()).setCurrentChannelMembers(mMembers);
+            ((ChatFragment) getParentFragment()).setCurrentChannelMembers(mMembers);
     }
 
 }

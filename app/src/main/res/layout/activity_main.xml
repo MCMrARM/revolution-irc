@@ -7,10 +7,10 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:openDrawer="start"
-    tools:context="io.mrarm.irc.ChatActivity">
+    tools:context="io.mrarm.irc.MainActivity">
 
-    <include
-        layout="@layout/activity_chat_content"
+    <FrameLayout
+        android:id="@+id/content_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

@@ -16,6 +16,7 @@ import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,7 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private ChannelClickListener mChannelClickListener;
     private ServerConnectionInfo mSelectedItemServer;
     private String mSelectedItemChannel;
+    private WeakReference<DrawerMenuItem> mSelectedMenuItem;
     private Drawable mChannelBackground;
     private Drawable mChannelSelectedBackground;
 
@@ -58,7 +60,7 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         this.mMenuItems.add(item);
     }
 
-    public ArrayList<DrawerMenuItem> getMenuItems() {
+    public List<DrawerMenuItem> getMenuItems() {
         return mMenuItems;
     }
 
@@ -67,6 +69,8 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     public void setSelectedChannel(ServerConnectionInfo server, String channel) {
+        if (mSelectedMenuItem != null)
+            setSelectedMenuItem(null);
         int currentIndex = 1;
         int oldServerIndex = -1;
         int newServerIndex = -1;
@@ -91,6 +95,18 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             notifyItemChanged(oldChannelIndex + 1 + oldServerIndex);
         if (newServerIndex != -1 && newChannelIndex != -1)
             notifyItemChanged(newChannelIndex + 1 + newServerIndex);
+    }
+
+    public void setSelectedMenuItem(DrawerMenuItem item) {
+        if (mSelectedItemChannel != null)
+            setSelectedChannel(null, null);
+        int oldSelectedMenuItem = mSelectedMenuItem == null ? -1 : mMenuItems.indexOf(mSelectedMenuItem.get());
+        mSelectedMenuItem = item != null ? new WeakReference<>(item) : null;
+        int newSelectedMenuItem = mMenuItems.indexOf(item);
+        if (oldSelectedMenuItem != -1)
+            notifyItemChanged(mCurrentItemCount + oldSelectedMenuItem);
+        if (newSelectedMenuItem != -1)
+            notifyItemChanged(mCurrentItemCount + newSelectedMenuItem);
     }
 
     private void updateItemIndexToServerMap() {
@@ -147,7 +163,7 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             else
                 ((ChannelHolder) holder).bind(entry.getValue(), position - entry.getKey() - 1);
         } else if (viewType == TYPE_MENU_ITEM) {
-            ((MenuItemHolder) holder).bind(mMenuItems.get(position - mCurrentItemCount));
+            ((MenuItemHolder) holder).bind(this, mMenuItems.get(position - mCurrentItemCount));
         }
     }
 
@@ -252,13 +268,13 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             mChannel = info.getChannels().get(channelIndex);
             mName.setText(mChannel);
 
-            mView.setSelected(false);
             if (mAdapter.mSelectedItemServer != null && mAdapter.mSelectedItemChannel != null &&
                     mAdapter.mSelectedItemServer == info &&
                     mAdapter.mSelectedItemChannel.equals(mChannel)) {
                 mView.setSelected(true);
                 mView.setBackgroundDrawable(mAdapter.mChannelSelectedBackground);
             } else {
+                mView.setSelected(false);
                 mView.setBackgroundDrawable(mAdapter.mChannelBackground.getConstantState().newDrawable());
             }
         }
@@ -273,21 +289,28 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     public static class MenuItemHolder extends RecyclerView.ViewHolder {
 
-        private View mEntry;
+        private View mView;
         private TextView mName;
         private ImageView mIcon;
 
         public MenuItemHolder(View v) {
             super(v);
+            mView = v.findViewById(R.id.item_entry);
             mName = (TextView) v.findViewById(R.id.item_name);
             mIcon = (ImageView) v.findViewById(R.id.item_icon);
-            mEntry = v.findViewById(R.id.item_entry);
         }
 
-        public void bind(DrawerMenuItem item) {
+        public void bind(DrawerMenuListAdapter adapter, DrawerMenuItem item) {
             mName.setText(item.getName());
             mIcon.setImageDrawable(item.getIcon());
-            mEntry.setOnClickListener(item.mListener);
+            mView.setOnClickListener(item.mListener);
+            if (adapter.mSelectedMenuItem != null && adapter.mSelectedMenuItem.get() == item) {
+                mView.setSelected(true);
+                mView.setBackgroundDrawable(adapter.mChannelSelectedBackground);
+            } else {
+                mView.setSelected(false);
+                mView.setBackgroundDrawable(adapter.mChannelBackground.getConstantState().newDrawable());
+            }
         }
 
     }
