@@ -26,6 +26,7 @@
     <string name="server_ssl">Use SSL</string>
     <string name="server_manage_custom_certs_placeholder">0 custom certificates saved</string>
     <string name="server_manage_custom_certs">Manage custom certificates</string>
+    <string name="server_save_error">Failed to save server information</string>
 
 
 </resources>

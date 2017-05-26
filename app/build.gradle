@@ -36,4 +36,5 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'io.mrarm:chatlib:1.0-SNAPSHOT'
+    compile 'com.google.code.gson:gson:2.8.0'
 }
