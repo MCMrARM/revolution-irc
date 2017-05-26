@@ -11,4 +11,12 @@
 
     <string name="message_hint">Send a message</string>
 
+    <string name="certificate_error">Failed to verify certificate</string>
+    <string name="certificate_error_ignore">Accept and continue</string>
+    <string name="certificate_error_cancel">Cancel</string>
+    <string name="certificate_bad_cert">The following certificate is not recognized by the system:</string>
+    <string name="certificate_bad_hostname">The hostname provided in the certificate (%1$s) by the host does not match the hostname we are connecting to (%2$s).</string>
+    <string name="certificate_error_footer">You shouldn\'t accept this certificate if you aren\'t sure what this means.</string>
+    <string name="certificate_error_remember">Remember exception</string>
+
 </resources>

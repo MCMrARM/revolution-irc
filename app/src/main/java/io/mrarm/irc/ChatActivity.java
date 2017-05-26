@@ -27,6 +27,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,7 +77,8 @@ public class ChatActivity extends AppCompatActivity {
 
     private ServerConnectionInfo createTestNetworkConnection() {
         IRCConnection connection = new IRCConnection();
-        connection.connect(new IRCConnectionRequest().setServerAddress("irc.freenode.net", 8000).addNick("mrarm-testing").setUser("mrarm-testing").setRealName("mrarm-testing"),
+        ServerSSLHelper sslHelper = new ServerSSLHelper(this, new File(getFilesDir(), "test-keystore.jks"));
+        connection.connect(new IRCConnectionRequest().setServerAddress("irc.freenode.net", 6697).addNick("mrarm-testing").setUser("mrarm-testing").setRealName("mrarm-testing").enableSSL(sslHelper.createSocketFactory(), sslHelper.createHostnameVerifier()),
                 (Void v) -> {
                     ArrayList<String> channels = new ArrayList<>();
                     channels.add("#mrarm-testing");
