@@ -6,6 +6,7 @@
 
     <string name="tab_server">Server</string>
 
+    <string name="action_done">Done</string>
     <string name="action_settings">Settings</string>
     <string name="action_servers">Manage servers</string>
 
@@ -18,5 +19,13 @@
     <string name="certificate_bad_hostname">The hostname provided in the certificate (%1$s) by the host does not match the hostname we are connecting to (%2$s).</string>
     <string name="certificate_error_footer">You shouldn\'t accept this certificate if you aren\'t sure what this means.</string>
     <string name="certificate_error_remember">Remember exception</string>
+
+    <string name="add_server">Add a new server</string>
+    <string name="server_address">Server address</string>
+    <string name="server_port">Port</string>
+    <string name="server_ssl">Use SSL</string>
+    <string name="server_manage_custom_certs_placeholder">0 custom certificates saved</string>
+    <string name="server_manage_custom_certs">Manage custom certificates</string>
+
 
 </resources>

@@ -1,7 +1,9 @@
 package io.mrarm.irc;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -23,6 +25,11 @@ public class ServerListFragment extends Fragment {
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
 
         ((MainActivity) getActivity()).addActionBarDrawerToggle(toolbar);
+
+        FloatingActionButton addFab = (FloatingActionButton) rootView.findViewById(R.id.fab);
+        addFab.setOnClickListener((View view) -> {
+            startActivity(new Intent(getContext(), EditServerActivity.class));
+        });
 
         return rootView;
     }

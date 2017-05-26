@@ -22,6 +22,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".EditServerActivity"
+            android:label="@string/add_server" />
     </application>
 
 </manifest>
