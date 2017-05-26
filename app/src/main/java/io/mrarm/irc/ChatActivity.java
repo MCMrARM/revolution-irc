@@ -15,12 +15,9 @@ import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -30,22 +27,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import io.mrarm.chatlib.ChannelInfoListener;
-import io.mrarm.chatlib.MessageListener;
-import io.mrarm.chatlib.StatusMessageListener;
-import io.mrarm.chatlib.dto.ChannelInfo;
-import io.mrarm.chatlib.dto.MessageInfo;
-import io.mrarm.chatlib.dto.MessageList;
 import io.mrarm.chatlib.dto.NickWithPrefix;
-import io.mrarm.chatlib.dto.StatusMessageInfo;
-import io.mrarm.chatlib.dto.StatusMessageList;
 import io.mrarm.chatlib.irc.IRCConnection;
 import io.mrarm.chatlib.irc.IRCConnectionRequest;
-import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.chatlib.test.TestApiImpl;
 import io.mrarm.irc.drawer.DrawerHelper;
 
@@ -190,6 +177,10 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
+    public void setCurrentChannelMembers(List<NickWithPrefix> members) {
+        mChannelMembersAdapter.setMembers(members);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_chat, menu);
@@ -205,169 +196,6 @@ public class ChatActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public static class ChatFragment extends Fragment implements StatusMessageListener,
-            MessageListener, ChannelInfoListener {
-
-        private static final String ARG_SERVER_UUID = "server_uuid";
-        private static final String ARG_DISPLAY_STATUS = "display_status";
-        private static final String ARG_CHANNEL_NAME = "channel";
-
-        private List<NickWithPrefix> mMembers = null;
-
-        private ServerConnectionInfo mConnection;
-        private ChatMessagesAdapter mAdapter;
-        private ServerStatusMessagesAdapter mStatusAdapter;
-        private List<MessageInfo> mMessages;
-        private List<StatusMessageInfo> mStatusMessages;
-        private boolean mNeedsUnsubscribeChannelInfo = false;
-        private boolean mNeedsUnsubscribeMessages = false;
-        private boolean mNeedsUnsubscribeStatusMessages = false;
-
-        public ChatFragment() {
-        }
-
-        @Override
-        public void setUserVisibleHint(boolean isVisibleToUser) {
-            super.setUserVisibleHint(isVisibleToUser);
-            if (isVisibleToUser && getActivity() != null) {
-                Log.d("ChatFragment", "setMembers " + (mMembers == null ? -1 : mMembers.size()));
-                ((ChatActivity) getActivity()).mChannelMembersAdapter.setMembers(mMembers);
-            }
-        }
-
-        public static ChatFragment newInstance(ServerConnectionInfo server,
-                                               String channelName) {
-            ChatFragment fragment = new ChatFragment();
-            Bundle args = new Bundle();
-            args.putString(ARG_SERVER_UUID, server.getUUID().toString());
-            if (channelName != null)
-                args.putString(ARG_CHANNEL_NAME, channelName);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        public static ChatFragment newStatusInstance(ServerConnectionInfo server) {
-            ChatFragment fragment = new ChatFragment();
-            Bundle args = new Bundle();
-            args.putString(ARG_SERVER_UUID, server.getUUID().toString());
-            args.putBoolean(ARG_DISPLAY_STATUS, true);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            UUID connectionUUID = UUID.fromString(getArguments().getString(ARG_SERVER_UUID));
-            ServerConnectionInfo connectionInfo = ServerConnectionManager.getInstance()
-                    .getConnection(connectionUUID);
-            mConnection = connectionInfo;
-            String channelName = getArguments().getString(ARG_CHANNEL_NAME);
-
-            View rootView = inflater.inflate(R.layout.chat_fragment, container, false);
-            RecyclerView recyclerView = (RecyclerView) rootView;
-            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
-            if (channelName != null) {
-                mAdapter = new ChatMessagesAdapter(new MessageList(new ArrayList<>()));
-                recyclerView.setAdapter(mAdapter);
-
-                Log.i("ChatFragment", "Request message list for: " + channelName);
-                connectionInfo.getApiInstance().getChannelInfo(channelName,
-                        (ChannelInfo channelInfo) -> {
-                            Log.i("ChatFragment", "Got channel info " + channelName);
-                            Log.i("ChatFragment", "Channel member count: " + channelInfo.getMembers().size());
-                            for (int i = 0; i < channelInfo.getMembers().size(); i++)
-                                Log.i("ChatFragment", "Channel member: " + channelInfo.getMembers().get(i));
-                            onMemberListChanged(channelInfo.getMembers());
-                            if (getUserVisibleHint())
-                                ((ChatActivity) getActivity()).mChannelMembersAdapter.setMembers(mMembers);
-                        }, null);
-
-                connectionInfo.getApiInstance().subscribeChannelInfo(channelName, this, null, null);
-                mNeedsUnsubscribeChannelInfo = true;
-
-                connectionInfo.getApiInstance().getMessages(channelName, 100, null,
-                        (MessageList messages) -> {
-                            Log.i("ChatFragment", "Got message list for " + channelName + ": " +
-                                    messages.getMessages().size() + " messages");
-                            mAdapter.setMessages(messages);
-                            mMessages = messages.getMessages();
-                            mNeedsUnsubscribeMessages = true;
-
-                            connectionInfo.getApiInstance().subscribeChannelMessages(channelName, ChatFragment.this, null, null);
-                        }, null);
-            } else if (getArguments().getBoolean(ARG_DISPLAY_STATUS)) {
-                mStatusAdapter = new ServerStatusMessagesAdapter(new StatusMessageList(new ArrayList<>()));
-                recyclerView.setAdapter(mStatusAdapter);
-
-                Log.i("CharFragment", "Request status message list");
-                connectionInfo.getApiInstance().getStatusMessages(100, null,
-                        (StatusMessageList messages) -> {
-                            Log.i("ChatFragment", "Got server status message list: " +
-                                    messages.getMessages().size() + " messages");
-                            mStatusAdapter.setMessages(messages);
-                            mStatusMessages = messages.getMessages();
-                            mNeedsUnsubscribeStatusMessages = true;
-
-                            connectionInfo.getApiInstance().subscribeStatusMessages(ChatFragment.this, null, null);
-                        }, null);
-            }
-
-            return rootView;
-        }
-
-        @Override
-        public void onDestroyView() {
-            super.onDestroyView();
-            if (mNeedsUnsubscribeChannelInfo)
-                mConnection.getApiInstance().unsubscribeChannelInfo(getArguments().getString(ARG_CHANNEL_NAME), ChatFragment.this, null, null);
-            if (mNeedsUnsubscribeMessages)
-                mConnection.getApiInstance().unsubscribeChannelMessages(getArguments().getString(ARG_CHANNEL_NAME), ChatFragment.this, null, null);
-            if (mNeedsUnsubscribeStatusMessages)
-                mConnection.getApiInstance().unsubscribeStatusMessages(ChatFragment.this, null, null);
-        }
-
-        @Override
-        public void onMessage(MessageInfo messageInfo) {
-            getActivity().runOnUiThread(() -> {
-                mMessages.add(messageInfo);
-                mAdapter.notifyItemInserted(mMessages.size() - 1);
-            });
-        }
-
-        @Override
-        public void onStatusMessage(StatusMessageInfo statusMessageInfo) {
-            getActivity().runOnUiThread(() -> {
-                mStatusMessages.add(statusMessageInfo);
-                mStatusAdapter.notifyItemInserted(mStatusMessages.size() - 1);
-            });
-        }
-
-        @Override
-        public void onMemberListChanged(List<NickWithPrefix> list) {
-            this.mMembers = list;
-            Collections.sort(list, (NickWithPrefix left, NickWithPrefix right) -> {
-                if (left.getNickPrefixes() != null && right.getNickPrefixes() != null) {
-                    char leftPrefix = left.getNickPrefixes().get(0);
-                    char rightPrefix = right.getNickPrefixes().get(0);
-                    for (char c : ((ServerConnectionApi) mConnection.getApiInstance())
-                            .getServerConnectionData().getSupportedNickPrefixes()) {
-                        if (leftPrefix == c)
-                            return -1;
-                        if (rightPrefix == c)
-                            return 1;
-                    }
-                } else if (left.getNickPrefixes() != null || right.getNickPrefixes() != null)
-                    return left.getNickPrefixes() != null ? -1 : 1;
-                return left.getNick().compareTo(right.getNick());
-            });
-            if (getUserVisibleHint())
-                ((ChatActivity) getActivity()).mChannelMembersAdapter.setMembers(mMembers);
-        }
-
-    }
-
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         private ServerConnectionInfo connectionInfo;
@@ -380,8 +208,8 @@ public class ChatActivity extends AppCompatActivity {
         @Override
         public Fragment getItem(int position) {
             if (position == 0)
-                return ChatFragment.newStatusInstance(connectionInfo);
-            return ChatFragment.newInstance(connectionInfo,
+                return MessagesFragment.newStatusInstance(connectionInfo);
+            return MessagesFragment.newInstance(connectionInfo,
                     connectionInfo.getChannels().get(position - 1));
         }
 
