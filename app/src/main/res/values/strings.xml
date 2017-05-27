@@ -7,8 +7,14 @@
     <string name="tab_server">Server</string>
 
     <string name="action_done">Done</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_cancel">Cancel</string>
     <string name="action_settings">Settings</string>
     <string name="action_servers">Manage servers</string>
+
+    <string name="action_delete_confirm_title">Are you sure?</string>
+    <string name="action_delete_confirm_body">Are you sure you want to delete %1$s? This cannot be undone.</string>
 
     <string name="message_hint">Send a message</string>
 

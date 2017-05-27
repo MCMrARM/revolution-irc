@@ -68,12 +68,25 @@ public class ServerConfigManager {
         return mServers;
     }
 
+    public ServerConfigData findServer(UUID uuid) {
+        return mServersMap.get(uuid);
+    }
+
     public void saveServer(ServerConfigData data) throws IOException {
+        if (mServersMap.containsKey(data.uuid))
+            mServers.remove(mServersMap.get(data.uuid));
         mServers.add(data);
         mServersMap.put(data.uuid, data);
         BufferedWriter writer = new BufferedWriter(new FileWriter(new File(mServersPath, SERVER_FILE_PREFIX + data.uuid.toString() + SERVER_FILE_SUFFIX)));
         mGson.toJson(data, writer);
         writer.close();
+    }
+
+    public void deleteServer(ServerConfigData data) {
+        mServers.remove(data);
+        mServersMap.remove(data.uuid);
+        File file = new File(mServersPath, SERVER_FILE_PREFIX + data.uuid.toString() + SERVER_FILE_SUFFIX);
+        file.delete();
     }
 
 

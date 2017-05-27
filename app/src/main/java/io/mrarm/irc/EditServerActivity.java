@@ -1,5 +1,7 @@
 package io.mrarm.irc;
 
+import android.content.Context;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,14 +20,29 @@ public class EditServerActivity extends AppCompatActivity {
 
     private static String TAG = "EditServerActivity";
 
+    public static String ARG_SERVER_UUID = "server_uuid";
+
+    private ServerConfigData mEditServer;
     private EditText mServerName;
     private EditText mServerAddress;
     private EditText mServerPort;
     private CheckBox mServerSSL;
 
+    public static Intent getLaunchIntent(Context context, ServerConfigData data) {
+        Intent intent = new Intent(context, EditServerActivity.class);
+        Bundle args = new Bundle();
+        args.putString(ARG_SERVER_UUID, data.uuid.toString());
+        intent.putExtras(args);
+        return intent;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        String uuidString = getIntent().getStringExtra(ARG_SERVER_UUID);
+        if (uuidString != null)
+            mEditServer = ServerConfigManager.getInstance(this).findServer(UUID.fromString(uuidString));
 
         setContentView(R.layout.activity_edit_server);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -35,18 +52,27 @@ public class EditServerActivity extends AppCompatActivity {
         mServerPort = (EditText) findViewById(R.id.server_address_port);
         mServerSSL = (CheckBox) findViewById(R.id.server_ssl_checkbox);
 
-        findViewById(R.id.server_ssl_certs).setVisibility(View.GONE);
+        if (mEditServer != null) {
+            mServerName.setText(mEditServer.name);
+            mServerAddress.setText(mEditServer.address);
+            mServerPort.setText(String.valueOf(mEditServer.port));
+            mServerSSL.setChecked(mEditServer.ssl);
+        } else {
+            findViewById(R.id.server_ssl_certs).setVisibility(View.GONE);
+        }
     }
 
     private void save() {
-        ServerConfigData data = new ServerConfigData();
-        data.uuid = UUID.randomUUID();
-        data.name = mServerName.getText().toString();
-        data.address = mServerAddress.getText().toString();
-        data.port = Integer.parseInt(mServerPort.getText().toString());
-        data.ssl = mServerSSL.isChecked();
+        if (mEditServer == null) {
+            mEditServer = new ServerConfigData();
+            mEditServer.uuid = UUID.randomUUID();
+        }
+        mEditServer.name = mServerName.getText().toString();
+        mEditServer.address = mServerAddress.getText().toString();
+        mEditServer.port = Integer.parseInt(mServerPort.getText().toString());
+        mEditServer.ssl = mServerSSL.isChecked();
         try {
-            ServerConfigManager.getInstance(this).saveServer(data);
+            ServerConfigManager.getInstance(this).saveServer(mEditServer);
         } catch (IOException e) {
             Log.e(TAG, "Failed to save server info");
             e.printStackTrace();

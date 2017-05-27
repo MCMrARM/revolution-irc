@@ -18,7 +18,9 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     private Context mContext;
 
-    private ServerClickListener mServerClickListener;
+    private ActiveServerClickListener mActiveServerClickListener;
+    private InactiveServerClickListener mInactiveServerClickListener;
+    private InactiveServerLongClickListener mInactiveServerLongClickListener;
 
     private int mColorConnected;
     private int mColorConnecting;
@@ -40,8 +42,16 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         mInactiveConnectionCount = ServerConfigManager.getInstance(mContext).getServers().size();
     }
 
-    public void setServerClickListener(ServerClickListener listener) {
-        this.mServerClickListener = listener;
+    public void setActiveServerClickListener(ActiveServerClickListener listener) {
+        this.mActiveServerClickListener = listener;
+    }
+
+    public void setInactiveServerClickListener(InactiveServerClickListener listener) {
+        this.mInactiveServerClickListener = listener;
+    }
+
+    public void setInactiveServerLongClickListener(InactiveServerLongClickListener listener) {
+        this.mInactiveServerLongClickListener = listener;
     }
 
     @Override
@@ -57,7 +67,7 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         } else if (viewType == TYPE_INACTIVE_SERVER) {
             View view = LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.server_list_server, viewGroup, false);
-            return new ServerHolder(view);
+            return new ServerHolder(this, view);
         } else {
             View view = LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.server_list_divider, viewGroup, false);
@@ -142,14 +152,29 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         private View mIconBg;
         private TextView mName;
+        private ServerConfigData mConfigData;
 
-        public ServerHolder(View v) {
+        public ServerHolder(ServerListAdapter adapter, View v) {
             super(v);
             mIconBg = v.findViewById(R.id.server_icon_bg);
             mName = (TextView) v.findViewById(R.id.server_name);
+
+            View mainView = v.findViewById(R.id.server_entry);
+            mainView.setOnClickListener((View view) -> {
+                if (adapter.mInactiveServerClickListener != null)
+                    adapter.mInactiveServerClickListener.onServerClicked(mConfigData);
+            });
+            mainView.setOnLongClickListener((View view) -> {
+                if (adapter.mInactiveServerLongClickListener != null) {
+                    adapter.mInactiveServerLongClickListener.onServerLongClicked(mConfigData);
+                    return true;
+                }
+                return false;
+            });
         }
 
         public void bind(ServerListAdapter adapter, ServerConfigData data) {
+            mConfigData = data;
             Drawable d = DrawableCompat.wrap(mIconBg.getBackground());
             DrawableCompat.setTint(d, adapter.mColorInactive);
             mIconBg.setBackgroundDrawable(d);
@@ -171,8 +196,8 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             mName = (TextView) v.findViewById(R.id.server_name);
             mDesc = (TextView) v.findViewById(R.id.server_desc);
             v.findViewById(R.id.server_entry).setOnClickListener((View view) -> {
-                if (adapter.mServerClickListener != null)
-                    adapter.mServerClickListener.openServer(mConnectionInfo);
+                if (adapter.mActiveServerClickListener != null)
+                    adapter.mActiveServerClickListener.onServerClicked(mConnectionInfo);
             });
         }
 
@@ -191,10 +216,16 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     }
 
-    public interface ServerClickListener {
+    public interface ActiveServerClickListener {
+        void onServerClicked(ServerConnectionInfo server);
+    }
 
-        void openServer(ServerConnectionInfo server);
+    public interface InactiveServerClickListener {
+        void onServerClicked(ServerConfigData server);
+    }
 
+    public interface InactiveServerLongClickListener {
+        void onServerLongClicked(ServerConfigData server);
     }
 
 }
