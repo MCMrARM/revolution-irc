@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v4.graphics.ColorUtils;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,16 +44,18 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private WeakReference<DrawerMenuItem> mSelectedMenuItem;
     private Drawable mChannelBackground;
     private Drawable mChannelSelectedBackground;
+    private int mSelectedIconColor;
 
     public DrawerMenuListAdapter(Context context, List<ServerConnectionInfo> servers) {
         mServers = servers;
         notifyServerListChanged();
 
-        TypedArray ta = context.obtainStyledAttributes(new int[] { R.attr.selectableItemBackground, R.attr.colorControlHighlight });
+        TypedArray ta = context.obtainStyledAttributes(new int[] { R.attr.selectableItemBackground, R.attr.colorControlHighlight, R.attr.colorAccent });
         mChannelBackground = ta.getDrawable(0);
         int color = ta.getColor(1, 0);
         color = ColorUtils.setAlphaComponent(color, Color.alpha(color) / 2);
         mChannelSelectedBackground = new ColorDrawable(color);
+        mSelectedIconColor = ta.getColor(2, 0);
         ta.recycle();
     }
 
@@ -302,14 +305,17 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
         public void bind(DrawerMenuListAdapter adapter, DrawerMenuItem item) {
             mName.setText(item.getName());
-            mIcon.setImageDrawable(item.getIcon());
             mView.setOnClickListener(item.mListener);
             if (adapter.mSelectedMenuItem != null && adapter.mSelectedMenuItem.get() == item) {
                 mView.setSelected(true);
                 mView.setBackgroundDrawable(adapter.mChannelSelectedBackground);
+                Drawable d = DrawableCompat.wrap(item.getIcon().getConstantState().newDrawable());
+                DrawableCompat.setTint(d, adapter.mSelectedIconColor);
+                mIcon.setBackgroundDrawable(d);
             } else {
                 mView.setSelected(false);
                 mView.setBackgroundDrawable(adapter.mChannelBackground.getConstantState().newDrawable());
+                mIcon.setImageDrawable(item.getIcon());
             }
         }
 
