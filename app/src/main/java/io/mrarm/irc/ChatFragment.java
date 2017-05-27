@@ -26,7 +26,7 @@ import java.util.UUID;
 import io.mrarm.chatlib.dto.NickWithPrefix;
 import io.mrarm.irc.util.ImageViewTintUtils;
 
-public class ChatFragment extends Fragment {
+public class ChatFragment extends Fragment implements ServerConnectionInfo.ChannelListChangeListener {
 
     private static final String ARG_SERVER_UUID = "server_uuid";
     private static final String ARG_CHANNEL_NAME = "channel";
@@ -85,12 +85,7 @@ public class ChatFragment extends Fragment {
             public void onPageScrollStateChanged(int i) { }
         });
 
-        mConnectionInfo.addOnChannelListChangeListener((ServerConnectionInfo connection,
-                                                        List<String> newChannels) -> {
-            getActivity().runOnUiThread(() -> {
-                mSectionsPagerAdapter.notifyDataSetChanged();
-            });
-        });
+        mConnectionInfo.addOnChannelListChangeListener(this);
 
         TabLayout tabLayout = (TabLayout) rootView.findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
@@ -141,6 +136,12 @@ public class ChatFragment extends Fragment {
         return rootView;
     }
 
+    @Override
+    public void onDestroyView() {
+        mConnectionInfo.removeOnChannelListChangeListener(this);
+        super.onDestroyView();
+    }
+
     public ServerConnectionInfo getConnectionInfo() {
         return mConnectionInfo;
     }
@@ -151,6 +152,13 @@ public class ChatFragment extends Fragment {
 
     public void setCurrentChannelMembers(List<NickWithPrefix> members) {
         mChannelMembersAdapter.setMembers(members);
+    }
+
+    @Override
+    public void onChannelListChanged(ServerConnectionInfo connection, List<String> newChannels) {
+        getActivity().runOnUiThread(() -> {
+            mSectionsPagerAdapter.notifyDataSetChanged();
+        });
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
