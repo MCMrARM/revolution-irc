@@ -14,6 +14,7 @@ public class ServerConnectionInfo {
     private List<String> mChannels;
     private ChatApi mApi;
     private boolean mExpandedInDrawer = true;
+    private boolean mConnected = false;
     private List<ChannelListChangeListener> mChannelsListeners = new ArrayList<>();
 
     public ServerConnectionInfo(UUID uuid, String name, ChatApi api) {
@@ -53,7 +54,11 @@ public class ServerConnectionInfo {
         return mApi;
     }
 
-    public boolean isConnected() { return true; }
+    public boolean isConnected() { return mConnected; }
+
+    public void setConnected(boolean connected) {
+        mConnected = connected;
+    }
 
     public List<String> getChannels() {
         return mChannels;

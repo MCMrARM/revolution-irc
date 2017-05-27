@@ -50,15 +50,13 @@ public class ServerSSLHelper {
 
     public static final String CONFIG_NAME = "SSLCustomCerts";
 
-    private Activity mActivity;
     private File mKeyStoreFile;
     private KeyStore mKeyStore;
     private List<X509Certificate> mTempTrustedCertificates;
 
-    public ServerSSLHelper(Activity activity, File keyStoreFile) {
-        mActivity = activity;
+    public ServerSSLHelper(File keyStoreFile) {
         mKeyStoreFile = keyStoreFile;
-        if (keyStoreFile.exists())
+        if (keyStoreFile != null && keyStoreFile.exists())
             loadKeyStore();
     }
 
@@ -75,13 +73,14 @@ public class ServerSSLHelper {
     private Future<Boolean> askUser(X509Certificate certificate, int stringId, Object... stringArgs) {
         SettableFuture<Boolean> ret = new SettableFuture<>();
 
-        mActivity.runOnUiThread(() -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+        final Activity activity = WarningDisplayContext.getActivity();
+        activity.runOnUiThread(() -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
             builder.setTitle(R.string.certificate_error);
-            LayoutInflater inflater = mActivity.getLayoutInflater();
+            LayoutInflater inflater = activity.getLayoutInflater();
             View view = inflater.inflate(R.layout.bad_certificate_layout, null, false);
             ((TextView) view.findViewById(R.id.error_certificate)).setText(buildCertOverviewString(certificate));
-            ((TextView) view.findViewById(R.id.error_header)).setText(String.format(mActivity.getString(stringId), stringArgs));
+            ((TextView) view.findViewById(R.id.error_header)).setText(String.format(activity.getString(stringId), stringArgs));
             builder.setView(view);
             builder.setPositiveButton(R.string.certificate_error_cancel, (DialogInterface dialog, int which) -> {
                 ret.set(false);
@@ -110,7 +109,8 @@ public class ServerSSLHelper {
                 mKeyStore.load(null, null);
             }
             mKeyStore.setCertificateEntry("cert-" + UUID.randomUUID(), certificate);
-            mKeyStore.store(new FileOutputStream(mKeyStoreFile), null);
+            if (mKeyStoreFile != null)
+                mKeyStore.store(new FileOutputStream(mKeyStoreFile), null);
         } catch (Exception e) {
             Log.e(TAG, "Failed to add certificate exception");
             e.printStackTrace();

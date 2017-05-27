@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ServerConnectionInfo createTestNetworkConnection() {
         IRCConnection connection = new IRCConnection();
-        ServerSSLHelper sslHelper = new ServerSSLHelper(this, new File(getFilesDir(), "test-keystore.jks"));
+        ServerSSLHelper sslHelper = new ServerSSLHelper(new File(getFilesDir(), "test-keystore.jks"));
         connection.connect(new IRCConnectionRequest().setServerAddress("irc.freenode.net", 6697).addNick("mrarm-testing").setUser("mrarm-testing").setRealName("mrarm-testing").enableSSL(sslHelper.createSocketFactory(), sslHelper.createHostnameVerifier()),
                 (Void v) -> {
                     ArrayList<String> channels = new ArrayList<>();
@@ -84,6 +84,18 @@ public class MainActivity extends AppCompatActivity {
 
         //openServer(testInfo, null);
         openManageServers();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        WarningDisplayContext.setActivity(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        WarningDisplayContext.setActivity(null);
     }
 
     public void addActionBarDrawerToggle(Toolbar toolbar) {

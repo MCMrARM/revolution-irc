@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+import io.mrarm.chatlib.irc.IRCConnection;
+import io.mrarm.chatlib.irc.IRCConnectionRequest;
+
 public class ServerConnectionManager {
 
     private static ServerConnectionManager instance;
@@ -28,6 +31,26 @@ public class ServerConnectionManager {
         mConnections.add(connection);
         for (ConnectionsListener listener : mListeners)
             listener.onConnectionAdded(connection);
+    }
+
+    public ServerConnectionInfo createConnection(ServerConfigData data) {
+        IRCConnection connection = new IRCConnection();
+        IRCConnectionRequest request = new IRCConnectionRequest();
+        request
+                .setServerAddress(data.address, data.port)
+                .addNick(data.nick).setUser(data.user).setRealName(data.realname); // TODO: a way to set default values
+        if (data.ssl) {
+            ServerSSLHelper sslHelper = new ServerSSLHelper(null);
+            request.enableSSL(sslHelper.createSocketFactory(), sslHelper.createHostnameVerifier());
+        }
+        ServerConnectionInfo connectionInfo = new ServerConnectionInfo(data.uuid, data.name, connection);
+        connection.connect(request, (Void v) -> {
+            connectionInfo.setConnected(true);
+            connection.joinChannels(data.autojoinChannels, null, null);
+        }, null);
+
+        addConnection(connectionInfo);
+        return connectionInfo;
     }
 
     public ServerConnectionInfo getConnection(UUID uuid) {
