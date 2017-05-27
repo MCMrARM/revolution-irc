@@ -30,7 +30,7 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private static final int TYPE_DRAWER_HEADER = 0;
     private static final int TYPE_SERVER_HEADER = 1;
     private static final int TYPE_CHANNEL = 2;
-    private static final int TYPE_SEPARATOR = 3;
+    private static final int TYPE_DIVIDER = 3;
     private static final int TYPE_MENU_ITEM = 4;
 
     private List<ServerConnectionInfo> mServers;
@@ -132,9 +132,9 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             View view = LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.drawer_header, viewGroup, false);
             return new SimpleViewHolder(view);
-        } else if (viewType == TYPE_SEPARATOR) {
+        } else if (viewType == TYPE_DIVIDER) {
             View view = LayoutInflater.from(viewGroup.getContext())
-                    .inflate(R.layout.drawer_separator, viewGroup, false);
+                    .inflate(R.layout.drawer_divider, viewGroup, false);
             return new SimpleViewHolder(view);
         } else if (viewType == TYPE_SERVER_HEADER) {
             View view = LayoutInflater.from(viewGroup.getContext())
@@ -184,7 +184,7 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         if (position == entry.getKey() + (entry.getValue().isExpandedInDrawer() &&
                 entry.getValue().getChannels() != null ?
                 entry.getValue().getChannels().size() : 0) + 1)
-            return TYPE_SEPARATOR;
+            return TYPE_DIVIDER;
         return TYPE_CHANNEL;
     }
 
