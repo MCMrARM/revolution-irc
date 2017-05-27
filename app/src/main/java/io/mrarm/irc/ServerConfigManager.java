@@ -95,12 +95,12 @@ public class ServerConfigManager {
     }
 
     public void deleteServer(ServerConfigData data) {
-        for (ConnectionsListener listener : mListeners)
-            listener.onConnectionRemoved(data);
         mServers.remove(data);
         mServersMap.remove(data.uuid);
         File file = new File(mServersPath, SERVER_FILE_PREFIX + data.uuid.toString() + SERVER_FILE_SUFFIX);
         file.delete();
+        for (ConnectionsListener listener : mListeners)
+            listener.onConnectionRemoved(data);
     }
 
     public void addListener(ConnectionsListener listener) {

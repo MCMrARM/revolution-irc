@@ -4,12 +4,14 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         implements ServerConnectionManager.ConnectionsListener, ServerConfigManager.ConnectionsListener {
@@ -20,6 +22,8 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private static final int TYPE_DIVIDER = 3;
 
     private Context mContext;
+
+    private List<ServerConfigData> mFilteredInactiveServers = new ArrayList<>();
 
     private ActiveServerClickListener mActiveServerClickListener;
     private InactiveServerClickListener mInactiveServerClickListener;
@@ -53,22 +57,26 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @Override
     public void onConnectionAdded(ServerConnectionInfo connection) {
         boolean hadHeader = (getActiveHeaderIndex() != -1);
+        int oldInactiveIndex = -1;
+        for (int i = 0; i < mFilteredInactiveServers.size(); i++) {
+            if (mFilteredInactiveServers.get(i).uuid == connection.getUUID()) {
+                oldInactiveIndex = i;
+                break;
+            }
+        }
         updateConnections();
         if (hadHeader)
             notifyItemInserted(ServerConnectionManager.getInstance().getConnections().indexOf(connection) + 1 + getActiveHeaderIndex());
         else
             notifyItemRangeChanged(getActiveHeaderIndex(), 2);
+        if (oldInactiveIndex != -1)
+            notifyItemRemoved(getInactiveHeaderIndex() + 1 + oldInactiveIndex);
     }
 
     @Override
     public void onConnectionRemoved(ServerConnectionInfo connection) {
-        int oldHeaderIndex = getActiveHeaderIndex();
         updateConnections();
-        mActiveConnectionCount--;
-        if (getActiveHeaderIndex() == -1 && oldHeaderIndex != -1)
-            notifyItemRangeRemoved(oldHeaderIndex, 2);
-        else
-            notifyItemRemoved(getActiveHeaderIndex() + 1 + ServerConnectionManager.getInstance().getConnections().indexOf(connection));
+        notifyDataSetChanged();
     }
 
     @Override
@@ -76,30 +84,36 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         boolean hadHeader = (getActiveHeaderIndex() != -1);
         updateConnections();
         if (hadHeader)
-            notifyItemInserted(ServerConfigManager.getInstance(mContext).getServers().indexOf(data) + 1 + getInactiveHeaderIndex());
+            notifyItemInserted(mFilteredInactiveServers.indexOf(data) + 1 + getInactiveHeaderIndex());
         else
             notifyItemRangeChanged(getInactiveHeaderIndex(), 2);
     }
 
     @Override
     public void onConnectionUpdated(ServerConfigData data) {
-        notifyItemChanged(getInactiveHeaderIndex() + 1 + ServerConfigManager.getInstance(mContext).getServers().indexOf(data));
+        notifyItemChanged(getInactiveHeaderIndex() + 1 + mFilteredInactiveServers.indexOf(data));
     }
 
     @Override
     public void onConnectionRemoved(ServerConfigData data) {
         int oldHeaderIndex = getInactiveHeaderIndex();
+        int oldEntryIndex = mFilteredInactiveServers.indexOf(data);
         updateConnections();
-        mInactiveConnectionCount--;
         if (getInactiveHeaderIndex() == -1 && oldHeaderIndex != -1)
             notifyItemRangeRemoved(oldHeaderIndex, 2);
         else
-            notifyItemRemoved(getInactiveHeaderIndex() + 1 + ServerConfigManager.getInstance(mContext).getServers().indexOf(data));
+            notifyItemRemoved(getInactiveHeaderIndex() + 1 + oldEntryIndex);
     }
 
     public void updateConnections() {
-        mActiveConnectionCount = ServerConnectionManager.getInstance().getConnections().size();
-        mInactiveConnectionCount = ServerConfigManager.getInstance(mContext).getServers().size();
+        ServerConnectionManager manager = ServerConnectionManager.getInstance();
+        mActiveConnectionCount = manager.getConnections().size();
+        mFilteredInactiveServers.clear();
+        for (ServerConfigData data : ServerConfigManager.getInstance(mContext).getServers()) {
+            if (!manager.hasConnection(data.uuid))
+                mFilteredInactiveServers.add(data);
+        }
+        mInactiveConnectionCount = mFilteredInactiveServers.size();
     }
 
     public void setActiveServerClickListener(ActiveServerClickListener listener) {

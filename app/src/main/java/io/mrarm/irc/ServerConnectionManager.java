@@ -57,6 +57,10 @@ public class ServerConnectionManager {
         return mConnectionsMap.get(uuid);
     }
 
+    public boolean hasConnection(UUID uuid) {
+        return mConnectionsMap.containsKey(uuid);
+    }
+
     public void addListener(ConnectionsListener listener) {
         mListeners.add(listener);
     }
