@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
         ServerConnectionInfo connectionInfo = new ServerConnectionInfo(UUID.randomUUID(), "Test Connection", api);
         ServerConnectionManager.getInstance().addConnection(connectionInfo);
+        connectionInfo.setConnected(true);
         return connectionInfo;
     }
 

@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
@@ -244,6 +245,7 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     public static class ConnectedServerHolder extends RecyclerView.ViewHolder {
 
+        private ImageView mIcon;
         private View mIconBg;
         private TextView mName;
         private TextView mDesc;
@@ -251,6 +253,7 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         public ConnectedServerHolder(ServerListAdapter adapter, View v) {
             super(v);
+            mIcon = (ImageView) v.findViewById(R.id.server_icon);
             mIconBg = v.findViewById(R.id.server_icon_bg);
             mName = (TextView) v.findViewById(R.id.server_name);
             mDesc = (TextView) v.findViewById(R.id.server_desc);
@@ -264,13 +267,17 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             mConnectionInfo = connectionInfo;
 
             Drawable d = DrawableCompat.wrap(mIconBg.getBackground());
-            if (connectionInfo.isConnected())
+            if (connectionInfo.isConnected()) {
                 DrawableCompat.setTint(d, adapter.mColorConnected);
-            else
+                mIcon.setImageResource(R.drawable.ic_server_connected);
+                mDesc.setText(mDesc.getContext().getString(R.string.server_list_connected, connectionInfo.getChannels().size()));
+            } else {
                 DrawableCompat.setTint(d, adapter.mColorConnecting);
+                mIcon.setImageResource(R.drawable.ic_server_connecting);
+                mDesc.setText(R.string.server_list_connecting);
+            }
             mIconBg.setBackgroundDrawable(d);
             mName.setText(connectionInfo.getName());
-            mDesc.setText(mDesc.getContext().getString(R.string.server_list_connected, connectionInfo.getChannels().size()));
         }
 
     }
