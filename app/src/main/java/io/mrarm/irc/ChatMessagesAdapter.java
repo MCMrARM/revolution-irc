@@ -17,6 +17,7 @@ import java.util.Locale;
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.dto.MessageList;
 import io.mrarm.chatlib.dto.NickChangeMessageInfo;
+import io.mrarm.irc.util.IRCColorUtils;
 
 public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 

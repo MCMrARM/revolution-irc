@@ -1,4 +1,4 @@
-package io.mrarm.irc;
+package io.mrarm.irc.util;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;

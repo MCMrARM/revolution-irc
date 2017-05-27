@@ -1,4 +1,4 @@
-package io.mrarm.irc;
+package io.mrarm.irc.util;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -9,6 +9,9 @@ import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
+
+import io.mrarm.irc.ColoredTextBuilder;
+import io.mrarm.irc.R;
 
 public class IRCColorUtils {
 
