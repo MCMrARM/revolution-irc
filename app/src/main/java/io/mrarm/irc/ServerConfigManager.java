@@ -11,7 +11,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -35,7 +37,8 @@ public class ServerConfigManager {
 
     private File mServersPath;
 
-    private Map<UUID, ServerConfigData> mEntries = new HashMap<>();
+    private List<ServerConfigData> mServers = new ArrayList<>();
+    private Map<UUID, ServerConfigData> mServersMap = new HashMap<>();
 
     public ServerConfigManager(Context context) {
         mServersPath = new File(context.getFilesDir(), SERVERS_PATH);
@@ -52,7 +55,8 @@ public class ServerConfigManager {
                 continue;
             try {
                 ServerConfigData data = mGson.fromJson(new BufferedReader(new FileReader(f)), ServerConfigData.class);
-                mEntries.put(data.uuid, data);
+                mServers.add(data);
+                mServersMap.put(data.uuid, data);
             } catch (IOException e) {
                 Log.e(TAG, "Failed to load server data");
                 e.printStackTrace();
@@ -60,8 +64,13 @@ public class ServerConfigManager {
         }
     }
 
+    public List<ServerConfigData> getServers() {
+        return mServers;
+    }
+
     public void saveServer(ServerConfigData data) throws IOException {
-        mEntries.put(data.uuid, data);
+        mServers.add(data);
+        mServersMap.put(data.uuid, data);
         BufferedWriter writer = new BufferedWriter(new FileWriter(new File(mServersPath, SERVER_FILE_PREFIX + data.uuid.toString() + SERVER_FILE_SUFFIX)));
         mGson.toJson(data, writer);
         writer.close();

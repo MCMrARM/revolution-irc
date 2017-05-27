@@ -20,7 +20,12 @@
     <string name="certificate_error_footer">You shouldn\'t accept this certificate if you aren\'t sure what this means.</string>
     <string name="certificate_error_remember">Remember exception</string>
 
+    <string name="server_list_header_active">Active</string>
+    <string name="server_list_header_inactive">Inactive</string>
+    <string name="server_list_connected">Connected, %1$s channels</string>
+
     <string name="add_server">Add a new server</string>
+    <string name="server_name">Name</string>
     <string name="server_address">Server address</string>
     <string name="server_port">Port</string>
     <string name="server_ssl">Use SSL</string>

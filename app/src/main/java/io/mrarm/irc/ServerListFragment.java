@@ -6,6 +6,8 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +32,11 @@ public class ServerListFragment extends Fragment {
         addFab.setOnClickListener((View view) -> {
             startActivity(new Intent(getContext(), EditServerActivity.class));
         });
+
+        RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.server_list);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setAdapter(new ServerListAdapter(getContext()));
+
 
         return rootView;
     }

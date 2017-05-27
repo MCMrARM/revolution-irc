@@ -18,6 +18,7 @@ public class EditServerActivity extends AppCompatActivity {
 
     private static String TAG = "EditServerActivity";
 
+    private EditText mServerName;
     private EditText mServerAddress;
     private EditText mServerPort;
     private CheckBox mServerSSL;
@@ -29,6 +30,7 @@ public class EditServerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit_server);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        mServerName = (EditText) findViewById(R.id.server_name);
         mServerAddress = (EditText) findViewById(R.id.server_address_name);
         mServerPort = (EditText) findViewById(R.id.server_address_port);
         mServerSSL = (CheckBox) findViewById(R.id.server_ssl_checkbox);
@@ -39,6 +41,7 @@ public class EditServerActivity extends AppCompatActivity {
     private void save() {
         ServerConfigData data = new ServerConfigData();
         data.uuid = UUID.randomUUID();
+        data.name = mServerName.getText().toString();
         data.address = mServerAddress.getText().toString();
         data.port = Integer.parseInt(mServerPort.getText().toString());
         data.ssl = mServerSSL.isChecked();

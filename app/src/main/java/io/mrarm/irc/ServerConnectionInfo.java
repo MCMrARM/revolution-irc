@@ -53,6 +53,8 @@ public class ServerConnectionInfo {
         return mApi;
     }
 
+    public boolean isConnected() { return true; }
+
     public List<String> getChannels() {
         return mChannels;
     }

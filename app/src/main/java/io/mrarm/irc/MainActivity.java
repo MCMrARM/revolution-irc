@@ -82,7 +82,8 @@ public class MainActivity extends AppCompatActivity {
             openManageServers();
         });
 
-        openServer(testInfo, null);
+        //openServer(testInfo, null);
+        openManageServers();
     }
 
     public void addActionBarDrawerToggle(Toolbar toolbar) {

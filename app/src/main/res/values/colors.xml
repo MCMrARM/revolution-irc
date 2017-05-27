@@ -4,6 +4,10 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
 
+    <color name="serverListConnected">#8BC34A</color>
+    <color name="serverListConnecting">#FFC107</color>
+    <color name="serverListInactive">#03A9F4</color>
+
     <color name="ircBlack">#000</color>
     <color name="ircWhite">#fff</color>
     <color name="ircBlue">#1565C0</color>
