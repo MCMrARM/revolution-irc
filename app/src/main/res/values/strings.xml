@@ -22,7 +22,7 @@
 
     <string name="server_list_header_active">Active</string>
     <string name="server_list_header_inactive">Inactive</string>
-    <string name="server_list_connected">Connected, %1$s channels</string>
+    <string name="server_list_connected">Connected, %1$d channels</string>
 
     <string name="add_server">Add a new server</string>
     <string name="server_name">Name</string>

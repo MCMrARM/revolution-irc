@@ -35,8 +35,12 @@ public class ServerListFragment extends Fragment {
 
         RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.server_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.setAdapter(new ServerListAdapter(getContext()));
 
+        ServerListAdapter adapter = new ServerListAdapter(getContext());
+        recyclerView.setAdapter(adapter);
+        adapter.setServerClickListener((ServerConnectionInfo info) -> {
+            ((MainActivity) getActivity()).openServer(info, null);
+        });
 
         return rootView;
     }

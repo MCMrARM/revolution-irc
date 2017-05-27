@@ -18,6 +18,8 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     private Context mContext;
 
+    private ServerClickListener mServerClickListener;
+
     private int mColorConnected;
     private int mColorConnecting;
     private int mColorInactive;
@@ -38,6 +40,10 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         mInactiveConnectionCount = ServerConfigManager.getInstance(mContext).getServers().size();
     }
 
+    public void setServerClickListener(ServerClickListener listener) {
+        this.mServerClickListener = listener;
+    }
+
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         if (viewType == TYPE_HEADER) {
@@ -47,7 +53,7 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         } else if (viewType == TYPE_CONNECTED_SERVER) {
             View view = LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.server_list_connected_server, viewGroup, false);
-            return new ConnectedServerHolder(view);
+            return new ConnectedServerHolder(this, view);
         } else if (viewType == TYPE_INACTIVE_SERVER) {
             View view = LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.server_list_server, viewGroup, false);
@@ -157,15 +163,22 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         private View mIconBg;
         private TextView mName;
         private TextView mDesc;
+        private ServerConnectionInfo mConnectionInfo;
 
-        public ConnectedServerHolder(View v) {
+        public ConnectedServerHolder(ServerListAdapter adapter, View v) {
             super(v);
             mIconBg = v.findViewById(R.id.server_icon_bg);
             mName = (TextView) v.findViewById(R.id.server_name);
             mDesc = (TextView) v.findViewById(R.id.server_desc);
+            v.findViewById(R.id.server_entry).setOnClickListener((View view) -> {
+                if (adapter.mServerClickListener != null)
+                    adapter.mServerClickListener.openServer(mConnectionInfo);
+            });
         }
 
         public void bind(ServerListAdapter adapter, ServerConnectionInfo connectionInfo) {
+            mConnectionInfo = connectionInfo;
+
             Drawable d = DrawableCompat.wrap(mIconBg.getBackground());
             if (connectionInfo.isConnected())
                 DrawableCompat.setTint(d, adapter.mColorConnected);
@@ -175,6 +188,12 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             mName.setText(connectionInfo.getName());
             mDesc.setText(mDesc.getContext().getString(R.string.server_list_connected, connectionInfo.getChannels().size()));
         }
+
+    }
+
+    public interface ServerClickListener {
+
+        void openServer(ServerConnectionInfo server);
 
     }
 
