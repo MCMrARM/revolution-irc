@@ -21,6 +21,8 @@ public class ServerListFragment extends Fragment {
         return new ServerListFragment();
     }
 
+    private ServerListAdapter mAdapter;
+
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_server_list, container, false);
@@ -38,12 +40,12 @@ public class ServerListFragment extends Fragment {
         RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.server_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        ServerListAdapter adapter = new ServerListAdapter(getContext());
-        recyclerView.setAdapter(adapter);
-        adapter.setActiveServerClickListener((ServerConnectionInfo info) -> {
+        mAdapter = new ServerListAdapter(getContext());
+        recyclerView.setAdapter(mAdapter);
+        mAdapter.setActiveServerClickListener((ServerConnectionInfo info) -> {
             ((MainActivity) getActivity()).openServer(info, null);
         });
-        adapter.setInactiveServerLongClickListener((ServerConfigData data) -> {
+        mAdapter.setInactiveServerLongClickListener((ServerConfigData data) -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             builder.setTitle(data.name);
             builder.setItems(new CharSequence[] {
@@ -65,8 +67,15 @@ public class ServerListFragment extends Fragment {
             });
             builder.show();
         });
+        mAdapter.registerListeners();
 
         return rootView;
     }
 
+    @Override
+    public void onDestroyView() {
+        if (mAdapter != null)
+            mAdapter.unregisterListeners();
+        super.onDestroyView();
+    }
 }

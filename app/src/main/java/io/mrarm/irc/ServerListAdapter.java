@@ -4,12 +4,14 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
+        implements ServerConnectionManager.ConnectionsListener, ServerConfigManager.ConnectionsListener {
 
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_CONNECTED_SERVER = 1;
@@ -35,6 +37,63 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         mColorConnecting = context.getResources().getColor(R.color.serverListConnecting);
         mColorInactive = context.getResources().getColor(R.color.serverListInactive);
         updateConnections();
+    }
+
+    public void registerListeners() {
+        ServerConnectionManager.getInstance().addListener(this);
+        ServerConfigManager.getInstance(mContext).addListener(this);
+    }
+
+    public void unregisterListeners() {
+        ServerConnectionManager.getInstance().removeListener(this);
+        ServerConfigManager.getInstance(mContext).removeListener(this);
+    }
+
+    @Override
+    public void onConnectionAdded(ServerConnectionInfo connection) {
+        boolean hadHeader = (getActiveHeaderIndex() != -1);
+        updateConnections();
+        if (hadHeader)
+            notifyItemInserted(ServerConnectionManager.getInstance().getConnections().indexOf(connection) + 1 + getActiveHeaderIndex());
+        else
+            notifyItemRangeChanged(getActiveHeaderIndex(), 2);
+    }
+
+    @Override
+    public void onConnectionRemoved(ServerConnectionInfo connection) {
+        int oldHeaderIndex = getActiveHeaderIndex();
+        updateConnections();
+        mActiveConnectionCount--;
+        if (getActiveHeaderIndex() == -1 && oldHeaderIndex != -1)
+            notifyItemRangeRemoved(oldHeaderIndex, 2);
+        else
+            notifyItemRemoved(getActiveHeaderIndex() + 1 + ServerConnectionManager.getInstance().getConnections().indexOf(connection));
+    }
+
+    @Override
+    public void onConnectionAdded(ServerConfigData data) {
+        boolean hadHeader = (getActiveHeaderIndex() != -1);
+        updateConnections();
+        if (hadHeader)
+            notifyItemInserted(ServerConfigManager.getInstance(mContext).getServers().indexOf(data) + 1 + getInactiveHeaderIndex());
+        else
+            notifyItemRangeChanged(getInactiveHeaderIndex(), 2);
+    }
+
+    @Override
+    public void onConnectionUpdated(ServerConfigData data) {
+        notifyItemChanged(getInactiveHeaderIndex() + 1 + ServerConfigManager.getInstance(mContext).getServers().indexOf(data));
+    }
+
+    @Override
+    public void onConnectionRemoved(ServerConfigData data) {
+        int oldHeaderIndex = getInactiveHeaderIndex();
+        updateConnections();
+        mInactiveConnectionCount--;
+        if (getInactiveHeaderIndex() == -1 && oldHeaderIndex != -1)
+            notifyItemRangeRemoved(oldHeaderIndex, 2);
+        else
+            notifyItemRemoved(getInactiveHeaderIndex() + 1 + ServerConfigManager.getInstance(mContext).getServers().indexOf(data));
     }
 
     public void updateConnections() {

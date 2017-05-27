@@ -39,6 +39,7 @@ public class ServerConfigManager {
 
     private List<ServerConfigData> mServers = new ArrayList<>();
     private Map<UUID, ServerConfigData> mServersMap = new HashMap<>();
+    private List<ConnectionsListener> mListeners = new ArrayList<>();
 
     public ServerConfigManager(Context context) {
         mServersPath = new File(context.getFilesDir(), SERVERS_PATH);
@@ -73,21 +74,51 @@ public class ServerConfigManager {
     }
 
     public void saveServer(ServerConfigData data) throws IOException {
-        if (mServersMap.containsKey(data.uuid))
+        boolean existed = false;
+        if (mServersMap.containsKey(data.uuid)) {
+            existed = true;
             mServers.remove(mServersMap.get(data.uuid));
+        }
         mServers.add(data);
         mServersMap.put(data.uuid, data);
         BufferedWriter writer = new BufferedWriter(new FileWriter(new File(mServersPath, SERVER_FILE_PREFIX + data.uuid.toString() + SERVER_FILE_SUFFIX)));
         mGson.toJson(data, writer);
         writer.close();
+
+        if (existed) {
+            for (ConnectionsListener listener : mListeners)
+                listener.onConnectionUpdated(data);
+        } else {
+            for (ConnectionsListener listener : mListeners)
+                listener.onConnectionAdded(data);
+        }
     }
 
     public void deleteServer(ServerConfigData data) {
+        for (ConnectionsListener listener : mListeners)
+            listener.onConnectionRemoved(data);
         mServers.remove(data);
         mServersMap.remove(data.uuid);
         File file = new File(mServersPath, SERVER_FILE_PREFIX + data.uuid.toString() + SERVER_FILE_SUFFIX);
         file.delete();
     }
 
+    public void addListener(ConnectionsListener listener) {
+        mListeners.add(listener);
+    }
+
+    public void removeListener(ConnectionsListener listener) {
+        mListeners.remove(listener);
+    }
+
+    public interface ConnectionsListener {
+
+        void onConnectionAdded(ServerConfigData data);
+
+        void onConnectionRemoved(ServerConfigData data);
+
+        void onConnectionUpdated(ServerConfigData data);
+
+    }
 
 }

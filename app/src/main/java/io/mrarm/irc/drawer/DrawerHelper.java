@@ -30,6 +30,16 @@ public class DrawerHelper {
         mAdapter = new DrawerMenuListAdapter(activity,
                 ServerConnectionManager.getInstance().getConnections());
 
+        ServerConnectionManager.getInstance().addListener(new ServerConnectionManager.ConnectionsListener() {
+            @Override
+            public void onConnectionAdded(ServerConnectionInfo connection) {
+                activity.runOnUiThread(mAdapter::notifyServerListChanged);
+            }
+            @Override
+            public void onConnectionRemoved(ServerConnectionInfo connection) {
+                activity.runOnUiThread(mAdapter::notifyServerListChanged);
+            }
+        });
         for (ServerConnectionInfo connectionInfo : ServerConnectionManager.getInstance()
                 .getConnections()) {
             connectionInfo.addOnChannelListChangeListener((ServerConnectionInfo connection,
