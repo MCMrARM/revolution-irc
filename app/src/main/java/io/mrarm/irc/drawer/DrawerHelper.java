@@ -1,6 +1,7 @@
 package io.mrarm.irc.drawer;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +13,7 @@ import java.util.List;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
+import io.mrarm.irc.SettingsActivity;
 
 public class DrawerHelper implements ServerConnectionManager.ConnectionsListener, ServerConnectionInfo.InfoChangeListener, ServerConnectionInfo.ChannelListChangeListener {
 
@@ -20,6 +22,7 @@ public class DrawerHelper implements ServerConnectionManager.ConnectionsListener
     private LinearLayoutManager mLayoutManager;
     private DrawerMenuListAdapter mAdapter;
     private DrawerMenuItem mManageServersItem;
+    private DrawerMenuItem mSettingsItem;
 
     public DrawerHelper(Activity activity) {
         mActivity = activity;
@@ -35,8 +38,12 @@ public class DrawerHelper implements ServerConnectionManager.ConnectionsListener
         mManageServersItem = new DrawerMenuItem(r.getString(R.string.action_servers),
                 r.getDrawable(R.drawable.ic_edit));
         mAdapter.addMenuItem(mManageServersItem);
-        mAdapter.addMenuItem(new DrawerMenuItem(r.getString(R.string.action_settings),
-                r.getDrawable(R.drawable.ic_settings)));
+        mSettingsItem = new DrawerMenuItem(r.getString(R.string.action_settings),
+                r.getDrawable(R.drawable.ic_settings));
+        mSettingsItem.setOnClickListener((View view) -> {
+            activity.startActivity(new Intent(activity, SettingsActivity.class));
+        });
+        mAdapter.addMenuItem(mSettingsItem);
 
         mRecyclerView.setAdapter(mAdapter);
     }

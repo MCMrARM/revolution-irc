@@ -13,6 +13,7 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+        vectorDrawables.useSupportLibrary = true
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -37,4 +38,6 @@ dependencies {
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'io.mrarm:chatlib:1.0-SNAPSHOT'
     compile 'com.google.code.gson:gson:2.8.0'
+    compile 'com.android.support:support-v4:25.3.1'
+    compile 'com.android.support:support-vector-drawable:25.3.1'
 }
