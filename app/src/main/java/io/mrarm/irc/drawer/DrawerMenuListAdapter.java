@@ -318,7 +318,7 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 mView.setBackgroundDrawable(adapter.mChannelSelectedBackground);
                 Drawable d = DrawableCompat.wrap(item.getIcon().getConstantState().newDrawable());
                 DrawableCompat.setTint(d, adapter.mSelectedIconColor);
-                mIcon.setBackgroundDrawable(d);
+                mIcon.setImageDrawable(d);
             } else {
                 mView.setSelected(false);
                 mView.setBackgroundDrawable(adapter.mChannelBackground.getConstantState().newDrawable());
