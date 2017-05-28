@@ -68,6 +68,7 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         mContext.runOnUiThread(() -> {
             boolean hadHeader = (getActiveHeaderIndex() != -1);
             int oldInactiveIndex = -1;
+            int oldDividerIndex = getDividerIndex();
             for (int i = 0; i < mFilteredInactiveServers.size(); i++) {
                 if (mFilteredInactiveServers.get(i).uuid == connection.getUUID()) {
                     oldInactiveIndex = i;
@@ -79,8 +80,10 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 notifyItemInserted(ServerConnectionManager.getInstance().getConnections().indexOf(connection) + 1 + getActiveHeaderIndex());
             else
                 notifyItemRangeChanged(getActiveHeaderIndex(), 2);
-            if (oldInactiveIndex != -1)
+            if (oldInactiveIndex != -1 && getInactiveHeaderIndex() != -1)
                 notifyItemRemoved(getInactiveHeaderIndex() + 1 + oldInactiveIndex);
+            else if (oldInactiveIndex != -1)
+                notifyItemRangeRemoved(oldDividerIndex, 3);
         });
     }
 
@@ -113,7 +116,7 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         if (hadHeader)
             notifyItemInserted(mFilteredInactiveServers.indexOf(data) + 1 + getInactiveHeaderIndex());
         else
-            notifyItemRangeChanged(getInactiveHeaderIndex(), 2);
+            notifyItemRangeChanged(getDividerIndex(), 3);
     }
 
     @Override
@@ -129,7 +132,7 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         int oldEntryIndex = mFilteredInactiveServers.indexOf(data);
         updateConnections();
         if (getInactiveHeaderIndex() == -1 && oldHeaderIndex != -1)
-            notifyItemRangeRemoved(oldHeaderIndex, 2);
+            notifyItemRangeRemoved(oldHeaderIndex - 1, 3);
         else
             notifyItemRemoved(getInactiveHeaderIndex() + 1 + oldEntryIndex);
     }
