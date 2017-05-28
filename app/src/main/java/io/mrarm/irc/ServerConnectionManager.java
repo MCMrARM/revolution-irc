@@ -1,5 +1,9 @@
 package io.mrarm.irc;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,12 +39,26 @@ public class ServerConnectionManager {
             listener.onConnectionAdded(connection);
     }
 
-    public ServerConnectionInfo createConnection(ServerConfigData data) {
+    public ServerConnectionInfo createConnection(ServerConfigData data, Context context) {
+        SharedPreferences defaultPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+
         IRCConnection connection = new IRCConnection();
         IRCConnectionRequest request = new IRCConnectionRequest();
         request
-                .setServerAddress(data.address, data.port)
-                .addNick(data.nick).setUser(data.user).setRealName(data.realname); // TODO: a way to set default values
+                .setServerAddress(data.address, data.port);
+        if (data.nick != null)
+            request.addNick(data.nick);
+        else
+            request.addNick(defaultPrefs.getString("default_nick", null));
+        if (data.user != null)
+            request.setUser(data.user);
+        else
+            request.setUser(defaultPrefs.getString("default_user", null));
+        if (data.realname != null)
+            request.setRealName(data.realname);
+        else
+            request.setRealName(defaultPrefs.getString("default_user", null));
+
         if (data.ssl) {
             ServerSSLHelper sslHelper = new ServerSSLHelper(null);
             request.enableSSL(sslHelper.createSocketFactory(), sslHelper.createHostnameVerifier());

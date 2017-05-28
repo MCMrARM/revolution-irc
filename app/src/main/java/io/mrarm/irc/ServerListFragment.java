@@ -46,7 +46,7 @@ public class ServerListFragment extends Fragment {
             ((MainActivity) getActivity()).openServer(info, null);
         });
         mAdapter.setInactiveServerClickListener((ServerConfigData data) -> {
-            ServerConnectionManager.getInstance().createConnection(data);
+            ServerConnectionManager.getInstance().createConnection(data, getContext());
         });
         mAdapter.setInactiveServerLongClickListener((ServerConfigData data) -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());

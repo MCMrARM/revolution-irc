@@ -31,7 +31,7 @@ public class ServerConfigManager {
 
     public static ServerConfigManager getInstance(Context context) {
         if (mInstance == null)
-            mInstance = new ServerConfigManager(context);
+            mInstance = new ServerConfigManager(context.getApplicationContext());
         return mInstance;
     }
 
