@@ -13,7 +13,7 @@ import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
 
-public class DrawerHelper implements ServerConnectionManager.ConnectionsListener, ServerConnectionInfo.ChannelListChangeListener {
+public class DrawerHelper implements ServerConnectionManager.ConnectionsListener, ServerConnectionInfo.InfoChangeListener, ServerConnectionInfo.ChannelListChangeListener {
 
     private Activity mActivity;
     private RecyclerView mRecyclerView;
@@ -75,6 +75,13 @@ public class DrawerHelper implements ServerConnectionManager.ConnectionsListener
     @Override
     public void onConnectionRemoved(ServerConnectionInfo connection) {
         mActivity.runOnUiThread(mAdapter::notifyServerListChanged);
+    }
+
+    @Override
+    public void onConnectionInfoChanged(ServerConnectionInfo connection) {
+        mActivity.runOnUiThread(() -> {
+            mAdapter.notifyServerInfoChanged(connection);
+        });
     }
 
     @Override

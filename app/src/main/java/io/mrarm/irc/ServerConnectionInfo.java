@@ -16,6 +16,7 @@ public class ServerConnectionInfo {
     private ChatApi mApi;
     private boolean mExpandedInDrawer = true;
     private boolean mConnected = false;
+    private List<InfoChangeListener> mInfoListeners = new ArrayList<>();
     private List<ChannelListChangeListener> mChannelsListeners = new ArrayList<>();
 
     public ServerConnectionInfo(ServerConnectionManager manager, UUID uuid, String name, ChatApi api) {
@@ -60,6 +61,7 @@ public class ServerConnectionInfo {
 
     public void setConnected(boolean connected) {
         mConnected = connected;
+        notifyInfoChanged();
     }
 
     public List<String> getChannels() {
@@ -81,6 +83,14 @@ public class ServerConnectionInfo {
         mExpandedInDrawer = expanded;
     }
 
+    public void addOnChannelInfoChangeListener(InfoChangeListener listener) {
+        mInfoListeners.add(listener);
+    }
+
+    public void removeOnChannelInfoChangeListener(InfoChangeListener listener) {
+        mInfoListeners.remove(listener);
+    }
+
     public void addOnChannelListChangeListener(ChannelListChangeListener listener) {
         mChannelsListeners.add(listener);
     }
@@ -89,10 +99,18 @@ public class ServerConnectionInfo {
         mChannelsListeners.remove(listener);
     }
 
+    private void notifyInfoChanged() {
+        for (InfoChangeListener listener : mInfoListeners)
+            listener.onConnectionInfoChanged(this);
+        mManager.notifyConnectionInfoChanged(this);
+    }
+
+    public interface InfoChangeListener {
+        void onConnectionInfoChanged(ServerConnectionInfo connection);
+    }
+
     public interface ChannelListChangeListener {
-
         void onChannelListChanged(ServerConnectionInfo connection, List<String> newChannels);
-
     }
 
 }

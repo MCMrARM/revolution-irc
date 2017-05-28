@@ -16,6 +16,7 @@ public class ServerConnectionManager {
     private ArrayList<ServerConnectionInfo> mConnections = new ArrayList<>();
     private List<ConnectionsListener> mListeners = new ArrayList<>();
     private List<ServerConnectionInfo.ChannelListChangeListener> mChannelsListeners = new ArrayList<>();
+    private List<ServerConnectionInfo.InfoChangeListener> mInfoListeners = new ArrayList<>();
 
     public static ServerConnectionManager getInstance() {
         if (instance == null)
@@ -70,6 +71,14 @@ public class ServerConnectionManager {
         mListeners.remove(listener);
     }
 
+    public void addGlobalChannelInfoListener(ServerConnectionInfo.InfoChangeListener listener) {
+        mInfoListeners.add(listener);
+    }
+
+    public void removeGlobalChannelInfoListener(ServerConnectionInfo.InfoChangeListener listener) {
+        mInfoListeners.remove(listener);
+    }
+
     public void addGlobalChannelListListener(ServerConnectionInfo.ChannelListChangeListener listener) {
         mChannelsListeners.add(listener);
     }
@@ -78,7 +87,12 @@ public class ServerConnectionManager {
         mChannelsListeners.remove(listener);
     }
 
-    public void notifyChannelListChanged(ServerConnectionInfo connection, List<String> newChannels) {
+    void notifyConnectionInfoChanged(ServerConnectionInfo connection) {
+        for (ServerConnectionInfo.InfoChangeListener listener : mInfoListeners)
+            listener.onConnectionInfoChanged(connection);
+    }
+
+    void notifyChannelListChanged(ServerConnectionInfo connection, List<String> newChannels) {
         for (ServerConnectionInfo.ChannelListChangeListener listener : mChannelsListeners)
             listener.onChannelListChanged(connection, newChannels);
     }

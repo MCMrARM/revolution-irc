@@ -129,6 +129,13 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         notifyDataSetChanged();
     }
 
+    public void notifyServerInfoChanged(ServerConnectionInfo changedInfo) {
+        for (Map.Entry<Integer, ServerConnectionInfo> p : mItemIndexToServerMap.entrySet()) {
+            if (p.getValue() == changedInfo)
+                notifyItemChanged(p.getKey());
+        }
+    }
+
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         if (viewType == TYPE_DRAWER_HEADER) {

@@ -1,5 +1,6 @@
 package io.mrarm.irc;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.v4.graphics.drawable.DrawableCompat;
@@ -14,14 +15,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
-        implements ServerConnectionManager.ConnectionsListener, ServerConfigManager.ConnectionsListener {
+        implements ServerConnectionManager.ConnectionsListener,
+        ServerConnectionInfo.InfoChangeListener, ServerConfigManager.ConnectionsListener {
 
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_CONNECTED_SERVER = 1;
     private static final int TYPE_INACTIVE_SERVER = 2;
     private static final int TYPE_DIVIDER = 3;
 
-    private Context mContext;
+    private Activity mContext;
 
     private List<ServerConfigData> mFilteredInactiveServers = new ArrayList<>();
 
@@ -36,7 +38,7 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private int mActiveConnectionCount = 0;
     private int mInactiveConnectionCount = 0;
 
-    public ServerListAdapter(Context context) {
+    public ServerListAdapter(Activity context) {
         mContext = context;
         mColorConnected = context.getResources().getColor(R.color.serverListConnected);
         mColorConnecting = context.getResources().getColor(R.color.serverListConnecting);
@@ -46,37 +48,50 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     public void registerListeners() {
         ServerConnectionManager.getInstance().addListener(this);
+        ServerConnectionManager.getInstance().addGlobalChannelInfoListener(this);
         ServerConfigManager.getInstance(mContext).addListener(this);
     }
 
     public void unregisterListeners() {
         ServerConnectionManager.getInstance().removeListener(this);
+        ServerConnectionManager.getInstance().removeGlobalChannelInfoListener(this);
         ServerConfigManager.getInstance(mContext).removeListener(this);
     }
 
     @Override
     public void onConnectionAdded(ServerConnectionInfo connection) {
-        boolean hadHeader = (getActiveHeaderIndex() != -1);
-        int oldInactiveIndex = -1;
-        for (int i = 0; i < mFilteredInactiveServers.size(); i++) {
-            if (mFilteredInactiveServers.get(i).uuid == connection.getUUID()) {
-                oldInactiveIndex = i;
-                break;
+        mContext.runOnUiThread(() -> {
+            boolean hadHeader = (getActiveHeaderIndex() != -1);
+            int oldInactiveIndex = -1;
+            for (int i = 0; i < mFilteredInactiveServers.size(); i++) {
+                if (mFilteredInactiveServers.get(i).uuid == connection.getUUID()) {
+                    oldInactiveIndex = i;
+                    break;
+                }
             }
-        }
-        updateConnections();
-        if (hadHeader)
-            notifyItemInserted(ServerConnectionManager.getInstance().getConnections().indexOf(connection) + 1 + getActiveHeaderIndex());
-        else
-            notifyItemRangeChanged(getActiveHeaderIndex(), 2);
-        if (oldInactiveIndex != -1)
-            notifyItemRemoved(getInactiveHeaderIndex() + 1 + oldInactiveIndex);
+            updateConnections();
+            if (hadHeader)
+                notifyItemInserted(ServerConnectionManager.getInstance().getConnections().indexOf(connection) + 1 + getActiveHeaderIndex());
+            else
+                notifyItemRangeChanged(getActiveHeaderIndex(), 2);
+            if (oldInactiveIndex != -1)
+                notifyItemRemoved(getInactiveHeaderIndex() + 1 + oldInactiveIndex);
+        });
     }
 
     @Override
     public void onConnectionRemoved(ServerConnectionInfo connection) {
-        updateConnections();
-        notifyDataSetChanged();
+        mContext.runOnUiThread(() -> {
+            updateConnections();
+            notifyDataSetChanged();
+        });
+    }
+
+    @Override
+    public void onConnectionInfoChanged(ServerConnectionInfo connection) {
+        mContext.runOnUiThread(() -> {
+            notifyItemChanged(getActiveHeaderIndex() + 1 + ServerConnectionManager.getInstance().getConnections().indexOf(connection));
+        });
     }
 
     @Override
@@ -91,7 +106,9 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     @Override
     public void onConnectionUpdated(ServerConfigData data) {
-        notifyItemChanged(getInactiveHeaderIndex() + 1 + mFilteredInactiveServers.indexOf(data));
+        mContext.runOnUiThread(() -> {
+            notifyItemChanged(getInactiveHeaderIndex() + 1 + mFilteredInactiveServers.indexOf(data));
+        });
     }
 
     @Override
