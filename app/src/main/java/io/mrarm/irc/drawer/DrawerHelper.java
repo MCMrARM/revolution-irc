@@ -13,14 +13,16 @@ import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
 
-public class DrawerHelper {
+public class DrawerHelper implements ServerConnectionManager.ConnectionsListener, ServerConnectionInfo.ChannelListChangeListener {
 
+    private Activity mActivity;
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
     private DrawerMenuListAdapter mAdapter;
     private DrawerMenuItem mManageServersItem;
 
     public DrawerHelper(Activity activity) {
+        mActivity = activity;
         mRecyclerView = (RecyclerView) activity.findViewById(R.id.nav_list);
         mLayoutManager = new LinearLayoutManager(activity);
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -30,24 +32,6 @@ public class DrawerHelper {
         mAdapter = new DrawerMenuListAdapter(activity,
                 ServerConnectionManager.getInstance().getConnections());
 
-        ServerConnectionManager.getInstance().addListener(new ServerConnectionManager.ConnectionsListener() {
-            @Override
-            public void onConnectionAdded(ServerConnectionInfo connection) {
-                activity.runOnUiThread(mAdapter::notifyServerListChanged);
-            }
-            @Override
-            public void onConnectionRemoved(ServerConnectionInfo connection) {
-                activity.runOnUiThread(mAdapter::notifyServerListChanged);
-            }
-        });
-        for (ServerConnectionInfo connectionInfo : ServerConnectionManager.getInstance()
-                .getConnections()) {
-            connectionInfo.addOnChannelListChangeListener((ServerConnectionInfo connection,
-                                                           List<String> newChannels) -> {
-                activity.runOnUiThread(mAdapter::notifyServerListChanged);
-            });
-        }
-
         mManageServersItem = new DrawerMenuItem(r.getString(R.string.action_servers),
                 r.getDrawable(R.drawable.ic_edit));
         mAdapter.addMenuItem(mManageServersItem);
@@ -55,6 +39,16 @@ public class DrawerHelper {
                 r.getDrawable(R.drawable.ic_settings)));
 
         mRecyclerView.setAdapter(mAdapter);
+    }
+
+    public void registerListeners() {
+        ServerConnectionManager.getInstance().addListener(this);
+        ServerConnectionManager.getInstance().addGlobalChannelListListener(this);
+    }
+
+    public void unregisterListeners() {
+        ServerConnectionManager.getInstance().removeListener(this);
+        ServerConnectionManager.getInstance().removeGlobalChannelListListener(this);
     }
 
     public void setChannelClickListener(DrawerMenuListAdapter.ChannelClickListener listener) {
@@ -73,4 +67,18 @@ public class DrawerHelper {
         mAdapter.setSelectedMenuItem(menuItem);
     }
 
+    @Override
+    public void onConnectionAdded(ServerConnectionInfo connection) {
+        mActivity.runOnUiThread(mAdapter::notifyServerListChanged);
+    }
+
+    @Override
+    public void onConnectionRemoved(ServerConnectionInfo connection) {
+        mActivity.runOnUiThread(mAdapter::notifyServerListChanged);
+    }
+
+    @Override
+    public void onChannelListChanged(ServerConnectionInfo connection, List<String> newChannels) {
+        mActivity.runOnUiThread(mAdapter::notifyServerListChanged);
+    }
 }

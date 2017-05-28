@@ -38,24 +38,9 @@ public class MainActivity extends AppCompatActivity {
             throw new RuntimeException(t);
         }
 
-        ServerConnectionInfo connectionInfo = new ServerConnectionInfo(UUID.randomUUID(), "Test Connection", api);
+        ServerConnectionInfo connectionInfo = new ServerConnectionInfo(ServerConnectionManager.getInstance(), UUID.randomUUID(), "Test Connection", api);
         ServerConnectionManager.getInstance().addConnection(connectionInfo);
         connectionInfo.setConnected(true);
-        return connectionInfo;
-    }
-
-    private ServerConnectionInfo createTestNetworkConnection() {
-        IRCConnection connection = new IRCConnection();
-        ServerSSLHelper sslHelper = new ServerSSLHelper(new File(getFilesDir(), "test-keystore.jks"));
-        connection.connect(new IRCConnectionRequest().setServerAddress("irc.freenode.net", 6697).addNick("mrarm-testing").setUser("mrarm-testing").setRealName("mrarm-testing").enableSSL(sslHelper.createSocketFactory(), sslHelper.createHostnameVerifier()),
-                (Void v) -> {
-                    ArrayList<String> channels = new ArrayList<>();
-                    channels.add("#mrarm-testing");
-                    connection.joinChannels(channels, null, null);
-                }, null);
-
-        ServerConnectionInfo connectionInfo = new ServerConnectionInfo(UUID.randomUUID(), "Test Connection", connection);
-        ServerConnectionManager.getInstance().addConnection(connectionInfo);
         return connectionInfo;
     }
 
@@ -69,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         mDrawerHelper = new DrawerHelper(this);
+        mDrawerHelper.registerListeners();
 
         mDrawerHelper.setChannelClickListener((ServerConnectionInfo server, String channel) -> {
             mDrawerLayout.closeDrawers();
@@ -85,6 +71,12 @@ public class MainActivity extends AppCompatActivity {
 
         //openServer(testInfo, null);
         openManageServers();
+    }
+
+    @Override
+    protected void onDestroy() {
+        mDrawerHelper.unregisterListeners();
+        super.onDestroy();
     }
 
     @Override

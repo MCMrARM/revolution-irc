@@ -9,6 +9,7 @@ import io.mrarm.chatlib.ChatApi;
 
 public class ServerConnectionInfo {
 
+    private ServerConnectionManager mManager;
     private UUID mUUID;
     private String mName;
     private List<String> mChannels;
@@ -17,7 +18,8 @@ public class ServerConnectionInfo {
     private boolean mConnected = false;
     private List<ChannelListChangeListener> mChannelsListeners = new ArrayList<>();
 
-    public ServerConnectionInfo(UUID uuid, String name, ChatApi api) {
+    public ServerConnectionInfo(ServerConnectionManager manager, UUID uuid, String name, ChatApi api) {
+        mManager = manager;
         mUUID = uuid;
         mName = name;
         mApi = api;
@@ -66,9 +68,9 @@ public class ServerConnectionInfo {
 
     public void setChannels(List<String> channels) {
         mChannels = channels;
-        for (ChannelListChangeListener listener : mChannelsListeners) {
+        for (ChannelListChangeListener listener : mChannelsListeners)
             listener.onChannelListChanged(this, channels);
-        }
+        mManager.notifyChannelListChanged(this, channels);
     }
 
     public boolean isExpandedInDrawer() {

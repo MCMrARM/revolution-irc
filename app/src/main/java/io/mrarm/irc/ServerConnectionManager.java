@@ -15,6 +15,7 @@ public class ServerConnectionManager {
     private HashMap<UUID, ServerConnectionInfo> mConnectionsMap = new HashMap<>();
     private ArrayList<ServerConnectionInfo> mConnections = new ArrayList<>();
     private List<ConnectionsListener> mListeners = new ArrayList<>();
+    private List<ServerConnectionInfo.ChannelListChangeListener> mChannelsListeners = new ArrayList<>();
 
     public static ServerConnectionManager getInstance() {
         if (instance == null)
@@ -43,7 +44,7 @@ public class ServerConnectionManager {
             ServerSSLHelper sslHelper = new ServerSSLHelper(null);
             request.enableSSL(sslHelper.createSocketFactory(), sslHelper.createHostnameVerifier());
         }
-        ServerConnectionInfo connectionInfo = new ServerConnectionInfo(data.uuid, data.name, connection);
+        ServerConnectionInfo connectionInfo = new ServerConnectionInfo(this, data.uuid, data.name, connection);
         connection.connect(request, (Void v) -> {
             connectionInfo.setConnected(true);
             connection.joinChannels(data.autojoinChannels, null, null);
@@ -67,6 +68,19 @@ public class ServerConnectionManager {
 
     public void removeListener(ConnectionsListener listener) {
         mListeners.remove(listener);
+    }
+
+    public void addGlobalChannelListListener(ServerConnectionInfo.ChannelListChangeListener listener) {
+        mChannelsListeners.add(listener);
+    }
+
+    public void removeGlobalChannelListListener(ServerConnectionInfo.ChannelListChangeListener listener) {
+        mChannelsListeners.remove(listener);
+    }
+
+    public void notifyChannelListChanged(ServerConnectionInfo connection, List<String> newChannels) {
+        for (ServerConnectionInfo.ChannelListChangeListener listener : mChannelsListeners)
+            listener.onChannelListChanged(connection, newChannels);
     }
 
     public interface ConnectionsListener {
