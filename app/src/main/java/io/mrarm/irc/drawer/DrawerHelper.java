@@ -35,11 +35,9 @@ public class DrawerHelper implements ServerConnectionManager.ConnectionsListener
         mAdapter = new DrawerMenuListAdapter(activity,
                 ServerConnectionManager.getInstance().getConnections());
 
-        mManageServersItem = new DrawerMenuItem(r.getString(R.string.action_servers),
-                r.getDrawable(R.drawable.ic_edit));
+        mManageServersItem = new DrawerMenuItem(r.getString(R.string.action_servers), R.drawable.ic_edit);
         mAdapter.addMenuItem(mManageServersItem);
-        mSettingsItem = new DrawerMenuItem(r.getString(R.string.action_settings),
-                r.getDrawable(R.drawable.ic_settings));
+        mSettingsItem = new DrawerMenuItem(r.getString(R.string.action_settings), R.drawable.ic_settings);
         mSettingsItem.setOnClickListener((View view) -> {
             activity.startActivity(new Intent(activity, SettingsActivity.class));
         });

@@ -1,33 +1,32 @@
 package io.mrarm.irc.drawer;
 
-import android.graphics.drawable.Drawable;
 import android.view.View;
 
 public class DrawerMenuItem {
 
     String mName;
-    Drawable mIcon;
+    int mIconResId;
     View.OnClickListener mListener;
 
-    public DrawerMenuItem(String name, Drawable icon) {
+    public DrawerMenuItem(String name, int iconResId) {
         this.mName = name;
-        this.mIcon = icon;
+        this.mIconResId = iconResId;
     }
 
     public String getName() {
         return mName;
     }
 
-    public Drawable getIcon() {
-        return mIcon;
+    public int getIcon() {
+        return mIconResId;
     }
 
     public void setName(String name) {
         this.mName = name;
     }
 
-    public void setIcon(Drawable icon) {
-        this.mIcon = icon;
+    public void setIcon(int iconResId) {
+        this.mIconResId = iconResId;
     }
 
     public void setOnClickListener(View.OnClickListener listener) {

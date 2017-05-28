@@ -313,16 +313,17 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         public void bind(DrawerMenuListAdapter adapter, DrawerMenuItem item) {
             mName.setText(item.getName());
             mView.setOnClickListener(item.mListener);
+            mIcon.setImageResource(item.getIcon());
             if (adapter.mSelectedMenuItem != null && adapter.mSelectedMenuItem.get() == item) {
                 mView.setSelected(true);
                 mView.setBackgroundDrawable(adapter.mChannelSelectedBackground);
-                Drawable d = DrawableCompat.wrap(item.getIcon().getConstantState().newDrawable());
+
+                Drawable d = DrawableCompat.wrap(mIcon.getDrawable()).mutate();
                 DrawableCompat.setTint(d, adapter.mSelectedIconColor);
                 mIcon.setImageDrawable(d);
             } else {
                 mView.setSelected(false);
                 mView.setBackgroundDrawable(adapter.mChannelBackground.getConstantState().newDrawable());
-                mIcon.setImageDrawable(item.getIcon());
             }
         }
 
