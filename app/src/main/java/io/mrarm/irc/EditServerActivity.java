@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,6 +15,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.UUID;
 
 public class EditServerActivity extends AppCompatActivity {
@@ -27,6 +29,7 @@ public class EditServerActivity extends AppCompatActivity {
     private EditText mServerAddress;
     private EditText mServerPort;
     private CheckBox mServerSSL;
+    private EditText mServerChannels;
 
     public static Intent getLaunchIntent(Context context, ServerConfigData data) {
         Intent intent = new Intent(context, EditServerActivity.class);
@@ -51,12 +54,15 @@ public class EditServerActivity extends AppCompatActivity {
         mServerAddress = (EditText) findViewById(R.id.server_address_name);
         mServerPort = (EditText) findViewById(R.id.server_address_port);
         mServerSSL = (CheckBox) findViewById(R.id.server_ssl_checkbox);
+        mServerChannels = (EditText) findViewById(R.id.server_channels);
 
         if (mEditServer != null) {
             mServerName.setText(mEditServer.name);
             mServerAddress.setText(mEditServer.address);
             mServerPort.setText(String.valueOf(mEditServer.port));
             mServerSSL.setChecked(mEditServer.ssl);
+            if (mEditServer.autojoinChannels != null)
+                mServerChannels.setText(TextUtils.join(" ", mEditServer.autojoinChannels));
         } else {
             findViewById(R.id.server_ssl_certs).setVisibility(View.GONE);
         }
@@ -71,6 +77,7 @@ public class EditServerActivity extends AppCompatActivity {
         mEditServer.address = mServerAddress.getText().toString();
         mEditServer.port = Integer.parseInt(mServerPort.getText().toString());
         mEditServer.ssl = mServerSSL.isChecked();
+        mEditServer.autojoinChannels = Arrays.asList(mServerChannels.getText().toString().split(" "));
         try {
             ServerConfigManager.getInstance(this).saveServer(mEditServer);
         } catch (IOException e) {

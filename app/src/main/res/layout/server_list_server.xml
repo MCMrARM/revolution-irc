@@ -20,7 +20,7 @@
             android:id="@+id/server_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_server_inactive"
+            app:srcCompat="@drawable/ic_list"
             android:tint="#fff"
             android:layout_gravity="center"/>
 
