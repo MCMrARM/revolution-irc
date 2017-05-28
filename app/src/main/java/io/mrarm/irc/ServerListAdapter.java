@@ -16,12 +16,15 @@ import java.util.List;
 
 public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         implements ServerConnectionManager.ConnectionsListener,
-        ServerConnectionInfo.InfoChangeListener, ServerConfigManager.ConnectionsListener {
+        ServerConnectionInfo.InfoChangeListener, ServerConnectionInfo.ChannelListChangeListener,
+        ServerConfigManager.ConnectionsListener {
 
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_CONNECTED_SERVER = 1;
     private static final int TYPE_INACTIVE_SERVER = 2;
     private static final int TYPE_DIVIDER = 3;
+
+    private static final Integer DISABLE_ANIM = 10;
 
     private Activity mContext;
 
@@ -48,13 +51,15 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     public void registerListeners() {
         ServerConnectionManager.getInstance().addListener(this);
-        ServerConnectionManager.getInstance().addGlobalChannelInfoListener(this);
+        ServerConnectionManager.getInstance().addGlobalConnectionInfoListener(this);
+        ServerConnectionManager.getInstance().addGlobalChannelListListener(this);
         ServerConfigManager.getInstance(mContext).addListener(this);
     }
 
     public void unregisterListeners() {
         ServerConnectionManager.getInstance().removeListener(this);
-        ServerConnectionManager.getInstance().removeGlobalChannelInfoListener(this);
+        ServerConnectionManager.getInstance().removeGlobalConnectionInfoListener(this);
+        ServerConnectionManager.getInstance().removeGlobalChannelListListener(this);
         ServerConfigManager.getInstance(mContext).removeListener(this);
     }
 
@@ -91,6 +96,13 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     public void onConnectionInfoChanged(ServerConnectionInfo connection) {
         mContext.runOnUiThread(() -> {
             notifyItemChanged(getActiveHeaderIndex() + 1 + ServerConnectionManager.getInstance().getConnections().indexOf(connection));
+        });
+    }
+
+    @Override
+    public void onChannelListChanged(ServerConnectionInfo connection, List<String> newChannels) {
+        mContext.runOnUiThread(() -> {
+            notifyItemChanged(getActiveHeaderIndex() + 1 + ServerConnectionManager.getInstance().getConnections().indexOf(connection), DISABLE_ANIM);
         });
     }
 
@@ -178,6 +190,14 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             case TYPE_INACTIVE_SERVER:
                 ((ServerHolder) viewHolder).bind(this, ServerConfigManager.getInstance(mContext).getServers().get(position - getInactiveHeaderIndex() - 1));
                 break;
+        }
+    }
+
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position, List<Object> payloads) {
+        onBindViewHolder(holder, position);
+        if (payloads.contains(DISABLE_ANIM)) {
+            holder.itemView.clearAnimation();
         }
     }
 

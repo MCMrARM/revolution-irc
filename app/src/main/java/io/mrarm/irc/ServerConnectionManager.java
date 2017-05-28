@@ -89,11 +89,11 @@ public class ServerConnectionManager {
         mListeners.remove(listener);
     }
 
-    public void addGlobalChannelInfoListener(ServerConnectionInfo.InfoChangeListener listener) {
+    public void addGlobalConnectionInfoListener(ServerConnectionInfo.InfoChangeListener listener) {
         mInfoListeners.add(listener);
     }
 
-    public void removeGlobalChannelInfoListener(ServerConnectionInfo.InfoChangeListener listener) {
+    public void removeGlobalConnectionInfoListener(ServerConnectionInfo.InfoChangeListener listener) {
         mInfoListeners.remove(listener);
     }
 

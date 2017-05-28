@@ -48,11 +48,13 @@ public class DrawerHelper implements ServerConnectionManager.ConnectionsListener
 
     public void registerListeners() {
         ServerConnectionManager.getInstance().addListener(this);
+        ServerConnectionManager.getInstance().addGlobalConnectionInfoListener(this);
         ServerConnectionManager.getInstance().addGlobalChannelListListener(this);
     }
 
     public void unregisterListeners() {
         ServerConnectionManager.getInstance().removeListener(this);
+        ServerConnectionManager.getInstance().removeGlobalConnectionInfoListener(this);
         ServerConnectionManager.getInstance().removeGlobalChannelListListener(this);
     }
 
