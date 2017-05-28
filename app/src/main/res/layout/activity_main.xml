@@ -9,10 +9,24 @@
     tools:openDrawer="start"
     tools:context="io.mrarm.irc.MainActivity">
 
-    <FrameLayout
-        android:id="@+id/content_frame"
+
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+
+        <FrameLayout
+            android:id="@+id/fake_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary" />
+
+        <FrameLayout
+            android:id="@+id/content_frame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:elevation="10dp"/>
+
+    </RelativeLayout>
 
     <android.support.design.widget.NavigationView
         android:id="@+id/nav_view"
