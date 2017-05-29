@@ -59,6 +59,9 @@ public class ServerConnectionManager {
         else
             request.setRealName(defaultPrefs.getString("default_user", null));
 
+        if (data.pass != null)
+            request.setServerPass(data.pass);
+
         if (data.ssl) {
             ServerSSLHelper sslHelper = new ServerSSLHelper(null);
             request.enableSSL(sslHelper.createSocketFactory(), sslHelper.createHostnameVerifier());

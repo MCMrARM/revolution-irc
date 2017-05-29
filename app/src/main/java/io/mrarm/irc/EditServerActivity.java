@@ -32,6 +32,7 @@ public class EditServerActivity extends AppCompatActivity {
     private EditText mServerAddress;
     private EditText mServerPort;
     private CheckBox mServerSSL;
+    private EditText mServerPass;
     private EditText mServerNick;
     private EditText mServerUser;
     private EditText mServerRealname;
@@ -63,6 +64,7 @@ public class EditServerActivity extends AppCompatActivity {
         mServerAddress = (EditText) findViewById(R.id.server_address_name);
         mServerPort = (EditText) findViewById(R.id.server_address_port);
         mServerSSL = (CheckBox) findViewById(R.id.server_ssl_checkbox);
+        mServerPass = (EditText) findViewById(R.id.server_password);
         mServerNick = (EditText) findViewById(R.id.server_nick);
         mServerUser = (EditText) findViewById(R.id.server_user);
         mServerRealname = (EditText) findViewById(R.id.server_realname);
@@ -80,10 +82,11 @@ public class EditServerActivity extends AppCompatActivity {
             mServerAddress.setText(mEditServer.address);
             mServerPort.setText(String.valueOf(mEditServer.port));
             mServerSSL.setChecked(mEditServer.ssl);
+            mServerPass.setText(mEditServer.pass); // TODO: Don't just display it
             if (mEditServer.autojoinChannels != null)
                 mServerChannels.setText(TextUtils.join(" ", mEditServer.autojoinChannels));
-            mServerNick.setText(mEditServer.nick);
 
+            mServerNick.setText(mEditServer.nick);
             if (mEditServer.user != null || mEditServer.realname != null) {
                 mServerUser.setText(mEditServer.user);
                 mServerRealname.setText(mEditServer.realname);
@@ -108,6 +111,7 @@ public class EditServerActivity extends AppCompatActivity {
         mEditServer.nick = mServerNick.getText().toString();
         mEditServer.user = mServerUser.getText().toString();
         mEditServer.realname = mServerRealname.getText().toString();
+        mEditServer.pass = mServerPass.getText().toString();
         mEditServer.autojoinChannels = Arrays.asList(mServerChannels.getText().toString().split(" "));
         try {
             ServerConfigManager.getInstance(this).saveServer(mEditServer);

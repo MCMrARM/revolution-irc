@@ -11,6 +11,7 @@ public class ServerConfigData {
     public String address;
     public int port;
     public boolean ssl;
+    public String pass;
 
     public String nick;
     public String user;
