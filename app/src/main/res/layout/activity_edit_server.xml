@@ -16,8 +16,8 @@
         android:animateLayoutChanges="true">
 
         <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            style="@style/EditServerItemContainer"
+            android:layout_marginTop="0dp">
 
             <ImageView
                 app:srcCompat="@drawable/ic_server_name"
@@ -36,10 +36,7 @@
 
         </RelativeLayout>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/add_server_item_spacing">
+        <RelativeLayout style="@style/EditServerItemContainer">
 
             <ImageView
                 app:srcCompat="@drawable/ic_server_address"
@@ -81,10 +78,7 @@
 
         </RelativeLayout>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/add_server_item_spacing">
+        <RelativeLayout style="@style/EditServerItemContainer">
 
             <ImageView
                 android:id="@+id/server_ssl_icon"
@@ -142,10 +136,7 @@
 
         </RelativeLayout>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/add_server_item_spacing">
+        <RelativeLayout style="@style/EditServerItemContainer">
 
             <ImageView
                 app:srcCompat="@drawable/ic_server_password"
@@ -164,10 +155,7 @@
 
         </RelativeLayout>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/add_server_item_spacing">
+        <RelativeLayout style="@style/EditServerItemContainer">
 
             <ImageView
                 android:id="@+id/server_user_icon"
@@ -205,11 +193,9 @@
         </RelativeLayout>
 
         <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
+            style="@style/EditServerItemContainer"
             android:id="@+id/server_user_expand_content"
-            android:layout_marginTop="8dp">
+            android:visibility="gone">
 
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/server_user_ctr"
@@ -242,10 +228,7 @@
 
         </RelativeLayout>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/add_server_item_spacing">
+        <RelativeLayout style="@style/EditServerItemContainer">
 
             <ImageView
                 android:id="@+id/server_channels_icon"
