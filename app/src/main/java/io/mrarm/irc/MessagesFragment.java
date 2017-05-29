@@ -90,7 +90,9 @@ public class MessagesFragment extends Fragment implements StatusMessageListener,
 
         View rootView = inflater.inflate(R.layout.chat_messages_fragment, container, false);
         mRecyclerView = (RecyclerView) rootView;
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        LinearLayoutManager mgr = new LinearLayoutManager(getContext());
+        mgr.setStackFromEnd(true);
+        mRecyclerView.setLayoutManager(mgr);
 
         if (channelName != null) {
             mAdapter = new ChatMessagesAdapter(new MessageList(new ArrayList<>()));

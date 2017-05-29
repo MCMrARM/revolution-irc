@@ -28,7 +28,12 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout mDrawerLayout;
     private DrawerHelper mDrawerHelper;
 
-    private ServerConnectionInfo createTestFileConnection() {
+    private static ServerConnectionInfo mTestConnection;
+
+    private void createTestFileConnection() {
+        if (mTestConnection != null)
+            return;
+        
         TestApiImpl api = new TestApiImpl("test-user");
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(getResources().openRawResource(R.raw.testdata)));
@@ -38,10 +43,9 @@ public class MainActivity extends AppCompatActivity {
             throw new RuntimeException(t);
         }
 
-        ServerConnectionInfo connectionInfo = new ServerConnectionInfo(ServerConnectionManager.getInstance(), UUID.randomUUID(), "Test Connection", api);
-        ServerConnectionManager.getInstance().addConnection(connectionInfo);
-        connectionInfo.setConnected(true);
-        return connectionInfo;
+        mTestConnection = new ServerConnectionInfo(ServerConnectionManager.getInstance(), UUID.randomUUID(), "Test Connection", api);
+        ServerConnectionManager.getInstance().addConnection(mTestConnection);
+        mTestConnection.setConnected(true);
     }
 
     @Override
@@ -49,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ServerConnectionInfo testInfo = createTestFileConnection();
+        createTestFileConnection();
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
