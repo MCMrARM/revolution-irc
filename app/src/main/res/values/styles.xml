@@ -41,6 +41,27 @@
         <item name="android:layout_marginRight">16dp</item>
     </style>
 
+    <style name="EditServerTextInput.ExtraAction" parent="EditServerTextInput">
+        <item name="android:layout_marginRight">56dp</item>
+    </style>
+
+    <style name="BaseEditServerExtraAction" parent="Widget.AppCompat.ImageButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentTop">true</item>
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:layout_marginTop">14dp</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:background">?selectableItemBackgroundBorderless</item>
+    </style>
+
+    <style name="EditServerExtraAction" parent="BaseEditServerExtraAction">
+        <item name="android:layout_alignParentRight">true</item>
+    </style>
+
     <style name="EditServerItemContainer">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>

@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -33,6 +32,8 @@ public class EditServerActivity extends AppCompatActivity {
     private EditText mServerPort;
     private CheckBox mServerSSL;
     private EditText mServerPass;
+    private View mServerPassUnchanged;
+    private View mServerPassReset;
     private EditText mServerNick;
     private EditText mServerUser;
     private EditText mServerRealname;
@@ -65,6 +66,8 @@ public class EditServerActivity extends AppCompatActivity {
         mServerPort = (EditText) findViewById(R.id.server_address_port);
         mServerSSL = (CheckBox) findViewById(R.id.server_ssl_checkbox);
         mServerPass = (EditText) findViewById(R.id.server_password);
+        mServerPassUnchanged = findViewById(R.id.server_password_unchanged);
+        mServerPassReset = findViewById(R.id.server_password_reset);
         mServerNick = (EditText) findViewById(R.id.server_nick);
         mServerUser = (EditText) findViewById(R.id.server_user);
         mServerRealname = (EditText) findViewById(R.id.server_realname);
@@ -77,12 +80,24 @@ public class EditServerActivity extends AppCompatActivity {
             ExpandIconStateHelper.animateSetExpanded(mServerUserExpandIcon, mServerUserExpandContent.getVisibility() == View.VISIBLE);
         });
 
+        mServerPassReset.setOnClickListener((View view) -> {
+            mServerPassUnchanged.setVisibility(View.GONE);
+            mServerPassReset.setVisibility(View.GONE);
+            mServerPass.setVisibility(View.VISIBLE);
+        });
+
         if (mEditServer != null) {
             mServerName.setText(mEditServer.name);
             mServerAddress.setText(mEditServer.address);
             mServerPort.setText(String.valueOf(mEditServer.port));
             mServerSSL.setChecked(mEditServer.ssl);
-            mServerPass.setText(mEditServer.pass); // TODO: Don't just display it
+
+            if (mEditServer.pass != null) {
+                mServerPassUnchanged.setVisibility(View.VISIBLE);
+                mServerPassReset.setVisibility(View.VISIBLE);
+                mServerPass.setVisibility(View.GONE);
+            }
+
             if (mEditServer.autojoinChannels != null)
                 mServerChannels.setText(TextUtils.join(" ", mEditServer.autojoinChannels));
 
@@ -108,10 +123,11 @@ public class EditServerActivity extends AppCompatActivity {
         mEditServer.address = mServerAddress.getText().toString();
         mEditServer.port = Integer.parseInt(mServerPort.getText().toString());
         mEditServer.ssl = mServerSSL.isChecked();
-        mEditServer.nick = mServerNick.getText().toString();
-        mEditServer.user = mServerUser.getText().toString();
-        mEditServer.realname = mServerRealname.getText().toString();
-        mEditServer.pass = mServerPass.getText().toString();
+        mEditServer.nick = mServerNick.getText().length() > 0 ? mServerNick.getText().toString() : null;
+        mEditServer.user = mServerUser.getText().length() > 0 ? mServerUser.getText().toString() : null;
+        mEditServer.realname = mServerRealname.getText().length() > 0 ? mServerRealname.getText().toString() : null;
+        if (mServerPass.getVisibility() == View.VISIBLE)
+            mEditServer.pass = mServerPass.getText().toString();
         mEditServer.autojoinChannels = Arrays.asList(mServerChannels.getText().toString().split(" "));
         try {
             ServerConfigManager.getInstance(this).saveServer(mEditServer);

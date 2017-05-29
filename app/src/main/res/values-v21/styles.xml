@@ -26,4 +26,12 @@
         <item name="android:layout_marginEnd">16dp</item>
     </style>
 
+    <style name="EditServerTextInput.ExtraAction" parent="EditServerTextInput">
+        <item name="android:layout_marginEnd">56dp</item>
+    </style>
+
+    <style name="EditServerExtraAction" parent="BaseEditServerExtraAction">
+        <item name="android:layout_alignParentEnd">true</item>
+    </style>
+
 </resources>
