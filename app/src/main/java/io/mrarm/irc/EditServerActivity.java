@@ -91,6 +91,7 @@ public class EditServerActivity extends AppCompatActivity {
                 ExpandIconStateHelper.setExpanded(mServerUserExpandIcon, true);
             }
         } else {
+            getSupportActionBar().setTitle(R.string.add_server);
             findViewById(R.id.server_ssl_certs).setVisibility(View.GONE);
         }
     }

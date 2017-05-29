@@ -24,7 +24,7 @@
         </activity>
         <activity
             android:name=".EditServerActivity"
-            android:label="@string/add_server" />
+            android:label="@string/edit_server" />
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"

@@ -33,6 +33,7 @@
     <string name="server_list_connecting">Connecting...</string>
 
     <string name="add_server">Add a new server</string>
+    <string name="edit_server">Edit a server</string>
     <string name="server_name">Name</string>
     <string name="server_address">Server address</string>
     <string name="server_port">Port</string>
