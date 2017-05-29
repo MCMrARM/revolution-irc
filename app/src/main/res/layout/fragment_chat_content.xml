@@ -75,7 +75,7 @@
                     android:id="@+id/send_button"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    app:srcCompat="@drawable/ic_action_send"
+                    app:srcCompat="@drawable/ic_send"
                     android:layout_alignBottom="@+id/send_text"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentEnd="true"
