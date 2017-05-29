@@ -10,6 +10,7 @@
     <string name="action_delete">Delete</string>
     <string name="action_edit">Edit</string>
     <string name="action_cancel">Cancel</string>
+    <string name="action_expand">Expand</string>
     <string name="action_settings">Settings</string>
     <string name="action_servers">Manage servers</string>
 
@@ -40,6 +41,9 @@
     <string name="server_manage_custom_certs">Manage custom certificates</string>
     <string name="server_save_error">Failed to save server information</string>
     <string name="server_channels">Auto-join channel list</string>
+    <string name="server_nick">Nick</string>
+    <string name="server_user">User</string>
+    <string name="server_realname">Real name</string>
 
     <string name="title_activity_settings">Settings</string>
 

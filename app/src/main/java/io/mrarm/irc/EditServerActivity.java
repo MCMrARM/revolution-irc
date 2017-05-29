@@ -12,11 +12,14 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.UUID;
+
+import io.mrarm.irc.util.ExpandIconStateHelper;
 
 public class EditServerActivity extends AppCompatActivity {
 
@@ -29,7 +32,13 @@ public class EditServerActivity extends AppCompatActivity {
     private EditText mServerAddress;
     private EditText mServerPort;
     private CheckBox mServerSSL;
+    private EditText mServerNick;
+    private EditText mServerUser;
+    private EditText mServerRealname;
     private EditText mServerChannels;
+
+    private View mServerUserExpandIcon;
+    private View mServerUserExpandContent;
 
     public static Intent getLaunchIntent(Context context, ServerConfigData data) {
         Intent intent = new Intent(context, EditServerActivity.class);
@@ -54,7 +63,17 @@ public class EditServerActivity extends AppCompatActivity {
         mServerAddress = (EditText) findViewById(R.id.server_address_name);
         mServerPort = (EditText) findViewById(R.id.server_address_port);
         mServerSSL = (CheckBox) findViewById(R.id.server_ssl_checkbox);
+        mServerNick = (EditText) findViewById(R.id.server_nick);
+        mServerUser = (EditText) findViewById(R.id.server_user);
+        mServerRealname = (EditText) findViewById(R.id.server_realname);
         mServerChannels = (EditText) findViewById(R.id.server_channels);
+
+        mServerUserExpandIcon = findViewById(R.id.server_user_expand);
+        mServerUserExpandContent = findViewById(R.id.server_user_expand_content);
+        mServerUserExpandIcon.setOnClickListener((View view) -> {
+            mServerUserExpandContent.setVisibility(mServerUserExpandContent.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
+            ExpandIconStateHelper.animateSetExpanded(mServerUserExpandIcon, mServerUserExpandContent.getVisibility() == View.VISIBLE);
+        });
 
         if (mEditServer != null) {
             mServerName.setText(mEditServer.name);
@@ -63,6 +82,14 @@ public class EditServerActivity extends AppCompatActivity {
             mServerSSL.setChecked(mEditServer.ssl);
             if (mEditServer.autojoinChannels != null)
                 mServerChannels.setText(TextUtils.join(" ", mEditServer.autojoinChannels));
+            mServerNick.setText(mEditServer.nick);
+
+            if (mEditServer.user != null || mEditServer.realname != null) {
+                mServerUser.setText(mEditServer.user);
+                mServerRealname.setText(mEditServer.realname);
+                mServerUserExpandContent.setVisibility(View.VISIBLE);
+                ExpandIconStateHelper.setExpanded(mServerUserExpandIcon, true);
+            }
         } else {
             findViewById(R.id.server_ssl_certs).setVisibility(View.GONE);
         }
@@ -77,6 +104,9 @@ public class EditServerActivity extends AppCompatActivity {
         mEditServer.address = mServerAddress.getText().toString();
         mEditServer.port = Integer.parseInt(mServerPort.getText().toString());
         mEditServer.ssl = mServerSSL.isChecked();
+        mEditServer.nick = mServerNick.getText().toString();
+        mEditServer.user = mServerUser.getText().toString();
+        mEditServer.realname = mServerRealname.getText().toString();
         mEditServer.autojoinChannels = Arrays.asList(mServerChannels.getText().toString().split(" "));
         try {
             ServerConfigManager.getInstance(this).saveServer(mEditServer);

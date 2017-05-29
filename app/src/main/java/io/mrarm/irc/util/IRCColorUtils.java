@@ -47,6 +47,7 @@ public class IRCColorUtils {
         return getColor(context, NICK_COLORS[sum % NICK_COLORS.length]);
     }
 
+    // TODO: Support /me and links
     public static void appendFormattedString(Context context, ColoredTextBuilder builder,
                                              String string) {
         int fg = 99, bg = 99;
