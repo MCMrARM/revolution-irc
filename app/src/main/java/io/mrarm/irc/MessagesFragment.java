@@ -38,6 +38,7 @@ public class MessagesFragment extends Fragment implements StatusMessageListener,
     private List<NickWithPrefix> mMembers = null;
 
     private ServerConnectionInfo mConnection;
+    private RecyclerView mRecyclerView;
     private ChatMessagesAdapter mAdapter;
     private ServerStatusMessagesAdapter mStatusAdapter;
     private List<MessageInfo> mMessages;
@@ -88,12 +89,12 @@ public class MessagesFragment extends Fragment implements StatusMessageListener,
         String channelName = getArguments().getString(ARG_CHANNEL_NAME);
 
         View rootView = inflater.inflate(R.layout.chat_messages_fragment, container, false);
-        RecyclerView recyclerView = (RecyclerView) rootView;
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mRecyclerView = (RecyclerView) rootView;
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         if (channelName != null) {
             mAdapter = new ChatMessagesAdapter(new MessageList(new ArrayList<>()));
-            recyclerView.setAdapter(mAdapter);
+            mRecyclerView.setAdapter(mAdapter);
 
             Log.i(TAG, "Request message list for: " + channelName);
             connectionInfo.getApiInstance().getChannelInfo(channelName,
@@ -112,12 +113,13 @@ public class MessagesFragment extends Fragment implements StatusMessageListener,
                         mAdapter.setMessages(messages);
                         mMessages = messages.getMessages();
                         mNeedsUnsubscribeMessages = true;
+                        mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
 
                         connectionInfo.getApiInstance().subscribeChannelMessages(channelName, MessagesFragment.this, null, null);
                     }, null);
         } else if (getArguments().getBoolean(ARG_DISPLAY_STATUS)) {
             mStatusAdapter = new ServerStatusMessagesAdapter(new StatusMessageList(new ArrayList<>()));
-            recyclerView.setAdapter(mStatusAdapter);
+            mRecyclerView.setAdapter(mStatusAdapter);
 
             Log.i(TAG, "Request status message list");
             connectionInfo.getApiInstance().getStatusMessages(100, null,
@@ -127,6 +129,7 @@ public class MessagesFragment extends Fragment implements StatusMessageListener,
                         mStatusAdapter.setMessages(messages);
                         mStatusMessages = messages.getMessages();
                         mNeedsUnsubscribeStatusMessages = true;
+                        mRecyclerView.scrollToPosition(mStatusAdapter.getItemCount() - 1);
 
                         connectionInfo.getApiInstance().subscribeStatusMessages(MessagesFragment.this, null, null);
                     }, null);
@@ -146,11 +149,19 @@ public class MessagesFragment extends Fragment implements StatusMessageListener,
             mConnection.getApiInstance().unsubscribeStatusMessages(MessagesFragment.this, null, null);
     }
 
+    private void scrollToBottom() {
+        int i = ((LinearLayoutManager) mRecyclerView.getLayoutManager()).findLastVisibleItemPosition();
+        int count = mAdapter.getItemCount();
+        if (i >= count - 2)
+            mRecyclerView.smoothScrollToPosition(count - 1);
+    }
+
     @Override
     public void onMessage(MessageInfo messageInfo) {
         getActivity().runOnUiThread(() -> {
             mMessages.add(messageInfo);
             mAdapter.notifyItemInserted(mMessages.size() - 1);
+            scrollToBottom();
         });
     }
 
@@ -159,6 +170,7 @@ public class MessagesFragment extends Fragment implements StatusMessageListener,
         getActivity().runOnUiThread(() -> {
             mStatusMessages.add(statusMessageInfo);
             mStatusAdapter.notifyItemInserted(mStatusMessages.size() - 1);
+            scrollToBottom();
         });
     }
 
