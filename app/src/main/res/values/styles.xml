@@ -17,4 +17,28 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="EditServerIcon">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentLeft">true</item>
+        <item name="android:layout_marginLeft">8dp</item>
+        <item name="android:layout_marginRight">8dp</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:alpha">0.54</item>
+    </style>
+
+    <style name="EditServerIcon.TextInput" parent="EditServerIcon">
+        <item name="android:layout_alignParentTop">true</item>
+        <item name="android:layout_marginTop">14dp</item>
+    </style>
+
+    <style name="EditServerTextInput" parent="Widget.Design.TextInputLayout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentLeft">true</item>
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:layout_marginLeft">56dp</item>
+        <item name="android:layout_marginRight">16dp</item>
+    </style>
+
 </resources>

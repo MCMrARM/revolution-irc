@@ -34,13 +34,14 @@
 
     <string name="add_server">Add a new server</string>
     <string name="edit_server">Edit a server</string>
+    <string name="server_save_error">Failed to save server information</string>
     <string name="server_name">Name</string>
     <string name="server_address">Server address</string>
     <string name="server_port">Port</string>
     <string name="server_ssl">Use SSL</string>
     <string name="server_manage_custom_certs_placeholder">0 custom certificates saved</string>
     <string name="server_manage_custom_certs">Manage custom certificates</string>
-    <string name="server_save_error">Failed to save server information</string>
+    <string name="server_password">Server password</string>
     <string name="server_channels">Auto-join channel list</string>
     <string name="server_nick">Nick</string>
     <string name="server_user">User</string>
