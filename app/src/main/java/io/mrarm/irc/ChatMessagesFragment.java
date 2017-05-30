@@ -153,7 +153,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
 
     private void scrollToBottom() {
         int i = ((LinearLayoutManager) mRecyclerView.getLayoutManager()).findLastVisibleItemPosition();
-        int count = mAdapter.getItemCount();
+        int count = mAdapter == null ? mStatusAdapter.getItemCount() : mAdapter.getItemCount();
         if (i >= count - 2)
             mRecyclerView.smoothScrollToPosition(count - 1);
     }

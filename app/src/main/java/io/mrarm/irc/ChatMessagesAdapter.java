@@ -84,6 +84,17 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                     mText.setText(builder.getSpannable());
                     break;
                 }
+                case ME: {
+                    ColoredTextBuilder builder = new ColoredTextBuilder();
+                    appendTimestamp(builder, message.getDate());
+                    builder.setSpan(new StyleSpan(Typeface.ITALIC));
+                    builder.append("* ", new ForegroundColorSpan(0xFF616161));
+                    builder.append(message.getSender().getNick(), new ForegroundColorSpan(nickColor));
+                    builder.append(" ");
+                    IRCColorUtils.appendFormattedString(mText.getContext(), builder, message.getMessage());
+                    mText.setText(builder.getSpannable());
+                    break;
+                }
                 case JOIN: {
                     ColoredTextBuilder builder = new ColoredTextBuilder();
                     appendTimestamp(builder, message.getDate());
