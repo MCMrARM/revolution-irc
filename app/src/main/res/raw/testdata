@@ -30,7 +30,7 @@
 :weber.freenode.net 366 test-user #android :End of /NAMES list.
 :another-user!~another@test/user1 PRIVMSG #test-channel :Test
 :another-user!~another@test/user1 PRIVMSG #test-channel :Another test
-:another-user!~another@test/user1 PRIVMSG #test-channel :Yet another test
+:another-user!~another@test/user1 PRIVMSG #test-channel :Links test: http://google.com/test https://google.com/ http://mrarm.io/ http://google.rocks/ google.com
 :another-user!~another@test/user1 NICK iamnowsomeoneelse
 :iamnowsomeoneelse!~another@test/user1 PRIVMSG #test-channel :Test
 :iamnowsomeoneelse!~another@test/user1 PRIVMSG #test-channel :08,04testing99,99 color support !
