@@ -50,6 +50,9 @@
 
     <string name="title_activity_settings">Settings</string>
 
+    <string name="service_title">Connected to IRC</string>
+    <string name="service_status">Connected to %1$d networks.</string>
+
     <!-- User settings -->
 
     <string name="pref_header_user">User information</string>

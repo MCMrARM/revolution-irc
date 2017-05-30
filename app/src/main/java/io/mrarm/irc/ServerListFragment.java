@@ -47,6 +47,7 @@ public class ServerListFragment extends Fragment {
         });
         mAdapter.setInactiveServerClickListener((ServerConfigData data) -> {
             ServerConnectionManager.getInstance().createConnection(data, getContext());
+            IRCService.start(getContext());
         });
         mAdapter.setInactiveServerLongClickListener((ServerConfigData data) -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
