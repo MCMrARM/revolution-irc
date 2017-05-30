@@ -191,7 +191,7 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 ((ConnectedServerHolder) viewHolder).bind(this, ServerConnectionManager.getInstance().getConnections().get(position - getActiveHeaderIndex() - 1));
                 break;
             case TYPE_INACTIVE_SERVER:
-                ((ServerHolder) viewHolder).bind(this, ServerConfigManager.getInstance(mContext).getServers().get(position - getInactiveHeaderIndex() - 1));
+                ((ServerHolder) viewHolder).bind(this, mFilteredInactiveServers.get(position - getInactiveHeaderIndex() - 1));
                 break;
         }
     }
