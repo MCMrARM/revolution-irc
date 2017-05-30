@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.UUID;
 
 import io.mrarm.irc.util.ExpandIconStateHelper;
+import io.mrarm.irc.util.StaticLabelTextInputLayout;
 
 public class EditServerActivity extends AppCompatActivity {
 
@@ -32,7 +33,7 @@ public class EditServerActivity extends AppCompatActivity {
     private EditText mServerPort;
     private CheckBox mServerSSL;
     private EditText mServerPass;
-    private View mServerPassUnchanged;
+    private StaticLabelTextInputLayout mServerPassCtr;
     private View mServerPassReset;
     private EditText mServerNick;
     private EditText mServerUser;
@@ -66,7 +67,7 @@ public class EditServerActivity extends AppCompatActivity {
         mServerPort = (EditText) findViewById(R.id.server_address_port);
         mServerSSL = (CheckBox) findViewById(R.id.server_ssl_checkbox);
         mServerPass = (EditText) findViewById(R.id.server_password);
-        mServerPassUnchanged = findViewById(R.id.server_password_unchanged);
+        mServerPassCtr = (StaticLabelTextInputLayout) findViewById(R.id.server_password_ctr);
         mServerPassReset = findViewById(R.id.server_password_reset);
         mServerNick = (EditText) findViewById(R.id.server_nick);
         mServerUser = (EditText) findViewById(R.id.server_user);
@@ -81,9 +82,9 @@ public class EditServerActivity extends AppCompatActivity {
         });
 
         mServerPassReset.setOnClickListener((View view) -> {
-            mServerPassUnchanged.setVisibility(View.GONE);
+            mServerPassCtr.setForceShowHint(false);
             mServerPassReset.setVisibility(View.GONE);
-            mServerPass.setVisibility(View.VISIBLE);
+            mServerPassCtr.setPasswordVisibilityToggleEnabled(true);
         });
 
         if (mEditServer != null) {
@@ -93,9 +94,10 @@ public class EditServerActivity extends AppCompatActivity {
             mServerSSL.setChecked(mEditServer.ssl);
 
             if (mEditServer.pass != null) {
-                mServerPassUnchanged.setVisibility(View.VISIBLE);
                 mServerPassReset.setVisibility(View.VISIBLE);
-                mServerPass.setVisibility(View.GONE);
+                mServerPassCtr.setForceShowHint(true);
+                mServerPass.setHint(R.string.server_password_unchanged);
+                mServerPassCtr.setPasswordVisibilityToggleEnabled(false);
             }
 
             if (mEditServer.autojoinChannels != null)
