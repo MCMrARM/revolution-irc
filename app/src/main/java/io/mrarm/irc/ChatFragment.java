@@ -173,8 +173,8 @@ public class ChatFragment extends Fragment implements ServerConnectionInfo.Chann
         @Override
         public Fragment getItem(int position) {
             if (position == 0)
-                return MessagesFragment.newStatusInstance(connectionInfo);
-            return MessagesFragment.newInstance(connectionInfo,
+                return ChatMessagesFragment.newStatusInstance(connectionInfo);
+            return ChatMessagesFragment.newInstance(connectionInfo,
                     connectionInfo.getChannels().get(position - 1));
         }
 

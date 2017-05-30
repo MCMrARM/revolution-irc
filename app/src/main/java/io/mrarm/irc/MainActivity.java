@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private void createTestFileConnection() {
         if (mTestConnection != null)
             return;
-        
+
         TestApiImpl api = new TestApiImpl("test-user");
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(getResources().openRawResource(R.raw.testdata)));

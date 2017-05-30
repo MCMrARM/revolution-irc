@@ -26,10 +26,10 @@ import io.mrarm.chatlib.dto.StatusMessageList;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
 
 
-public class MessagesFragment extends Fragment implements StatusMessageListener,
+public class ChatMessagesFragment extends Fragment implements StatusMessageListener,
         MessageListener, ChannelInfoListener {
 
-    private static final String TAG = "MessagesFragment";
+    private static final String TAG = "ChatMessagesFragment";
 
     private static final String ARG_SERVER_UUID = "server_uuid";
     private static final String ARG_DISPLAY_STATUS = "display_status";
@@ -47,7 +47,7 @@ public class MessagesFragment extends Fragment implements StatusMessageListener,
     private boolean mNeedsUnsubscribeMessages = false;
     private boolean mNeedsUnsubscribeStatusMessages = false;
 
-    public MessagesFragment() {
+    public ChatMessagesFragment() {
     }
 
     @Override
@@ -59,9 +59,9 @@ public class MessagesFragment extends Fragment implements StatusMessageListener,
         }
     }
 
-    public static MessagesFragment newInstance(ServerConnectionInfo server,
-                                               String channelName) {
-        MessagesFragment fragment = new MessagesFragment();
+    public static ChatMessagesFragment newInstance(ServerConnectionInfo server,
+                                                   String channelName) {
+        ChatMessagesFragment fragment = new ChatMessagesFragment();
         Bundle args = new Bundle();
         args.putString(ARG_SERVER_UUID, server.getUUID().toString());
         if (channelName != null)
@@ -70,8 +70,8 @@ public class MessagesFragment extends Fragment implements StatusMessageListener,
         return fragment;
     }
 
-    public static MessagesFragment newStatusInstance(ServerConnectionInfo server) {
-        MessagesFragment fragment = new MessagesFragment();
+    public static ChatMessagesFragment newStatusInstance(ServerConnectionInfo server) {
+        ChatMessagesFragment fragment = new ChatMessagesFragment();
         Bundle args = new Bundle();
         args.putString(ARG_SERVER_UUID, server.getUUID().toString());
         args.putBoolean(ARG_DISPLAY_STATUS, true);
@@ -117,7 +117,7 @@ public class MessagesFragment extends Fragment implements StatusMessageListener,
                         mNeedsUnsubscribeMessages = true;
                         mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
 
-                        connectionInfo.getApiInstance().subscribeChannelMessages(channelName, MessagesFragment.this, null, null);
+                        connectionInfo.getApiInstance().subscribeChannelMessages(channelName, ChatMessagesFragment.this, null, null);
                     }, null);
         } else if (getArguments().getBoolean(ARG_DISPLAY_STATUS)) {
             mStatusAdapter = new ServerStatusMessagesAdapter(new StatusMessageList(new ArrayList<>()));
@@ -133,7 +133,7 @@ public class MessagesFragment extends Fragment implements StatusMessageListener,
                         mNeedsUnsubscribeStatusMessages = true;
                         mRecyclerView.scrollToPosition(mStatusAdapter.getItemCount() - 1);
 
-                        connectionInfo.getApiInstance().subscribeStatusMessages(MessagesFragment.this, null, null);
+                        connectionInfo.getApiInstance().subscribeStatusMessages(ChatMessagesFragment.this, null, null);
                     }, null);
         }
 
@@ -144,11 +144,11 @@ public class MessagesFragment extends Fragment implements StatusMessageListener,
     public void onDestroyView() {
         super.onDestroyView();
         if (mNeedsUnsubscribeChannelInfo)
-            mConnection.getApiInstance().unsubscribeChannelInfo(getArguments().getString(ARG_CHANNEL_NAME), MessagesFragment.this, null, null);
+            mConnection.getApiInstance().unsubscribeChannelInfo(getArguments().getString(ARG_CHANNEL_NAME), ChatMessagesFragment.this, null, null);
         if (mNeedsUnsubscribeMessages)
-            mConnection.getApiInstance().unsubscribeChannelMessages(getArguments().getString(ARG_CHANNEL_NAME), MessagesFragment.this, null, null);
+            mConnection.getApiInstance().unsubscribeChannelMessages(getArguments().getString(ARG_CHANNEL_NAME), ChatMessagesFragment.this, null, null);
         if (mNeedsUnsubscribeStatusMessages)
-            mConnection.getApiInstance().unsubscribeStatusMessages(MessagesFragment.this, null, null);
+            mConnection.getApiInstance().unsubscribeStatusMessages(ChatMessagesFragment.this, null, null);
     }
 
     private void scrollToBottom() {
