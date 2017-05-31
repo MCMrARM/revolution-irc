@@ -1,5 +1,7 @@
 package io.mrarm.irc;
 
+import android.content.Context;
+import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
@@ -25,10 +27,21 @@ import io.mrarm.irc.drawer.DrawerHelper;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String ARG_SERVER_UUID = "server_uuid";
+    private static final String ARG_CHANNEL_NAME = "channel";
+
     private DrawerLayout mDrawerLayout;
     private DrawerHelper mDrawerHelper;
 
     private static ServerConnectionInfo mTestConnection;
+
+    public static Intent getLaunchIntent(Context context, ServerConnectionInfo server, String channel) {
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.putExtra(ARG_SERVER_UUID, server.getUUID().toString());
+        if (channel != null)
+            intent.putExtra(ARG_CHANNEL_NAME, channel);
+        return intent;
+    }
 
     private void createTestFileConnection() {
         if (mTestConnection != null)
@@ -50,6 +63,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        IRCService.start(this);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -73,8 +88,13 @@ public class MainActivity extends AppCompatActivity {
             openManageServers();
         });
 
-        //openServer(testInfo, null);
-        openManageServers();
+        String serverUUID = getIntent().getStringExtra(ARG_SERVER_UUID);
+        if (serverUUID != null) {
+            ServerConnectionInfo server = ServerConnectionManager.getInstance().getConnection(UUID.fromString(serverUUID));
+            openServer(server, getIntent().getStringExtra(ARG_CHANNEL_NAME));
+        } else {
+            openManageServers();
+        }
     }
 
     @Override

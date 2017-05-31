@@ -159,7 +159,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     }
 
     @Override
-    public void onMessage(MessageInfo messageInfo) {
+    public void onMessage(String channel, MessageInfo messageInfo) {
         getActivity().runOnUiThread(() -> {
             mMessages.add(messageInfo);
             mAdapter.notifyItemInserted(mMessages.size() - 1);
