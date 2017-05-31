@@ -1,7 +1,5 @@
 package io.mrarm.irc;
 
-import android.util.Log;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,7 +36,7 @@ public class NotificationRule {
             mCompiledPattern = Pattern.compile(regex, regexCaseInsensitive ? Pattern.CASE_INSENSITIVE : 0);
     }
 
-    public Pattern createSpecificRegex(NotificationRuleManager manager) {
+    public Pattern createSpecificRegex(NotificationManager manager) {
         Matcher matcher = mMatchVariablesRegex.matcher(regex);
         StringBuffer buf = new StringBuffer();
         while (matcher.find()) {
@@ -49,12 +47,10 @@ public class NotificationRule {
             matcher.appendReplacement(buf, Matcher.quoteReplacement(replaceWith));
         }
         matcher.appendTail(buf);
-        Log.d("NotificationRule", "createSpecificRegex");
-        Log.d("NotificationRule", "createSpecificRegex: " + buf);
         return Pattern.compile(buf.toString(), regexCaseInsensitive ? Pattern.CASE_INSENSITIVE : 0);
     }
 
-    public Pattern getCompiledPattern(NotificationRuleManager manager) {
+    public Pattern getCompiledPattern(NotificationManager manager) {
         if (mCompiledPattern != null)
             return mCompiledPattern;
         if (!manager.mCompiledPatterns.containsKey(this))
@@ -62,7 +58,7 @@ public class NotificationRule {
         return manager.mCompiledPatterns.get(this);
     }
 
-    public boolean appliesTo(NotificationRuleManager manager, String message) {
+    public boolean appliesTo(NotificationManager manager, String message) {
         return getCompiledPattern(manager).matcher(message).find();
     }
 

@@ -16,7 +16,7 @@ public class ServerConnectionInfo {
     private ChatApi mApi;
     private boolean mExpandedInDrawer = true;
     private boolean mConnected = false;
-    private NotificationRuleManager mNotificationManager;
+    private NotificationManager mNotificationManager;
     private List<InfoChangeListener> mInfoListeners = new ArrayList<>();
     private List<ChannelListChangeListener> mChannelsListeners = new ArrayList<>();
 
@@ -25,7 +25,7 @@ public class ServerConnectionInfo {
         mUUID = uuid;
         mName = name;
         mApi = api;
-        mNotificationManager = new NotificationRuleManager(this);
+        mNotificationManager = new NotificationManager(this);
 
         api.getJoinedChannelList((List<String> channels) -> {
             setChannels(channels);
@@ -86,7 +86,7 @@ public class ServerConnectionInfo {
         mExpandedInDrawer = expanded;
     }
 
-    public NotificationRuleManager getNotificationManager() {
+    public NotificationManager getNotificationManager() {
         return mNotificationManager;
     }
 
