@@ -18,6 +18,7 @@ import io.mrarm.irc.R;
 public class StaticLabelTextInputLayout extends TextInputLayout {
 
     private boolean mForceShowHint = false;
+    private boolean mWasHintEnabled = false;
     private CharSequence mForceHint;
     private Paint mTextPaint;
     private int mTextColorUnfocused;
@@ -47,11 +48,28 @@ public class StaticLabelTextInputLayout extends TextInputLayout {
         mTextPaint.setColor(mTextColorUnfocused);
     }
 
+    @Override
+    public boolean isHintEnabled() {
+        return super.isHintEnabled() || mForceShowHint;
+    }
+
+    @Override
+    public void setHintEnabled(boolean enabled) {
+        if (mForceShowHint) {
+            mWasHintEnabled = enabled;
+            return;
+        }
+        super.setHintEnabled(enabled);
+    }
+
     public void setForceShowHint(boolean enabled, CharSequence hint) {
+        CharSequence oldHint = mForceHint;
         mForceHint = hint;
         if (enabled == mForceShowHint)
             return;
-        setHintEnabled(!enabled);
+        mWasHintEnabled = isHintEnabled();
+        if (enabled)
+            setHintEnabled(false);
         mForceShowHint = enabled;
 
         FrameLayout inputFrame = (FrameLayout) getChildAt(0);
@@ -65,6 +83,11 @@ public class StaticLabelTextInputLayout extends TextInputLayout {
         if(newTopMargin != lp.topMargin) {
             lp.topMargin = newTopMargin;
             inputFrame.requestLayout();
+        }
+
+        if (!enabled) {
+            setHintEnabled(mWasHintEnabled);
+            setHint(oldHint);
         }
     }
 

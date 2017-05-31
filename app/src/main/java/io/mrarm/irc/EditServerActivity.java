@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -51,6 +53,27 @@ public class EditServerActivity extends AppCompatActivity {
         return intent;
     }
 
+    private TextWatcher mResetPasswordWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (s.length() > 0) {
+                mServerPassReset.setVisibility(View.GONE);
+                mServerPassCtr.setPasswordVisibilityToggleEnabled(true);
+            } else {
+                mServerPassReset.setVisibility(View.VISIBLE);
+                mServerPassCtr.setPasswordVisibilityToggleEnabled(false);
+            }
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,6 +108,7 @@ public class EditServerActivity extends AppCompatActivity {
             mServerPassCtr.setForceShowHint(false);
             mServerPassReset.setVisibility(View.GONE);
             mServerPassCtr.setPasswordVisibilityToggleEnabled(true);
+            mServerPass.removeTextChangedListener(mResetPasswordWatcher);
         });
 
         if (mEditServer != null) {
@@ -97,6 +121,7 @@ public class EditServerActivity extends AppCompatActivity {
                 mServerPassReset.setVisibility(View.VISIBLE);
                 mServerPassCtr.setForceShowHint(true);
                 mServerPass.setHint(R.string.server_password_unchanged);
+                mServerPass.addTextChangedListener(mResetPasswordWatcher);
                 mServerPassCtr.setPasswordVisibilityToggleEnabled(false);
             }
 

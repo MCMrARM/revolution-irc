@@ -163,8 +163,8 @@
                 app:srcCompat="@drawable/ic_close"
                 style="@style/EditServerExtraAction"
                 android:alpha="0.54"
-                android:layout_marginRight="12dp"
-                android:layout_marginEnd="12dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginEnd="8dp"
                 android:visibility="gone"
                 android:contentDescription="@string/action_delete" />
 
