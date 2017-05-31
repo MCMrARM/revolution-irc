@@ -103,13 +103,16 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
             List<CharSequence> backlog = connection.getNotificationManager().getServiceNotificationBacklog();
             backlog.add(builder.getSpannable());
 
-            RemoteViews notificationsView = createCollapsedMessagesView(channel, builder.getSpannable());
-            RemoteViews notificationsViewBig = createMessagesView(channel, backlog);
+            int notificationId = connection.getNotificationManager().getServiceNotificationId();
+            String title = channel + " (" + connection.getName() + ")";
+
+            RemoteViews notificationsView = createCollapsedMessagesView(title, builder.getSpannable());
+            RemoteViews notificationsViewBig = createMessagesView(title, backlog);
             NotificationCompat.Builder notification = new NotificationCompat.Builder(this);
             notification
-                    .setContentTitle(channel + " (" + connection.getName() + ")")
+                    .setContentTitle(title)
                     .setContentText(builder.getSpannable())
-                    .setContentIntent(PendingIntent.getActivity(this, 1, MainActivity.getLaunchIntent(this, connection, channel), PendingIntent.FLAG_ONE_SHOT)) // TODO: Do not replace the activity if already open?
+                    .setContentIntent(PendingIntent.getActivity(this, notificationId, MainActivity.getLaunchIntent(this, connection, channel), PendingIntent.FLAG_ONE_SHOT)) // TODO: Do not replace the activity if already open?
                     .setAutoCancel(true)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setSmallIcon(R.drawable.ic_message)
@@ -138,7 +141,7 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
                 notification.setVibrate(new long[] { 0 }); // a hack to get a headsup to show
             }
             notification.setDefaults(defaults);
-            NotificationManagerCompat.from(this).notify(connection.getNotificationManager().getServiceNotificationId(), notification.build());
+            NotificationManagerCompat.from(this).notify(notificationId, notification.build());
         }
     }
 
