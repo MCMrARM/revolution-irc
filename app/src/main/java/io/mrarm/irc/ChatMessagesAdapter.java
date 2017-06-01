@@ -1,5 +1,6 @@
 package io.mrarm.irc;
 
+import android.content.Context;
 import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spanned;
@@ -72,15 +73,16 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         }
 
         public void bind(MessageInfo message) {
-            String senderNick = message.getSender().getNick();
-            int nickColor = IRCColorUtils.getNickColor(mText.getContext(), senderNick);
+            Context context = mText.getContext();
+            String senderNick = message.getSender() == null ? null : message.getSender().getNick();
+            int nickColor = senderNick == null ? 0 : IRCColorUtils.getNickColor(context, senderNick);
             switch (message.getType()) {
                 case NORMAL: {
                     ColoredTextBuilder builder = new ColoredTextBuilder();
                     appendTimestamp(builder, message.getDate());
                     builder.append(message.getSender().getNick() + ":", new ForegroundColorSpan(nickColor));
                     builder.append(" ");
-                    IRCColorUtils.appendFormattedString(mText.getContext(), builder, message.getMessage());
+                    IRCColorUtils.appendFormattedString(context, builder, message.getMessage());
                     mText.setText(builder.getSpannable());
                     break;
                 }
@@ -91,7 +93,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                     builder.append("* ", new ForegroundColorSpan(0xFF616161));
                     builder.append(message.getSender().getNick(), new ForegroundColorSpan(nickColor));
                     builder.append(" ");
-                    IRCColorUtils.appendFormattedString(mText.getContext(), builder, message.getMessage());
+                    IRCColorUtils.appendFormattedString(context, builder, message.getMessage());
                     mText.setText(builder.getSpannable());
                     break;
                 }
@@ -106,7 +108,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 }
                 case NICK_CHANGE: {
                     String newNick = ((NickChangeMessageInfo) message).getNewNick();
-                    int newNickColor = IRCColorUtils.getNickColor(mText.getContext(), newNick);
+                    int newNickColor = IRCColorUtils.getNickColor(context, newNick);
 
                     ColoredTextBuilder builder = new ColoredTextBuilder();
                     appendTimestamp(builder, message.getDate());
@@ -117,6 +119,9 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                     mText.setText(builder.getSpannable());
                     break;
                 }
+                case DISCONNECT_WARNING:
+                    mText.setText(buildDisconnectWarning(context, message.getDate()));
+                    break;
             }
         }
 
@@ -127,6 +132,13 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     public static void appendTimestamp(ColoredTextBuilder builder, Date date) {
         builder.append(messageTimeFormat.format(date), new ForegroundColorSpan(0xFF424242));
+    }
+
+    public static CharSequence buildDisconnectWarning(Context context, Date date) {
+        ColoredTextBuilder builder = new ColoredTextBuilder();
+        appendTimestamp(builder, date);
+        builder.append("Disconnected", new ForegroundColorSpan(context.getResources().getColor(R.color.messageDisconnected)));
+        return builder.getSpannable();
     }
 
 }

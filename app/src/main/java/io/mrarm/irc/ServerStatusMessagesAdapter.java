@@ -1,5 +1,6 @@
 package io.mrarm.irc;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
@@ -90,6 +91,11 @@ public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerVi
         }
 
         public void bind(StatusMessageInfo message) {
+            Context context = mText.getContext();
+            if (message.getType() == StatusMessageInfo.MessageType.DISCONNECT_WARNING) {
+                mText.setText(ChatMessagesAdapter.buildDisconnectWarning(context, message.getDate()));
+                return;
+            }
             ColoredTextBuilder builder = new ColoredTextBuilder();
             ChatMessagesAdapter.appendTimestamp(builder, message.getDate());
             builder.append(message.getSender() + ": ", new ForegroundColorSpan(0xFF555555));
@@ -100,8 +106,7 @@ public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerVi
                         hostInfo.getUserModes() + ", supported channel modes: " +
                         hostInfo.getChannelModes(), new ForegroundColorSpan(0xFF555555));
             } else {
-                IRCColorUtils.appendFormattedString(mText.getContext(), builder,
-                        message.getMessage());
+                IRCColorUtils.appendFormattedString(context, builder, message.getMessage());
             }
             mText.setText(builder.getSpannable());
         }
