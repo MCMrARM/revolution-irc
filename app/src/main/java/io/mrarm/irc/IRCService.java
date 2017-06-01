@@ -21,6 +21,7 @@ import io.mrarm.irc.util.IRCColorUtils;
 public class IRCService extends Service implements ServerConnectionManager.ConnectionsListener {
 
     public static final int IDLE_NOTIFICATION_ID = 100;
+    public static final int CHAT_SUMMARY_NOTIFICATION_ID = 101;
     public static final String ACTION_START_FOREGROUND = "start_foreground";
 
     private static final String NOTIFICATION_GROUP_CHAT = "chat";
@@ -74,7 +75,7 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
         return views;
     }
 
-    private RemoteViews createMessagesView(String header, List<CharSequence> messages) {
+    private RemoteViews createMessagesView(String header, List<NotificationManager.NotificationMessage> messages) {
         RemoteViews views = new RemoteViews(getPackageName(), R.layout.notification_layout);
         int[] messageIds = new int[] { R.id.message_0, R.id.message_1, R.id.message_2, R.id.message_3, R.id.message_4, R.id.message_5 };
         views.setTextViewText(R.id.message_channel, header);
@@ -85,9 +86,46 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
                 continue;
             }
             views.setViewVisibility(messageIds[i], View.VISIBLE);
-            views.setTextViewText(messageIds[i], messages.get(ii));
+            views.setTextViewText(messageIds[i], messages.get(ii).getNotificationText(this));
         }
         return views;
+    }
+
+    private void updateSummaryNotification() {
+        NotificationCompat.Builder notification = new NotificationCompat.Builder(this);
+        notification
+                .setContentIntent(PendingIntent.getActivity(this, CHAT_SUMMARY_NOTIFICATION_ID, new Intent(this, MainActivity.class), 0))
+                .setAutoCancel(true)
+                .setSmallIcon(R.drawable.ic_message)
+                .setGroup(NOTIFICATION_GROUP_CHAT)
+                .setGroupSummary(true)
+                .setColor(getResources().getColor(R.color.colorNotificationMention));
+        boolean first = true;
+        boolean isLong = false;
+        StringBuilder longBuilder = new StringBuilder();
+        for (ServerConnectionInfo info : ServerConnectionManager.getInstance().getConnections()) {
+            for (NotificationManager.ChannelNotificationData notificationData : info.getNotificationManager().getChannelNotificationDataList()) {
+                if (notificationData.getNotificationMessages().size() > 0) {
+                    if (first) {
+                        first = false;
+                        List<NotificationManager.NotificationMessage> list = notificationData.getNotificationMessages();
+                        notification
+                                .setContentText(notificationData.getChannel())
+                                .setContentText(list.get(list.size() - 1).getNotificationText(this));
+                    } else {
+                        longBuilder.append(", ");
+                        isLong = true;
+                    }
+                    longBuilder.append(notificationData.getChannel());
+                }
+            }
+        }
+        if (isLong) {
+            notification
+                    .setContentTitle(getString(R.string.notify_multiple_messages))
+                    .setContentText(longBuilder.toString());
+        }
+        NotificationManagerCompat.from(this).notify(CHAT_SUMMARY_NOTIFICATION_ID, notification.build());
     }
 
     private void onMessage(ServerConnectionInfo connection, String channel, MessageInfo info) {
@@ -95,23 +133,20 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
             return;
         NotificationRule rule = connection.getNotificationManager().findRule(info.getMessage());
         if (rule != null) {
-            int nickColor = IRCColorUtils.getNickColor(this, info.getSender().getNick());
-            ColoredTextBuilder builder = new ColoredTextBuilder();
-            builder.append(info.getSender().getNick() + ": ", new ForegroundColorSpan(nickColor));
-            builder.append(info.getMessage());
+            NotificationManager.ChannelNotificationData notificationData = connection.getNotificationManager().getChannelNotificationData(channel, true);
+            NotificationManager.NotificationMessage messageData = notificationData.addNotificationMessage(info);
 
-            List<CharSequence> backlog = connection.getNotificationManager().getServiceNotificationBacklog();
-            backlog.add(builder.getSpannable());
-
-            int notificationId = connection.getNotificationManager().getServiceNotificationId();
+            int notificationId = notificationData.getNotificationId();
             String title = channel + " (" + connection.getName() + ")";
 
-            RemoteViews notificationsView = createCollapsedMessagesView(title, builder.getSpannable());
-            RemoteViews notificationsViewBig = createMessagesView(title, backlog);
+            updateSummaryNotification();
+
+            RemoteViews notificationsView = createCollapsedMessagesView(title, messageData.getNotificationText(this));
+            RemoteViews notificationsViewBig = createMessagesView(title, notificationData.getNotificationMessages());
             NotificationCompat.Builder notification = new NotificationCompat.Builder(this);
             notification
                     .setContentTitle(title)
-                    .setContentText(builder.getSpannable())
+                    .setContentText(messageData.getNotificationText(this))
                     .setContentIntent(PendingIntent.getActivity(this, notificationId, MainActivity.getLaunchIntent(this, connection, channel), PendingIntent.FLAG_ONE_SHOT)) // TODO: Do not replace the activity if already open?
                     .setAutoCancel(true)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)

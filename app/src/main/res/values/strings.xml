@@ -52,6 +52,7 @@
 
     <string name="service_title">Connected to IRC</string>
     <string name="service_status">Connected to %1$d networks.</string>
+    <string name="notify_multiple_messages">%1$d unread messages</string>
 
     <!-- User settings -->
 
