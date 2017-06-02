@@ -154,7 +154,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     private void scrollToBottom() {
         int i = ((LinearLayoutManager) mRecyclerView.getLayoutManager()).findLastVisibleItemPosition();
         int count = mAdapter == null ? mStatusAdapter.getItemCount() : mAdapter.getItemCount();
-        if (i >= count - 2)
+        if (i >= count - 2 || mRecyclerView.getLayoutManager().isSmoothScrolling())
             mRecyclerView.smoothScrollToPosition(count - 1);
     }
 
@@ -194,8 +194,11 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                 return left.getNickPrefixes() != null ? -1 : 1;
             return left.getNick().compareTo(right.getNick());
         });
-        if (getUserVisibleHint())
-            ((ChatFragment) getParentFragment()).setCurrentChannelMembers(mMembers);
+        if (getUserVisibleHint()) {
+            getActivity().runOnUiThread(() -> {
+                ((ChatFragment) getParentFragment()).setCurrentChannelMembers(mMembers);
+            });
+        }
     }
 
 }
