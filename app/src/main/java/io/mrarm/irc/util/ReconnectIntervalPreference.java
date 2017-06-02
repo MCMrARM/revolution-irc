@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -28,6 +29,7 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import io.mrarm.irc.R;
@@ -40,8 +42,9 @@ public class ReconnectIntervalPreference extends Preference {
 
     static {
         mDefaultValue = new ArrayList<>();
-        mDefaultValue.add(new Rule(5, 3));
-        mDefaultValue.add(new Rule(30, -1));
+        mDefaultValue.add(new Rule(5000, 3));
+        mDefaultValue.add(new Rule(30000, -1));
+        mDefaultValue = Collections.unmodifiableList(mDefaultValue);
     }
 
     public static List<Rule> getDefaultValue() {
@@ -68,18 +71,21 @@ public class ReconnectIntervalPreference extends Preference {
 
     @Override
     protected void onClick() {
-        List<Rule> rules = getDefaultValue();
+        List<Rule> rules = null;
         try {
-            ServerConfigManager.getGson().fromJson(getPersistedString(null), mListRuleType);
+            rules = ServerConfigManager.getGson().fromJson(getPersistedString(null), mListRuleType);
         } catch (Exception ignored) {
         }
-        RulesAdapter adapter = new RulesAdapter(rules);
+        if (rules == null)
+            rules = new ArrayList<>(getDefaultValue());
+        final List<Rule> fRules = rules;
+        RulesAdapter adapter = new RulesAdapter(fRules);
 
         View dialogView = buildDialogView(adapter);
 
         AlertDialog dialog = new AlertDialog.Builder(getContext())
                 .setPositiveButton(R.string.action_ok, (DialogInterface dialogInterface, int which) -> {
-                    String newValue = ServerConfigManager.getGson().toJson(rules);
+                    String newValue = ServerConfigManager.getGson().toJson(fRules);
                     if (callChangeListener(newValue))
                         persistString(newValue);
                 })
@@ -169,17 +175,22 @@ public class ReconnectIntervalPreference extends Preference {
 
         public static class RuleViewHolder extends RecyclerView.ViewHolder {
 
+            private static final int SPINNER_SECONDS = 0;
+            private static final int SPINNER_MINUTES = 1;
+            private static final int SPINNER_HOURS = 2;
+
             private EditText mReconnectDelayText;
+            private Spinner mReconnectDelaySpinner;
             private EditText mRepeatCountText;
 
             public RuleViewHolder(View v, RulesAdapter adapter) {
                 super(v);
 
-                Spinner spinner = (Spinner) v.findViewById(R.id.rule_duration_type);
+                mReconnectDelaySpinner = (Spinner) v.findViewById(R.id.rule_duration_type);
                 ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(v.getContext(),
                         R.array.duration_types, android.R.layout.simple_spinner_item);
                 spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spinner.setAdapter(spinnerAdapter);
+                mReconnectDelaySpinner.setAdapter(spinnerAdapter);
 
                 mReconnectDelayText = (EditText) v.findViewById(R.id.rule_interval);
                 mRepeatCountText = (EditText) v.findViewById(R.id.rule_repeat_times);
@@ -209,13 +220,17 @@ public class ReconnectIntervalPreference extends Preference {
                 mReconnectDelayText.addTextChangedListener(new StubTextWatcher() {
                     @Override
                     public void afterTextChanged(Editable s) {
-                        Rule rule = adapter.mRules.get(getAdapterPosition());
-                        try {
-                            rule.reconnectDelay = Integer.parseInt(mReconnectDelayText.getText().toString()); // TODO: * the selected time type
-                        } catch (NumberFormatException e) {
-                            rule.reconnectDelay = -1;
-                        }
-                        adapter.updateDialogOkButtonState(rule.reconnectDelay > 0);
+                        updateReconnectDelay(adapter);
+                    }
+                });
+                mReconnectDelaySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        updateReconnectDelay(adapter);
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
                     }
                 });
                 mRepeatCountText.addTextChangedListener(new StubTextWatcher() {
@@ -248,8 +263,55 @@ public class ReconnectIntervalPreference extends Preference {
                 });
             }
 
+            private void updateReconnectDelay(RulesAdapter adapter) {
+                int mp = 1;
+                switch (mReconnectDelaySpinner.getSelectedItemPosition()) {
+                    case SPINNER_SECONDS:
+                        mp = 1000; // seconds
+                        break;
+                    case SPINNER_MINUTES:
+                        mp = 1000 * 60; // minutes
+                        break;
+                    case SPINNER_HOURS:
+                        mp = 1000 * 60 * 60; // hours
+                        break;
+                }
+
+                Rule rule = adapter.mRules.get(getAdapterPosition());
+                try {
+                    rule.reconnectDelay = (int) (Double.parseDouble(mReconnectDelayText.getText().toString()) * mp);
+                } catch (NumberFormatException e) {
+                    rule.reconnectDelay = -1;
+                }
+                adapter.updateDialogOkButtonState(rule.reconnectDelay > 0);
+            }
+
             public void bind(Rule rule) {
-                mReconnectDelayText.setText(rule.reconnectDelay == -1 ? "" : String.valueOf(rule.reconnectDelay));
+                if (rule.reconnectDelay != -1) {
+                    int reconnectDelay = rule.reconnectDelay;
+                    int spinnerItemId = SPINNER_SECONDS;
+                    if ((reconnectDelay % 1000) != 0) {
+                        mReconnectDelayText.setText(String.valueOf(reconnectDelay / 1000.0));
+                        mReconnectDelaySpinner.setSelection(spinnerItemId);
+                    } else {
+                        reconnectDelay /= 1000;
+                        if ((reconnectDelay % 60) == 0) {
+                            reconnectDelay /= 60;
+                            spinnerItemId = SPINNER_MINUTES;
+                            if ((reconnectDelay % 60) == 0) {
+                                reconnectDelay /= 60;
+                                spinnerItemId = SPINNER_HOURS;
+                            }
+                        }
+
+                        mReconnectDelayText.setText(String.valueOf(reconnectDelay));
+                    }
+                    mReconnectDelaySpinner.setSelection(spinnerItemId);
+                } else {
+                    mReconnectDelayText.setText("");
+                    mReconnectDelaySpinner.setSelection(SPINNER_SECONDS);
+                }
+
                 mRepeatCountText.setText(rule.repeatCount == -1 ? "" : String.valueOf(rule.repeatCount));
             }
 
