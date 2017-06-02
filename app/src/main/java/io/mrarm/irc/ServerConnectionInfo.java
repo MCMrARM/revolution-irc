@@ -13,6 +13,7 @@ import io.mrarm.chatlib.irc.IRCConnection;
 import io.mrarm.chatlib.irc.IRCConnectionRequest;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
 
+// TODO: this runs stuff on another thread but does not synchronize contents
 public class ServerConnectionInfo {
 
     private static Handler mReconnectHandler = new Handler();
@@ -26,6 +27,7 @@ public class ServerConnectionInfo {
     private List<String> mAutojoinChannels;
     private boolean mExpandedInDrawer = true;
     private boolean mConnected = false;
+    private boolean mConnecting = false;
     private NotificationManager mNotificationManager;
     private List<InfoChangeListener> mInfoListeners = new ArrayList<>();
     private List<ChannelListChangeListener> mChannelsListeners = new ArrayList<>();
@@ -70,22 +72,41 @@ public class ServerConnectionInfo {
         }, null, null);
     }
 
-    void connect() {
-        IRCConnection connection = new IRCConnection();
+    public void connect() {
+        if (mConnected || mConnecting)
+            return;
+        mConnecting = true;
+
+        IRCConnection connection = null;
+        boolean createdNewConnection = false;
+        if (mApi == null || !(mApi instanceof IRCConnection)) {
+            connection = new IRCConnection();
+            createdNewConnection = true;
+        } else {
+            connection = (IRCConnection) mApi;
+        }
+
+        IRCConnection fConnection = connection;
+
         connection.connect(mConnectionRequest, (Void v) -> {
+            mConnecting = false;
             setConnected(true);
-            connection.joinChannels(mAutojoinChannels, null, null);
+            fConnection.joinChannels(mAutojoinChannels, null, null);
         }, (ChatApiException e) -> {
             notifyDisconnected();
         });
-        connection.addDisconnectListener((IRCConnection conn, Exception reason) -> {
-            notifyDisconnected();
-        });
 
-        setApi(connection);
+        if (createdNewConnection) {
+            connection.addDisconnectListener((IRCConnection conn, Exception reason) -> {
+                notifyDisconnected();
+            });
+            setApi(connection);
+        }
     }
 
     private void notifyDisconnected() {
+        mConnecting = false;
+        setConnected(false);
         int reconnectDelay = mManager.getReconnectDelay(mCurrentReconnectAttempt++);
         if (reconnectDelay == -1)
             return;

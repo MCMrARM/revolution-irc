@@ -3,13 +3,17 @@ package io.mrarm.irc;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.NotificationCompat;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 
@@ -20,11 +24,15 @@ import io.mrarm.irc.util.IRCColorUtils;
 
 public class IRCService extends Service implements ServerConnectionManager.ConnectionsListener {
 
+    private static final String TAG = "IRCService";
+
     public static final int IDLE_NOTIFICATION_ID = 100;
     public static final int CHAT_SUMMARY_NOTIFICATION_ID = 101;
     public static final String ACTION_START_FOREGROUND = "start_foreground";
 
     private static final String NOTIFICATION_GROUP_CHAT = "chat";
+
+    private ConnectivityChangeReceiver mConnectivityReceiver = new ConnectivityChangeReceiver();
 
     public static void start(Context context) {
         Intent intent = new Intent(context, IRCService.class);
@@ -39,6 +47,8 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
         for (ServerConnectionInfo connection : ServerConnectionManager.getInstance(this).getConnections())
             onConnectionAdded(connection);
         ServerConnectionManager.getInstance(this).addListener(this);
+
+        registerReceiver(mConnectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
 
     @Override
@@ -47,6 +57,8 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
 
         for (ServerConnectionInfo connection : ServerConnectionManager.getInstance(this).getConnections())
             onConnectionRemoved(connection);
+
+        unregisterReceiver(mConnectivityReceiver);
     }
 
     @Override
@@ -195,6 +207,22 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    public class ConnectivityChangeReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.i(TAG, "Connectivity changed");
+
+            if (intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, Boolean.FALSE)) {
+                Log.d(TAG, "No network connectivity");
+                return;
+            }
+
+            ServerConnectionManager.getInstance(context).notifyConnectivityChanged();
+        }
+
     }
 
 }

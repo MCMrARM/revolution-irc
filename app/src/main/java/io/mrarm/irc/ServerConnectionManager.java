@@ -3,6 +3,7 @@ package io.mrarm.irc;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -134,6 +135,14 @@ public class ServerConnectionManager {
     void notifyChannelListChanged(ServerConnectionInfo connection, List<String> newChannels) {
         for (ServerConnectionInfo.ChannelListChangeListener listener : mChannelsListeners)
             listener.onChannelListChanged(connection, newChannels);
+    }
+
+    public void notifyConnectivityChanged() {
+        SettingsHelper helper = SettingsHelper.getInstance(mContext);
+        if (helper.isReconnectEnabled() && helper.shouldReconnectOnConnectivityChange()) {
+            for (ServerConnectionInfo server : mConnectionsMap.values())
+                server.connect(); // this will be ignored if we are already corrected
+        }
     }
 
     public interface ConnectionsListener {
