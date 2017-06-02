@@ -50,16 +50,16 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     public void registerListeners() {
-        ServerConnectionManager.getInstance().addListener(this);
-        ServerConnectionManager.getInstance().addGlobalConnectionInfoListener(this);
-        ServerConnectionManager.getInstance().addGlobalChannelListListener(this);
+        ServerConnectionManager.getInstance(mContext).addListener(this);
+        ServerConnectionManager.getInstance(mContext).addGlobalConnectionInfoListener(this);
+        ServerConnectionManager.getInstance(mContext).addGlobalChannelListListener(this);
         ServerConfigManager.getInstance(mContext).addListener(this);
     }
 
     public void unregisterListeners() {
-        ServerConnectionManager.getInstance().removeListener(this);
-        ServerConnectionManager.getInstance().removeGlobalConnectionInfoListener(this);
-        ServerConnectionManager.getInstance().removeGlobalChannelListListener(this);
+        ServerConnectionManager.getInstance(mContext).removeListener(this);
+        ServerConnectionManager.getInstance(mContext).removeGlobalConnectionInfoListener(this);
+        ServerConnectionManager.getInstance(mContext).removeGlobalChannelListListener(this);
         ServerConfigManager.getInstance(mContext).removeListener(this);
     }
 
@@ -77,7 +77,7 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             }
             updateConnections();
             if (hadHeader)
-                notifyItemInserted(ServerConnectionManager.getInstance().getConnections().indexOf(connection) + 1 + getActiveHeaderIndex());
+                notifyItemInserted(ServerConnectionManager.getInstance(mContext).getConnections().indexOf(connection) + 1 + getActiveHeaderIndex());
             else
                 notifyItemRangeChanged(getActiveHeaderIndex(), 2);
             if (oldInactiveIndex != -1 && getInactiveHeaderIndex() != -1)
@@ -98,14 +98,14 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @Override
     public void onConnectionInfoChanged(ServerConnectionInfo connection) {
         mContext.runOnUiThread(() -> {
-            notifyItemChanged(getActiveHeaderIndex() + 1 + ServerConnectionManager.getInstance().getConnections().indexOf(connection));
+            notifyItemChanged(getActiveHeaderIndex() + 1 + ServerConnectionManager.getInstance(mContext).getConnections().indexOf(connection));
         });
     }
 
     @Override
     public void onChannelListChanged(ServerConnectionInfo connection, List<String> newChannels) {
         mContext.runOnUiThread(() -> {
-            notifyItemChanged(getActiveHeaderIndex() + 1 + ServerConnectionManager.getInstance().getConnections().indexOf(connection), DISABLE_ANIM);
+            notifyItemChanged(getActiveHeaderIndex() + 1 + ServerConnectionManager.getInstance(mContext).getConnections().indexOf(connection), DISABLE_ANIM);
         });
     }
 
@@ -138,7 +138,7 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     public void updateConnections() {
-        ServerConnectionManager manager = ServerConnectionManager.getInstance();
+        ServerConnectionManager manager = ServerConnectionManager.getInstance(mContext);
         mActiveConnectionCount = manager.getConnections().size();
         mFilteredInactiveServers.clear();
         for (ServerConfigData data : ServerConfigManager.getInstance(mContext).getServers()) {
@@ -188,7 +188,7 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 ((HeaderHolder) viewHolder).bind((position == getInactiveHeaderIndex() ? R.string.server_list_header_inactive : R.string.server_list_header_active));
                 break;
             case TYPE_CONNECTED_SERVER:
-                ((ConnectedServerHolder) viewHolder).bind(this, ServerConnectionManager.getInstance().getConnections().get(position - getActiveHeaderIndex() - 1));
+                ((ConnectedServerHolder) viewHolder).bind(this, ServerConnectionManager.getInstance(mContext).getConnections().get(position - getActiveHeaderIndex() - 1));
                 break;
             case TYPE_INACTIVE_SERVER:
                 ((ServerHolder) viewHolder).bind(this, mFilteredInactiveServers.get(position - getInactiveHeaderIndex() - 1));

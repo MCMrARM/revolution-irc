@@ -54,7 +54,7 @@ public class ChatFragment extends Fragment implements ServerConnectionInfo.Chann
         View rootView = inflater.inflate(R.layout.fragment_chat_content, container, false);
 
         UUID connectionUUID = UUID.fromString(getArguments().getString(ARG_SERVER_UUID));
-        mConnectionInfo = ServerConnectionManager.getInstance().getConnection(connectionUUID);
+        mConnectionInfo = ServerConnectionManager.getInstance(getContext()).getConnection(connectionUUID);
         String requestedChannel = getArguments().getString(ARG_CHANNEL_NAME);
 
         Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.toolbar);

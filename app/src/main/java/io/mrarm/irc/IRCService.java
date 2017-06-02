@@ -36,16 +36,16 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
     public void onCreate() {
         super.onCreate();
 
-        for (ServerConnectionInfo connection : ServerConnectionManager.getInstance().getConnections())
+        for (ServerConnectionInfo connection : ServerConnectionManager.getInstance(this).getConnections())
             onConnectionAdded(connection);
-        ServerConnectionManager.getInstance().addListener(this);
+        ServerConnectionManager.getInstance(this).addListener(this);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
 
-        for (ServerConnectionInfo connection : ServerConnectionManager.getInstance().getConnections())
+        for (ServerConnectionInfo connection : ServerConnectionManager.getInstance(this).getConnections())
             onConnectionRemoved(connection);
     }
 
@@ -58,7 +58,7 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
             Intent mainIntent = new Intent(this, MainActivity.class);
             Notification notification = new NotificationCompat.Builder(this)
                     .setContentTitle(getString(R.string.service_title))
-                    .setContentText(getString(R.string.service_status, ServerConnectionManager.getInstance().getConnections().size()))
+                    .setContentText(getString(R.string.service_status, ServerConnectionManager.getInstance(this).getConnections().size()))
                     .setSmallIcon(R.drawable.ic_server_connected)
                     .setPriority(NotificationCompat.PRIORITY_MIN)
                     .setContentIntent(PendingIntent.getActivity(this, 0, mainIntent, 0))
@@ -103,7 +103,7 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
         boolean first = true;
         boolean isLong = false;
         StringBuilder longBuilder = new StringBuilder();
-        for (ServerConnectionInfo info : ServerConnectionManager.getInstance().getConnections()) {
+        for (ServerConnectionInfo info : ServerConnectionManager.getInstance(this).getConnections()) {
             for (NotificationManager.ChannelNotificationData notificationData : info.getNotificationManager().getChannelNotificationDataList()) {
                 if (notificationData.getNotificationMessages().size() > 0) {
                     if (first) {

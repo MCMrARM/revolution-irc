@@ -33,7 +33,7 @@ public class DrawerHelper implements ServerConnectionManager.ConnectionsListener
         Resources r = activity.getResources();
 
         mAdapter = new DrawerMenuListAdapter(activity,
-                ServerConnectionManager.getInstance().getConnections());
+                ServerConnectionManager.getInstance(activity).getConnections());
 
         mManageServersItem = new DrawerMenuItem(r.getString(R.string.action_servers), R.drawable.ic_edit);
         mAdapter.addMenuItem(mManageServersItem);
@@ -47,15 +47,15 @@ public class DrawerHelper implements ServerConnectionManager.ConnectionsListener
     }
 
     public void registerListeners() {
-        ServerConnectionManager.getInstance().addListener(this);
-        ServerConnectionManager.getInstance().addGlobalConnectionInfoListener(this);
-        ServerConnectionManager.getInstance().addGlobalChannelListListener(this);
+        ServerConnectionManager.getInstance(mActivity).addListener(this);
+        ServerConnectionManager.getInstance(mActivity).addGlobalConnectionInfoListener(this);
+        ServerConnectionManager.getInstance(mActivity).addGlobalChannelListListener(this);
     }
 
     public void unregisterListeners() {
-        ServerConnectionManager.getInstance().removeListener(this);
-        ServerConnectionManager.getInstance().removeGlobalConnectionInfoListener(this);
-        ServerConnectionManager.getInstance().removeGlobalChannelListListener(this);
+        ServerConnectionManager.getInstance(mActivity).removeListener(this);
+        ServerConnectionManager.getInstance(mActivity).removeGlobalConnectionInfoListener(this);
+        ServerConnectionManager.getInstance(mActivity).removeGlobalChannelListListener(this);
     }
 
     public void setChannelClickListener(DrawerMenuListAdapter.ChannelClickListener listener) {

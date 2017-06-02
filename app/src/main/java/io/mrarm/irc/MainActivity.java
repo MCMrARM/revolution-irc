@@ -56,8 +56,8 @@ public class MainActivity extends AppCompatActivity {
             throw new RuntimeException(t);
         }
 
-        mTestConnection = new ServerConnectionInfo(ServerConnectionManager.getInstance(), UUID.randomUUID(), "Test Connection", api);
-        ServerConnectionManager.getInstance().addConnection(mTestConnection);
+        mTestConnection = new ServerConnectionInfo(ServerConnectionManager.getInstance(this), UUID.randomUUID(), "Test Connection", api);
+        ServerConnectionManager.getInstance(this).addConnection(mTestConnection);
         mTestConnection.setConnected(true);
     }
 
@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
 
         String serverUUID = getIntent().getStringExtra(ARG_SERVER_UUID);
         if (serverUUID != null) {
-            ServerConnectionInfo server = ServerConnectionManager.getInstance().getConnection(UUID.fromString(serverUUID));
+            ServerConnectionInfo server = ServerConnectionManager.getInstance(this).getConnection(UUID.fromString(serverUUID));
             openServer(server, getIntent().getStringExtra(ARG_CHANNEL_NAME));
         } else {
             openManageServers();

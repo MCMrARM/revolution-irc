@@ -3,8 +3,10 @@ package io.mrarm.irc.util;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -34,7 +36,7 @@ import io.mrarm.irc.ServerConfigManager;
 public class ReconnectIntervalPreference extends Preference {
 
     private static List<Rule> mDefaultValue;
-    private static Type mListRuleType = new TypeToken<List<Rule>>(){}.getType();
+    static Type mListRuleType = new TypeToken<List<Rule>>(){}.getType();
 
     static {
         mDefaultValue = new ArrayList<>();

@@ -83,7 +83,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         UUID connectionUUID = UUID.fromString(getArguments().getString(ARG_SERVER_UUID));
-        ServerConnectionInfo connectionInfo = ServerConnectionManager.getInstance()
+        ServerConnectionInfo connectionInfo = ServerConnectionManager.getInstance(getContext())
                 .getConnection(connectionUUID);
         mConnection = connectionInfo;
         String channelName = getArguments().getString(ARG_CHANNEL_NAME);

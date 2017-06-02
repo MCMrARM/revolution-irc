@@ -11,21 +11,28 @@ import java.util.UUID;
 
 import io.mrarm.chatlib.irc.IRCConnection;
 import io.mrarm.chatlib.irc.IRCConnectionRequest;
+import io.mrarm.irc.util.ReconnectIntervalPreference;
+import io.mrarm.irc.util.SettingsHelper;
 
 public class ServerConnectionManager {
 
     private static ServerConnectionManager instance;
 
+    private Context mContext;
     private HashMap<UUID, ServerConnectionInfo> mConnectionsMap = new HashMap<>();
     private ArrayList<ServerConnectionInfo> mConnections = new ArrayList<>();
     private List<ConnectionsListener> mListeners = new ArrayList<>();
     private List<ServerConnectionInfo.ChannelListChangeListener> mChannelsListeners = new ArrayList<>();
     private List<ServerConnectionInfo.InfoChangeListener> mInfoListeners = new ArrayList<>();
 
-    public static ServerConnectionManager getInstance() {
-        if (instance == null)
-            instance = new ServerConnectionManager();
+    public static ServerConnectionManager getInstance(Context context) {
+        if (instance == null && context != null)
+            instance = new ServerConnectionManager(context.getApplicationContext());
         return instance;
+    }
+
+    public ServerConnectionManager(Context context) {
+        mContext = context;
     }
 
     public List<ServerConnectionInfo> getConnections() {
@@ -39,25 +46,24 @@ public class ServerConnectionManager {
             listener.onConnectionAdded(connection);
     }
 
-    public ServerConnectionInfo createConnection(ServerConfigData data, Context context) {
-        SharedPreferences defaultPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+    public ServerConnectionInfo createConnection(ServerConfigData data) {
+        SettingsHelper settings = SettingsHelper.getInstance(mContext);
 
-        IRCConnection connection = new IRCConnection();
         IRCConnectionRequest request = new IRCConnectionRequest();
         request
                 .setServerAddress(data.address, data.port);
         if (data.nick != null)
             request.addNick(data.nick);
         else
-            request.addNick(defaultPrefs.getString("default_nick", null));
+            request.addNick(settings.getDefaultNick());
         if (data.user != null)
             request.setUser(data.user);
         else
-            request.setUser(defaultPrefs.getString("default_user", null));
+            request.setUser(settings.getDefaultUser());
         if (data.realname != null)
             request.setRealName(data.realname);
         else
-            request.setRealName(defaultPrefs.getString("default_user", null));
+            request.setRealName(settings.getDefaultRealname());
 
         if (data.pass != null)
             request.setServerPass(data.pass);
@@ -66,12 +72,8 @@ public class ServerConnectionManager {
             ServerSSLHelper sslHelper = new ServerSSLHelper(null);
             request.enableSSL(sslHelper.createSocketFactory(), sslHelper.createHostnameVerifier());
         }
-        ServerConnectionInfo connectionInfo = new ServerConnectionInfo(this, data.uuid, data.name, connection);
-        connection.connect(request, (Void v) -> {
-            connectionInfo.setConnected(true);
-            connection.joinChannels(data.autojoinChannels, null, null);
-        }, null);
-
+        ServerConnectionInfo connectionInfo = new ServerConnectionInfo(this, data.uuid, data.name, request, data.autojoinChannels);
+        connectionInfo.connect();
         addConnection(connectionInfo);
         return connectionInfo;
     }
@@ -82,6 +84,22 @@ public class ServerConnectionManager {
 
     public boolean hasConnection(UUID uuid) {
         return mConnectionsMap.containsKey(uuid);
+    }
+
+    int getReconnectDelay(int attemptNumber) {
+        SettingsHelper settings = SettingsHelper.getInstance(mContext);
+        if (!settings.isReconnectEnabled())
+            return -1;
+        List<ReconnectIntervalPreference.Rule> rules = SettingsHelper.getInstance(mContext).getReconnectIntervalRules();
+        if (rules.size() == 0)
+            return -1;
+        int att = 0;
+        for (ReconnectIntervalPreference.Rule rule : rules) {
+            att += rule.repeatCount;
+            if (attemptNumber < att)
+                return rule.reconnectDelay;
+        }
+        return rules.get(rules.size() - 1).reconnectDelay;
     }
 
     public void addListener(ConnectionsListener listener) {
