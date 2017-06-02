@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="reconnect_enabled"
+        android:title="@string/pref_title_auto_reconnect"
+        android:summary="@string/pref_description_auto_reconnect" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="reconnect_connchg"
+        android:title="@string/pref_title_reconnect_connchg"
+        android:summary="@string/pref_description_reconnect_connchg"
+        android:dependency="reconnect_enabled" />
+
+    <io.mrarm.irc.util.ReconnectIntervalPreference
+        android:defaultValue="false"
+        android:key="reconnect_interval"
+        android:title="@string/pref_title_reconnect_pattern"
+        android:dependency="reconnect_enabled" />
+
+</PreferenceScreen>

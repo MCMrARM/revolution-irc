@@ -29,6 +29,10 @@ public class ServerConfigManager {
 
     private static Gson mGson = new Gson();
 
+    public static Gson getGson() {
+        return mGson;
+    }
+
     public static ServerConfigManager getInstance(Context context) {
         if (mInstance == null)
             mInstance = new ServerConfigManager(context.getApplicationContext());

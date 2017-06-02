@@ -6,6 +6,11 @@
         android:title="@string/pref_header_user" />
 
     <header
+        android:fragment="io.mrarm.irc.SettingsActivity$ReconnectPreferenceFragment"
+        android:icon="@drawable/ic_refresh"
+        android:title="@string/pref_header_reconnect" />
+
+    <header
         android:fragment="io.mrarm.irc.SettingsActivity$UserPreferenceFragment"
         android:icon="@drawable/ic_appearance"
         android:title="@string/pref_header_appearance" />

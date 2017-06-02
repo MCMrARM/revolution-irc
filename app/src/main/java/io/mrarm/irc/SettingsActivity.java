@@ -74,7 +74,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     protected boolean isValidFragment(String fragmentName) {
         return PreferenceFragment.class.getName().equals(fragmentName)
-                || UserPreferenceFragment.class.getName().equals(fragmentName);
+                || UserPreferenceFragment.class.getName().equals(fragmentName)
+                || ReconnectPreferenceFragment.class.getName().equals(fragmentName);
     }
 
     private static class MyPreferenceFragment extends PreferenceFragment {
@@ -107,4 +108,13 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             bindPreferenceSummaryToValue(findPreference("default_realname"));
         }
     }
+
+    public static class ReconnectPreferenceFragment extends MyPreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.pref_reconnect);
+        }
+    }
+
 }
