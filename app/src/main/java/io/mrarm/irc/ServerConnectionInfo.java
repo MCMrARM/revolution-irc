@@ -1,6 +1,7 @@
 package io.mrarm.irc;
 
 import android.os.Handler;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,11 +77,15 @@ public class ServerConnectionInfo {
         if (mConnected || mConnecting)
             return;
         mConnecting = true;
+        Log.i("ServerConnectionInfo", "Connecting...");
 
         IRCConnection connection = null;
         boolean createdNewConnection = false;
         if (mApi == null || !(mApi instanceof IRCConnection)) {
             connection = new IRCConnection();
+            connection.addDisconnectListener((IRCConnection conn, Exception reason) -> {
+                notifyDisconnected();
+            });
             createdNewConnection = true;
         } else {
             connection = (IRCConnection) mApi;
@@ -91,15 +96,13 @@ public class ServerConnectionInfo {
         connection.connect(mConnectionRequest, (Void v) -> {
             mConnecting = false;
             setConnected(true);
+            mCurrentReconnectAttempt = 0;
             fConnection.joinChannels(mAutojoinChannels, null, null);
-        }, (ChatApiException e) -> {
+        }, (Exception e) -> {
             notifyDisconnected();
         });
 
         if (createdNewConnection) {
-            connection.addDisconnectListener((IRCConnection conn, Exception reason) -> {
-                notifyDisconnected();
-            });
             setApi(connection);
         }
     }
@@ -110,6 +113,7 @@ public class ServerConnectionInfo {
         int reconnectDelay = mManager.getReconnectDelay(mCurrentReconnectAttempt++);
         if (reconnectDelay == -1)
             return;
+        Log.i("ServerConnectionInfo", "Queuing reconnect in " + reconnectDelay + " ms");
         mReconnectHandler.postDelayed(this::connect, reconnectDelay);
     }
 
