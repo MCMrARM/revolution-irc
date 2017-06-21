@@ -143,6 +143,8 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
     private void onMessage(ServerConnectionInfo connection, String channel, MessageInfo info) {
         if (info.getMessage() == null)
             return;
+        if (info.getBatch() != null && info.getBatch().getType().equals("znc.in/playback"))
+            return; // no notifications for znc playback
         NotificationRule rule = connection.getNotificationManager().findRule(info.getMessage());
         if (rule != null) {
             NotificationManager.ChannelNotificationData notificationData = connection.getNotificationManager().getChannelNotificationData(channel, true);
