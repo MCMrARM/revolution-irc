@@ -242,7 +242,6 @@ public class ReconnectIntervalPreference extends Preference {
                         } catch (NumberFormatException e) {
                             rule.repeatCount = -1;
                         }
-                        adapter.updateDialogOkButtonState(rule.repeatCount > 0);
 
                         if (getAdapterPosition() == adapter.mRules.size() - 1) { // last item
                             if (mRepeatCountText.getText().length() > 0) {
@@ -259,6 +258,7 @@ public class ReconnectIntervalPreference extends Preference {
                                 adapter.notifyItemRemoved(ii);
                             }
                         }
+                        adapter.updateDialogOkButtonState();
                     }
                 });
             }
