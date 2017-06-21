@@ -34,6 +34,24 @@ public class ServerConnectionManager {
 
     public ServerConnectionManager(Context context) {
         mContext = context;
+
+        ServerConfigManager configManager = ServerConfigManager.getInstance(context);
+        SettingsHelper settings = SettingsHelper.getInstance(mContext);
+        List<UUID> uuids = settings.getAutoConnectServerList();
+        if (uuids != null) {
+            for (UUID uuid : uuids) {
+                ServerConfigData configData = configManager.findServer(uuid);
+                if (configData != null)
+                    createConnection(configData, false);
+            }
+        }
+    }
+
+    private void saveAutoconnectList() {
+        List<UUID> uuids = new ArrayList<>();
+        uuids.addAll(mConnectionsMap.keySet());
+        SettingsHelper settings = SettingsHelper.getInstance(mContext);
+        settings.setAutoConnectServerList(uuids);
     }
 
     public List<ServerConnectionInfo> getConnections() {
@@ -47,7 +65,7 @@ public class ServerConnectionManager {
             listener.onConnectionAdded(connection);
     }
 
-    public ServerConnectionInfo createConnection(ServerConfigData data) {
+    private ServerConnectionInfo createConnection(ServerConfigData data, boolean saveAutoconnect) {
         SettingsHelper settings = SettingsHelper.getInstance(mContext);
 
         IRCConnectionRequest request = new IRCConnectionRequest();
@@ -76,7 +94,14 @@ public class ServerConnectionManager {
         ServerConnectionInfo connectionInfo = new ServerConnectionInfo(this, data.uuid, data.name, request, data.autojoinChannels);
         connectionInfo.connect();
         addConnection(connectionInfo);
+        if (saveAutoconnect)
+            saveAutoconnectList();
         return connectionInfo;
+    }
+
+
+    public ServerConnectionInfo createConnection(ServerConfigData data) {
+        return createConnection(data, true);
     }
 
     public ServerConnectionInfo getConnection(UUID uuid) {

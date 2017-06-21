@@ -4,7 +4,11 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 import io.mrarm.irc.ServerConfigManager;
 
@@ -18,6 +22,7 @@ public class SettingsHelper {
     public static String PREF_RECONNECT_ENABLED = "reconnect_enabled";
     public static String PREF_RECONNECT_CONNCHG = "reconnect_connchg";
     public static String PREF_RECONNECT_INTERVAL = "reconnect_interval";
+    public static String PREF_AUTOCONNECT_SERVERS = "connect_servers";
 
     public static SettingsHelper getInstance(Context context) {
         if (mInstance == null)
@@ -70,6 +75,25 @@ public class SettingsHelper {
             }
         }
         return mCachedIntervalRules;
+    }
+
+    public List<UUID> getAutoConnectServerList() {
+        Set<String> set = mPreferences.getStringSet(PREF_AUTOCONNECT_SERVERS, null);
+        if (set == null)
+            return null;
+        List<UUID> ret = new ArrayList<>();
+        for (String s : set)
+            ret.add(UUID.fromString(s));
+        return ret;
+    }
+
+    public void setAutoConnectServerList(List<UUID> list) {
+        Set<String> set = new HashSet<>();
+        for (UUID uuid : list)
+            set.add(uuid.toString());
+        mPreferences.edit()
+                .putStringSet(PREF_AUTOCONNECT_SERVERS, set)
+                .apply();
     }
 
 }
