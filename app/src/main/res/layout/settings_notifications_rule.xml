@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content" android:background="?attr/selectableItemBackground">
+
+    <CheckBox
+        android:id="@+id/enabled"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp" />
+
+    <ImageView
+        android:id="@+id/reorder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_reorder"
+        android:contentDescription="@string/action_reorder"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:alpha="0.54"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp" />
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@id/reorder"
+        android:layout_toStartOf="@id/reorder"
+        android:layout_centerVertical="true"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:layout_marginStart="72dp"
+        android:layout_marginLeft="72dp" />
+
+</RelativeLayout>

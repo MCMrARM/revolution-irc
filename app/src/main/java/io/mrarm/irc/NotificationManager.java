@@ -20,17 +20,25 @@ public class NotificationManager {
 
     private static int mNextChatNotificationId = CHAT_NOTIFICATION_ID_START;
 
-    private static NotificationRule mNickMentionRule;
-    private static List<NotificationRule> mDefaultRules;
+    public static NotificationRule sNickMentionRule;
+    public static NotificationRule sDirectMessageRule;
+    public static NotificationRule sNoticeRule;
+    public static NotificationRule sChannelNoticeRule;
+    public static NotificationRule sZNCPlaybackRule;
+    private static List<NotificationRule> sDefaultRules;
 
     private ServerConnectionInfo mConnection;
     private Map<String, ChannelNotificationData> mChannelData = new HashMap<>();
     Map<NotificationRule, Pattern> mCompiledPatterns = new HashMap<>();
 
     private static void initDefaultRules() {
-        mDefaultRules = new ArrayList<>();
-        mNickMentionRule = new NotificationRule("${nick}", true);
-        mDefaultRules.add(mNickMentionRule);
+        sDefaultRules = new ArrayList<>();
+        sNickMentionRule = new NotificationRule(R.string.notification_rule_nick, "${nick}", true);
+        sDirectMessageRule = new NotificationRule(R.string.notification_rule_direct, "", true);
+        sNoticeRule = new NotificationRule(R.string.notification_rule_notice, "", true);
+        sChannelNoticeRule = new NotificationRule(R.string.notification_rule_chan_notice, "", true);
+        sZNCPlaybackRule = new NotificationRule(R.string.notification_rule_zncplayback, "", true);
+        sDefaultRules.add(sNickMentionRule);
     }
 
     public NotificationManager(ServerConnectionInfo connection) {
@@ -38,8 +46,8 @@ public class NotificationManager {
     }
 
     public NotificationRule findRule(String message) {
-        for (NotificationRule rule : mDefaultRules) {
-            if (rule.appliesTo(this, message))
+        for (NotificationRule rule : sDefaultRules) {
+            if (rule.appliesTo(this, message) && rule.settings.enabled)
                 return rule;
         }
         return null;

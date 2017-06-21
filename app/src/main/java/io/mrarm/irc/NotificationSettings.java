@@ -2,6 +2,8 @@ package io.mrarm.irc;
 
 public class NotificationSettings {
 
+    public boolean enabled = true;
+
     public boolean lightEnabled = true;
     public int light = 0;
 

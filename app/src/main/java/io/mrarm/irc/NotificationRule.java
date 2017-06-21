@@ -7,6 +7,8 @@ public class NotificationRule {
 
     private static Pattern mMatchVariablesRegex = Pattern.compile("(?<!\\\\)\\$\\{(.*)\\}");
 
+    private String name;
+    private int nameId = -1;
     private String regex;
     private boolean regexCaseInsensitive;
     public NotificationSettings settings = new NotificationSettings();
@@ -16,12 +18,27 @@ public class NotificationRule {
     public NotificationRule() {
     }
 
-    public NotificationRule(String regex, boolean caseInsensitive) {
+    public NotificationRule(String name, String regex, boolean caseInsensitive) {
+        this.name = name;
         setRegex(regex, caseInsensitive);
     }
 
-    public NotificationRule(String regex) {
+    public NotificationRule(String name, String regex) {
+        this.name = name;
         setRegex(regex, false);
+    }
+
+    public NotificationRule(int nameId, String regex, boolean caseInsensitive) {
+        this.nameId = nameId;
+        setRegex(regex, caseInsensitive);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getNameId() {
+        return nameId;
     }
 
     public void setRegex(String regex, boolean caseInsensitive) {

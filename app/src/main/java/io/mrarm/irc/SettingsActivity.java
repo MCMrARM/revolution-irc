@@ -6,11 +6,18 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
@@ -75,7 +82,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     protected boolean isValidFragment(String fragmentName) {
         return PreferenceFragment.class.getName().equals(fragmentName)
                 || UserPreferenceFragment.class.getName().equals(fragmentName)
-                || ReconnectPreferenceFragment.class.getName().equals(fragmentName);
+                || ReconnectPreferenceFragment.class.getName().equals(fragmentName)
+                || AppearancePreferenceFragment.class.getName().equals(fragmentName)
+                || NotificationPreferenceFragment.class.getName().equals(fragmentName);
     }
 
     private static class MyPreferenceFragment extends PreferenceFragment {
@@ -114,6 +123,39 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_reconnect);
+        }
+    }
+
+    public static class AppearancePreferenceFragment extends MyPreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.pref_appearance);
+        }
+    }
+
+    public static class NotificationPreferenceFragment extends MyPreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+            View view = inflater.inflate(R.layout.settings_notifications, container, false);
+            RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rules);
+            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+            List<NotificationRule> testData = new ArrayList<>();
+            testData.add(new NotificationRule("Test Rule", "test", false));
+            testData.add(new NotificationRule("Test Rule 2", "test", false));
+            testData.add(new NotificationRule("Test Rule 3", "test", false));
+
+            NotificationRulesAdapter adapter = new NotificationRulesAdapter(testData);
+            recyclerView.setAdapter(adapter);
+            adapter.enableDragDrop(recyclerView);
+
+            return view;
         }
     }
 
