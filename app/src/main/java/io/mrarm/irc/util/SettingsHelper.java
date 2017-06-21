@@ -63,7 +63,9 @@ public class SettingsHelper {
         if (mCachedIntervalRules == null) {
             mCachedIntervalRules = ReconnectIntervalPreference.getDefaultValue();
             try {
-                mCachedIntervalRules = ServerConfigManager.getGson().fromJson(mPreferences.getString(PREF_RECONNECT_INTERVAL, null), ReconnectIntervalPreference.mListRuleType);
+                List<ReconnectIntervalPreference.Rule> rules = ServerConfigManager.getGson().fromJson(mPreferences.getString(PREF_RECONNECT_INTERVAL, null), ReconnectIntervalPreference.mListRuleType);
+                if (rules != null)
+                    mCachedIntervalRules = rules;
             } catch (Exception ignored) {
             }
         }
