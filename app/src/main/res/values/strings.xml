@@ -55,6 +55,8 @@
 
     <string name="title_activity_settings">Settings</string>
 
+    <string name="value_default">Default</string>
+
     <string name="service_title">Connected to IRC</string>
     <string name="service_status">Connected to %1$d networks.</string>
     <string name="notify_multiple_messages">%1$d unread messages</string>
@@ -80,6 +82,12 @@
     <string name="notification_rule_notice">Notices</string>
     <string name="notification_rule_chan_notice">Channel notices</string>
     <string name="notification_rule_zncplayback">Disable ZNC playback notifications</string>
+
+    <string name="title_activity_edit_notification_settings">Notification settings</string>
+    <string name="notification_sound">Sound</string>
+    <string name="notification_vibration">Vibration</string>
+    <string name="notification_priority">Priority</string>
+    <string name="notification_color">LED Color</string>
 
     <!-- Reconnect settings -->
 
