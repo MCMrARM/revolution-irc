@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,19 +20,21 @@ public class EntryRecyclerViewAdapter extends RecyclerView.Adapter<EntryRecycler
         return sKnownViewHolders.size() - 1;
     }
 
-    public static EntryHolder createRegisteredViewHolder(ViewGroup viewGroup, int id) {
-        View view = LayoutInflater.from(viewGroup.getContext())
-                .inflate(sKnownViewHolderLayouts.get(id), viewGroup, false);
-        try {
-            return sKnownViewHolders.get(id).getDeclaredConstructor(View.class).newInstance(view);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public static abstract class Entry {
 
+        private EntryRecyclerViewAdapter mOwner;
+        private int mIndex;
+
         public abstract int getViewHolder();
+
+        void assignIndex(EntryRecyclerViewAdapter owner, int index) {
+            mOwner = owner;
+            mIndex = index;
+        }
+
+        protected void onUpdated() {
+            mOwner.notifyItemChanged(mIndex);
+        }
 
     }
 
@@ -46,15 +49,31 @@ public class EntryRecyclerViewAdapter extends RecyclerView.Adapter<EntryRecycler
     }
 
 
-    private List<Entry> mEntries = new ArrayList<>();
+    protected List<Entry> mEntries = new ArrayList<>();
 
     public void add(Entry entry) {
+        entry.assignIndex(this, mEntries.size());
         mEntries.add(entry);
     }
 
     @Override
     public EntryHolder onCreateViewHolder(ViewGroup viewGroup, int type) {
-        return createRegisteredViewHolder(viewGroup, type);
+        View view = LayoutInflater.from(viewGroup.getContext())
+                .inflate(sKnownViewHolderLayouts.get(type), viewGroup, false);
+        try {
+            try {
+                return sKnownViewHolders.get(type).getDeclaredConstructor(View.class).newInstance(view);
+            } catch (NoSuchMethodException e2) {
+                for (Constructor constructor : sKnownViewHolders.get(type).getDeclaredConstructors()) {
+                    Class[] p = constructor.getParameterTypes();
+                    if (p.length == 2 && p[0].equals(View.class) && EntryRecyclerViewAdapter.class.isAssignableFrom(p[1]))
+                        return (EntryHolder) constructor.newInstance(view, this);
+                }
+                throw new NoSuchMethodException();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -68,4 +87,8 @@ public class EntryRecyclerViewAdapter extends RecyclerView.Adapter<EntryRecycler
         return mEntries.size();
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return mEntries.get(position).getViewHolder();
+    }
 }
