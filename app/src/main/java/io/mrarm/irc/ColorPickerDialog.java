@@ -94,7 +94,7 @@ public class ColorPickerDialog {
 
         @Override
         public void onBindViewHolder(ViewHolder viewHolder, int i) {
-            viewHolder.bind(i, mDialog.mColors[i], mDialog.mSelectedColor == i);
+            viewHolder.bind(mDialog.mColors[i], mDialog.mSelectedColor == i);
         }
 
         @Override
@@ -104,7 +104,6 @@ public class ColorPickerDialog {
 
         public static class ViewHolder extends RecyclerView.ViewHolder {
 
-            private int mColorIndex;
             private ImageView mColor;
             private ImageView mCheck;
 
@@ -112,7 +111,7 @@ public class ColorPickerDialog {
                 super(view);
                 view.setOnClickListener((View v) -> {
                     int oldIndex = adapter.mDialog.mSelectedColor;
-                    adapter.mDialog.mSelectedColor = mColorIndex;
+                    adapter.mDialog.mSelectedColor = getAdapterPosition();
                     adapter.notifyItemChanged(oldIndex);
                     adapter.notifyItemChanged(adapter.mDialog.mSelectedColor);
                     if (adapter.mDialog.mListener != null)
@@ -124,8 +123,7 @@ public class ColorPickerDialog {
                 mCheck = (ImageView) view.findViewById(R.id.check);
             }
 
-            public void bind(int index, int color, boolean selected) {
-                mColorIndex = index;
+            public void bind(int color, boolean selected) {
                 mColor.setColorFilter(color, PorterDuff.Mode.MULTIPLY);
                 if (selected) {
                     mCheck.setVisibility(View.VISIBLE);

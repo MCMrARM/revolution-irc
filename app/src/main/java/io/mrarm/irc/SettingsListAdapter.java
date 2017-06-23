@@ -96,14 +96,18 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
     public static class SimpleEntryHolder extends EntryHolder<SimpleEntry>
             implements View.OnClickListener {
 
+        protected SettingsListAdapter mAdapter;
         protected TextView mName;
         protected TextView mValue;
+        protected View mDivider;
 
-        public SimpleEntryHolder(View itemView) {
+        public SimpleEntryHolder(View itemView, SettingsListAdapter adapter) {
             super(itemView);
 
+            mAdapter = adapter;
             mName = (TextView) itemView.findViewById(R.id.name);
             mValue = (TextView) itemView.findViewById(R.id.value);
+            mDivider = itemView.findViewById(R.id.divider);
             itemView.setOnClickListener(this);
         }
 
@@ -111,6 +115,7 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
         public void bind(SimpleEntry entry) {
             mName.setText(entry.mName);
             mValue.setText(entry.mValue);
+            mDivider.setVisibility(getAdapterPosition() == mAdapter.mEntries.size() - 1 ? View.GONE : View.VISIBLE);
         }
 
         @Override
@@ -149,8 +154,8 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
 
         private ListEntry mEntry;
 
-        public ListEntryHolder(View itemView) {
-            super(itemView);
+        public ListEntryHolder(View itemView, SettingsListAdapter adapter) {
+            super(itemView, adapter);
         }
 
         @Override
@@ -219,18 +224,16 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
     public static class RingtoneEntryHolder extends SimpleEntryHolder {
 
         private RingtoneEntry mEntry;
-        private Activity mActivity;
 
         public RingtoneEntryHolder(View itemView, SettingsListAdapter adapter) {
-            super(itemView);
-            mActivity = adapter.mActivity;
+            super(itemView, adapter);
         }
 
         @Override
         public void bind(SimpleEntry entry) {
             super.bind(entry);
             mEntry = (RingtoneEntry) entry;
-            mValue.setText(RingtoneEntry.getValueDisplayString(mActivity, mEntry.mValue));
+            mValue.setText(RingtoneEntry.getValueDisplayString(mAdapter.mActivity, mEntry.mValue));
         }
 
         @Override
@@ -244,7 +247,7 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
             intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION);
             intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, mEntry.mName);
             intent.putExtra("android.intent.extra.ringtone.AUDIO_ATTRIBUTES_FLAGS", 0x1 << 6); // Perhaps a bit of a hack, but imo needed
-            mActivity.startActivityForResult(intent, mEntry.mRequestCode);
+            mAdapter.mActivity.startActivityForResult(intent, mEntry.mRequestCode);
         }
 
     }
@@ -281,8 +284,8 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
         private ColorEntry mEntry;
         private ImageView mColor;
 
-        public ColorEntryHolder(View itemView) {
-            super(itemView);
+        public ColorEntryHolder(View itemView, SettingsListAdapter adapter) {
+            super(itemView, adapter);
             mColor = (ImageView) itemView.findViewById(R.id.color);
         }
 
