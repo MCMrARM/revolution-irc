@@ -119,4 +119,26 @@
         <item>hours</item>
     </string-array>
 
+    <!-- Color names -->
+
+    <string-array name="color_picker_color_names">
+        <item>Black</item>
+        <item>White</item>
+        <item>Blue</item>
+        <item>Green</item>
+        <item>Light Red</item>
+        <item>Brown</item>
+        <item>Purple</item>
+        <item>Orange</item>
+        <item>Yellow</item>
+        <item>Light Green</item>
+        <item>Cyan</item>
+        <item>Light Cyan</item>
+        <item>Light Blue</item>
+        <item>Pink</item>
+        <item>Gray</item>
+        <item>Light Gray</item>
+    </string-array>
+
+
 </resources>

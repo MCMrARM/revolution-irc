@@ -26,7 +26,9 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         mAdapter.add(new SettingsListAdapter.RingtoneEntry(mAdapter, getString(R.string.notification_sound), null));
         mAdapter.add(new SettingsListAdapter.ListEntry(getString(R.string.notification_vibration), getResources().getStringArray(R.array.notification_vibration_options), 0));
         mAdapter.add(new SettingsListAdapter.ListEntry(getString(R.string.notification_priority), getResources().getStringArray(R.array.notification_priority_options), 1));
-        mAdapter.add(new SettingsListAdapter.SimpleEntry(getString(R.string.notification_color), getString(R.string.value_default)));
+        String[] colorNames = getResources().getStringArray(R.array.color_picker_color_names);
+        colorNames[0] = getString(R.string.value_none);
+        mAdapter.add(new SettingsListAdapter.ColorEntry(getString(R.string.notification_color), getResources().getIntArray(R.array.colorPickerColors), colorNames, 2));
         recyclerView.setAdapter(mAdapter);
     }
 

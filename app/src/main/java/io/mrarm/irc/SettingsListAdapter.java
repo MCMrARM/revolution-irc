@@ -1,14 +1,15 @@
 package io.mrarm.irc;
 
-import android.app.Activity;
-import android.app.AlertDialog;
+import android.app.*;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import io.mrarm.irc.util.EntryRecyclerViewAdapter;
@@ -207,6 +208,66 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
             intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, mEntry.mName);
             intent.putExtra("android.intent.extra.ringtone.AUDIO_ATTRIBUTES_FLAGS", 0x1 << 6); // Perhaps a bit of a hack, but imo needed
             mActivity.startActivityForResult(intent, mEntry.mRequestCode);
+        }
+
+    }
+
+    public static class ColorEntry extends SimpleEntry {
+
+        private static final int sHolder = registerViewHolder(ColorEntryHolder.class, R.layout.settings_list_entry_color);
+
+        int[] mColors;
+        String[] mColorNames;
+        int mSelectedIndex;
+
+        public ColorEntry(String name, int[] colors, String[] colorNames, int selectedIndex) {
+            super(name, null);
+            mColors = colors;
+            mColorNames = colorNames;
+            mSelectedIndex = selectedIndex;
+        }
+
+        public void setSelectedColor(int index) {
+            mSelectedIndex = index;
+            onUpdated();
+        }
+
+        @Override
+        public int getViewHolder() {
+            return sHolder;
+        }
+
+    }
+
+    public static class ColorEntryHolder extends SimpleEntryHolder {
+
+        private ColorEntry mEntry;
+        private ImageView mColor;
+
+        public ColorEntryHolder(View itemView) {
+            super(itemView);
+            mColor = (ImageView) itemView.findViewById(R.id.color);
+        }
+
+        @Override
+        public void bind(SimpleEntry entry) {
+            super.bind(entry);
+            mEntry = (ColorEntry) entry;
+            mColor.setColorFilter(mEntry.mColors[mEntry.mSelectedIndex], PorterDuff.Mode.MULTIPLY);
+            mValue.setText(mEntry.mColorNames[mEntry.mSelectedIndex]);
+        }
+
+        @Override
+        public void onClick(View v) {
+            ColorPickerDialog dialog = new ColorPickerDialog(v.getContext());
+            dialog.setTitle(mEntry.mName);
+            dialog.setColors(mEntry.mColors, mEntry.mSelectedIndex);
+            dialog.setPositiveButtonText(R.string.action_cancel);
+            dialog.setOnColorChangeListener((ColorPickerDialog d, int colorIndex, int color) -> {
+                mEntry.setSelectedColor(colorIndex);
+                dialog.cancel();
+            });
+            dialog.show();
         }
 
     }

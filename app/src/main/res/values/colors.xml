@@ -34,4 +34,23 @@
     <color name="memberNormal">#000</color>
 
     <color name="motdColor">#1976D2</color>
+
+    <integer-array name="colorPickerColors">
+        <item>@color/ircBlack</item>
+        <item>@color/ircWhite</item>
+        <item>@color/ircBlue</item>
+        <item>@color/ircGreen</item>
+        <item>@color/ircLightRed</item>
+        <item>@color/ircBrown</item>
+        <item>@color/ircPurple</item>
+        <item>@color/ircOrange</item>
+        <item>@color/ircYellow</item>
+        <item>@color/ircLightGreen</item>
+        <item>@color/ircCyan</item>
+        <item>@color/ircLightCyan</item>
+        <item>@color/ircLightBlue</item>
+        <item>@color/ircPink</item>
+        <item>@color/ircGray</item>
+        <item>@color/ircLightGray</item>
+    </integer-array>
 </resources>
