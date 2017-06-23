@@ -31,6 +31,8 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         mAdapter.add(new BasicEntry());
         mAdapter.add(new SettingsListAdapter.HeaderEntry(getString(R.string.notification_header_match)));
         mAdapter.add(new MatchEntry());
+        mAdapter.add(new SettingsListAdapter.HeaderEntry(getString(R.string.notification_header_applies_to)));
+        mAdapter.add(new AddRuleEntry());
         mAdapter.add(new SettingsListAdapter.HeaderEntry(getString(R.string.notification_header_options)));
         mAdapter.add(new SettingsListAdapter.RingtoneEntry(mAdapter, getString(R.string.notification_sound), RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)));
         mAdapter.add(new SettingsListAdapter.ListEntry(getString(R.string.notification_vibration), getResources().getStringArray(R.array.notification_vibration_options), 0));
@@ -101,6 +103,34 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         @Override
         public void bind(MatchEntry entry) {
             //
+        }
+
+    }
+
+
+    public static class AddRuleEntry extends EntryRecyclerViewAdapter.Entry {
+
+        private static final int sHolder = EntryRecyclerViewAdapter.registerViewHolder(AddRuleHolder.class, R.layout.notification_settings_add_rule);
+
+        @Override
+        public int getViewHolder() {
+            return sHolder;
+        }
+
+    }
+
+    public static class AddRuleHolder extends EntryRecyclerViewAdapter.EntryHolder<AddRuleEntry> {
+
+        public AddRuleHolder(View itemView) {
+            super(itemView);
+            itemView.setOnClickListener((View v) -> {
+                //
+            });
+        }
+
+        @Override
+        public void bind(AddRuleEntry entry) {
+            // stub
         }
 
     }
