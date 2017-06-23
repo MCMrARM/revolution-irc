@@ -1,6 +1,7 @@
 package io.mrarm.irc;
 
 import android.content.Intent;
+import android.media.RingtoneManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -23,7 +24,7 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
 
         mAdapter = new SettingsListAdapter(this);
         mAdapter.setRequestCodeCounter(mRequestCodeCounter);
-        mAdapter.add(new SettingsListAdapter.RingtoneEntry(mAdapter, getString(R.string.notification_sound), null));
+        mAdapter.add(new SettingsListAdapter.RingtoneEntry(mAdapter, getString(R.string.notification_sound), RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)));
         mAdapter.add(new SettingsListAdapter.ListEntry(getString(R.string.notification_vibration), getResources().getStringArray(R.array.notification_vibration_options), 0));
         mAdapter.add(new SettingsListAdapter.ListEntry(getString(R.string.notification_priority), getResources().getStringArray(R.array.notification_priority_options), 1));
         String[] colorNames = getResources().getStringArray(R.array.color_picker_color_names);

@@ -153,7 +153,7 @@ public class EditServerActivity extends AppCompatActivity {
         mEditServer.nick = mServerNick.getText().length() > 0 ? mServerNick.getText().toString() : null;
         mEditServer.user = mServerUser.getText().length() > 0 ? mServerUser.getText().toString() : null;
         mEditServer.realname = mServerRealname.getText().length() > 0 ? mServerRealname.getText().toString() : null;
-        if (mServerPass.getVisibility() == View.VISIBLE)
+        if (mServerPassReset.getVisibility() == View.GONE)
             mEditServer.pass = mServerPass.getText().toString();
         mEditServer.autojoinChannels = Arrays.asList(mServerChannels.getText().toString().split(" "));
         try {

@@ -8,6 +8,7 @@ import android.graphics.PorterDuff;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -151,6 +152,8 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
         public static String getValueDisplayString(Context context, Uri uri) {
             if (uri == null)
                 return context.getString(R.string.value_none);
+            if (uri.equals(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)))
+                return context.getString(R.string.value_default);
             Ringtone ret = RingtoneManager.getRingtone(context, uri);
             if (ret != null)
                 return ret.getTitle(context);
