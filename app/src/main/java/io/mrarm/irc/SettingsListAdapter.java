@@ -40,6 +40,40 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
         void onActivityResult(int requestCode, int resultCode, Intent data);
     }
 
+    public static class HeaderEntry extends Entry {
+
+        private static final int sHolder = registerViewHolder(HeaderEntryHolder.class, R.layout.settings_list_header);
+
+        protected String mTitle;
+
+        public HeaderEntry(String title) {
+            mTitle = title;
+        }
+
+        @Override
+        public int getViewHolder() {
+            return sHolder;
+        }
+
+    }
+
+    public static class HeaderEntryHolder extends EntryHolder<HeaderEntry> {
+
+        protected TextView mTitle;
+
+        public HeaderEntryHolder(View itemView) {
+            super(itemView);
+
+            mTitle = (TextView) itemView.findViewById(R.id.title);
+        }
+
+        @Override
+        public void bind(HeaderEntry entry) {
+            mTitle.setText(entry.mTitle);
+        }
+
+    }
+
     public static class SimpleEntry extends Entry {
 
         private static final int sHolder = registerViewHolder(SimpleEntryHolder.class, R.layout.settings_list_entry);

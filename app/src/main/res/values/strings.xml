@@ -40,7 +40,6 @@
     <string name="add_server">Add a new server</string>
     <string name="edit_server">Edit a server</string>
     <string name="server_save_error">Failed to save server information</string>
-    <string name="server_name">Name</string>
     <string name="server_address">Server address</string>
     <string name="server_port">Port</string>
     <string name="server_ssl">Use SSL</string>
@@ -57,6 +56,7 @@
 
     <string name="value_default">Default</string>
     <string name="value_none">None</string>
+    <string name="entry_name">Name</string>
 
     <string name="service_title">Connected to IRC</string>
     <string name="service_status">Connected to %1$d networks.</string>
@@ -85,6 +85,19 @@
     <string name="notification_rule_zncplayback">Disable ZNC playback notifications</string>
 
     <string name="title_activity_edit_notification_settings">Notification settings</string>
+
+    <string name="notification_header_match">Match</string>
+    <string name="notification_match_mode">Mode</string>
+    <string name="notification_match_text">Text</string>
+    <string name="notification_match_case">Case sensitive</string>
+
+    <string-array name="notification_match_modes">
+        <item>Contains</item>
+        <item>Contains word</item>
+        <item>Regex</item>
+    </string-array>
+
+    <string name="notification_header_options">Options</string>
     <string name="notification_sound">Sound</string>
     <string name="notification_vibration">Vibration</string>
     <string name="notification_priority">Priority</string>

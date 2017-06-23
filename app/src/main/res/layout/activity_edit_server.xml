@@ -30,7 +30,7 @@
                     android:id="@+id/server_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/server_name"/>
+                    android:hint="@string/entry_name"/>
 
             </android.support.design.widget.TextInputLayout>
 
