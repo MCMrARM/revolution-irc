@@ -2,6 +2,7 @@ package io.mrarm.irc;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -35,32 +36,42 @@ public class ChipsEditText extends FrameLayout {
     private Editable mEditable;
     private List<Integer> mEditableLineStarts;
 
+    private List<ChipListener> mListeners = new ArrayList<>();
+
     public ChipsEditText(@NonNull Context context) {
         super(context);
-        init();
+        init(null);
     }
 
     public ChipsEditText(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        init();
+        init(attrs);
     }
 
     public ChipsEditText(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
+        init(attrs);
     }
 
     @TargetApi(21)
     public ChipsEditText(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        init();
+        init(attrs);
     }
 
-    private void init() {
+    private void init(AttributeSet attrs) {
         mEditableLineStarts = new ArrayList<>();
         mEditableLineStarts.add(0);
 
         mEditTextHorizontalPadding = getResources().getDimensionPixelSize(R.dimen.chip_edit_text_horizontal_padding);
+
+        TypedArray ta = getContext().getTheme().obtainStyledAttributes(attrs,
+                new int[] { android.R.attr.editTextBackground }, 0, 0);
+        try {
+            setBackgroundDrawable(ta.getDrawable(0));
+        } finally {
+            ta.recycle();
+        }
 
         setAddStatesFromChildren(true);
 
@@ -82,9 +93,7 @@ public class ChipsEditText extends FrameLayout {
 
         mEditable = mItemEditText.getEditableText();
 
-        for (int i = 0; i < 5; i++) {
-            addItem("Test" + i, i);
-        }
+        setMinimumHeight(mItemEditText.getLineHeight() + getPaddingTop() + getPaddingBottom());
     }
 
     private boolean mFinishingItemEdit = false;
@@ -113,6 +122,7 @@ public class ChipsEditText extends FrameLayout {
             } else {
                 removeItem(editIndex);
             }
+            mFlexbox.refreshDrawableState();
         }
         mFinishingItemEdit = false;
     }
@@ -135,6 +145,10 @@ public class ChipsEditText extends FrameLayout {
         return mEditable.subSequence(mEditableLineStarts.get(index), i2).toString();
     }
 
+    public int getItemCount() {
+        return mEditableLineStarts.size() - 1;
+    }
+
     public void addItem(String text, int index) {
         isDirectlyEditing = true;
         createChip(text, index);
@@ -149,6 +163,8 @@ public class ChipsEditText extends FrameLayout {
             mEditableLineStarts.set(i, mEditableLineStarts.get(i) + l);
         }
         isDirectlyEditing = false;
+        for (ChipListener listener : mListeners)
+            listener.onChipAdded(text, index);
     }
 
     public void removeItem(int index) {
@@ -166,6 +182,16 @@ public class ChipsEditText extends FrameLayout {
             mEditableLineStarts.set(i, mEditableLineStarts.get(i) - l);
         }
         isDirectlyEditing = false;
+        for (ChipListener listener : mListeners)
+            listener.onChipRemoved(index);
+    }
+
+    public void addChipListener(ChipListener listener) {
+        mListeners.add(listener);
+    }
+
+    public void removeChipListener(ChipListener listener) {
+        mListeners.remove(listener);
     }
 
     private void createChip(String text, int index) {
@@ -291,7 +317,6 @@ public class ChipsEditText extends FrameLayout {
                 setSelection(mEditableLineStarts.get(index));
             else
                 setSelection(mEditableLineStarts.get(index + 1) - 1);
-            //setScrollY(getLineHeight() * mEditIndex);
         }
 
         @Override
@@ -317,7 +342,6 @@ public class ChipsEditText extends FrameLayout {
             int oldScrollY = getScrollY();
             //boolean ret = super.bringPointIntoView(offset);
             int p = (getMeasuredHeight() - getLineHeight());
-            Log.d("Test", "P = " + p);
             if (mEditIndex != -1)
                 setScrollY(getLineHeight() * mEditIndex);
             return getScrollY() != oldScrollY;
@@ -330,9 +354,7 @@ public class ChipsEditText extends FrameLayout {
 
         @Override
         protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-            super.onLayout(changed, left, top, right, bottom);/*
-            int p = (bottom - top - getLineHeight()) / 2;
-            setPadding(getPaddingLeft(), p, getPaddingRight(), p);*/
+            super.onLayout(changed, left, top, right, bottom);
             bringPointIntoView(getSelectionStart());
         }
 
@@ -365,6 +387,14 @@ public class ChipsEditText extends FrameLayout {
             }
             setMeasuredDimension(width, height);
         }
+    }
+
+    public interface ChipListener {
+
+        void onChipAdded(String text, int index);
+
+        void onChipRemoved(int index);
+
     }
 
 }
