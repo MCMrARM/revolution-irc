@@ -16,12 +16,14 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.google.android.flexbox.FlexboxLayout;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -136,6 +138,8 @@ public class ChipsEditText extends FrameLayout {
         mItemEditText.setEditIndex(index);
         mFlexbox.addView(mItemEditText, index);
         mItemEditText.requestFocus();
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(mItemEditText, 0);
     }
 
     private boolean isDirectlyEditing = false;
@@ -147,6 +151,27 @@ public class ChipsEditText extends FrameLayout {
 
     public int getItemCount() {
         return mEditableLineStarts.size() - 1;
+    }
+
+    public void clearItems() {
+        finishItemEdit();
+        mFlexbox.removeAllViews();
+        mEditable.clear();
+        mEditableLineStarts = new ArrayList<>();
+        mEditableLineStarts.add(0);
+    }
+
+    public void setItems(Collection<String> items) {
+        clearItems();
+        for (String item : items)
+            addItem(item);
+    }
+
+    public List<String> getItems() {
+        List<String> items = new ArrayList<>();
+        for (int i = 0; i < getItemCount(); i++)
+            items.add(getItemText(i));
+        return items;
     }
 
     public void addItem(String text, int index) {
@@ -165,6 +190,10 @@ public class ChipsEditText extends FrameLayout {
         isDirectlyEditing = false;
         for (ChipListener listener : mListeners)
             listener.onChipAdded(text, index);
+    }
+
+    public void addItem(String text) {
+        addItem(text, getItemCount());
     }
 
     public void removeItem(int index) {
@@ -236,13 +265,6 @@ public class ChipsEditText extends FrameLayout {
             setMaxLines(1);
             setHorizontallyScrolling(true);
             setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
-            setOnFocusChangeListener(new OnFocusChangeListener() {
-                @Override
-                public void onFocusChange(View v, boolean hasFocus) {
-                    if (!hasFocus)
-                        finishItemEdit();
-                }
-            });
             addTextChangedListener(new TextWatcher() {
 
                 private List<Integer> mRemoveItems = new ArrayList<>();
@@ -324,6 +346,9 @@ public class ChipsEditText extends FrameLayout {
             mFocusing = true;
             super.onFocusChanged(focused, direction, previouslyFocusedRect);
             mFocusing = false;
+            if (!focused && !mFinishingItemEdit) {
+                post(ChipsEditText.this::finishItemEdit);
+            }
         }
 
         @Override

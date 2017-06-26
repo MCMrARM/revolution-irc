@@ -37,7 +37,7 @@ public class EditServerActivity extends AppCompatActivity {
     private EditText mServerPass;
     private StaticLabelTextInputLayout mServerPassCtr;
     private View mServerPassReset;
-    private EditText mServerNick;
+    private ChipsEditText mServerNick;
     private EditText mServerUser;
     private EditText mServerRealname;
     private EditText mServerChannels;
@@ -92,7 +92,7 @@ public class EditServerActivity extends AppCompatActivity {
         mServerPass = (EditText) findViewById(R.id.server_password);
         mServerPassCtr = (StaticLabelTextInputLayout) findViewById(R.id.server_password_ctr);
         mServerPassReset = findViewById(R.id.server_password_reset);
-        mServerNick = (EditText) findViewById(R.id.server_nick);
+        mServerNick = (ChipsEditText) findViewById(R.id.server_nick);
         mServerUser = (EditText) findViewById(R.id.server_user);
         mServerRealname = (EditText) findViewById(R.id.server_realname);
         mServerChannels = (EditText) findViewById(R.id.server_channels);
@@ -128,7 +128,8 @@ public class EditServerActivity extends AppCompatActivity {
             if (mEditServer.autojoinChannels != null)
                 mServerChannels.setText(TextUtils.join(" ", mEditServer.autojoinChannels));
 
-            mServerNick.setText(mEditServer.nick);
+            if (mEditServer.nicks != null)
+                mServerNick.setItems(mEditServer.nicks);
             if (mEditServer.user != null || mEditServer.realname != null) {
                 mServerUser.setText(mEditServer.user);
                 mServerRealname.setText(mEditServer.realname);
@@ -150,7 +151,9 @@ public class EditServerActivity extends AppCompatActivity {
         mEditServer.address = mServerAddress.getText().toString();
         mEditServer.port = Integer.parseInt(mServerPort.getText().toString());
         mEditServer.ssl = mServerSSL.isChecked();
-        mEditServer.nick = mServerNick.getText().length() > 0 ? mServerNick.getText().toString() : null;
+        mEditServer.nicks = mServerNick.getItems();
+        if (mEditServer.nicks.size() == 0)
+            mEditServer.nicks = null;
         mEditServer.user = mServerUser.getText().length() > 0 ? mServerUser.getText().toString() : null;
         mEditServer.realname = mServerRealname.getText().length() > 0 ? mServerRealname.getText().toString() : null;
         if (mServerPassReset.getVisibility() == View.GONE)

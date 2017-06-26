@@ -184,16 +184,16 @@
                 style="@style/EditServerExtraAction"
                 android:contentDescription="@string/action_expand" />
 
-            <android.support.design.widget.TextInputLayout
-                style="@style/EditServerTextInput.ExtraAction">
+            <io.mrarm.irc.util.LabelLayout
+                style="@style/EditServerTextInput.ExtraAction"
+                android:hint="@string/server_nick">
 
-                <android.support.design.widget.TextInputEditText
+                <io.mrarm.irc.ChipsEditText
                     android:id="@+id/server_nick"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/server_nick"/>
+                    android:layout_height="wrap_content"/>
 
-            </android.support.design.widget.TextInputLayout>
+            </io.mrarm.irc.util.LabelLayout>
 
         </RelativeLayout>
 

@@ -13,7 +13,7 @@ public class ServerConfigData {
     public boolean ssl;
     public String pass;
 
-    public String nick;
+    public List<String> nicks;
     public String user;
     public String realname;
 

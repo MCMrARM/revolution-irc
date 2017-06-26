@@ -71,9 +71,10 @@ public class ServerConnectionManager {
         IRCConnectionRequest request = new IRCConnectionRequest();
         request
                 .setServerAddress(data.address, data.port);
-        if (data.nick != null)
-            request.addNick(data.nick);
-        else
+        if (data.nicks != null && data.nicks.size() > 0) {
+            for (String nick : data.nicks)
+                request.addNick(nick);
+        } else
             request.addNick(settings.getDefaultNick());
         if (data.user != null)
             request.setUser(data.user);
