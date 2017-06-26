@@ -318,10 +318,19 @@ public class ChipsEditText extends FrameLayout {
                     if (mAddItems.size() > 0) {
                         Collections.sort(mAddItems, Collections.reverseOrder());
                         for (int i : mAddItems) {
+                            int n = getChipIndexAtEditablePos(i);
+                            if (mEditableLineStarts.get(n) == i) {
+                                isDirectlyEditing = true;
+                                s.replace(i, i + 1, "");
+                                for (int j = n + 1; j < mEditableLineStarts.size(); j++)
+                                    mEditableLineStarts.set(j, mEditableLineStarts.get(j) - 1);
+                                isDirectlyEditing = false;
+                                continue;
+                            }
                             isDirectlyEditing = true;
                             s.replace(i, i + 1, "\n");
                             isDirectlyEditing = false;
-                            int n = getChipIndexAtEditablePos(i);
+                            n = getChipIndexAtEditablePos(i);
                             mEditableLineStarts.add(n + 1, i + 1);
                             createChip(getItemText(n), n);
 
