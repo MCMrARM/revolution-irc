@@ -9,4 +9,5 @@
 
     <dimen name="activity_horizontal_margin_s4">12dp</dimen>
     <dimen name="add_server_item_spacing">12dp</dimen>
+    <dimen name="chip_edit_text_horizontal_padding">4dp</dimen>
 </resources>

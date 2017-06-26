@@ -4,6 +4,8 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
 
+    <color name="chipColor">#BBDEFB</color>
+
     <color name="colorNotificationMention">#3F51B5</color>
 
     <color name="serverListConnected">#8BC34A</color>
