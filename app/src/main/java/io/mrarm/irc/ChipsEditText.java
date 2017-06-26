@@ -405,12 +405,13 @@ public class ChipsEditText extends FrameLayout {
 
         @Override
         protected void onFocusChanged(boolean focused, int direction, Rect previouslyFocusedRect) {
+            if (!focused && !mFinishingItemEdit) {
+                requestChildFocus(null, this);
+                finishItemEdit();
+            }
             mFocusing = true;
             super.onFocusChanged(focused, direction, previouslyFocusedRect);
             mFocusing = false;
-            if (!focused && !mFinishingItemEdit) {
-                post(ChipsEditText.this::finishItemEdit);
-            }
         }
 
         @Override
