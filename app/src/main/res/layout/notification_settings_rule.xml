@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="wrap_content">
+
+    <Button
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:id="@+id/delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin_s12"
+        android:layout_marginStart="@dimen/activity_horizontal_margin_s12"
+        android:drawableLeft="@drawable/ic_delete"
+        android:drawableStart="@drawable/ic_delete"
+        android:drawablePadding="8dp"
+        android:paddingRight="12dp"
+        android:paddingLeft="12dp"
+        android:text="@string/action_delete" />
+
+    <ImageView
+        android:id="@+id/expand"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="@dimen/activity_horizontal_margin_s12"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin_s12"
+        android:padding="12dp"
+        android:rotation="180"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        app:srcCompat="@drawable/ic_expand"
+        android:contentDescription="@string/action_expand" />
+
+
+    <io.mrarm.irc.util.LabelLayout
+        android:id="@+id/server_ctr"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin_s4"
+        android:layout_marginRight="@dimen/activity_horizontal_margin_s4"
+        android:layout_marginTop="8dp"
+        android:layout_below="@+id/delete"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/notification_rule_server">
+
+        <Spinner
+            android:id="@+id/server"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            style="@style/Base.Widget.AppCompat.Spinner.Underlined" />
+
+    </io.mrarm.irc.util.LabelLayout>
+
+
+    <io.mrarm.irc.util.LabelLayout
+        android:id="@+id/channels_ctr"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin_s4"
+        android:layout_marginRight="@dimen/activity_horizontal_margin_s4"
+        android:layout_marginTop="8dp"
+        android:layout_below="@+id/server_ctr"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/notification_rule_channels"
+        app:doNotExpand="true">
+
+        <io.mrarm.irc.ChipsEditText
+            android:id="@+id/channels"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/value_any" />
+
+    </io.mrarm.irc.util.LabelLayout>
+
+
+    <io.mrarm.irc.util.LabelLayout
+        android:id="@+id/nicks_ctr"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin_s4"
+        android:layout_marginRight="@dimen/activity_horizontal_margin_s4"
+        android:layout_marginTop="8dp"
+        android:layout_below="@+id/channels_ctr"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/notification_rule_nicks"
+        app:doNotExpand="true">
+
+        <io.mrarm.irc.ChipsEditText
+            android:id="@+id/nicks"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/value_any" />
+
+    </io.mrarm.irc.util.LabelLayout>
+
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="8dp"
+        android:background="?android:attr/dividerHorizontal"
+        android:layout_below="@+id/nicks_ctr" />
+
+</RelativeLayout>

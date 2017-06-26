@@ -3,6 +3,7 @@ package io.mrarm.irc;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.support.annotation.NonNull;
@@ -10,6 +11,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.AppCompatEditText;
 import android.text.Editable;
 import android.text.InputType;
+import android.text.TextPaint;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -31,6 +33,11 @@ import java.util.List;
 public class ChipsEditText extends FrameLayout {
 
     private static char ZERO_WIDTH_SPACE = '\u200B';
+
+    private String mHint;
+    private TextPaint mHintPaint;
+    private int mHintTextColor;
+    private int mHintTextSize;
 
     private FlexboxLayout mFlexbox;
     private MyEditText mItemEditText;
@@ -63,15 +70,21 @@ public class ChipsEditText extends FrameLayout {
     }
 
     private void init(AttributeSet attrs) {
+        setWillNotDraw(false);
+
         mEditableLineStarts = new ArrayList<>();
         mEditableLineStarts.add(0);
 
         mEditTextHorizontalPadding = getResources().getDimensionPixelSize(R.dimen.chip_edit_text_horizontal_padding);
 
+        mHintTextSize = getResources().getDimensionPixelSize(R.dimen.abc_text_size_medium_material);
+
         TypedArray ta = getContext().getTheme().obtainStyledAttributes(attrs,
-                new int[] { android.R.attr.editTextBackground }, 0, 0);
+                new int[] { android.R.attr.hint, android.R.attr.editTextBackground, android.R.attr.textColorHint }, 0, 0);
         try {
-            setBackgroundDrawable(ta.getDrawable(0));
+            setBackgroundDrawable(ta.getDrawable(1));
+            mHintTextColor = ta.getColor(2, 0);
+            setHint(ta.getString(0));
         } finally {
             ta.recycle();
         }
@@ -98,6 +111,7 @@ public class ChipsEditText extends FrameLayout {
 
         setMinimumHeight(mItemEditText.getLineHeight() + getPaddingTop() + getPaddingBottom());
     }
+
 
     private boolean mFinishingItemEdit = false;
 
@@ -157,7 +171,9 @@ public class ChipsEditText extends FrameLayout {
     public void clearItems() {
         finishItemEdit();
         mFlexbox.removeAllViews();
+        isDirectlyEditing = true;
         mEditable.clear();
+        isDirectlyEditing = false;
         mEditableLineStarts = new ArrayList<>();
         mEditableLineStarts.add(0);
     }
@@ -252,6 +268,29 @@ public class ChipsEditText extends FrameLayout {
         }
     }
 
+    public void setHint(String hint) {
+        mHint = hint;
+        if (mHint != null) {
+            if (mHintPaint == null) {
+                mHintPaint = new TextPaint();
+                mHintPaint.setAntiAlias(true);
+                mHintPaint.setColor(mHintTextColor);
+                mHintPaint.setTextSize(mHintTextSize);
+            }
+        } else {
+            mHintPaint = null;
+        }
+        invalidate();
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        if (mHintPaint != null && mEditable.length() == 0) {
+            canvas.drawText(mHint, getPaddingLeft(), getPaddingTop() - mHintPaint.ascent(), mHintPaint);
+        }
+    }
+
     private class MyEditText extends AppCompatEditText {
 
         private int mEditIndex = -1;
@@ -271,6 +310,7 @@ public class ChipsEditText extends FrameLayout {
 
                 private List<Integer> mRemoveItems = new ArrayList<>();
                 private List<Integer> mAddItems = new ArrayList<>();
+                private boolean mWasEmpty = false;
 
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -340,6 +380,12 @@ public class ChipsEditText extends FrameLayout {
                         }
                         mAddItems.clear();
                     }
+
+                    boolean empty = s.length() == 0;
+                    if (mWasEmpty != empty) {
+                        mWasEmpty = empty;
+                        ChipsEditText.this.invalidate();
+                    }
                 }
             });
         }
@@ -350,6 +396,11 @@ public class ChipsEditText extends FrameLayout {
                 setSelection(mEditableLineStarts.get(index));
             else
                 setSelection(mEditableLineStarts.get(index + 1) - 1);
+
+            if (index == 0 && getItemCount() == 0)
+                setPadding(0, 0, mEditTextHorizontalPadding, 0);
+            else if (getPaddingLeft() == 0)
+                setPadding(mEditTextHorizontalPadding, 0, mEditTextHorizontalPadding, 0);
         }
 
         @Override

@@ -57,6 +57,7 @@
 
     <string name="value_default">Default</string>
     <string name="value_none">None</string>
+    <string name="value_any">Any</string>
     <string name="entry_name">Name</string>
 
     <string name="service_title">Connected to IRC</string>
@@ -92,13 +93,22 @@
     <string name="notification_match_text">Text</string>
     <string name="notification_match_case">Case sensitive</string>
 
-    <string name="notification_header_applies_to">Applies to</string>
-
     <string-array name="notification_match_modes">
         <item>Contains</item>
         <item>Contains word</item>
         <item>Regex</item>
     </string-array>
+
+    <string name="notification_header_applies_to">Applies to</string>
+    <string name="notification_rule_server">Server</string>
+    <string name="notification_rule_channels">Channels</string>
+    <string name="notification_rule_nicks">Nicks</string>
+    <string name="notification_rule_summary_any_server">Any server</string>
+    <string name="notification_rule_summary_any_channel">any channel</string>
+    <string name="notification_rule_summary_multi_channels">%1$i channels</string>
+    <string name="notification_rule_summary_any_nick">any nick</string>
+    <string name="notification_rule_summary_multi_nicks">%1$i nicks</string>
+    <string name="notification_rule_summary_delim">", "</string>
 
     <string name="notification_header_options">Options</string>
     <string name="notification_sound">Sound</string>

@@ -38,6 +38,7 @@ public class LabelLayout extends FrameLayout {
     private int mTextSizeCollapsed = 0;
     private int mTextSizeExpanded = 0;
     private float mAnimState = 1.f;
+    private boolean mDoNotExpand = false;
     private ValueAnimator mAnimator;
     private Interpolator mTextSizeInterpolator = new FastOutSlowInInterpolator();
     private Interpolator mTextYInterpolator = new AccelerateInterpolator();
@@ -67,12 +68,13 @@ public class LabelLayout extends FrameLayout {
         mTextPaint.setTextSize(mTextSizeCollapsed);
 
         TypedArray ta = context.getTheme().obtainStyledAttributes(attrs,
-                new int[] { android.R.attr.hint, android.R.attr.textColorHint, R.attr.colorAccent },
+                new int[] { R.attr.doNotExpand, android.R.attr.hint, android.R.attr.textColorHint, R.attr.colorAccent },
                 0, 0);
         try {
-            mHint = ta.getString(0);
-            mTextColorUnfocused = ta.getColor(1, 0);
-            mTextColorFocused = ta.getColor(2, 0);
+            mDoNotExpand = ta.getBoolean(0, false);
+            mHint = ta.getString(1);
+            mTextColorUnfocused = ta.getColor(2, 0);
+            mTextColorFocused = ta.getColor(3, 0);
         } finally {
             ta.recycle();
         }
@@ -96,6 +98,8 @@ public class LabelLayout extends FrameLayout {
     }
 
     public void setExpanded(boolean expanded, boolean animated) {
+        if (mDoNotExpand)
+            expanded = false;
         if ((mAnimState <= 0.f || mAnimState >= 1.f) && expanded == (mAnimState == 1.f) && !mAnimator.isRunning())
             return;
         if (animated) {
