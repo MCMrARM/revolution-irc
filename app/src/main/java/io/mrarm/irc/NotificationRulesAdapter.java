@@ -20,26 +20,15 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<NotificationR
 
     private ItemTouchHelper mItemTouchHelper;
     private List<NotificationRule> mRules;
-    private List<NotificationRule> mDefaultTopRules;
-    private List<NotificationRule> mDefaultBottomRules;
 
     public NotificationRulesAdapter(List<NotificationRule> rules,
                                     List<NotificationRule> defaultTop,
                                     List<NotificationRule> defaultBottom) {
         mRules = rules;
-        mDefaultTopRules = defaultTop;
-        mDefaultBottomRules = defaultBottom;
     }
 
     public NotificationRulesAdapter(List<NotificationRule> rules) {
         mRules = rules;
-        mDefaultTopRules = new ArrayList<>();
-        mDefaultTopRules.add(NotificationManager.sZNCPlaybackRule);
-        mDefaultBottomRules = new ArrayList<>();
-        mDefaultBottomRules.add(NotificationManager.sNickMentionRule);
-        mDefaultBottomRules.add(NotificationManager.sDirectMessageRule);
-        mDefaultBottomRules.add(NotificationManager.sNoticeRule);
-        mDefaultBottomRules.add(NotificationManager.sChannelNoticeRule);
     }
 
     public void enableDragDrop(RecyclerView recyclerView) {
@@ -64,8 +53,8 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<NotificationR
             @Override
             public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
                                   RecyclerView.ViewHolder target) {
-                int fromPosition = viewHolder.getAdapterPosition() - mDefaultTopRules.size();
-                int toPosition = Math.max(Math.min(target.getAdapterPosition() - mDefaultTopRules.size(), mRules.size() - 1), 0);
+                int fromPosition = viewHolder.getAdapterPosition() - NotificationManager.sDefaultTopRules.size();
+                int toPosition = Math.max(Math.min(target.getAdapterPosition() - NotificationManager.sDefaultTopRules.size(), mRules.size() - 1), 0);
                 if (fromPosition < toPosition) {
                     for (int i = fromPosition; i < toPosition; i++)
                         Collections.swap(mRules, i, i + 1);
@@ -73,7 +62,7 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<NotificationR
                     for (int i = fromPosition; i > toPosition; i--)
                         Collections.swap(mRules, i, i - 1);
                 }
-                notifyItemMoved(fromPosition + mDefaultTopRules.size(), toPosition + mDefaultTopRules.size());
+                notifyItemMoved(fromPosition + NotificationManager.sDefaultTopRules.size(), toPosition + NotificationManager.sDefaultTopRules.size());
                 return true;
             }
 
@@ -101,22 +90,22 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<NotificationR
 
     @Override
     public void onBindViewHolder(RuleHolder viewHolder, int i) {
-        if (i < mDefaultTopRules.size())
-            viewHolder.bind(mDefaultTopRules.get(i));
-        else if (i >= mDefaultTopRules.size() + mRules.size())
-            viewHolder.bind(mDefaultBottomRules.get(i - mDefaultTopRules.size() - mRules.size()));
+        if (i < NotificationManager.sDefaultTopRules.size())
+            viewHolder.bind(NotificationManager.sDefaultTopRules.get(i));
+        else if (i >= NotificationManager.sDefaultTopRules.size() + mRules.size())
+            viewHolder.bind(NotificationManager.sDefaultBottomRules.get(i - NotificationManager.sDefaultTopRules.size() - mRules.size()));
         else
-            viewHolder.bind(mRules.get(i - mDefaultTopRules.size()));
+            viewHolder.bind(mRules.get(i - NotificationManager.sDefaultTopRules.size()));
     }
 
     @Override
     public int getItemCount() {
-        return mDefaultTopRules.size() + mRules.size() + mDefaultBottomRules.size();
+        return NotificationManager.sDefaultTopRules.size() + mRules.size() + NotificationManager.sDefaultBottomRules.size();
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (position < mDefaultTopRules.size() || position >= mDefaultTopRules.size() + mRules.size())
+        if (position < NotificationManager.sDefaultTopRules.size() || position >= NotificationManager.sDefaultTopRules.size() + mRules.size())
             return TYPE_DEFAULT_RULE;
         return TYPE_USER_RULE;
     }

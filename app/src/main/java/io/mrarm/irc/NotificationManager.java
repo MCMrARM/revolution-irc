@@ -26,20 +26,26 @@ public class NotificationManager {
     public static NotificationRule sNoticeRule;
     public static NotificationRule sChannelNoticeRule;
     public static NotificationRule sZNCPlaybackRule;
-    private static List<NotificationRule> sDefaultRules;
+    static List<NotificationRule> sDefaultTopRules;
+    static List<NotificationRule> sDefaultBottomRules;
 
     private ServerConnectionInfo mConnection;
     private Map<String, ChannelNotificationData> mChannelData = new HashMap<>();
     Map<NotificationRule, Pattern> mCompiledPatterns = new HashMap<>();
 
     private static void initDefaultRules() {
-        sDefaultRules = new ArrayList<>();
+        sDefaultTopRules = new ArrayList<>();
+        sDefaultBottomRules = new ArrayList<>();
         sNickMentionRule = new NotificationRule(R.string.notification_rule_nick, NotificationRule.AppliesToEntry.channelEvents(), "(^| )${nick}(^| )", true);
         sDirectMessageRule = new NotificationRule(R.string.notification_rule_direct, NotificationRule.AppliesToEntry.directMessages(), null);
         sNoticeRule = new NotificationRule(R.string.notification_rule_notice, NotificationRule.AppliesToEntry.directNotices(), null);
         sChannelNoticeRule = new NotificationRule(R.string.notification_rule_chan_notice, NotificationRule.AppliesToEntry.channelNotices(), null);
         sZNCPlaybackRule = new NotificationRule(R.string.notification_rule_zncplayback, createZNCPlaybackAppliesToEntry(), null);
-        sDefaultRules.add(sNickMentionRule);
+        sDefaultTopRules.add(NotificationManager.sZNCPlaybackRule);
+        sDefaultBottomRules.add(NotificationManager.sNickMentionRule);
+        sDefaultBottomRules.add(NotificationManager.sDirectMessageRule);
+        sDefaultBottomRules.add(NotificationManager.sNoticeRule);
+        sDefaultBottomRules.add(NotificationManager.sChannelNoticeRule);
     }
 
     private static NotificationRule.AppliesToEntry createZNCPlaybackAppliesToEntry() {
@@ -54,7 +60,11 @@ public class NotificationManager {
     }
 
     public NotificationRule findRule(String channel, MessageInfo message) {
-        for (NotificationRule rule : sDefaultRules) {
+        for (NotificationRule rule : sDefaultTopRules) {
+            if (rule.appliesTo(this, channel, message) && rule.settings.enabled)
+                return rule;
+        }
+        for (NotificationRule rule : sDefaultBottomRules) {
             if (rule.appliesTo(this, channel, message) && rule.settings.enabled)
                 return rule;
         }
