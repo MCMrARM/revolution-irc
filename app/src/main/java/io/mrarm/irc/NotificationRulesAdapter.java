@@ -109,11 +109,22 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<NotificationR
 
         protected TextView mName;
         protected CheckBox mEnabled;
+        protected boolean mNotEditable = false;
 
         public RuleHolder(NotificationRulesAdapter adapter, View itemView) {
             super(itemView);
             mName = (TextView) itemView.findViewById(R.id.name);
             mEnabled = (CheckBox) itemView.findViewById(R.id.enabled);
+            itemView.setOnClickListener((View view) -> {
+                if (mNotEditable)
+                    return;
+                Intent intent = new Intent(view.getContext(), EditNotificationSettingsActivity.class);
+                int index = getAdapterPosition();
+                if (index >= NotificationManager.sDefaultTopRules.size() + adapter.mRules.size())
+                    index -= adapter.mRules.size();
+                intent.putExtra(EditNotificationSettingsActivity.ARG_DEFAULT_RULE_INDEX, index);
+                view.getContext().startActivity(intent);
+            });
         }
 
         public void bind(NotificationRule rule) {
@@ -122,6 +133,7 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<NotificationR
             else
                 mName.setText(rule.getName());
             mEnabled.setChecked(rule.settings.enabled);
+            mNotEditable = rule.notEditable;
         }
 
     }
@@ -132,7 +144,7 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<NotificationR
             super(adapter, itemView);
             itemView.setOnClickListener((View view) -> {
                 Intent intent = new Intent(view.getContext(), EditNotificationSettingsActivity.class);
-                intent.putExtra(EditNotificationSettingsActivity.ARG_RULE_INDEX, getAdapterPosition() - NotificationManager.sDefaultTopRules.size());
+                intent.putExtra(EditNotificationSettingsActivity.ARG_USER_RULE_INDEX, getAdapterPosition() - NotificationManager.sDefaultTopRules.size());
                 view.getContext().startActivity(intent);
             });
             itemView.findViewById(R.id.reorder).setOnTouchListener((View v, MotionEvent e) -> {

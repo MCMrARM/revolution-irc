@@ -27,12 +27,14 @@ import io.mrarm.irc.util.SimpleCounter;
 
 public class EditNotificationSettingsActivity extends AppCompatActivity {
 
-    public static final String ARG_RULE_INDEX = "rule_index";
+    public static final String ARG_USER_RULE_INDEX = "rule_index";
+    public static final String ARG_DEFAULT_RULE_INDEX = "default_rule_index";
 
     SettingsListAdapter mAdapter;
     SimpleCounter mRequestCodeCounter = new SimpleCounter(1);
 
     NotificationRule mEditingRule;
+    boolean mEditingDefaultRule = false;
 
     RecyclerView mRecyclerView;
     BasicEntry mBasicEntry;
@@ -48,8 +50,16 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getIntent().hasExtra(ARG_RULE_INDEX))
-            mEditingRule = NotificationManager.getUserRules(this).get(getIntent().getIntExtra(ARG_RULE_INDEX, -1));
+        if (getIntent().hasExtra(ARG_USER_RULE_INDEX)) {
+            mEditingRule = NotificationManager.getUserRules(this).get(getIntent().getIntExtra(ARG_USER_RULE_INDEX, -1));
+        } else if (getIntent().hasExtra(ARG_DEFAULT_RULE_INDEX)) {
+            int ruleIndex = getIntent().getIntExtra(ARG_DEFAULT_RULE_INDEX, -1);
+            if (ruleIndex >= NotificationManager.sDefaultTopRules.size())
+                mEditingRule = NotificationManager.sDefaultBottomRules.get(ruleIndex - NotificationManager.sDefaultTopRules.size());
+            else
+                mEditingRule = NotificationManager.sDefaultTopRules.get(ruleIndex);
+            mEditingDefaultRule = true;
+        }
 
         setContentView(R.layout.activity_edit_notification_settings);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -77,17 +87,19 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
 
             mMatchEntry.mMatchMode = MatchEntry.MODE_REGEX;
             mMatchEntry.mMatchText = mEditingRule.getRegex();
-            if (mMatchEntry.mMatchText.startsWith("(^| |,)\\Q") && mMatchEntry.mMatchText.endsWith("\\E($| |,)")) {
-                String unescaped = unescapeRegex(mMatchEntry.mMatchText.substring(7, mMatchEntry.mMatchText.length() - 7));
-                if (unescaped != null) {
-                    mMatchEntry.mMatchText = unescaped;
-                    mMatchEntry.mMatchMode = MatchEntry.MODE_CONTAINS_WORD;
-                }
-            } else {
-                String unescaped = unescapeRegex(mMatchEntry.mMatchText);
-                if (unescaped != null) {
-                    mMatchEntry.mMatchText = unescaped;
-                    mMatchEntry.mMatchMode = MatchEntry.MODE_CONTAINS;
+            if (mMatchEntry.mMatchText != null) {
+                if (mMatchEntry.mMatchText.startsWith("(^| |,)\\Q") && mMatchEntry.mMatchText.endsWith("\\E($| |,)")) {
+                    String unescaped = unescapeRegex(mMatchEntry.mMatchText.substring(7, mMatchEntry.mMatchText.length() - 7));
+                    if (unescaped != null) {
+                        mMatchEntry.mMatchText = unescaped;
+                        mMatchEntry.mMatchMode = MatchEntry.MODE_CONTAINS_WORD;
+                    }
+                } else {
+                    String unescaped = unescapeRegex(mMatchEntry.mMatchText);
+                    if (unescaped != null) {
+                        mMatchEntry.mMatchText = unescaped;
+                        mMatchEntry.mMatchMode = MatchEntry.MODE_CONTAINS;
+                    }
                 }
             }
 
@@ -117,17 +129,19 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
                 mColorEntry.setSelectedColorIndex(0);
         }
 
-        mAdapter.add(mBasicEntry);
-        mAdapter.add(new SettingsListAdapter.HeaderEntry(getString(R.string.notification_header_match)));
-        mAdapter.add(mMatchEntry);
-        mAdapter.add(new SettingsListAdapter.HeaderEntry(getString(R.string.notification_header_applies_to)));
-        if (mEditingRule == null) {
-            mAdapter.add(new RuleEntry(NotificationRule.AppliesToEntry.channelEvents()));
-        } else {
-            for (NotificationRule.AppliesToEntry entry : mEditingRule.getAppliesTo())
-                mAdapter.add(new RuleEntry(entry.clone()));
+        if (!mEditingDefaultRule) {
+            mAdapter.add(mBasicEntry);
+            mAdapter.add(new SettingsListAdapter.HeaderEntry(getString(R.string.notification_header_match)));
+            mAdapter.add(mMatchEntry);
+            mAdapter.add(new SettingsListAdapter.HeaderEntry(getString(R.string.notification_header_applies_to)));
+            if (mEditingRule == null) {
+                mAdapter.add(new RuleEntry(NotificationRule.AppliesToEntry.channelEvents()));
+            } else {
+                for (NotificationRule.AppliesToEntry entry : mEditingRule.getAppliesTo())
+                    mAdapter.add(new RuleEntry(entry.clone()));
+            }
+            mAdapter.add(new AddRuleEntry());
         }
-        mAdapter.add(new AddRuleEntry());
         mAdapter.add(new SettingsListAdapter.HeaderEntry(getString(R.string.notification_header_options)));
         mAdapter.add(mShowNotificationEntry);
         mAdapter.add(mSoundEntry);
@@ -198,17 +212,19 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
                 ((EntryRecyclerViewAdapter.EntryHolder) holder).unbind();
         }
 
-        rule.setName(mBasicEntry.mName);
-        if (mMatchEntry.mMatchMode != MatchEntry.MODE_REGEX)
-            rule.setMatchText(mMatchEntry.mMatchText, (mMatchEntry.mMatchMode == MatchEntry.MODE_CONTAINS_WORD), !mMatchEntry.mCaseSensitive);
-        else
-            rule.setRegex(mMatchEntry.mMatchText, !mMatchEntry.mCaseSensitive);
-        List<NotificationRule.AppliesToEntry> appliesTo = new ArrayList<>();
-        for (EntryRecyclerViewAdapter.Entry entry : mAdapter.getEntries()) {
-            if (entry instanceof RuleEntry)
-                appliesTo.add(((RuleEntry) entry).mEntry);
+        if (!mEditingDefaultRule) {
+            rule.setName(mBasicEntry.mName);
+            if (mMatchEntry.mMatchMode != MatchEntry.MODE_REGEX)
+                rule.setMatchText(mMatchEntry.mMatchText, (mMatchEntry.mMatchMode == MatchEntry.MODE_CONTAINS_WORD), !mMatchEntry.mCaseSensitive);
+            else
+                rule.setRegex(mMatchEntry.mMatchText, !mMatchEntry.mCaseSensitive);
+            List<NotificationRule.AppliesToEntry> appliesTo = new ArrayList<>();
+            for (EntryRecyclerViewAdapter.Entry entry : mAdapter.getEntries()) {
+                if (entry instanceof RuleEntry)
+                    appliesTo.add(((RuleEntry) entry).mEntry);
+            }
+            rule.setAppliesTo(appliesTo);
         }
-        rule.setAppliesTo(appliesTo);
 
         // options
         mEditingRule.settings.noNotification = !mShowNotificationEntry.isChecked();

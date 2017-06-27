@@ -18,6 +18,7 @@ public class NotificationRule {
     private boolean regexCaseInsensitive;
     private List<AppliesToEntry> appliesTo = new ArrayList<>();
     public NotificationSettings settings = new NotificationSettings();
+    transient boolean notEditable = false;
 
     private transient Pattern mCompiledPattern;
 
