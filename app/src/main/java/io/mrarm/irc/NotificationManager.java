@@ -3,15 +3,12 @@ package io.mrarm.irc;
 import android.content.Context;
 import android.text.style.ForegroundColorSpan;
 
-import com.google.gson.reflect.TypeToken;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -35,25 +32,36 @@ public class NotificationManager {
 
     public static NotificationRule sNickMentionRule;
     public static NotificationRule sDirectMessageRule;
-    public static NotificationRule sNoticeRule;
+    public static NotificationRule sDirectNoticeRule;
     public static NotificationRule sChannelNoticeRule;
     public static NotificationRule sZNCPlaybackRule;
     static List<NotificationRule> sDefaultTopRules;
     static List<NotificationRule> sDefaultBottomRules;
     static List<NotificationRule> sUserRules;
-
-    static Type sUserRulesListType = new TypeToken<List<NotificationRule>>(){}.getType();
+    private static boolean sUserRulesLoaded;
 
     private ServerConnectionInfo mConnection;
     private Map<String, ChannelNotificationData> mChannelData = new HashMap<>();
     Map<NotificationRule, Pattern> mCompiledPatterns = new HashMap<>();
+
+    private static class UserRuleSettings {
+
+        public boolean zncPlaybackRuleEnabled = true;
+        public NotificationSettings nickMentionRuleSettings;
+        public NotificationSettings directMessageRuleSettings;
+        public NotificationSettings directNoticeRuleSettings;
+        public NotificationSettings channelNoticeRuleSettings;
+
+        public List<NotificationRule> userRules;
+
+    }
 
     private static void initDefaultRules() {
         sDefaultTopRules = new ArrayList<>();
         sDefaultBottomRules = new ArrayList<>();
         sNickMentionRule = new NotificationRule(R.string.notification_rule_nick, NotificationRule.AppliesToEntry.channelEvents(), "(^| |,)${nick}($| |,)", true);
         sDirectMessageRule = new NotificationRule(R.string.notification_rule_direct, NotificationRule.AppliesToEntry.directMessages(), null);
-        sNoticeRule = new NotificationRule(R.string.notification_rule_notice, NotificationRule.AppliesToEntry.directNotices(), null);
+        sDirectNoticeRule = new NotificationRule(R.string.notification_rule_notice, NotificationRule.AppliesToEntry.directNotices(), null);
         sChannelNoticeRule = new NotificationRule(R.string.notification_rule_chan_notice, NotificationRule.AppliesToEntry.channelNotices(), null);
         sZNCPlaybackRule = new NotificationRule(R.string.notification_rule_zncplayback, createZNCPlaybackAppliesToEntry(), null);
         sZNCPlaybackRule.settings.noNotification = true;
@@ -61,34 +69,56 @@ public class NotificationManager {
         sDefaultTopRules.add(NotificationManager.sZNCPlaybackRule);
         sDefaultBottomRules.add(NotificationManager.sNickMentionRule);
         sDefaultBottomRules.add(NotificationManager.sDirectMessageRule);
-        sDefaultBottomRules.add(NotificationManager.sNoticeRule);
+        sDefaultBottomRules.add(NotificationManager.sDirectNoticeRule);
         sDefaultBottomRules.add(NotificationManager.sChannelNoticeRule);
     }
 
-    public static List<NotificationRule> getUserRules(Context context) {
-        if (sUserRules == null) {
-            try {
-                sUserRules = SettingsHelper.getGson().fromJson(new BufferedReader(new FileReader(
-                        new File(context.getFilesDir(), RULES_PATH))), sUserRulesListType);
-            } catch (Exception ignored) {
-            }
-            if (sUserRules == null)
-                sUserRules = new ArrayList<>();
+    public static boolean loadUserRuleSettings(Context context) {
+        if (sUserRulesLoaded)
+            return true;
+        sUserRulesLoaded = true;
+        try {
+            UserRuleSettings settings = SettingsHelper.getGson().fromJson(new BufferedReader(
+                    new FileReader(new File(context.getFilesDir(), RULES_PATH))),
+                    UserRuleSettings.class);
+            sZNCPlaybackRule.settings.enabled = settings.zncPlaybackRuleEnabled;
+            sNickMentionRule.settings = settings.nickMentionRuleSettings;
+            sDirectMessageRule.settings = settings.directMessageRuleSettings;
+            sDirectNoticeRule.settings = settings.directNoticeRuleSettings;
+            sChannelNoticeRule.settings = settings.channelNoticeRuleSettings;
+            sUserRules = settings.userRules;
+            return true;
+        } catch (Exception ignored) {
         }
-        return sUserRules;
+        return false;
     }
 
-    public static boolean saveUserRules(Context context) {
+    public static boolean saveUserRuleSettings(Context context) {
         try {
-            List<NotificationRule> rules = getUserRules(context);
+            UserRuleSettings settings = new UserRuleSettings();
+            settings.userRules = getUserRules(context);
+            settings.zncPlaybackRuleEnabled = sZNCPlaybackRule.settings.enabled;
+            settings.nickMentionRuleSettings = sNickMentionRule.settings;
+            settings.directMessageRuleSettings = sDirectMessageRule.settings;
+            settings.directNoticeRuleSettings = sDirectNoticeRule.settings;
+            settings.channelNoticeRuleSettings = sChannelNoticeRule.settings;
             BufferedWriter writer = new BufferedWriter(new FileWriter(
                     new File(context.getFilesDir(), RULES_PATH)));
-            SettingsHelper.getGson().toJson(rules, writer);
+            SettingsHelper.getGson().toJson(settings, writer);
             writer.close();
             return true;
         } catch (IOException ignored) {
         }
         return false;
+    }
+
+    public static List<NotificationRule> getUserRules(Context context) {
+        if (sUserRules == null) {
+            loadUserRuleSettings(context);
+            if (sUserRules == null)
+                sUserRules = new ArrayList<>();
+        }
+        return sUserRules;
     }
 
     private static NotificationRule.AppliesToEntry createZNCPlaybackAppliesToEntry() {
@@ -99,6 +129,7 @@ public class NotificationManager {
     }
 
     public NotificationManager(ServerConnectionInfo connection) {
+        loadUserRuleSettings(connection.getConnectionManager().getContext());
         mConnection = connection;
     }
 

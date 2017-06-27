@@ -162,7 +162,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         @Override
         public void onDestroyView() {
             if (mAdapter != null && mAdapter.hasUnsavedChanges()) {
-                NotificationManager.saveUserRules(getActivity());
+                NotificationManager.saveUserRuleSettings(getActivity());
             }
             mAdapter = null;
             super.onDestroyView();

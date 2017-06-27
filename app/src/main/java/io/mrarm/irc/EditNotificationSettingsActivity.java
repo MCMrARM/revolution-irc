@@ -53,6 +53,7 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         if (getIntent().hasExtra(ARG_USER_RULE_INDEX)) {
             mEditingRule = NotificationManager.getUserRules(this).get(getIntent().getIntExtra(ARG_USER_RULE_INDEX, -1));
         } else if (getIntent().hasExtra(ARG_DEFAULT_RULE_INDEX)) {
+            NotificationManager.loadUserRuleSettings(this);
             int ruleIndex = getIntent().getIntExtra(ARG_DEFAULT_RULE_INDEX, -1);
             if (ruleIndex >= NotificationManager.sDefaultTopRules.size())
                 mEditingRule = NotificationManager.sDefaultBottomRules.get(ruleIndex - NotificationManager.sDefaultTopRules.size());
@@ -251,7 +252,7 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
             save(mEditingRule);
             NotificationManager.getUserRules(this).add(mEditingRule);
         }
-        NotificationManager.saveUserRules(this);
+        NotificationManager.saveUserRuleSettings(this);
     }
 
     @Override
