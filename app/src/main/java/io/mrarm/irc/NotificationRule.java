@@ -1,7 +1,12 @@
 package io.mrarm.irc;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import io.mrarm.chatlib.dto.MessageInfo;
 
 public class NotificationRule {
 
@@ -11,6 +16,7 @@ public class NotificationRule {
     private int nameId = -1;
     private String regex;
     private boolean regexCaseInsensitive;
+    private List<AppliesToEntry> appliesTo = new ArrayList<>();
     public NotificationSettings settings = new NotificationSettings();
 
     private transient Pattern mCompiledPattern;
@@ -18,19 +24,24 @@ public class NotificationRule {
     public NotificationRule() {
     }
 
-    public NotificationRule(String name, String regex, boolean caseInsensitive) {
+    public NotificationRule(String name, AppliesToEntry applies, String regex, boolean caseInsensitive) {
         this.name = name;
+        appliesTo.add(applies);
         setRegex(regex, caseInsensitive);
     }
 
-    public NotificationRule(String name, String regex) {
-        this.name = name;
-        setRegex(regex, false);
+    public NotificationRule(String name, AppliesToEntry applies, String regex) {
+        this(name, applies, regex, false);
     }
 
-    public NotificationRule(int nameId, String regex, boolean caseInsensitive) {
+    public NotificationRule(int nameId, AppliesToEntry applies, String regex, boolean caseInsensitive) {
         this.nameId = nameId;
+        appliesTo.add(applies);
         setRegex(regex, caseInsensitive);
+    }
+
+    public NotificationRule(int nameId, AppliesToEntry applies, String regex) {
+        this(nameId, applies, regex, false);
     }
 
     public String getName() {
@@ -48,6 +59,8 @@ public class NotificationRule {
     }
 
     public void updateRegex() {
+        if (regex == null)
+            return;
         Matcher matcher = mMatchVariablesRegex.matcher(regex);
         if (!matcher.find())
             mCompiledPattern = Pattern.compile(regex, regexCaseInsensitive ? Pattern.CASE_INSENSITIVE : 0);
@@ -70,13 +83,93 @@ public class NotificationRule {
     public Pattern getCompiledPattern(NotificationManager manager) {
         if (mCompiledPattern != null)
             return mCompiledPattern;
+        if (regex == null)
+            return null;
         if (!manager.mCompiledPatterns.containsKey(this))
             manager.mCompiledPatterns.put(this, createSpecificRegex(manager));
         return manager.mCompiledPatterns.get(this);
     }
 
-    public boolean appliesTo(NotificationManager manager, String message) {
-        return getCompiledPattern(manager).matcher(message).find();
+    public boolean appliesTo(NotificationManager manager, String channel, MessageInfo message) {
+        if (regex == null || !getCompiledPattern(manager).matcher(message.getMessage()).find())
+            return false;
+        boolean isNotice = message.getType() == MessageInfo.MessageType.NOTICE;
+        for (AppliesToEntry entry : appliesTo) {
+            if (entry.server != null && entry.server != manager.getServerUUID())
+                continue;
+            if (channel == null) {
+                if ((isNotice && !entry.matchDirectNotices) ||
+                        (!isNotice && entry.matchDirectMessages))
+                    continue;
+            } else {
+                if ((isNotice && !entry.matchChannelNotices) ||
+                        (!isNotice && entry.matchChannelMessages) ||
+                        (entry.channels != null && !entry.channels.contains(channel)))
+                    continue;
+            }
+            if (entry.nicks != null && !entry.nicks.contains(message.getSender().getNick()))
+                continue;
+            if (entry.messageBatches != null && !entry.messageBatches.contains(message.getBatch().getType()))
+                continue;
+            return true;
+        }
+        return false;
+    }
+
+    public static class AppliesToEntry {
+
+        public UUID server = null;
+        public List<String> channels = null;
+        public List<String> nicks = null;
+        public List<String> messageBatches = null;
+
+        public boolean matchDirectMessages = true;
+        public boolean matchDirectNotices = true;
+        public boolean matchChannelMessages = true;
+        public boolean matchChannelNotices = true;
+
+        public static AppliesToEntry any() {
+            return new AppliesToEntry();
+        }
+
+        public static AppliesToEntry channelEvents() {
+            AppliesToEntry ret = any();
+            ret.matchDirectMessages = false;
+            ret.matchDirectNotices = false;
+            return ret;
+        }
+
+        public static AppliesToEntry channelMessages() {
+            AppliesToEntry ret = channelEvents();
+            ret.matchChannelNotices = false;
+            return ret;
+        }
+
+        public static AppliesToEntry channelNotices() {
+            AppliesToEntry ret = channelEvents();
+            ret.matchChannelMessages = false;
+            return ret;
+        }
+
+        public static AppliesToEntry directEvents() {
+            AppliesToEntry ret = channelEvents();
+            ret.matchChannelMessages = false;
+            ret.matchChannelNotices = false;
+            return ret;
+        }
+
+        public static AppliesToEntry directMessages() {
+            AppliesToEntry ret = directEvents();
+            ret.matchDirectNotices = false;
+            return ret;
+        }
+
+        public static AppliesToEntry directNotices() {
+            AppliesToEntry ret = directEvents();
+            ret.matchDirectMessages = false;
+            return ret;
+        }
+
     }
 
 }

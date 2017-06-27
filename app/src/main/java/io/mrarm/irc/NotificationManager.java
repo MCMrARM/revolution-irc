@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import io.mrarm.chatlib.dto.MessageInfo;
@@ -33,21 +34,28 @@ public class NotificationManager {
 
     private static void initDefaultRules() {
         sDefaultRules = new ArrayList<>();
-        sNickMentionRule = new NotificationRule(R.string.notification_rule_nick, "${nick}", true);
-        sDirectMessageRule = new NotificationRule(R.string.notification_rule_direct, "", true);
-        sNoticeRule = new NotificationRule(R.string.notification_rule_notice, "", true);
-        sChannelNoticeRule = new NotificationRule(R.string.notification_rule_chan_notice, "", true);
-        sZNCPlaybackRule = new NotificationRule(R.string.notification_rule_zncplayback, "", true);
+        sNickMentionRule = new NotificationRule(R.string.notification_rule_nick, NotificationRule.AppliesToEntry.channelEvents(), "${nick}", true);
+        sDirectMessageRule = new NotificationRule(R.string.notification_rule_direct, NotificationRule.AppliesToEntry.directMessages(), null);
+        sNoticeRule = new NotificationRule(R.string.notification_rule_notice, NotificationRule.AppliesToEntry.directNotices(), null);
+        sChannelNoticeRule = new NotificationRule(R.string.notification_rule_chan_notice, NotificationRule.AppliesToEntry.channelNotices(), null);
+        sZNCPlaybackRule = new NotificationRule(R.string.notification_rule_zncplayback, createZNCPlaybackAppliesToEntry(), null);
         sDefaultRules.add(sNickMentionRule);
+    }
+
+    private static NotificationRule.AppliesToEntry createZNCPlaybackAppliesToEntry() {
+        NotificationRule.AppliesToEntry entry = NotificationRule.AppliesToEntry.any();
+        entry.messageBatches = new ArrayList<>();
+        entry.messageBatches.add("znc.in/playback");
+        return entry;
     }
 
     public NotificationManager(ServerConnectionInfo connection) {
         mConnection = connection;
     }
 
-    public NotificationRule findRule(String message) {
+    public NotificationRule findRule(String channel, MessageInfo message) {
         for (NotificationRule rule : sDefaultRules) {
-            if (rule.appliesTo(this, message) && rule.settings.enabled)
+            if (rule.appliesTo(this, channel, message) && rule.settings.enabled)
                 return rule;
         }
         return null;
@@ -64,6 +72,10 @@ public class NotificationManager {
 
     public Collection<ChannelNotificationData> getChannelNotificationDataList() {
         return mChannelData.values();
+    }
+
+    public UUID getServerUUID() {
+        return mConnection.getUUID();
     }
 
     public String getUserNick() { // TODO: Register for nick updates

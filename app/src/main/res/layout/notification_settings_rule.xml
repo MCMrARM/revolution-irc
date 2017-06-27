@@ -96,12 +96,50 @@
     </io.mrarm.irc.util.LabelLayout>
 
 
+    <CheckBox
+        android:id="@+id/channel_messages"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/nicks_ctr"
+        android:layout_marginTop="4dp"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin_s4"
+        android:layout_marginRight="@dimen/activity_horizontal_margin_s4"
+        android:text="@string/notification_rule_chan_messages" />
+
+    <CheckBox
+        android:id="@+id/channel_notices"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/channel_messages"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin_s4"
+        android:layout_marginRight="@dimen/activity_horizontal_margin_s4"
+        android:text="@string/notification_rule_chan_notice" />
+
+    <CheckBox
+        android:id="@+id/direct_messages"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/channel_notices"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin_s4"
+        android:layout_marginRight="@dimen/activity_horizontal_margin_s4"
+        android:text="@string/notification_rule_direct" />
+
+    <CheckBox
+        android:id="@+id/direct_notices"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/direct_messages"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin_s4"
+        android:layout_marginRight="@dimen/activity_horizontal_margin_s4"
+        android:text="@string/notification_rule_notice" />
+
     <View
         android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="12dp"
         android:background="?android:attr/dividerHorizontal"
-        android:layout_below="@+id/nicks_ctr" />
+        android:layout_below="@+id/direct_notices" />
+
 
 </RelativeLayout>

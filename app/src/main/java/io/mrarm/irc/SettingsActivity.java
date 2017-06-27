@@ -147,9 +147,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
             List<NotificationRule> testData = new ArrayList<>();
-            testData.add(new NotificationRule("Test Rule", "test", false));
-            testData.add(new NotificationRule("Test Rule 2", "test", false));
-            testData.add(new NotificationRule("Test Rule 3", "test", false));
+            testData.add(new NotificationRule("Test Rule", NotificationRule.AppliesToEntry.any(), "test", false));
+            testData.add(new NotificationRule("Test Rule 2", NotificationRule.AppliesToEntry.any(), "test", false));
+            testData.add(new NotificationRule("Test Rule 3", NotificationRule.AppliesToEntry.any(), "test", false));
 
             NotificationRulesAdapter adapter = new NotificationRulesAdapter(testData);
             recyclerView.setAdapter(adapter);

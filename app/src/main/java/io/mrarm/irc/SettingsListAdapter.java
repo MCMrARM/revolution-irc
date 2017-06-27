@@ -152,8 +152,6 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
 
     public static class ListEntryHolder extends SimpleEntryHolder {
 
-        private ListEntry mEntry;
-
         public ListEntryHolder(View itemView, SettingsListAdapter adapter) {
             super(itemView, adapter);
         }
@@ -161,17 +159,18 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
         @Override
         public void bind(SimpleEntry entry) {
             super.bind(entry);
-            mEntry = (ListEntry) entry;
-            mValue.setText(mEntry.mOptions[mEntry.mSelectedOption]);
+            ListEntry listEntry = (ListEntry) entry;
+            mValue.setText(listEntry.mOptions[listEntry.mSelectedOption]);
         }
 
         @Override
         public void onClick(View v) {
+            ListEntry listEntry = (ListEntry) getEntry();
             new AlertDialog.Builder(v.getContext())
-                    .setTitle(mEntry.mName)
-                    .setSingleChoiceItems(mEntry.mOptions, mEntry.mSelectedOption,
+                    .setTitle(listEntry.mName)
+                    .setSingleChoiceItems(listEntry.mOptions, listEntry.mSelectedOption,
                             (DialogInterface i, int which) -> {
-                        mEntry.setSelectedOption(which);
+                                listEntry.setSelectedOption(which);
                         i.cancel();
                     })
                     .setPositiveButton(R.string.action_cancel, null)
@@ -223,8 +222,6 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
 
     public static class RingtoneEntryHolder extends SimpleEntryHolder {
 
-        private RingtoneEntry mEntry;
-
         public RingtoneEntryHolder(View itemView, SettingsListAdapter adapter) {
             super(itemView, adapter);
         }
@@ -232,22 +229,22 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
         @Override
         public void bind(SimpleEntry entry) {
             super.bind(entry);
-            mEntry = (RingtoneEntry) entry;
-            mValue.setText(RingtoneEntry.getValueDisplayString(mAdapter.mActivity, mEntry.mValue));
+            mValue.setText(RingtoneEntry.getValueDisplayString(mAdapter.mActivity, ((RingtoneEntry) entry).mValue));
         }
 
         @Override
         public void onClick(View v) {
+            RingtoneEntry entry = (RingtoneEntry) getEntry();
             Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
-            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, mEntry.mValue);
+            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, entry.mValue);
             intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
             intent.putExtra(RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI,
                     RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
             intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, true);
             intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION);
-            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, mEntry.mName);
+            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, entry.mName);
             intent.putExtra("android.intent.extra.ringtone.AUDIO_ATTRIBUTES_FLAGS", 0x1 << 6); // Perhaps a bit of a hack, but imo needed
-            mAdapter.mActivity.startActivityForResult(intent, mEntry.mRequestCode);
+            mAdapter.mActivity.startActivityForResult(intent, entry.mRequestCode);
         }
 
     }
@@ -281,7 +278,6 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
 
     public static class ColorEntryHolder extends SimpleEntryHolder {
 
-        private ColorEntry mEntry;
         private ImageView mColor;
 
         public ColorEntryHolder(View itemView, SettingsListAdapter adapter) {
@@ -292,19 +288,20 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
         @Override
         public void bind(SimpleEntry entry) {
             super.bind(entry);
-            mEntry = (ColorEntry) entry;
-            mColor.setColorFilter(mEntry.mColors[mEntry.mSelectedIndex], PorterDuff.Mode.MULTIPLY);
-            mValue.setText(mEntry.mColorNames[mEntry.mSelectedIndex]);
+            ColorEntry colorEntry = (ColorEntry) entry;
+            mColor.setColorFilter(colorEntry.mColors[colorEntry.mSelectedIndex], PorterDuff.Mode.MULTIPLY);
+            mValue.setText(colorEntry.mColorNames[colorEntry.mSelectedIndex]);
         }
 
         @Override
         public void onClick(View v) {
+            ColorEntry entry = (ColorEntry) getEntry();
             ColorPickerDialog dialog = new ColorPickerDialog(v.getContext());
-            dialog.setTitle(mEntry.mName);
-            dialog.setColors(mEntry.mColors, mEntry.mSelectedIndex);
+            dialog.setTitle(entry.mName);
+            dialog.setColors(entry.mColors, entry.mSelectedIndex);
             dialog.setPositiveButtonText(R.string.action_cancel);
             dialog.setOnColorChangeListener((ColorPickerDialog d, int colorIndex, int color) -> {
-                mEntry.setSelectedColor(colorIndex);
+                entry.setSelectedColor(colorIndex);
                 dialog.cancel();
             });
             dialog.show();

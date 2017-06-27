@@ -81,8 +81,9 @@
     <string name="pref_header_notifications">Notifications</string>
 
     <string name="notification_rule_nick">Nick mentions</string>
+    <string name="notification_rule_chan_messages">Channel messages</string>
     <string name="notification_rule_direct">Private messages</string>
-    <string name="notification_rule_notice">Notices</string>
+    <string name="notification_rule_notice">Private notices</string>
     <string name="notification_rule_chan_notice">Channel notices</string>
     <string name="notification_rule_zncplayback">Disable ZNC playback notifications</string>
 

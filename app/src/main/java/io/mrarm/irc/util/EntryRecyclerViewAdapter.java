@@ -28,6 +28,8 @@ public class EntryRecyclerViewAdapter extends RecyclerView.Adapter<EntryRecycler
         public abstract int getViewHolder();
 
         void assignIndex(EntryRecyclerViewAdapter owner, int index) {
+            if (mOwner != null && mOwner != owner)
+                throw new RuntimeException("Entry is already attached to an EntryRecyclerViewAdapter");
             mOwner = owner;
             mIndex = index;
         }
@@ -40,11 +42,20 @@ public class EntryRecyclerViewAdapter extends RecyclerView.Adapter<EntryRecycler
 
     public static abstract class EntryHolder<T extends Entry> extends RecyclerView.ViewHolder {
 
+        private T mEntry;
+
         public EntryHolder(View itemView) {
             super(itemView);
         }
 
+        protected T getEntry() {
+            return mEntry;
+        }
+
         public abstract void bind(T entry);
+
+        public void unbind() {
+        }
 
     }
 
@@ -54,6 +65,25 @@ public class EntryRecyclerViewAdapter extends RecyclerView.Adapter<EntryRecycler
     public void add(Entry entry) {
         entry.assignIndex(this, mEntries.size());
         mEntries.add(entry);
+        notifyItemInserted(mEntries.size() - 1);
+    }
+
+    public void add(int index, Entry entry) {
+        entry.assignIndex(this, index);
+        for (int i = index; i < mEntries.size(); i++)
+            mEntries.get(i).mIndex++;
+        mEntries.add(index, entry);
+        notifyItemInserted(index);
+    }
+
+    public void remove(int index) {
+        Entry entry = mEntries.get(index);
+        entry.mIndex = -1;
+        entry.mOwner = null;
+        mEntries.remove(index);
+        for (int i = index; i < mEntries.size(); i++)
+            mEntries.get(i).mIndex--;
+        notifyItemRemoved(index);
     }
 
     @Override
@@ -79,7 +109,14 @@ public class EntryRecyclerViewAdapter extends RecyclerView.Adapter<EntryRecycler
     @SuppressWarnings("unchecked")
     @Override
     public void onBindViewHolder(EntryHolder viewHolder, int i) {
-        viewHolder.bind(mEntries.get(i));
+        viewHolder.mEntry = mEntries.get(i);
+        viewHolder.bind(viewHolder.mEntry);
+    }
+
+    @Override
+    public void onViewRecycled(EntryHolder viewHolder) {
+        viewHolder.unbind();
+        viewHolder.mEntry = null;
     }
 
     @Override
