@@ -9,10 +9,8 @@ import java.util.UUID;
 
 import io.mrarm.chatlib.ChannelListListener;
 import io.mrarm.chatlib.ChatApi;
-import io.mrarm.chatlib.ChatApiException;
 import io.mrarm.chatlib.irc.IRCConnection;
 import io.mrarm.chatlib.irc.IRCConnectionRequest;
-import io.mrarm.chatlib.irc.ServerConnectionApi;
 
 // TODO: this runs stuff on another thread but does not synchronize contents
 public class ServerConnectionInfo {
@@ -71,6 +69,10 @@ public class ServerConnectionInfo {
             public void onChannelLeft(String s) {
             }
         }, null, null);
+    }
+
+    public ServerConnectionManager getConnectionManager() {
+        return mManager;
     }
 
     public void connect() {

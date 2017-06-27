@@ -17,7 +17,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
@@ -145,15 +144,14 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             View view = inflater.inflate(R.layout.settings_notifications, container, false);
             RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rules);
             recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
-            List<NotificationRule> testData = new ArrayList<>();
-            testData.add(new NotificationRule("Test Rule", NotificationRule.AppliesToEntry.any(), "test", false));
-            testData.add(new NotificationRule("Test Rule 2", NotificationRule.AppliesToEntry.any(), "test", false));
-            testData.add(new NotificationRule("Test Rule 3", NotificationRule.AppliesToEntry.any(), "test", false));
-
-            NotificationRulesAdapter adapter = new NotificationRulesAdapter(testData);
+            NotificationRulesAdapter adapter = new NotificationRulesAdapter(getActivity());
             recyclerView.setAdapter(adapter);
             adapter.enableDragDrop(recyclerView);
+
+            View addButton = view.findViewById(R.id.add);
+            addButton.setOnClickListener((View v) -> {
+                startActivity(new Intent(getActivity(), EditNotificationSettingsActivity.class));
+            });
 
             return view;
         }

@@ -7,7 +7,10 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
@@ -23,6 +26,8 @@ import io.mrarm.irc.util.EntryRecyclerViewAdapter;
 import io.mrarm.irc.util.SimpleCounter;
 
 public class EditNotificationSettingsActivity extends AppCompatActivity {
+
+    public static final String ARG_RULE_INDEX = "rule_index";
 
     SettingsListAdapter mAdapter;
     SimpleCounter mRequestCodeCounter = new SimpleCounter(1);
@@ -41,7 +46,12 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (getIntent().hasExtra(ARG_RULE_INDEX))
+            mEditingRule = NotificationManager.getUserRules(this).get(getIntent().getIntExtra(ARG_RULE_INDEX, -1));
+
         setContentView(R.layout.activity_edit_notification_settings);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -57,7 +67,7 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         mPriorityEntry = new SettingsListAdapter.ListEntry(getString(R.string.notification_priority), getResources().getStringArray(R.array.notification_priority_options), 1);
         String[] colorNames = getResources().getStringArray(R.array.color_picker_color_names);
         colorNames[0] = getString(R.string.value_none);
-        mColorEntry = new SettingsListAdapter.ColorEntry(getString(R.string.notification_color), getResources().getIntArray(R.array.colorPickerColors), colorNames, 2);
+        mColorEntry = new SettingsListAdapter.ColorEntry(getString(R.string.notification_color), getResources().getIntArray(R.array.colorPickerColors), colorNames, -1);
         mColorEntry.setHasDefaultOption(true);
 
         if (mEditingRule != null) {
@@ -108,9 +118,32 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         mRecyclerView.setAdapter(mAdapter);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_edit_only_done, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_done || id == android.R.id.home) {
+            if (id == R.id.action_done) {
+                mRecyclerView.clearFocus();
+                save();
+            }
+
+            InputMethodManager manager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            manager.hideSoftInputFromWindow(getWindow().getDecorView().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     public void save(NotificationRule rule) {
         // "unbind" all the items - this will in fact save their state instead
-        for (int i = mRecyclerView.getChildCount(); i >= 0; i--) {
+        for (int i = mRecyclerView.getChildCount() - 1; i >= 0; i--) {
             RecyclerView.ViewHolder holder = mRecyclerView.getChildViewHolder(mRecyclerView.getChildAt(i));
             if (holder instanceof EntryRecyclerViewAdapter.EntryHolder)
                 ((EntryRecyclerViewAdapter.EntryHolder) holder).unbind();
@@ -131,7 +164,7 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         // options
         rule.settings.lightEnabled = (mColorEntry.getSelectedColorIndex() != 0);
         if (rule.settings.lightEnabled)
-            rule.settings.light = (mColorEntry.getSelectedColor() == -1 ? 0 : mColorEntry.getSelectedColor());
+            rule.settings.light = (mColorEntry.getSelectedColorIndex() == -1 ? 0 : mColorEntry.getSelectedColor());
         int vibrationDuration = mVibrationOptions[mVibrationEntry.getSelectedOption()];
         rule.settings.vibrationEnabled = (vibrationDuration != 0);
         if (rule.settings.vibrationEnabled)
@@ -142,6 +175,17 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         rule.settings.soundUri = null;
         if (soundUri != RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
             rule.settings.soundUri = soundUri.toString();
+    }
+
+    public void save() {
+        if (mEditingRule != null) {
+            save(mEditingRule);
+        } else {
+            mEditingRule = new NotificationRule();
+            save(mEditingRule);
+            NotificationManager.getUserRules(this).add(mEditingRule);
+        }
+        NotificationManager.saveUserRules(this);
     }
 
     @Override
@@ -236,7 +280,7 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
             MatchEntry entry = getEntry();
             entry.mMatchMode = mMode.getSelectedItemPosition();
             entry.mCaseSensitive = mCaseSensitive.isChecked();
-            entry.mMatchText = mText.toString();
+            entry.mMatchText = mText.getText().toString();
         }
 
     }

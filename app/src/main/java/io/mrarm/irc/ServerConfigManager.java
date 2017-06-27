@@ -3,8 +3,6 @@ package io.mrarm.irc;
 import android.content.Context;
 import android.util.Log;
 
-import com.google.gson.Gson;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -17,21 +15,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import io.mrarm.irc.util.SettingsHelper;
+
 public class ServerConfigManager {
 
     private static ServerConfigManager mInstance;
 
-    private static String TAG = "ServerConfigManager";
+    private static final String TAG = "ServerConfigManager";
 
-    private static String SERVERS_PATH = "servers";
-    private static String SERVER_FILE_PREFIX = "server-";
-    private static String SERVER_FILE_SUFFIX = ".json";
-
-    private static Gson mGson = new Gson();
-
-    public static Gson getGson() {
-        return mGson;
-    }
+    private static final String SERVERS_PATH = "servers";
+    private static final String SERVER_FILE_PREFIX = "server-";
+    private static final String SERVER_FILE_SUFFIX = ".json";
 
     public static ServerConfigManager getInstance(Context context) {
         if (mInstance == null)
@@ -59,7 +53,7 @@ public class ServerConfigManager {
             if (!f.isFile() || !f.getName().startsWith(SERVER_FILE_PREFIX) || !f.getName().endsWith(SERVER_FILE_SUFFIX))
                 continue;
             try {
-                ServerConfigData data = mGson.fromJson(new BufferedReader(new FileReader(f)), ServerConfigData.class);
+                ServerConfigData data = SettingsHelper.getGson().fromJson(new BufferedReader(new FileReader(f)), ServerConfigData.class);
                 mServers.add(data);
                 mServersMap.put(data.uuid, data);
             } catch (IOException e) {
@@ -86,7 +80,7 @@ public class ServerConfigManager {
         mServers.add(data);
         mServersMap.put(data.uuid, data);
         BufferedWriter writer = new BufferedWriter(new FileWriter(new File(mServersPath, SERVER_FILE_PREFIX + data.uuid.toString() + SERVER_FILE_SUFFIX)));
-        mGson.toJson(data, writer);
+        SettingsHelper.getGson().toJson(data, writer);
         writer.close();
 
         if (existed) {

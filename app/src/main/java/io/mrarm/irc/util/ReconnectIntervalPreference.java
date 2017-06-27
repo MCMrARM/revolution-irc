@@ -3,10 +3,8 @@ package io.mrarm.irc.util;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.Preference;
-import android.preference.PreferenceManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -33,22 +31,21 @@ import java.util.Collections;
 import java.util.List;
 
 import io.mrarm.irc.R;
-import io.mrarm.irc.ServerConfigManager;
 
 public class ReconnectIntervalPreference extends Preference {
 
-    private static List<Rule> mDefaultValue;
-    static Type mListRuleType = new TypeToken<List<Rule>>(){}.getType();
+    private static List<Rule> sDefaultValue;
+    static Type sListRuleType = new TypeToken<List<Rule>>(){}.getType();
 
     static {
-        mDefaultValue = new ArrayList<>();
-        mDefaultValue.add(new Rule(5000, 3));
-        mDefaultValue.add(new Rule(30000, -1));
-        mDefaultValue = Collections.unmodifiableList(mDefaultValue);
+        sDefaultValue = new ArrayList<>();
+        sDefaultValue.add(new Rule(5000, 3));
+        sDefaultValue.add(new Rule(30000, -1));
+        sDefaultValue = Collections.unmodifiableList(sDefaultValue);
     }
 
     public static List<Rule> getDefaultValue() {
-        return mDefaultValue;
+        return sDefaultValue;
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -73,7 +70,7 @@ public class ReconnectIntervalPreference extends Preference {
     protected void onClick() {
         List<Rule> rules = null;
         try {
-            rules = ServerConfigManager.getGson().fromJson(getPersistedString(null), mListRuleType);
+            rules = SettingsHelper.getGson().fromJson(getPersistedString(null), sListRuleType);
         } catch (Exception ignored) {
         }
         if (rules == null)
@@ -85,7 +82,7 @@ public class ReconnectIntervalPreference extends Preference {
 
         AlertDialog dialog = new AlertDialog.Builder(getContext())
                 .setPositiveButton(R.string.action_ok, (DialogInterface dialogInterface, int which) -> {
-                    String newValue = ServerConfigManager.getGson().toJson(fRules);
+                    String newValue = SettingsHelper.getGson().toJson(fRules);
                     if (callChangeListener(newValue))
                         persistString(newValue);
                 })

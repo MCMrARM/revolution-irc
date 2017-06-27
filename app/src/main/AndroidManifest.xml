@@ -28,15 +28,14 @@
             android:name=".EditServerActivity"
             android:label="@string/edit_server" />
         <activity
+            android:name=".EditNotificationSettingsActivity"
+            android:label="@string/title_activity_edit_notification_settings" />
+        <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
             android:theme="@style/AppTheme" />
 
         <service android:name=".IRCService" />
-
-        <activity
-            android:name=".EditNotificationSettingsActivity"
-            android:label="@string/title_activity_edit_notification_settings" />
     </application>
 
 </manifest>

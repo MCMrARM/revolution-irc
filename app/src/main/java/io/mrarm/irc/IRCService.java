@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationManagerCompat;
@@ -172,7 +173,10 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
                     .setColor(getResources().getColor(R.color.colorNotificationMention));
             int defaults = 0;
             if (rule.settings.soundEnabled) {
-                defaults |= NotificationCompat.DEFAULT_SOUND;
+                if (rule.settings.soundUri != null)
+                    notification.setSound(Uri.parse(rule.settings.soundUri));
+                else
+                    defaults |= NotificationCompat.DEFAULT_SOUND;
             }
             if (rule.settings.vibrationEnabled) {
                 if (rule.settings.vibrationDuration != 0)

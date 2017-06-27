@@ -1,5 +1,7 @@
 package io.mrarm.irc;
 
+import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
@@ -9,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -21,14 +22,8 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<NotificationR
     private ItemTouchHelper mItemTouchHelper;
     private List<NotificationRule> mRules;
 
-    public NotificationRulesAdapter(List<NotificationRule> rules,
-                                    List<NotificationRule> defaultTop,
-                                    List<NotificationRule> defaultBottom) {
-        mRules = rules;
-    }
-
-    public NotificationRulesAdapter(List<NotificationRule> rules) {
-        mRules = rules;
+    public NotificationRulesAdapter(Context context) {
+        mRules = NotificationManager.getUserRules(context);
     }
 
     public void enableDragDrop(RecyclerView recyclerView) {
@@ -117,9 +112,6 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<NotificationR
 
         public RuleHolder(NotificationRulesAdapter adapter, View itemView) {
             super(itemView);
-            itemView.setOnClickListener((View view) -> {
-                //
-            });
             mName = (TextView) itemView.findViewById(R.id.name);
             mEnabled = (CheckBox) itemView.findViewById(R.id.enabled);
         }
@@ -138,6 +130,11 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<NotificationR
 
         public UserRuleHolder(NotificationRulesAdapter adapter, View itemView) {
             super(adapter, itemView);
+            itemView.setOnClickListener((View view) -> {
+                Intent intent = new Intent(view.getContext(), EditNotificationSettingsActivity.class);
+                intent.putExtra(EditNotificationSettingsActivity.ARG_RULE_INDEX, getAdapterPosition() - NotificationManager.sDefaultTopRules.size());
+                view.getContext().startActivity(intent);
+            });
             itemView.findViewById(R.id.reorder).setOnTouchListener((View v, MotionEvent e) -> {
                 if (e.getActionMasked() == MotionEvent.ACTION_DOWN)
                     adapter.mItemTouchHelper.startDrag(UserRuleHolder.this);

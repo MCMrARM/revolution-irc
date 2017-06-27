@@ -171,7 +171,7 @@ public class EditServerActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_edit_server, menu);
+        getMenuInflater().inflate(R.menu.menu_edit_only_done, menu);
         return true;
     }
 

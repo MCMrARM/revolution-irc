@@ -4,17 +4,15 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import io.mrarm.irc.ServerConfigManager;
-
 public class SettingsHelper {
-
-    private static SettingsHelper mInstance;
 
     public static String PREF_DEFAULT_NICK = "default_nick";
     public static String PREF_DEFAULT_USER = "default_user";
@@ -24,10 +22,18 @@ public class SettingsHelper {
     public static String PREF_RECONNECT_INTERVAL = "reconnect_interval";
     public static String PREF_AUTOCONNECT_SERVERS = "connect_servers";
 
+    private static SettingsHelper mInstance;
+
+    private static Gson mGson = new Gson();
+
     public static SettingsHelper getInstance(Context context) {
         if (mInstance == null)
             mInstance = new SettingsHelper(context.getApplicationContext());
         return mInstance;
+    }
+
+    public static Gson getGson() {
+        return mGson;
     }
 
     private SharedPreferences mPreferences;
@@ -35,12 +41,9 @@ public class SettingsHelper {
 
     public SettingsHelper(Context context) {
         mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        mPreferences.registerOnSharedPreferenceChangeListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                if (key.equals(PREF_RECONNECT_INTERVAL))
-                    mCachedIntervalRules = null;
-            }
+        mPreferences.registerOnSharedPreferenceChangeListener((SharedPreferences sharedPreferences, String key) -> {
+            if (key.equals(PREF_RECONNECT_INTERVAL))
+                mCachedIntervalRules = null;
         });
     }
 
@@ -68,7 +71,7 @@ public class SettingsHelper {
         if (mCachedIntervalRules == null) {
             mCachedIntervalRules = ReconnectIntervalPreference.getDefaultValue();
             try {
-                List<ReconnectIntervalPreference.Rule> rules = ServerConfigManager.getGson().fromJson(mPreferences.getString(PREF_RECONNECT_INTERVAL, null), ReconnectIntervalPreference.mListRuleType);
+                List<ReconnectIntervalPreference.Rule> rules = getGson().fromJson(mPreferences.getString(PREF_RECONNECT_INTERVAL, null), ReconnectIntervalPreference.sListRuleType);
                 if (rules != null)
                     mCachedIntervalRules = rules;
             } catch (Exception ignored) {

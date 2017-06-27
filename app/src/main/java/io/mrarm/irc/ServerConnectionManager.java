@@ -54,6 +54,10 @@ public class ServerConnectionManager {
         settings.setAutoConnectServerList(uuids);
     }
 
+    public Context getContext() {
+        return mContext;
+    }
+
     public List<ServerConnectionInfo> getConnections() {
         return mConnections;
     }

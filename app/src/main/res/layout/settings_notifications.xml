@@ -17,10 +17,9 @@
         android:clipToPadding="false"/>
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
+        android:id="@+id/add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:clickable="true"
         app:srcCompat="@drawable/ic_add_white"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"

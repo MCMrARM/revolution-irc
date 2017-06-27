@@ -3,6 +3,15 @@ package io.mrarm.irc;
 import android.content.Context;
 import android.text.style.ForegroundColorSpan;
 
+import com.google.gson.reflect.TypeToken;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -14,12 +23,15 @@ import java.util.regex.Pattern;
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.irc.util.IRCColorUtils;
+import io.mrarm.irc.util.SettingsHelper;
 
 public class NotificationManager {
 
     public static final int CHAT_NOTIFICATION_ID_START = 10000;
 
     private static int mNextChatNotificationId = CHAT_NOTIFICATION_ID_START;
+
+    private static final String RULES_PATH = "notification_rules.json";
 
     public static NotificationRule sNickMentionRule;
     public static NotificationRule sDirectMessageRule;
@@ -28,6 +40,9 @@ public class NotificationManager {
     public static NotificationRule sZNCPlaybackRule;
     static List<NotificationRule> sDefaultTopRules;
     static List<NotificationRule> sDefaultBottomRules;
+    static List<NotificationRule> sUserRules;
+
+    static Type sUserRulesListType = new TypeToken<List<NotificationRule>>(){}.getType();
 
     private ServerConnectionInfo mConnection;
     private Map<String, ChannelNotificationData> mChannelData = new HashMap<>();
@@ -36,7 +51,7 @@ public class NotificationManager {
     private static void initDefaultRules() {
         sDefaultTopRules = new ArrayList<>();
         sDefaultBottomRules = new ArrayList<>();
-        sNickMentionRule = new NotificationRule(R.string.notification_rule_nick, NotificationRule.AppliesToEntry.channelEvents(), "(^| )${nick}(^| )", true);
+        sNickMentionRule = new NotificationRule(R.string.notification_rule_nick, NotificationRule.AppliesToEntry.channelEvents(), "(^| |,)${nick}($| |,)", true);
         sDirectMessageRule = new NotificationRule(R.string.notification_rule_direct, NotificationRule.AppliesToEntry.directMessages(), null);
         sNoticeRule = new NotificationRule(R.string.notification_rule_notice, NotificationRule.AppliesToEntry.directNotices(), null);
         sChannelNoticeRule = new NotificationRule(R.string.notification_rule_chan_notice, NotificationRule.AppliesToEntry.channelNotices(), null);
@@ -46,6 +61,32 @@ public class NotificationManager {
         sDefaultBottomRules.add(NotificationManager.sDirectMessageRule);
         sDefaultBottomRules.add(NotificationManager.sNoticeRule);
         sDefaultBottomRules.add(NotificationManager.sChannelNoticeRule);
+    }
+
+    public static List<NotificationRule> getUserRules(Context context) {
+        if (sUserRules == null) {
+            try {
+                sUserRules = SettingsHelper.getGson().fromJson(new BufferedReader(new FileReader(
+                        new File(context.getFilesDir(), RULES_PATH))), sUserRulesListType);
+            } catch (Exception ignored) {
+            }
+            if (sUserRules == null)
+                sUserRules = new ArrayList<>();
+        }
+        return sUserRules;
+    }
+
+    public static boolean saveUserRules(Context context) {
+        try {
+            List<NotificationRule> rules = getUserRules(context);
+            BufferedWriter writer = new BufferedWriter(new FileWriter(
+                    new File(context.getFilesDir(), RULES_PATH)));
+            SettingsHelper.getGson().toJson(rules, writer);
+            writer.close();
+            return true;
+        } catch (IOException ignored) {
+        }
+        return false;
     }
 
     private static NotificationRule.AppliesToEntry createZNCPlaybackAppliesToEntry() {
@@ -61,6 +102,10 @@ public class NotificationManager {
 
     public NotificationRule findRule(String channel, MessageInfo message) {
         for (NotificationRule rule : sDefaultTopRules) {
+            if (rule.appliesTo(this, channel, message) && rule.settings.enabled)
+                return rule;
+        }
+        for (NotificationRule rule : getUserRules(mConnection.getConnectionManager().getContext())) {
             if (rule.appliesTo(this, channel, message) && rule.settings.enabled)
                 return rule;
         }

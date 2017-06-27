@@ -72,9 +72,9 @@ public class NotificationRule {
 
     public void setMatchText(String text, boolean matchWord, boolean caseInsensitive) {
         if (matchWord)
-            setRegex(Pattern.quote(text), caseInsensitive);
+            setRegex("(^| |,)" + Pattern.quote(text) + "($| |,)", caseInsensitive);
         else
-            setRegex("(^| )" + Pattern.quote(text) + "($| )", caseInsensitive);
+            setRegex(Pattern.quote(text), caseInsensitive);
     }
 
     public List<AppliesToEntry> getAppliesTo() {
@@ -126,11 +126,11 @@ public class NotificationRule {
                 continue;
             if (channel == null) {
                 if ((isNotice && !entry.matchDirectNotices) ||
-                        (!isNotice && entry.matchDirectMessages))
+                        (!isNotice && !entry.matchDirectMessages))
                     continue;
             } else {
                 if ((isNotice && !entry.matchChannelNotices) ||
-                        (!isNotice && entry.matchChannelMessages) ||
+                        (!isNotice && !entry.matchChannelMessages) ||
                         (entry.channels != null && !entry.channels.contains(channel)))
                     continue;
             }
