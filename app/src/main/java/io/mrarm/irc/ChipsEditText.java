@@ -32,8 +32,6 @@ import java.util.List;
 
 public class ChipsEditText extends FrameLayout {
 
-    private static char ZERO_WIDTH_SPACE = '\u200B';
-
     private String mHint;
     private TextPaint mHintPaint;
     private int mHintTextColor;
@@ -403,15 +401,27 @@ public class ChipsEditText extends FrameLayout {
                 setPadding(mEditTextHorizontalPadding, 0, mEditTextHorizontalPadding, 0);
         }
 
+        boolean mStubClearFocus = false;
+
         @Override
         protected void onFocusChanged(boolean focused, int direction, Rect previouslyFocusedRect) {
             if (!focused && !mFinishingItemEdit) {
-                requestChildFocus(null, this);
+                mStubClearFocus = true;
+                if (ChipsEditText.this.getFocusedChild() != null)
+                    ChipsEditText.this.clearFocus();
+                mStubClearFocus = false;
                 finishItemEdit();
             }
             mFocusing = true;
             super.onFocusChanged(focused, direction, previouslyFocusedRect);
             mFocusing = false;
+        }
+
+        @Override
+        public void clearFocus() {
+            if (mStubClearFocus)
+                return;
+            super.clearFocus();
         }
 
         @Override

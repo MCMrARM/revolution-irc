@@ -188,6 +188,7 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
             mChannelsCtr.setVisibility(View.GONE);
 
             itemView.findViewById(R.id.expand).setOnClickListener((View view) -> {
+                itemView.clearFocus();
                 mEntry.setCollapsed(true);
             });
             mChannels.addChipListener(new ChipsEditText.ChipListener() {

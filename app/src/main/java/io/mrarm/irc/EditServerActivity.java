@@ -180,6 +180,7 @@ public class EditServerActivity extends AppCompatActivity {
         int id = item.getItemId();
         if (id == R.id.action_done || id == android.R.id.home) {
             if (id == R.id.action_done) {
+                mServerNick.clearFocus();
                 save();
             }
 

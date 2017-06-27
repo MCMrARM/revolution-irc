@@ -105,9 +105,9 @@
     <string name="notification_rule_nicks">Nicks</string>
     <string name="notification_rule_summary_any_server">Any server</string>
     <string name="notification_rule_summary_any_channel">any channel</string>
-    <string name="notification_rule_summary_multi_channels">%1$i channels</string>
+    <string name="notification_rule_summary_multi_channels">%1$d channels</string>
     <string name="notification_rule_summary_any_nick">any nick</string>
-    <string name="notification_rule_summary_multi_nicks">%1$i nicks</string>
+    <string name="notification_rule_summary_multi_nicks">%1$d nicks</string>
     <string name="notification_rule_summary_delim">", "</string>
 
     <string name="notification_header_options">Options</string>
