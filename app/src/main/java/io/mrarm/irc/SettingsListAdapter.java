@@ -8,7 +8,6 @@ import android.graphics.PorterDuff;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -143,6 +142,10 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
             onUpdated();
         }
 
+        public int getSelectedOption() {
+            return mSelectedOption;
+        }
+
         @Override
         public int getViewHolder() {
             return sHolder;
@@ -205,6 +208,15 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
             mRequestCode = adapter.mRequestCodeCounter.next();
         }
 
+        public Uri getValue() {
+            return mValue;
+        }
+
+        public void setValue(Uri mValue) {
+            this.mValue = mValue;
+            onUpdated();
+        }
+
         @Override
         public int getViewHolder() {
             return sHolder;
@@ -256,6 +268,7 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
         int[] mColors;
         String[] mColorNames;
         int mSelectedIndex;
+        boolean mHasDefaultOption = false;
 
         public ColorEntry(String name, int[] colors, String[] colorNames, int selectedIndex) {
             super(name, null);
@@ -264,9 +277,33 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
             mSelectedIndex = selectedIndex;
         }
 
-        public void setSelectedColor(int index) {
+        public void setSelectedColorIndex(int index) {
             mSelectedIndex = index;
             onUpdated();
+        }
+
+        public void setSelectedColor(int color) {
+            for (int i = mColors.length - 1; i >= 0; i--) {
+                if (mColors[i] == color) {
+                    setSelectedColor(i);
+                    return;
+                }
+            }
+            if (!mHasDefaultOption)
+                throw new IndexOutOfBoundsException();
+            mSelectedIndex = -1;
+        }
+
+        public int getSelectedColorIndex() {
+            return mSelectedIndex;
+        }
+
+        public int getSelectedColor() {
+            return mColors[mSelectedIndex];
+        }
+
+        public void setHasDefaultOption(boolean hasDefaultOption) {
+            mHasDefaultOption = hasDefaultOption;
         }
 
         @Override
@@ -289,8 +326,13 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
         public void bind(SimpleEntry entry) {
             super.bind(entry);
             ColorEntry colorEntry = (ColorEntry) entry;
-            mColor.setColorFilter(colorEntry.mColors[colorEntry.mSelectedIndex], PorterDuff.Mode.MULTIPLY);
-            mValue.setText(colorEntry.mColorNames[colorEntry.mSelectedIndex]);
+            if (colorEntry.mSelectedIndex == -1) {
+                mColor.setColorFilter(0x00000000, PorterDuff.Mode.MULTIPLY);
+                mValue.setText(R.string.value_default);
+            } else {
+                mColor.setColorFilter(colorEntry.mColors[colorEntry.mSelectedIndex], PorterDuff.Mode.MULTIPLY);
+                mValue.setText(colorEntry.mColorNames[colorEntry.mSelectedIndex]);
+            }
         }
 
         @Override
@@ -299,9 +341,13 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
             ColorPickerDialog dialog = new ColorPickerDialog(v.getContext());
             dialog.setTitle(entry.mName);
             dialog.setColors(entry.mColors, entry.mSelectedIndex);
-            dialog.setPositiveButtonText(R.string.action_cancel);
+            dialog.setPositiveButton(R.string.action_cancel, null);
+            dialog.setNegativeButton(R.string.value_default, (DialogInterface d, int which) -> {
+                entry.setSelectedColorIndex(-1);
+                dialog.cancel();
+            });
             dialog.setOnColorChangeListener((ColorPickerDialog d, int colorIndex, int color) -> {
-                entry.setSelectedColor(colorIndex);
+                entry.setSelectedColorIndex(colorIndex);
                 dialog.cancel();
             });
             dialog.show();

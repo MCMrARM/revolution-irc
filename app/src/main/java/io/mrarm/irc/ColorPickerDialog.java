@@ -2,6 +2,7 @@ package io.mrarm.irc;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.support.v7.widget.GridLayoutManager;
@@ -20,6 +21,9 @@ public class ColorPickerDialog {
     private int mSelectedColor;
     private OnColorChangeListener mListener;
     private int mPositiveButtonText = R.string.action_ok;
+    private DialogInterface.OnClickListener mPositiveButtonListener;
+    private int mNegativeButtonText = 0;
+    private DialogInterface.OnClickListener mNegativeButtonListener;
     private AlertDialog mDialog;
 
     public ColorPickerDialog(Context context) {
@@ -47,8 +51,14 @@ public class ColorPickerDialog {
         return this;
     }
 
-    public void setPositiveButtonText(int stringId) {
+    public void setPositiveButton(int stringId, DialogInterface.OnClickListener listener) {
         mPositiveButtonText = stringId;
+        mPositiveButtonListener = listener;
+    }
+
+    public void setNegativeButton(int stringId, DialogInterface.OnClickListener listener) {
+        mNegativeButtonText = stringId;
+        mNegativeButtonListener = listener;
     }
 
 
@@ -64,11 +74,13 @@ public class ColorPickerDialog {
     }
 
     public void show() {
-        mDialog = new AlertDialog.Builder(mContext)
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext)
                 .setTitle(mTitle)
                 .setView(buildDialogView())
-                .setPositiveButton(mPositiveButtonText, null)
-                .show();
+                .setPositiveButton(mPositiveButtonText, mPositiveButtonListener);
+        if (mNegativeButtonText != 0)
+            builder.setNegativeButton(mNegativeButtonText, mNegativeButtonListener);
+        mDialog = builder.show();
     }
 
     public void cancel() {
@@ -112,6 +124,7 @@ public class ColorPickerDialog {
                 view.setOnClickListener((View v) -> {
                     int oldIndex = adapter.mDialog.mSelectedColor;
                     adapter.mDialog.mSelectedColor = getAdapterPosition();
+                    if (oldIndex != -1)
                     adapter.notifyItemChanged(oldIndex);
                     adapter.notifyItemChanged(adapter.mDialog.mSelectedColor);
                     if (adapter.mDialog.mListener != null)

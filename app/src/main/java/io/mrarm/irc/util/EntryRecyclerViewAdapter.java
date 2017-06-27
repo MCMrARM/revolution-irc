@@ -35,7 +35,8 @@ public class EntryRecyclerViewAdapter extends RecyclerView.Adapter<EntryRecycler
         }
 
         protected void onUpdated() {
-            mOwner.notifyItemChanged(mIndex);
+            if (mOwner != null && mIndex != -1)
+                mOwner.notifyItemChanged(mIndex);
         }
 
     }
@@ -84,6 +85,10 @@ public class EntryRecyclerViewAdapter extends RecyclerView.Adapter<EntryRecycler
         for (int i = index; i < mEntries.size(); i++)
             mEntries.get(i).mIndex--;
         notifyItemRemoved(index);
+    }
+
+    public List<Entry> getEntries() {
+        return mEntries;
     }
 
     @Override

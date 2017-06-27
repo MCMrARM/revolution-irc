@@ -34,7 +34,7 @@ public class NotificationManager {
 
     private static void initDefaultRules() {
         sDefaultRules = new ArrayList<>();
-        sNickMentionRule = new NotificationRule(R.string.notification_rule_nick, NotificationRule.AppliesToEntry.channelEvents(), "${nick}", true);
+        sNickMentionRule = new NotificationRule(R.string.notification_rule_nick, NotificationRule.AppliesToEntry.channelEvents(), "(^| )${nick}(^| )", true);
         sDirectMessageRule = new NotificationRule(R.string.notification_rule_direct, NotificationRule.AppliesToEntry.directMessages(), null);
         sNoticeRule = new NotificationRule(R.string.notification_rule_notice, NotificationRule.AppliesToEntry.directNotices(), null);
         sChannelNoticeRule = new NotificationRule(R.string.notification_rule_chan_notice, NotificationRule.AppliesToEntry.channelNotices(), null);

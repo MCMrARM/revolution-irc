@@ -52,10 +52,37 @@ public class NotificationRule {
         return nameId;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getRegex() {
+        return regex;
+    }
+
+    public boolean isRegexCaseInsensitive() {
+        return regexCaseInsensitive;
+    }
+
     public void setRegex(String regex, boolean caseInsensitive) {
         this.regex = regex;
         this.regexCaseInsensitive = caseInsensitive;
         updateRegex();
+    }
+
+    public void setMatchText(String text, boolean matchWord, boolean caseInsensitive) {
+        if (matchWord)
+            setRegex(Pattern.quote(text), caseInsensitive);
+        else
+            setRegex("(^| )" + Pattern.quote(text) + "($| )", caseInsensitive);
+    }
+
+    public List<AppliesToEntry> getAppliesTo() {
+        return appliesTo;
+    }
+
+    public void setAppliesTo(List<AppliesToEntry> appliesTo) {
+        this.appliesTo = appliesTo;
     }
 
     public void updateRegex() {
@@ -74,7 +101,7 @@ public class NotificationRule {
             String replaceWith = "";
             if (type.equals("nick"))
                 replaceWith = manager.getUserNick();
-            matcher.appendReplacement(buf, Matcher.quoteReplacement(replaceWith));
+            matcher.appendReplacement(buf, Matcher.quoteReplacement(Pattern.quote(replaceWith)));
         }
         matcher.appendTail(buf);
         return Pattern.compile(buf.toString(), regexCaseInsensitive ? Pattern.CASE_INSENSITIVE : 0);
@@ -116,7 +143,7 @@ public class NotificationRule {
         return false;
     }
 
-    public static class AppliesToEntry {
+    public static class AppliesToEntry implements Cloneable {
 
         public UUID server = null;
         public List<String> channels = null;
@@ -127,6 +154,14 @@ public class NotificationRule {
         public boolean matchDirectNotices = true;
         public boolean matchChannelMessages = true;
         public boolean matchChannelNotices = true;
+
+        public AppliesToEntry clone() {
+            try {
+                return (AppliesToEntry) super.clone();
+            } catch (CloneNotSupportedException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         public static AppliesToEntry any() {
             return new AppliesToEntry();

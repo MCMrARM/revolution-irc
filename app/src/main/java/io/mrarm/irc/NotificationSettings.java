@@ -4,6 +4,8 @@ public class NotificationSettings {
 
     public boolean enabled = true;
 
+    public int priority = 0;
+
     public boolean lightEnabled = true;
     public int light = 0;
 
@@ -11,5 +13,6 @@ public class NotificationSettings {
     public int vibrationDuration = 0;
 
     public boolean soundEnabled = false;
+    public String soundUri;
 
 }

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <integer-array name="notification_vibration_option_values">
+        <item>-1</item>
+        <item>200</item>
+        <item>2000</item>
+        <item>0</item>
+    </integer-array>
+
+</resources>

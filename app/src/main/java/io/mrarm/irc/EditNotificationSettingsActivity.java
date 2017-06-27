@@ -2,6 +2,7 @@ package io.mrarm.irc;
 
 import android.content.Intent;
 import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,7 +11,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -26,30 +27,121 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
     SettingsListAdapter mAdapter;
     SimpleCounter mRequestCodeCounter = new SimpleCounter(1);
 
+    NotificationRule mEditingRule;
+
+    RecyclerView mRecyclerView;
+    BasicEntry mBasicEntry;
+    MatchEntry mMatchEntry;
+    SettingsListAdapter.RingtoneEntry mSoundEntry;
+    SettingsListAdapter.ListEntry mVibrationEntry;
+    int[] mVibrationOptions;
+    SettingsListAdapter.ListEntry mPriorityEntry;
+    SettingsListAdapter.ColorEntry mColorEntry;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_notification_settings);
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.list);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView = (RecyclerView) findViewById(R.id.list);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         mAdapter = new SettingsListAdapter(this);
         mAdapter.setRequestCodeCounter(mRequestCodeCounter);
-        mAdapter.add(new BasicEntry());
-        mAdapter.add(new SettingsListAdapter.HeaderEntry(getString(R.string.notification_header_match)));
-        mAdapter.add(new MatchEntry());
-        mAdapter.add(new SettingsListAdapter.HeaderEntry(getString(R.string.notification_header_applies_to)));
-        mAdapter.add(new RuleEntry(NotificationRule.AppliesToEntry.channelEvents()));
-        mAdapter.add(new AddRuleEntry());
-        mAdapter.add(new SettingsListAdapter.HeaderEntry(getString(R.string.notification_header_options)));
-        mAdapter.add(new SettingsListAdapter.RingtoneEntry(mAdapter, getString(R.string.notification_sound), RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)));
-        mAdapter.add(new SettingsListAdapter.ListEntry(getString(R.string.notification_vibration), getResources().getStringArray(R.array.notification_vibration_options), 0));
-        mAdapter.add(new SettingsListAdapter.ListEntry(getString(R.string.notification_priority), getResources().getStringArray(R.array.notification_priority_options), 1));
+
+        mBasicEntry = new BasicEntry();
+        mMatchEntry = new MatchEntry();
+        mSoundEntry = new SettingsListAdapter.RingtoneEntry(mAdapter, getString(R.string.notification_sound), RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+        mVibrationOptions = getResources().getIntArray(R.array.notification_vibration_option_values);
+        mVibrationEntry = new SettingsListAdapter.ListEntry(getString(R.string.notification_vibration), getResources().getStringArray(R.array.notification_vibration_options), 0);
+        mPriorityEntry = new SettingsListAdapter.ListEntry(getString(R.string.notification_priority), getResources().getStringArray(R.array.notification_priority_options), 1);
         String[] colorNames = getResources().getStringArray(R.array.color_picker_color_names);
         colorNames[0] = getString(R.string.value_none);
-        mAdapter.add(new SettingsListAdapter.ColorEntry(getString(R.string.notification_color), getResources().getIntArray(R.array.colorPickerColors), colorNames, 2));
-        recyclerView.setAdapter(mAdapter);
+        mColorEntry = new SettingsListAdapter.ColorEntry(getString(R.string.notification_color), getResources().getIntArray(R.array.colorPickerColors), colorNames, 2);
+        mColorEntry.setHasDefaultOption(true);
+
+        if (mEditingRule != null) {
+            mBasicEntry.mName = mEditingRule.getName();
+            mMatchEntry.mMatchMode = MatchEntry.MODE_REGEX; // TODO: Auto pick the most user friendly mode
+            mMatchEntry.mMatchText = mEditingRule.getRegex();
+            mMatchEntry.mCaseSensitive = mEditingRule.isRegexCaseInsensitive();
+            if (mEditingRule.settings.soundEnabled)
+                mSoundEntry.setValue((mEditingRule.settings.soundUri == null ? RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION) : Uri.parse(mEditingRule.settings.soundUri)));
+            else
+                mSoundEntry.setValue(null);
+            int vibrationOption;
+            if (mEditingRule.settings.vibrationEnabled)
+                vibrationOption = (mEditingRule.settings.vibrationDuration == 0 ? -1 : mEditingRule.settings.vibrationDuration);
+            else
+                vibrationOption = 0;
+            int vibrationOptionIndex = 0;
+            for (int i = mVibrationOptions.length - 1; i >= 0; i--) {
+                if (mVibrationOptions[i] == vibrationOption) {
+                    vibrationOptionIndex = i;
+                    break;
+                }
+            }
+            mVibrationEntry.setSelectedOption(vibrationOptionIndex);
+            mPriorityEntry.setSelectedOption(mEditingRule.settings.priority + 1);
+            if (mEditingRule.settings.lightEnabled)
+                mColorEntry.setSelectedColor((mEditingRule.settings.light == 0 ? -1 : 0));
+            else
+                mColorEntry.setSelectedColorIndex(0);
+        }
+
+        mAdapter.add(mBasicEntry);
+        mAdapter.add(new SettingsListAdapter.HeaderEntry(getString(R.string.notification_header_match)));
+        mAdapter.add(mMatchEntry);
+        mAdapter.add(new SettingsListAdapter.HeaderEntry(getString(R.string.notification_header_applies_to)));
+        if (mEditingRule == null) {
+            mAdapter.add(new RuleEntry(NotificationRule.AppliesToEntry.channelEvents()));
+        } else {
+            for (NotificationRule.AppliesToEntry entry : mEditingRule.getAppliesTo())
+                mAdapter.add(new RuleEntry(entry.clone()));
+        }
+        mAdapter.add(new AddRuleEntry());
+        mAdapter.add(new SettingsListAdapter.HeaderEntry(getString(R.string.notification_header_options)));
+        mAdapter.add(mSoundEntry);
+        mAdapter.add(mVibrationEntry);
+        mAdapter.add(mPriorityEntry);
+        mAdapter.add(mColorEntry);
+        mRecyclerView.setAdapter(mAdapter);
+    }
+
+    public void save(NotificationRule rule) {
+        // "unbind" all the items - this will in fact save their state instead
+        for (int i = mRecyclerView.getChildCount(); i >= 0; i--) {
+            RecyclerView.ViewHolder holder = mRecyclerView.getChildViewHolder(mRecyclerView.getChildAt(i));
+            if (holder instanceof EntryRecyclerViewAdapter.EntryHolder)
+                ((EntryRecyclerViewAdapter.EntryHolder) holder).unbind();
+        }
+
+        rule.setName(mBasicEntry.mName);
+        if (mMatchEntry.mMatchMode != MatchEntry.MODE_REGEX)
+            rule.setMatchText(mMatchEntry.mMatchText, (mMatchEntry.mMatchMode == MatchEntry.MODE_CONTAINS_WORD), !mMatchEntry.mCaseSensitive);
+        else
+            rule.setRegex(mMatchEntry.mMatchText, !mMatchEntry.mCaseSensitive);
+        List<NotificationRule.AppliesToEntry> appliesTo = new ArrayList<>();
+        for (EntryRecyclerViewAdapter.Entry entry : mAdapter.getEntries()) {
+            if (entry instanceof RuleEntry)
+                appliesTo.add(((RuleEntry) entry).mEntry);
+        }
+        rule.setAppliesTo(appliesTo);
+
+        // options
+        rule.settings.lightEnabled = (mColorEntry.getSelectedColorIndex() != 0);
+        if (rule.settings.lightEnabled)
+            rule.settings.light = (mColorEntry.getSelectedColor() == -1 ? 0 : mColorEntry.getSelectedColor());
+        int vibrationDuration = mVibrationOptions[mVibrationEntry.getSelectedOption()];
+        rule.settings.vibrationEnabled = (vibrationDuration != 0);
+        if (rule.settings.vibrationEnabled)
+            rule.settings.vibrationDuration = (vibrationDuration == -1 ? 0 : vibrationDuration);
+        rule.settings.priority = mPriorityEntry.getSelectedOption() - 1;
+        Uri soundUri = mSoundEntry.getValue();
+        rule.settings.soundEnabled = (soundUri != null);
+        rule.settings.soundUri = null;
+        if (soundUri != RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+            rule.settings.soundUri = soundUri.toString();
     }
 
     @Override
@@ -62,6 +154,8 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
 
         private static final int sHolder = EntryRecyclerViewAdapter.registerViewHolder(BasicEntryHolder.class, R.layout.notification_settings_basic);
 
+        String mName;
+
         @Override
         public int getViewHolder() {
             return sHolder;
@@ -71,21 +165,36 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
 
     public static class BasicEntryHolder extends EntryRecyclerViewAdapter.EntryHolder<BasicEntry> {
 
+        EditText mName;
+
         public BasicEntryHolder(View itemView) {
             super(itemView);
+            mName = (EditText) itemView.findViewById(R.id.entry_name);
         }
 
         @Override
         public void bind(BasicEntry entry) {
-            //
+            mName.setText(entry.mName);
         }
 
+        @Override
+        public void unbind() {
+            getEntry().mName = mName.getText().toString();
+        }
     }
 
 
     public static class MatchEntry extends EntryRecyclerViewAdapter.Entry {
 
         private static final int sHolder = EntryRecyclerViewAdapter.registerViewHolder(MatchEntryHolder.class, R.layout.notification_settings_match_message);
+
+        public static final int MODE_CONTAINS = 0;
+        public static final int MODE_CONTAINS_WORD = 1;
+        public static final int MODE_REGEX = 2;
+
+        String mMatchText;
+        int mMatchMode;
+        boolean mCaseSensitive;
 
         @Override
         public int getViewHolder() {
@@ -97,6 +206,8 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
     public static class MatchEntryHolder extends EntryRecyclerViewAdapter.EntryHolder<MatchEntry> {
 
         Spinner mMode;
+        EditText mText;
+        CheckBox mCaseSensitive;
 
         public MatchEntryHolder(View itemView) {
             super(itemView);
@@ -107,11 +218,25 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
                     android.R.layout.simple_spinner_item);
             spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             mMode.setAdapter(spinnerAdapter);
+
+            mText = (EditText) itemView.findViewById(R.id.match_text);
+
+            mCaseSensitive = (CheckBox) itemView.findViewById(R.id.match_case);
         }
 
         @Override
         public void bind(MatchEntry entry) {
-            //
+            mText.setText(entry.mMatchText);
+            mMode.setSelection(entry.mMatchMode);
+            mCaseSensitive.setChecked(entry.mCaseSensitive);
+        }
+
+        @Override
+        public void unbind() {
+            MatchEntry entry = getEntry();
+            entry.mMatchMode = mMode.getSelectedItemPosition();
+            entry.mCaseSensitive = mCaseSensitive.isChecked();
+            entry.mMatchText = mText.toString();
         }
 
     }
@@ -171,8 +296,7 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
 
     }
 
-    public static class RuleEntryHolder extends EntryRecyclerViewAdapter.EntryHolder<RuleEntry>
-            implements CompoundButton.OnCheckedChangeListener {
+    public static class RuleEntryHolder extends EntryRecyclerViewAdapter.EntryHolder<RuleEntry> {
 
         private Spinner mServerSpinner;
         private ChipsEditText mChannels;
@@ -211,7 +335,6 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     mChannelsCtr.setVisibility(position != 0 ? View.VISIBLE : View.GONE);
-                    getEntry().mEntry.server = mSpinnerOptionUUIDs.get(position);
                 }
 
                 @Override
@@ -219,46 +342,6 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
                     // stub
                 }
             });
-            mChannels.addChipListener(new ChipsEditText.ChipListener() {
-                private void update() {
-                    if (mChannels.getItemCount() > 0)
-                        getEntry().mEntry.channels = mChannels.getItems();
-                    else
-                        getEntry().mEntry.channels = null;
-                }
-                @Override
-                public void onChipAdded(String text, int index) {
-                    update();
-                }
-                @Override
-                public void onChipRemoved(int index) {
-                    update();
-                }
-            });
-            mNicks.addChipListener(new ChipsEditText.ChipListener() {
-                private void update() {
-                    if (mNicks.getItemCount() > 0)
-                        getEntry().mEntry.nicks = mNicks.getItems();
-                    else
-                        getEntry().mEntry.nicks = null;
-                }
-                @Override
-                public void onChipAdded(String text, int index) {
-                    update();
-                }
-                @Override
-                public void onChipRemoved(int index) {
-                    update();
-                }
-            });
-        }
-
-        @Override
-        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            getEntry().mEntry.matchChannelMessages = mChannelMessages.isChecked();
-            getEntry().mEntry.matchChannelNotices = mChannelNotices.isChecked();
-            getEntry().mEntry.matchDirectMessages = mDirectMessages.isChecked();
-            getEntry().mEntry.matchDirectNotices = mDirectNotices.isChecked();
         }
 
         private void refreshSpinner() {
@@ -291,20 +374,29 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
                 mNicks.setItems(entry.mEntry.nicks);
             else
                 mNicks.clearItems();
-            mChannelMessages.setOnCheckedChangeListener(null);
-            mChannelNotices.setOnCheckedChangeListener(null);
-            mDirectMessages.setOnCheckedChangeListener(null);
-            mDirectNotices.setOnCheckedChangeListener(null);
             mChannelMessages.setChecked(entry.mEntry.matchChannelMessages);
             mChannelNotices.setChecked(entry.mEntry.matchChannelNotices);
             mDirectMessages.setChecked(entry.mEntry.matchDirectMessages);
             mDirectNotices.setChecked(entry.mEntry.matchDirectNotices);
-            mChannelMessages.setOnCheckedChangeListener(this);
-            mChannelNotices.setOnCheckedChangeListener(this);
-            mDirectMessages.setOnCheckedChangeListener(this);
-            mDirectNotices.setOnCheckedChangeListener(this);
         }
 
+        @Override
+        public void unbind() {
+            NotificationRule.AppliesToEntry entry = getEntry().mEntry;
+            getEntry().mEntry.server = mSpinnerOptionUUIDs.get(mServerSpinner.getSelectedItemPosition());
+            if (mChannels.getItemCount() > 0)
+                getEntry().mEntry.channels = mChannels.getItems();
+            else
+                getEntry().mEntry.channels = null;
+            if (mNicks.getItemCount() > 0)
+                getEntry().mEntry.nicks = mNicks.getItems();
+            else
+                getEntry().mEntry.nicks = null;
+            entry.matchChannelMessages = mChannelMessages.isChecked();
+            entry.matchChannelNotices = mChannelNotices.isChecked();
+            entry.matchDirectMessages = mDirectMessages.isChecked();
+            entry.matchDirectNotices = mDirectNotices.isChecked();
+        }
     }
 
     public static class CollapsedRuleEntryHolder extends EntryRecyclerViewAdapter.EntryHolder<RuleEntry> {
