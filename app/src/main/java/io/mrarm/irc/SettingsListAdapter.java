@@ -9,8 +9,13 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import io.mrarm.irc.util.EntryRecyclerViewAdapter;
 import io.mrarm.irc.util.SimpleCounter;
@@ -79,10 +84,36 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
 
         protected String mName;
         protected String mValue;
+        protected boolean mEnabled = true;
+        private List<SettingChangedListener> mListeners = new ArrayList<>();
 
         public SimpleEntry(String name, String value) {
             mName = name;
             mValue = value;
+        }
+
+        public boolean isEnabled() {
+            return mEnabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.mEnabled = enabled;
+            onUpdated();
+        }
+
+        public void addListener(SettingChangedListener listener) {
+            mListeners.add(listener);
+        }
+
+        public void removeListener(SettingChangedListener listener) {
+            mListeners.remove(listener);
+        }
+
+        @Override
+        protected void onUpdated() {
+            super.onUpdated();
+            for (SettingChangedListener listener : mListeners)
+                listener.onSettingChanged(this);
         }
 
         @Override
@@ -112,14 +143,85 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
 
         @Override
         public void bind(SimpleEntry entry) {
+            itemView.setEnabled(entry.mEnabled);
+            mName.setEnabled(entry.mEnabled);
+            mValue.setEnabled(entry.mEnabled);
             mName.setText(entry.mName);
-            mValue.setText(entry.mValue);
-            mDivider.setVisibility(getAdapterPosition() == mAdapter.mEntries.size() - 1 ? View.GONE : View.VISIBLE);
+            setValueText(entry.mValue);
+            mDivider.setVisibility(getAdapterPosition() == mAdapter.mEntries.size() - 1 ? View.INVISIBLE : View.VISIBLE);
+        }
+
+        protected void setValueText(String text) {
+            mValue.setVisibility(text == null ? View.GONE : View.VISIBLE);
+            mValue.setText(text);
+        }
+
+        protected void setValueText(int textId) {
+            mValue.setVisibility(View.VISIBLE);
+            mValue.setText(textId);
         }
 
         @Override
         public void onClick(View v) {
             //
+        }
+
+    }
+
+    public static class CheckBoxEntry extends SimpleEntry {
+
+        private static final int sHolder = registerViewHolder(CheckBoxEntryHolder.class, R.layout.settings_list_checkbox_entry);
+
+        boolean mChecked;
+
+        public CheckBoxEntry(String name, boolean checked) {
+            super(name, null);
+            mChecked = checked;
+        }
+
+        public void setChecked(boolean checked) {
+            mChecked = checked;
+            onUpdated();
+        }
+
+        public boolean isChecked() {
+            return mChecked;
+        }
+
+        @Override
+        public int getViewHolder() {
+            return sHolder;
+        }
+
+    }
+
+    public static class CheckBoxEntryHolder extends SimpleEntryHolder
+            implements CompoundButton.OnCheckedChangeListener {
+
+        private CheckBox mCheckBox;
+
+        public CheckBoxEntryHolder(View itemView, SettingsListAdapter adapter) {
+            super(itemView, adapter);
+            mCheckBox = (CheckBox) itemView.findViewById(R.id.check);
+        }
+
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            CheckBoxEntry entry = (CheckBoxEntry) getEntry();
+            entry.setChecked(!entry.isChecked());
+        }
+
+        @Override
+        public void bind(SimpleEntry entry) {
+            super.bind(entry);
+            mCheckBox.setOnCheckedChangeListener(null);
+            mCheckBox.setChecked(((CheckBoxEntry) entry).isChecked());
+            mCheckBox.setOnCheckedChangeListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            mCheckBox.setChecked(!mCheckBox.isChecked());
         }
 
     }
@@ -163,7 +265,7 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
         public void bind(SimpleEntry entry) {
             super.bind(entry);
             ListEntry listEntry = (ListEntry) entry;
-            mValue.setText(listEntry.mOptions[listEntry.mSelectedOption]);
+            setValueText(listEntry.mOptions[listEntry.mSelectedOption]);
         }
 
         @Override
@@ -241,7 +343,7 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
         @Override
         public void bind(SimpleEntry entry) {
             super.bind(entry);
-            mValue.setText(RingtoneEntry.getValueDisplayString(mAdapter.mActivity, ((RingtoneEntry) entry).mValue));
+            setValueText(RingtoneEntry.getValueDisplayString(mAdapter.mActivity, ((RingtoneEntry) entry).mValue));
         }
 
         @Override
@@ -285,13 +387,13 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
         public void setSelectedColor(int color) {
             for (int i = mColors.length - 1; i >= 0; i--) {
                 if (mColors[i] == color) {
-                    setSelectedColor(i);
+                    setSelectedColorIndex(i);
                     return;
                 }
             }
             if (!mHasDefaultOption)
                 throw new IndexOutOfBoundsException();
-            mSelectedIndex = -1;
+            setSelectedColorIndex(-1);
         }
 
         public int getSelectedColorIndex() {
@@ -328,10 +430,10 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
             ColorEntry colorEntry = (ColorEntry) entry;
             if (colorEntry.mSelectedIndex == -1) {
                 mColor.setColorFilter(0x00000000, PorterDuff.Mode.MULTIPLY);
-                mValue.setText(R.string.value_default);
+                setValueText(R.string.value_default);
             } else {
                 mColor.setColorFilter(colorEntry.mColors[colorEntry.mSelectedIndex], PorterDuff.Mode.MULTIPLY);
-                mValue.setText(colorEntry.mColorNames[colorEntry.mSelectedIndex]);
+                setValueText(colorEntry.mColorNames[colorEntry.mSelectedIndex]);
             }
         }
 
@@ -352,6 +454,12 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
             });
             dialog.show();
         }
+
+    }
+
+    public interface SettingChangedListener {
+
+        void onSettingChanged(Entry entry);
 
     }
 

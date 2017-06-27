@@ -112,6 +112,7 @@
     <string name="notification_rule_summary_delim">", "</string>
 
     <string name="notification_header_options">Options</string>
+    <string name="notification_show">Show notification</string>
     <string name="notification_sound">Sound</string>
     <string name="notification_vibration">Vibration</string>
     <string name="notification_priority">Priority</string>

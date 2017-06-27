@@ -4,6 +4,8 @@ public class NotificationSettings {
 
     public boolean enabled = true;
 
+    public boolean noNotification = false;
+
     public int priority = 0;
 
     public boolean lightEnabled = true;

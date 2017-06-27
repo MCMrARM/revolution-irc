@@ -118,7 +118,7 @@ public class NotificationRule {
     }
 
     public boolean appliesTo(NotificationManager manager, String channel, MessageInfo message) {
-        if (regex == null || !getCompiledPattern(manager).matcher(message.getMessage()).find())
+        if (regex != null && !getCompiledPattern(manager).matcher(message.getMessage()).find())
             return false;
         boolean isNotice = message.getType() == MessageInfo.MessageType.NOTICE;
         for (AppliesToEntry entry : appliesTo) {
@@ -136,7 +136,7 @@ public class NotificationRule {
             }
             if (entry.nicks != null && !entry.nicks.contains(message.getSender().getNick()))
                 continue;
-            if (entry.messageBatches != null && !entry.messageBatches.contains(message.getBatch().getType()))
+            if (entry.messageBatches != null && message.getBatch() != null && !entry.messageBatches.contains(message.getBatch().getType()))
                 continue;
             return true;
         }

@@ -9,9 +9,11 @@
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
-        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
         android:layout_marginTop="@dimen/setting_horizontal_padding"
-        android:text="Name Placeholder" />
+        android:text="Name Placeholder"
+        android:layout_toLeftOf="@+id/check"
+        android:layout_toStartOf="@+id/check" />
 
     <TextView
         android:id="@+id/value"
@@ -20,10 +22,11 @@
         android:text="Value Placeholder"
         android:layout_below="@+id/name"
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
-        android:layout_marginRight="@dimen/activity_horizontal_margin"
         android:layout_marginTop="2dp"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_toLeftOf="@+id/check"
+        android:layout_toStartOf="@+id/check" />
 
     <View
         android:id="@+id/divider"
@@ -32,5 +35,16 @@
         android:layout_marginTop="@dimen/setting_horizontal_padding"
         android:background="?android:attr/dividerHorizontal"
         android:layout_below="@+id/value" />
+
+    <CheckBox
+        android:id="@+id/check"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@id/name"
+        android:layout_above="@id/divider"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin" />
 
 </RelativeLayout>

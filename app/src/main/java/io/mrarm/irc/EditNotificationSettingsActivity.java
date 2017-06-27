@@ -37,6 +37,7 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
     RecyclerView mRecyclerView;
     BasicEntry mBasicEntry;
     MatchEntry mMatchEntry;
+    SettingsListAdapter.CheckBoxEntry mShowNotificationEntry;
     SettingsListAdapter.RingtoneEntry mSoundEntry;
     SettingsListAdapter.ListEntry mVibrationEntry;
     int[] mVibrationOptions;
@@ -61,6 +62,7 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
 
         mBasicEntry = new BasicEntry();
         mMatchEntry = new MatchEntry();
+        mShowNotificationEntry = new SettingsListAdapter.CheckBoxEntry(getString(R.string.notification_show), true);
         mSoundEntry = new SettingsListAdapter.RingtoneEntry(mAdapter, getString(R.string.notification_sound), RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
         mVibrationOptions = getResources().getIntArray(R.array.notification_vibration_option_values);
         mVibrationEntry = new SettingsListAdapter.ListEntry(getString(R.string.notification_vibration), getResources().getStringArray(R.array.notification_vibration_options), 0);
@@ -75,6 +77,7 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
             mMatchEntry.mMatchMode = MatchEntry.MODE_REGEX; // TODO: Auto pick the most user friendly mode
             mMatchEntry.mMatchText = mEditingRule.getRegex();
             mMatchEntry.mCaseSensitive = mEditingRule.isRegexCaseInsensitive();
+            mShowNotificationEntry.setChecked(!mEditingRule.settings.noNotification);
             if (mEditingRule.settings.soundEnabled)
                 mSoundEntry.setValue((mEditingRule.settings.soundUri == null ? RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION) : Uri.parse(mEditingRule.settings.soundUri)));
             else
@@ -94,7 +97,7 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
             mVibrationEntry.setSelectedOption(vibrationOptionIndex);
             mPriorityEntry.setSelectedOption(mEditingRule.settings.priority + 1);
             if (mEditingRule.settings.lightEnabled)
-                mColorEntry.setSelectedColor((mEditingRule.settings.light == 0 ? -1 : 0));
+                mColorEntry.setSelectedColor((mEditingRule.settings.light == 0 ? -1 : mEditingRule.settings.light));
             else
                 mColorEntry.setSelectedColorIndex(0);
         }
@@ -111,11 +114,25 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         }
         mAdapter.add(new AddRuleEntry());
         mAdapter.add(new SettingsListAdapter.HeaderEntry(getString(R.string.notification_header_options)));
+        mAdapter.add(mShowNotificationEntry);
         mAdapter.add(mSoundEntry);
         mAdapter.add(mVibrationEntry);
         mAdapter.add(mPriorityEntry);
         mAdapter.add(mColorEntry);
         mRecyclerView.setAdapter(mAdapter);
+
+        onShowNotificationSettingUpdated();
+        mShowNotificationEntry.addListener((EntryRecyclerViewAdapter.Entry entry) -> {
+            onShowNotificationSettingUpdated();
+        });
+    }
+
+    private void onShowNotificationSettingUpdated() {
+        boolean checked = mShowNotificationEntry.isChecked();
+        mSoundEntry.setEnabled(checked);
+        mVibrationEntry.setEnabled(checked);
+        mPriorityEntry.setEnabled(checked);
+        mColorEntry.setEnabled(checked);
     }
 
     @Override
@@ -162,6 +179,7 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         rule.setAppliesTo(appliesTo);
 
         // options
+        mEditingRule.settings.noNotification = !mShowNotificationEntry.isChecked();
         rule.settings.lightEnabled = (mColorEntry.getSelectedColorIndex() != 0);
         if (rule.settings.lightEnabled)
             rule.settings.light = (mColorEntry.getSelectedColorIndex() == -1 ? 0 : mColorEntry.getSelectedColor());
