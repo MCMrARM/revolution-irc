@@ -125,7 +125,7 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
             mVibrationEntry.setSelectedOption(vibrationOptionIndex);
             mPriorityEntry.setSelectedOption(mEditingRule.settings.priority + 1);
             if (mEditingRule.settings.lightEnabled)
-                mColorEntry.setSelectedColor((mEditingRule.settings.light == 0 ? -1 : mEditingRule.settings.light));
+                mColorEntry.setSelectedColor(mEditingRule.settings.light);
             else
                 mColorEntry.setSelectedColorIndex(0);
         }
