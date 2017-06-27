@@ -9,6 +9,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import java.util.Collections;
@@ -21,9 +22,14 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<NotificationR
 
     private ItemTouchHelper mItemTouchHelper;
     private List<NotificationRule> mRules;
+    private boolean mHasChanges = false;
 
     public NotificationRulesAdapter(Context context) {
         mRules = NotificationManager.getUserRules(context);
+    }
+
+    public boolean hasUnsavedChanges() {
+        return mHasChanges;
     }
 
     public void enableDragDrop(RecyclerView recyclerView) {
@@ -105,14 +111,18 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<NotificationR
         return TYPE_USER_RULE;
     }
 
-    public static class RuleHolder extends RecyclerView.ViewHolder {
+    public static class RuleHolder extends RecyclerView.ViewHolder
+            implements CompoundButton.OnCheckedChangeListener {
 
+        protected NotificationRulesAdapter mAdapter;
         protected TextView mName;
         protected CheckBox mEnabled;
         protected boolean mNotEditable = false;
+        protected NotificationRule mRule;
 
         public RuleHolder(NotificationRulesAdapter adapter, View itemView) {
             super(itemView);
+            mAdapter = adapter;
             mName = (TextView) itemView.findViewById(R.id.name);
             mEnabled = (CheckBox) itemView.findViewById(R.id.enabled);
             itemView.setOnClickListener((View view) -> {
@@ -127,12 +137,21 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<NotificationR
             });
         }
 
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            mRule.settings.enabled = isChecked;
+            mAdapter.mHasChanges = true;
+        }
+
         public void bind(NotificationRule rule) {
+            mRule = rule;
             if (rule.getNameId() != -1)
                 mName.setText(rule.getNameId());
             else
                 mName.setText(rule.getName());
+            mEnabled.setOnCheckedChangeListener(null);
             mEnabled.setChecked(rule.settings.enabled);
+            mEnabled.setOnCheckedChangeListener(this);
             mNotEditable = rule.notEditable;
         }
 

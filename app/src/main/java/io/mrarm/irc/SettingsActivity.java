@@ -134,6 +134,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     }
 
     public static class NotificationPreferenceFragment extends MyPreferenceFragment {
+
+        private NotificationRulesAdapter mAdapter;
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -144,9 +147,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             View view = inflater.inflate(R.layout.settings_notifications, container, false);
             RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rules);
             recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-            NotificationRulesAdapter adapter = new NotificationRulesAdapter(getActivity());
-            recyclerView.setAdapter(adapter);
-            adapter.enableDragDrop(recyclerView);
+            mAdapter = new NotificationRulesAdapter(getActivity());
+            recyclerView.setAdapter(mAdapter);
+            mAdapter.enableDragDrop(recyclerView);
 
             View addButton = view.findViewById(R.id.add);
             addButton.setOnClickListener((View v) -> {
@@ -155,6 +158,16 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
             return view;
         }
+
+        @Override
+        public void onDestroyView() {
+            if (mAdapter != null && mAdapter.hasUnsavedChanges()) {
+                NotificationManager.saveUserRules(getActivity());
+            }
+            mAdapter = null;
+            super.onDestroyView();
+        }
+
     }
 
 }
