@@ -74,8 +74,23 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
 
         if (mEditingRule != null) {
             mBasicEntry.mName = mEditingRule.getName();
-            mMatchEntry.mMatchMode = MatchEntry.MODE_REGEX; // TODO: Auto pick the most user friendly mode
+
+            mMatchEntry.mMatchMode = MatchEntry.MODE_REGEX;
             mMatchEntry.mMatchText = mEditingRule.getRegex();
+            if (mMatchEntry.mMatchText.startsWith("(^| |,)\\Q") && mMatchEntry.mMatchText.endsWith("\\E($| |,)")) {
+                String unescaped = unescapeRegex(mMatchEntry.mMatchText.substring(7, mMatchEntry.mMatchText.length() - 7));
+                if (unescaped != null) {
+                    mMatchEntry.mMatchText = unescaped;
+                    mMatchEntry.mMatchMode = MatchEntry.MODE_CONTAINS_WORD;
+                }
+            } else {
+                String unescaped = unescapeRegex(mMatchEntry.mMatchText);
+                if (unescaped != null) {
+                    mMatchEntry.mMatchText = unescaped;
+                    mMatchEntry.mMatchMode = MatchEntry.MODE_CONTAINS;
+                }
+            }
+
             mMatchEntry.mCaseSensitive = mEditingRule.isRegexCaseInsensitive();
             mShowNotificationEntry.setChecked(!mEditingRule.settings.noNotification);
             if (mEditingRule.settings.soundEnabled)
@@ -125,6 +140,23 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         mShowNotificationEntry.addListener((EntryRecyclerViewAdapter.Entry entry) -> {
             onShowNotificationSettingUpdated();
         });
+    }
+
+    private static String unescapeRegex(String regex) {
+        if (!regex.startsWith("\\Q") || !regex.endsWith("\\E"))
+            return null;
+
+        StringBuilder str = new StringBuilder(regex.length());
+        int iof, i = 2;
+        while ((iof = regex.indexOf("\\E", i)) != -1 && iof < regex.length() - 2) {
+            if (iof + 2 + 5 >= regex.length() || !regex.substring(iof + 2, iof + 2 + 5).equals("\\\\E\\Q"))
+                return null;
+            str.append(regex.substring(i, iof));
+            str.append("\\E");
+            i = iof + 2 + 5;
+        }
+        str.append(regex.substring(i, regex.length() - 2));
+        return str.toString();
     }
 
     private void onShowNotificationSettingUpdated() {
