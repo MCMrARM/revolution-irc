@@ -13,6 +13,10 @@
     <string name="action_cancel">Cancel</string>
     <string name="action_expand">Expand</string>
     <string name="action_settings">Settings</string>
+    <string name="action_connect">Connect</string>
+    <string name="action_disconnect">Disconnect</string>
+    <string name="action_disconnect_and_close">Disconnect and close</string>
+    <string name="action_open">Open</string>
     <string name="action_servers">Manage servers</string>
     <string name="action_add_below">Add below</string>
     <string name="action_add_rule">Add rule</string>

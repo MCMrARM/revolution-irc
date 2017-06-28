@@ -45,6 +45,23 @@ public class ServerListFragment extends Fragment {
         mAdapter.setActiveServerClickListener((ServerConnectionInfo info) -> {
             ((MainActivity) getActivity()).openServer(info, null);
         });
+        mAdapter.setActiveServerLongClickListener((ServerConnectionInfo info) -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            builder.setTitle(info.getName());
+            builder.setItems(new CharSequence[] {
+                    getString(R.string.action_open),
+                    getString(R.string.action_disconnect_and_close)
+            }, (DialogInterface dialog, int which) -> {
+                if (which == 0) { // open
+                    ((MainActivity) getActivity()).openServer(info, null);
+                } else if (which == 1) { // disconnect
+                    info.disconnect();
+                    ServerConnectionManager.getInstance(getContext()).removeConnection(info);
+                    IRCService.start(getContext());
+                }
+            });
+            builder.show();
+        });
         mAdapter.setInactiveServerClickListener((ServerConfigData data) -> {
             ServerConnectionManager.getInstance(getContext()).createConnection(data);
             IRCService.start(getContext());
@@ -53,12 +70,16 @@ public class ServerListFragment extends Fragment {
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             builder.setTitle(data.name);
             builder.setItems(new CharSequence[] {
+                    getString(R.string.action_connect),
                     getString(R.string.action_edit),
                     getString(R.string.action_delete)
             }, (DialogInterface dialog, int which) -> {
-                if (which == 0) { // edit
+                if (which == 0) { // connect
+                    ServerConnectionManager.getInstance(getContext()).createConnection(data);
+                    IRCService.start(getContext());
+                } else if (which == 1) { // edit
                     startActivity(EditServerActivity.getLaunchIntent(getContext(), data));
-                } else if (which == 1) { // delete
+                } else if (which == 2) { // delete
                     AlertDialog.Builder builder2 = new AlertDialog.Builder(getContext());
                     builder2.setTitle(R.string.action_delete_confirm_title);
                     builder2.setMessage(getString(R.string.action_delete_confirm_body, data.name));

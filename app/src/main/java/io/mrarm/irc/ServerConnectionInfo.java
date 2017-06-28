@@ -27,6 +27,7 @@ public class ServerConnectionInfo {
     private boolean mExpandedInDrawer = true;
     private boolean mConnected = false;
     private boolean mConnecting = false;
+    private boolean mUserDisconnectRequest = false;
     private NotificationManager mNotificationManager;
     private List<InfoChangeListener> mInfoListeners = new ArrayList<>();
     private List<ChannelListChangeListener> mChannelsListeners = new ArrayList<>();
@@ -109,7 +110,15 @@ public class ServerConnectionInfo {
         }
     }
 
+    public void disconnect() {
+        mUserDisconnectRequest = true;
+        if (mApi instanceof IRCConnection)
+            ((IRCConnection) mApi).disconnect(true);
+    }
+
     private void notifyDisconnected() {
+        if (mUserDisconnectRequest)
+            return;
         mConnecting = false;
         setConnected(false);
         int reconnectDelay = mManager.getReconnectDelay(mCurrentReconnectAttempt++);

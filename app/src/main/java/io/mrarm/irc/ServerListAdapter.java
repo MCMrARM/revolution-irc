@@ -31,6 +31,7 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private List<ServerConfigData> mFilteredInactiveServers = new ArrayList<>();
 
     private ActiveServerClickListener mActiveServerClickListener;
+    private ActiveServerLongClickListener mActiveServerLongClickListener;
     private InactiveServerClickListener mInactiveServerClickListener;
     private InactiveServerLongClickListener mInactiveServerLongClickListener;
 
@@ -150,6 +151,10 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     public void setActiveServerClickListener(ActiveServerClickListener listener) {
         this.mActiveServerClickListener = listener;
+    }
+
+    public void setActiveServerLongClickListener(ActiveServerLongClickListener listener) {
+        this.mActiveServerLongClickListener = listener;
     }
 
     public void setInactiveServerClickListener(InactiveServerClickListener listener) {
@@ -311,9 +316,18 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             mIconBg = v.findViewById(R.id.server_icon_bg);
             mName = (TextView) v.findViewById(R.id.server_name);
             mDesc = (TextView) v.findViewById(R.id.server_desc);
-            v.findViewById(R.id.server_entry).setOnClickListener((View view) -> {
+
+            View mainView = v.findViewById(R.id.server_entry);
+            mainView.setOnClickListener((View view) -> {
                 if (adapter.mActiveServerClickListener != null)
                     adapter.mActiveServerClickListener.onServerClicked(mConnectionInfo);
+            });
+            mainView.setOnLongClickListener((View view) -> {
+                if (adapter.mActiveServerLongClickListener != null) {
+                    adapter.mActiveServerLongClickListener.onServerLongClicked(mConnectionInfo);
+                    return true;
+                }
+                return false;
             });
         }
 
@@ -338,6 +352,10 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     public interface ActiveServerClickListener {
         void onServerClicked(ServerConnectionInfo server);
+    }
+
+    public interface ActiveServerLongClickListener {
+        void onServerLongClicked(ServerConnectionInfo server);
     }
 
     public interface InactiveServerClickListener {

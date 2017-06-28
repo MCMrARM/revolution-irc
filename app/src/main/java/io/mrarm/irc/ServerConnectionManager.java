@@ -62,11 +62,17 @@ public class ServerConnectionManager {
         return mConnections;
     }
 
-    public void addConnection(ServerConnectionInfo connection) {
+    public void addConnection(ServerConnectionInfo connection, boolean saveAutoconnect) {
         mConnectionsMap.put(connection.getUUID(), connection);
         mConnections.add(connection);
+        if (saveAutoconnect)
+            saveAutoconnectList();
         for (ConnectionsListener listener : mListeners)
             listener.onConnectionAdded(connection);
+    }
+
+    public void addConnection(ServerConnectionInfo connection) {
+        addConnection(connection, true);
     }
 
     private ServerConnectionInfo createConnection(ServerConfigData data, boolean saveAutoconnect) {
@@ -98,15 +104,26 @@ public class ServerConnectionManager {
         }
         ServerConnectionInfo connectionInfo = new ServerConnectionInfo(this, data.uuid, data.name, request, data.autojoinChannels);
         connectionInfo.connect();
-        addConnection(connectionInfo);
-        if (saveAutoconnect)
-            saveAutoconnectList();
+        addConnection(connectionInfo, saveAutoconnect);
         return connectionInfo;
     }
 
-
     public ServerConnectionInfo createConnection(ServerConfigData data) {
         return createConnection(data, true);
+    }
+
+    public void removeConnection(ServerConnectionInfo connection, boolean saveAutoconnect) {
+        mConnections.remove(connection);
+        mConnectionsMap.remove(connection.getUUID());
+        for (ConnectionsListener listener : mListeners)
+            listener.onConnectionRemoved(connection);
+        if (saveAutoconnect)
+            saveAutoconnectList();
+    }
+
+
+    public void removeConnection(ServerConnectionInfo connection) {
+        removeConnection(connection, true);
     }
 
     public ServerConnectionInfo getConnection(UUID uuid) {
