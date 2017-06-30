@@ -36,6 +36,15 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         notifyDataSetChanged();
     }
 
+    public void addMessagesToTop(List<MessageInfo> messages) {
+        mMessages.addAll(0, messages);
+        notifyItemRangeInserted(0, messages.size());
+    }
+
+    public boolean hasMessages() {
+        return mMessages != null && mMessages.size() > 0;
+    }
+
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         if (viewType == TYPE_MESSAGE) {

@@ -19,6 +19,7 @@ import io.mrarm.chatlib.StatusMessageListener;
 import io.mrarm.chatlib.dto.ChannelInfo;
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.dto.MessageList;
+import io.mrarm.chatlib.dto.MessageListAfterIdentifier;
 import io.mrarm.chatlib.dto.NickWithPrefix;
 import io.mrarm.chatlib.dto.StatusMessageInfo;
 import io.mrarm.chatlib.dto.StatusMessageList;
@@ -46,6 +47,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     private boolean mNeedsUnsubscribeChannelInfo = false;
     private boolean mNeedsUnsubscribeMessages = false;
     private boolean mNeedsUnsubscribeStatusMessages = false;
+    private MessageListAfterIdentifier mLoadMoreIdentifier;
+    private boolean mIsLoadingMore;
 
     public ChatMessagesFragment() {
     }
@@ -94,6 +97,25 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         mgr.setStackFromEnd(true);
         mRecyclerView.setLayoutManager(mgr);
 
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if (mgr.findFirstVisibleItemPosition() == 0) {
+                    if (mIsLoadingMore || mLoadMoreIdentifier == null || !mAdapter.hasMessages())
+                        return;
+                    mIsLoadingMore = true;
+                    connectionInfo.getApiInstance().getMessageStorageApi().getMessages(channelName,
+                            100, mLoadMoreIdentifier, (MessageList messages) -> {
+                                getActivity().runOnUiThread(() -> {
+                                    mAdapter.addMessagesToTop(messages.getMessages());
+                                    mLoadMoreIdentifier = messages.getAfterIdentifier();
+                                    mIsLoadingMore = false;
+                                });
+                            }, null);
+                }
+            }
+        });
+
         if (channelName != null) {
             mAdapter = new ChatMessagesAdapter(new ArrayList<>());
             mRecyclerView.setAdapter(mAdapter);
@@ -112,6 +134,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                     (MessageList messages) -> {
                         Log.i(TAG, "Got message list for " + channelName + ": " +
                                 messages.getMessages().size() + " messages");
+                        mLoadMoreIdentifier = messages.getAfterIdentifier();
                         mAdapter.setMessages(messages.getMessages());
                         mMessages = messages.getMessages();
                         mNeedsUnsubscribeMessages = true;
