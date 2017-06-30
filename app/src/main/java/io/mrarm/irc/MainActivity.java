@@ -15,13 +15,9 @@ import android.view.MenuItem;
 import android.view.View;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.UUID;
 
-import io.mrarm.chatlib.irc.IRCConnection;
-import io.mrarm.chatlib.irc.IRCConnectionRequest;
 import io.mrarm.chatlib.test.TestApiImpl;
 import io.mrarm.irc.drawer.DrawerHelper;
 

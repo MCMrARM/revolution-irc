@@ -198,7 +198,7 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
 
     @Override
     public void onConnectionAdded(ServerConnectionInfo connection) {
-        connection.getApiInstance().subscribeChannelMessages(null, (String channel, MessageInfo info) -> {
+        connection.getApiInstance().getMessageStorageApi().subscribeChannelMessages(null, (String channel, MessageInfo info) -> {
             onMessage(connection, channel, info);
         }, null, null);
     }

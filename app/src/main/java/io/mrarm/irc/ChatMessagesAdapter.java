@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import io.mrarm.chatlib.dto.MessageInfo;
@@ -24,13 +25,13 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     private static final int TYPE_MESSAGE = 0;
 
-    private MessageList mMessages;
+    private List<MessageInfo> mMessages;
 
-    public ChatMessagesAdapter(MessageList messages) {
+    public ChatMessagesAdapter(List<MessageInfo> messages) {
         setMessages(messages);
     }
 
-    public void setMessages(MessageList messages) {
+    public void setMessages(List<MessageInfo> messages) {
         this.mMessages = messages;
         notifyDataSetChanged();
     }
@@ -49,13 +50,13 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         int viewType = holder.getItemViewType();
         if (viewType == TYPE_MESSAGE) {
-            ((MessageHolder) holder).bind(mMessages.getMessages().get(position));
+            ((MessageHolder) holder).bind(mMessages.get(position));
         }
     }
 
     @Override
     public int getItemCount() {
-        return mMessages.getMessages().size();
+        return mMessages.size();
     }
 
     @Override

@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.UUID;
 
 import io.mrarm.chatlib.ChannelInfoListener;
-import io.mrarm.chatlib.MessageListener;
 import io.mrarm.chatlib.StatusMessageListener;
 import io.mrarm.chatlib.dto.ChannelInfo;
 import io.mrarm.chatlib.dto.MessageInfo;
@@ -24,6 +23,7 @@ import io.mrarm.chatlib.dto.NickWithPrefix;
 import io.mrarm.chatlib.dto.StatusMessageInfo;
 import io.mrarm.chatlib.dto.StatusMessageList;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
+import io.mrarm.chatlib.message.MessageListener;
 
 
 public class ChatMessagesFragment extends Fragment implements StatusMessageListener,
@@ -95,7 +95,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         mRecyclerView.setLayoutManager(mgr);
 
         if (channelName != null) {
-            mAdapter = new ChatMessagesAdapter(new MessageList(new ArrayList<>()));
+            mAdapter = new ChatMessagesAdapter(new ArrayList<>());
             mRecyclerView.setAdapter(mAdapter);
 
             Log.i(TAG, "Request message list for: " + channelName);
@@ -108,16 +108,16 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             connectionInfo.getApiInstance().subscribeChannelInfo(channelName, this, null, null);
             mNeedsUnsubscribeChannelInfo = true;
 
-            connectionInfo.getApiInstance().getMessages(channelName, 100, null,
+            connectionInfo.getApiInstance().getMessageStorageApi().getMessages(channelName, 100, null,
                     (MessageList messages) -> {
                         Log.i(TAG, "Got message list for " + channelName + ": " +
                                 messages.getMessages().size() + " messages");
-                        mAdapter.setMessages(messages);
+                        mAdapter.setMessages(messages.getMessages());
                         mMessages = messages.getMessages();
                         mNeedsUnsubscribeMessages = true;
                         mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
 
-                        connectionInfo.getApiInstance().subscribeChannelMessages(channelName, ChatMessagesFragment.this, null, null);
+                        connectionInfo.getApiInstance().getMessageStorageApi().subscribeChannelMessages(channelName, ChatMessagesFragment.this, null, null);
                     }, null);
         } else if (getArguments().getBoolean(ARG_DISPLAY_STATUS)) {
             mStatusAdapter = new ServerStatusMessagesAdapter(new StatusMessageList(new ArrayList<>()));
@@ -146,7 +146,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         if (mNeedsUnsubscribeChannelInfo)
             mConnection.getApiInstance().unsubscribeChannelInfo(getArguments().getString(ARG_CHANNEL_NAME), ChatMessagesFragment.this, null, null);
         if (mNeedsUnsubscribeMessages)
-            mConnection.getApiInstance().unsubscribeChannelMessages(getArguments().getString(ARG_CHANNEL_NAME), ChatMessagesFragment.this, null, null);
+            mConnection.getApiInstance().getMessageStorageApi().unsubscribeChannelMessages(getArguments().getString(ARG_CHANNEL_NAME), ChatMessagesFragment.this, null, null);
         if (mNeedsUnsubscribeStatusMessages)
             mConnection.getApiInstance().unsubscribeStatusMessages(ChatMessagesFragment.this, null, null);
     }
