@@ -26,6 +26,7 @@ public class ServerConfigManager {
     private static final String SERVERS_PATH = "servers";
     private static final String SERVER_FILE_PREFIX = "server-";
     private static final String SERVER_FILE_SUFFIX = ".json";
+    private static final String SERVER_LOGS_PATH = "chat-logs";
 
     public static ServerConfigManager getInstance(Context context) {
         if (mInstance == null)
@@ -34,6 +35,7 @@ public class ServerConfigManager {
     }
 
     private File mServersPath;
+    private File mServerLogsPath;
 
     private List<ServerConfigData> mServers = new ArrayList<>();
     private Map<UUID, ServerConfigData> mServersMap = new HashMap<>();
@@ -42,6 +44,8 @@ public class ServerConfigManager {
     public ServerConfigManager(Context context) {
         mServersPath = new File(context.getFilesDir(), SERVERS_PATH);
         mServersPath.mkdirs();
+        mServerLogsPath = new File(context.getExternalFilesDir(null), SERVER_LOGS_PATH);
+        mServerLogsPath.mkdirs();
         loadServers();
     }
 
@@ -99,6 +103,10 @@ public class ServerConfigManager {
         file.delete();
         for (ConnectionsListener listener : mListeners)
             listener.onConnectionRemoved(data);
+    }
+
+    public File getServerChatLogDir(UUID uuid) {
+        return new File(mServerLogsPath, uuid.toString());
     }
 
     public void addListener(ConnectionsListener listener) {

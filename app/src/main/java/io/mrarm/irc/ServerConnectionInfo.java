@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import io.mrarm.chatlib.ChannelListListener;
 import io.mrarm.chatlib.ChatApi;
+import io.mrarm.chatlib.android.storage.SQLiteMessageStorageApi;
 import io.mrarm.chatlib.irc.IRCConnection;
 import io.mrarm.chatlib.irc.IRCConnectionRequest;
 
@@ -86,6 +87,8 @@ public class ServerConnectionInfo {
         boolean createdNewConnection = false;
         if (mApi == null || !(mApi instanceof IRCConnection)) {
             connection = new IRCConnection();
+            connection.getServerConnectionData().setMessageStorageApi(new SQLiteMessageStorageApi(
+                    ServerConfigManager.getInstance(mManager.getContext()).getServerChatLogDir(mUUID)));
             connection.addDisconnectListener((IRCConnection conn, Exception reason) -> {
                 notifyDisconnected();
             });
