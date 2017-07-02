@@ -25,6 +25,7 @@ import io.mrarm.chatlib.dto.StatusMessageInfo;
 import io.mrarm.chatlib.dto.StatusMessageList;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.chatlib.message.MessageListener;
+import io.mrarm.irc.util.ScrollPosLinearLayoutManager;
 
 
 public class ChatMessagesFragment extends Fragment implements StatusMessageListener,
@@ -40,6 +41,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
 
     private ServerConnectionInfo mConnection;
     private RecyclerView mRecyclerView;
+    private ScrollPosLinearLayoutManager mLayoutManager;
     private ChatMessagesAdapter mAdapter;
     private ServerStatusMessagesAdapter mStatusAdapter;
     private List<MessageInfo> mMessages;
@@ -93,14 +95,14 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
 
         View rootView = inflater.inflate(R.layout.chat_messages_fragment, container, false);
         mRecyclerView = (RecyclerView) rootView;
-        LinearLayoutManager mgr = new LinearLayoutManager(getContext());
-        mgr.setStackFromEnd(true);
-        mRecyclerView.setLayoutManager(mgr);
+        mLayoutManager = new ScrollPosLinearLayoutManager(getContext());
+        mLayoutManager.setStackFromEnd(true);
+        mRecyclerView.setLayoutManager(mLayoutManager);
 
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                if (mgr.findFirstVisibleItemPosition() == 0) {
+                if (mLayoutManager.findFirstVisibleItemPosition() == 0) {
                     if (mIsLoadingMore || mLoadMoreIdentifier == null || !mAdapter.hasMessages())
                         return;
                     mIsLoadingMore = true;
@@ -175,10 +177,10 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     }
 
     private void scrollToBottom() {
-        int i = ((LinearLayoutManager) mRecyclerView.getLayoutManager()).findLastVisibleItemPosition();
+        int i = Math.max(mLayoutManager.findLastVisibleItemPosition(), mLayoutManager.getPendingScrollPosition());
         int count = mAdapter == null ? mStatusAdapter.getItemCount() : mAdapter.getItemCount();
-        if (i >= count - 2 || mRecyclerView.getLayoutManager().isSmoothScrolling())
-            mRecyclerView.smoothScrollToPosition(count - 1);
+        if (i >= count - 2)
+            mRecyclerView.scrollToPosition(count - 1);
     }
 
     @Override

@@ -157,17 +157,24 @@ public class ChatFragment extends Fragment implements ServerConnectionInfo.Chann
     @Override
     public void onChannelListChanged(ServerConnectionInfo connection, List<String> newChannels) {
         getActivity().runOnUiThread(() -> {
-            mSectionsPagerAdapter.notifyDataSetChanged();
+            mSectionsPagerAdapter.updateChannelList();
         });
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         private ServerConnectionInfo connectionInfo;
+        private List<String> channels;
 
         public SectionsPagerAdapter(FragmentManager fm, ServerConnectionInfo connectionInfo) {
             super(fm);
             this.connectionInfo = connectionInfo;
+            channels = connectionInfo.getChannels();
+        }
+
+        public void updateChannelList() {
+            channels = connectionInfo.getChannels();
+            notifyDataSetChanged();
         }
 
         @Override
@@ -180,22 +187,22 @@ public class ChatFragment extends Fragment implements ServerConnectionInfo.Chann
 
         @Override
         public int getCount() {
-            if (connectionInfo.getChannels() == null)
+            if (channels == null)
                 return 1;
-            return connectionInfo.getChannels().size() + 1;
+            return channels.size() + 1;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
             if (position == 0)
                 return getString(R.string.tab_server);
-            return connectionInfo.getChannels().get(position - 1);
+            return channels.get(position - 1);
         }
 
         public String getChannel(int position) {
             if (position == 0)
                 return null;
-            return connectionInfo.getChannels().get(position - 1);
+            return channels.get(position - 1);
         }
 
     }
