@@ -10,8 +10,6 @@ import io.mrarm.chatlib.dto.MessageInfo;
 
 public class NotificationRule {
 
-    private static Pattern mMatchVariablesRegex = Pattern.compile("(?<!\\\\)\\$\\{(.*)\\}");
-
     private String name;
     private int nameId = -1;
     private String regex;
@@ -89,13 +87,13 @@ public class NotificationRule {
     public void updateRegex() {
         if (regex == null)
             return;
-        Matcher matcher = mMatchVariablesRegex.matcher(regex);
+        Matcher matcher = CommandAliasManager.mMatchVariablesRegex.matcher(regex);
         if (!matcher.find())
             mCompiledPattern = Pattern.compile(regex, regexCaseInsensitive ? Pattern.CASE_INSENSITIVE : 0);
     }
 
     public Pattern createSpecificRegex(NotificationManager manager) {
-        Matcher matcher = mMatchVariablesRegex.matcher(regex);
+        Matcher matcher = CommandAliasManager.mMatchVariablesRegex.matcher(regex);
         StringBuffer buf = new StringBuffer();
         while (matcher.find()) {
             String type = matcher.group(1);

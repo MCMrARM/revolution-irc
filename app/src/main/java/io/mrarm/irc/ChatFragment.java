@@ -24,7 +24,9 @@ import java.util.List;
 import java.util.UUID;
 
 import io.mrarm.chatlib.dto.NickWithPrefix;
+import io.mrarm.chatlib.irc.IRCConnection;
 import io.mrarm.irc.util.ImageViewTintUtils;
+import io.mrarm.irc.util.SimpleTextVariableList;
 
 public class ChatFragment extends Fragment implements ServerConnectionInfo.ChannelListChangeListener {
 
@@ -128,9 +130,20 @@ public class ChatFragment extends Fragment implements ServerConnectionInfo.Chann
 
         mSendIcon.setOnClickListener((View view) -> {
             String text = mSendText.getText().toString();
-            mConnectionInfo.getApiInstance().sendMessage(mSectionsPagerAdapter.getChannel(
-                    mViewPager.getCurrentItem()), text, null, null);
+            if (text.length() == 0)
+                return;
             mSendText.setText("");
+            String channel = mSectionsPagerAdapter.getChannel(mViewPager.getCurrentItem());
+            if (text.charAt(0) == '/') {
+                SimpleTextVariableList vars = new SimpleTextVariableList();
+                vars.set(CommandAliasManager.VAR_CHANNEL, channel);
+                vars.set(CommandAliasManager.VAR_MYNICK, mConnectionInfo.getNotificationManager().getUserNick());
+                String command = CommandAliasManager.getInstance().processCommand(text.substring(1), vars);
+                if (command != null)
+                    ((IRCConnection) mConnectionInfo.getApiInstance()).sendCommandRaw(command, null, null);
+                return;
+            }
+            mConnectionInfo.getApiInstance().sendMessage(channel, text, null, null);
         });
 
         return rootView;

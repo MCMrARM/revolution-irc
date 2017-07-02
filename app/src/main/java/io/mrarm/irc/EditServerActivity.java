@@ -157,7 +157,7 @@ public class EditServerActivity extends AppCompatActivity {
         mEditServer.user = mServerUser.getText().length() > 0 ? mServerUser.getText().toString() : null;
         mEditServer.realname = mServerRealname.getText().length() > 0 ? mServerRealname.getText().toString() : null;
         if (mServerPassReset.getVisibility() == View.GONE)
-            mEditServer.pass = mServerPass.getText().toString();
+            mEditServer.pass = mServerPass.getText().length() > 0 ? mServerPass.getText().toString() : null;
         mEditServer.autojoinChannels = Arrays.asList(mServerChannels.getText().toString().split(" "));
         try {
             ServerConfigManager.getInstance(this).saveServer(mEditServer);
