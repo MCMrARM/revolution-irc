@@ -36,6 +36,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     private static final String ARG_DISPLAY_STATUS = "display_status";
     private static final String ARG_CHANNEL_NAME = "channel";
 
+    private static final int LOAD_MORE_BEFORE_INDEX = 10;
+
     private List<NickWithPrefix> mMembers = null;
 
     private ServerConnectionInfo mConnection;
@@ -101,7 +103,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                if (mLayoutManager.findFirstVisibleItemPosition() == 0) {
+                int firstVisible = mLayoutManager.findFirstVisibleItemPosition();
+                if (firstVisible >= 0 && firstVisible < LOAD_MORE_BEFORE_INDEX) {
                     if (mIsLoadingMore || mLoadMoreIdentifier == null || !mAdapter.hasMessages())
                         return;
                     Log.i(TAG, "Load more: " + channelName);
