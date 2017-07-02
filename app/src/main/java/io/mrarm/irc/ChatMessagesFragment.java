@@ -2,7 +2,6 @@ package io.mrarm.irc;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -105,10 +104,11 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                 if (mLayoutManager.findFirstVisibleItemPosition() == 0) {
                     if (mIsLoadingMore || mLoadMoreIdentifier == null || !mAdapter.hasMessages())
                         return;
+                    Log.i(TAG, "Load more: " + channelName);
                     mIsLoadingMore = true;
                     connectionInfo.getApiInstance().getMessageStorageApi().getMessages(channelName,
                             100, mLoadMoreIdentifier, (MessageList messages) -> {
-                                getActivity().runOnUiThread(() -> {
+                                mRecyclerView.post(() -> {
                                     mAdapter.addMessagesToTop(messages.getMessages());
                                     mLoadMoreIdentifier = messages.getAfterIdentifier();
                                     mIsLoadingMore = false;
@@ -136,11 +136,13 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                     (MessageList messages) -> {
                         Log.i(TAG, "Got message list for " + channelName + ": " +
                                 messages.getMessages().size() + " messages");
-                        mLoadMoreIdentifier = messages.getAfterIdentifier();
-                        mAdapter.setMessages(messages.getMessages());
                         mMessages = messages.getMessages();
                         mNeedsUnsubscribeMessages = true;
-                        mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
+                        getActivity().runOnUiThread(() -> {
+                            mAdapter.setMessages(mMessages);
+                            mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
+                            mLoadMoreIdentifier = messages.getAfterIdentifier();
+                        });
 
                         connectionInfo.getApiInstance().getMessageStorageApi().subscribeChannelMessages(channelName, ChatMessagesFragment.this, null, null);
                     }, null);
@@ -153,10 +155,12 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                     (StatusMessageList messages) -> {
                         Log.i(TAG, "Got server status message list: " +
                                 messages.getMessages().size() + " messages");
-                        mStatusAdapter.setMessages(messages);
                         mStatusMessages = messages.getMessages();
                         mNeedsUnsubscribeStatusMessages = true;
-                        mRecyclerView.scrollToPosition(mStatusAdapter.getItemCount() - 1);
+                        getActivity().runOnUiThread(() -> {
+                            mStatusAdapter.setMessages(messages);
+                            mRecyclerView.scrollToPosition(mStatusAdapter.getItemCount() - 1);
+                        });
 
                         connectionInfo.getApiInstance().subscribeStatusMessages(ChatMessagesFragment.this, null, null);
                     }, null);
