@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import io.mrarm.chatlib.irc.IRCConnection;
 import io.mrarm.irc.util.SimpleTextVariableList;
 
 public class CommandAliasManager {
@@ -29,10 +30,10 @@ public class CommandAliasManager {
         sDefaultVariables.set(VAR_CTCP_DELIM, VAR_CTCP_DELIM_VALUE);
 
         sDefaultAliases = new ArrayList<>();
-        sDefaultAliases.add(new CommandAlias("raw", "${args}"));
-        sDefaultAliases.add(new CommandAlias("join", "JOIN :${args}"));
-        sDefaultAliases.add(new CommandAlias("msg", "PRIVMSG ${args[0]} :${args[1:]}"));
-        sDefaultAliases.add(new CommandAlias("me", "PRIVMSG ${channel} :${ctcp_delim}ACTION ${args}${ctcp_delim}"));
+        sDefaultAliases.add(CommandAlias.raw("raw", "${args}"));
+        sDefaultAliases.add(CommandAlias.raw("join", "JOIN :${args}"));
+        sDefaultAliases.add(CommandAlias.message("msg", "${args[0]}", "${args[1:]}"));
+        sDefaultAliases.add(CommandAlias.message("me", "${channel}", "${ctcp_delim}ACTION ${args}${ctcp_delim}"));
     }
 
     public static CommandAliasManager getInstance() {
@@ -41,8 +42,8 @@ public class CommandAliasManager {
         return sInstance;
     }
 
-    public String processAlias(CommandAlias alias, SimpleTextVariableList variables) {
-        Matcher matcher = mMatchVariablesRegex.matcher(alias.text);
+    private String processVariables(String str, SimpleTextVariableList variables) {
+        Matcher matcher = mMatchVariablesRegex.matcher(str);
         StringBuffer buf = new StringBuffer();
         while (matcher.find()) {
             String text = matcher.group(1);
@@ -55,7 +56,7 @@ public class CommandAliasManager {
         return buf.toString();
     }
 
-    public String processCommand(String command, SimpleTextVariableList vars) {
+    public void processCommand(IRCConnection connection, String command, SimpleTextVariableList vars) {
         String[] args = command.split(" ");
         String name = args[0];
         CommandAlias alias = null;
@@ -66,25 +67,48 @@ public class CommandAliasManager {
             }
         }
         if (alias == null)
-            return null;
+            return;
         String[] argsVar = new String[args.length - 1];
         System.arraycopy(args, 1, argsVar, 0, argsVar.length);
         vars.set(VAR_ARGS, Arrays.asList(argsVar), " ");
-        return processAlias(alias, vars);
+        String processedText = processVariables(alias.text, vars);
+        if (alias.mode == CommandAlias.MODE_RAW) {
+            connection.sendCommandRaw(processedText, null, null);
+        } else if (alias.mode == CommandAlias.MODE_MESSAGE) {
+            String processedChannel = processVariables(alias.channel, vars);
+            connection.sendMessage(processedChannel, processedText, null, null);
+        }
     }
 
 
     public static class CommandAlias {
 
+        public static final int MODE_RAW = 0;
+        public static final int MODE_MESSAGE = 1;
+
         public String name;
         public String text;
+        public int mode;
+        public String channel;
 
         public CommandAlias() {
         }
 
-        public CommandAlias(String name, String text) {
-            this.name = name;
-            this.text = text;
+        public static CommandAlias raw(String name, String text) {
+            CommandAlias ret = new CommandAlias();
+            ret.name = name;
+            ret.text = text;
+            ret.mode = MODE_RAW;
+            return ret;
+        }
+
+        public static CommandAlias message(String name, String channel, String message) {
+            CommandAlias ret = new CommandAlias();
+            ret.name = name;
+            ret.text = message;
+            ret.channel = channel;
+            ret.mode = MODE_MESSAGE;
+            return ret;
         }
 
     }
