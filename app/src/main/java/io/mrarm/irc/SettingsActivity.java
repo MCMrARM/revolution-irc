@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -83,7 +84,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 || UserPreferenceFragment.class.getName().equals(fragmentName)
                 || ReconnectPreferenceFragment.class.getName().equals(fragmentName)
                 || AppearancePreferenceFragment.class.getName().equals(fragmentName)
-                || NotificationPreferenceFragment.class.getName().equals(fragmentName);
+                || NotificationPreferenceFragment.class.getName().equals(fragmentName)
+                || CommandPreferenceFragment.class.getName().equals(fragmentName);
     }
 
     private static class MyPreferenceFragment extends PreferenceFragment {
@@ -144,7 +146,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
         @Override
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-            View view = inflater.inflate(R.layout.settings_notifications, container, false);
+            View view = inflater.inflate(R.layout.settings_simple_list_with_fab, container, false);
             RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rules);
             recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
             mAdapter = new NotificationRulesAdapter(getActivity());
@@ -166,6 +168,27 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             }
             mAdapter = null;
             super.onDestroyView();
+        }
+
+    }
+
+    public static class CommandPreferenceFragment extends MyPreferenceFragment {
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+            View view = inflater.inflate(R.layout.settings_simple_list_with_fab, container, false);
+            RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rules);
+            LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+            recyclerView.setLayoutManager(layoutManager);
+            recyclerView.setAdapter(new CommandAliasesAdapter(getActivity()));
+            recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),
+                    layoutManager.getOrientation()));
+            return view;
         }
 
     }

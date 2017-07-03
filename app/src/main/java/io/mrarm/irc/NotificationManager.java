@@ -28,7 +28,7 @@ public class NotificationManager {
 
     private static int mNextChatNotificationId = CHAT_NOTIFICATION_ID_START;
 
-    private static final String RULES_PATH = "notification_rules.json";
+    public static final String RULES_PATH = "notification_rules.json";
 
     public static NotificationRule sNickMentionRule;
     public static NotificationRule sDirectMessageRule;

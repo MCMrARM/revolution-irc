@@ -138,7 +138,7 @@ public class ChatFragment extends Fragment implements ServerConnectionInfo.Chann
                 SimpleTextVariableList vars = new SimpleTextVariableList();
                 vars.set(CommandAliasManager.VAR_CHANNEL, channel);
                 vars.set(CommandAliasManager.VAR_MYNICK, mConnectionInfo.getNotificationManager().getUserNick());
-                CommandAliasManager.getInstance().processCommand((IRCConnection) mConnectionInfo.getApiInstance(), text.substring(1), vars);
+                CommandAliasManager.getInstance(getContext()).processCommand((IRCConnection) mConnectionInfo.getApiInstance(), text.substring(1), vars);
                 return;
             }
             mConnectionInfo.getApiInstance().sendMessage(channel, text, null, null);

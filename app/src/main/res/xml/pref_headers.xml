@@ -20,4 +20,9 @@
         android:icon="@drawable/ic_notifications"
         android:title="@string/pref_header_notifications" />
 
+    <header
+        android:fragment="io.mrarm.irc.SettingsActivity$CommandPreferenceFragment"
+        android:icon="@drawable/ic_keyboard"
+        android:title="@string/pref_header_command_aliases" />
+
 </preference-headers>

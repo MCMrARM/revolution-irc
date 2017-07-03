@@ -1,5 +1,13 @@
 package io.mrarm.irc;
 
+import android.content.Context;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -7,11 +15,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.mrarm.chatlib.irc.IRCConnection;
+import io.mrarm.irc.util.SettingsHelper;
 import io.mrarm.irc.util.SimpleTextVariableList;
 
 public class CommandAliasManager {
 
     static Pattern mMatchVariablesRegex = Pattern.compile("(?<!\\\\)\\$\\{(.*?)\\}");
+
+    public static final String ALIASES_PATH = "command_aliases.json";
 
     public static final String VAR_CTCP_DELIM = "ctcp_delim";
     public static final String VAR_CTCP_DELIM_VALUE = "\001";
@@ -25,6 +36,9 @@ public class CommandAliasManager {
 
     private static CommandAliasManager sInstance;
 
+    private Context mContext;
+    private List<CommandAlias> mUserAliases;
+
     static {
         sDefaultVariables = new SimpleTextVariableList();
         sDefaultVariables.set(VAR_CTCP_DELIM, VAR_CTCP_DELIM_VALUE);
@@ -36,10 +50,58 @@ public class CommandAliasManager {
         sDefaultAliases.add(CommandAlias.message("me", "${channel}", "${ctcp_delim}ACTION ${args}${ctcp_delim}"));
     }
 
-    public static CommandAliasManager getInstance() {
+    public static CommandAliasManager getInstance(Context context) {
         if (sInstance == null)
-            sInstance = new CommandAliasManager();
+            sInstance = new CommandAliasManager(context.getApplicationContext());
         return sInstance;
+    }
+
+    public CommandAliasManager(Context context) {
+        mContext = context;
+        mUserAliases = new ArrayList<>();
+        try {
+            UserAliasesSettings settings = SettingsHelper.getGson().fromJson(new BufferedReader(
+                            new FileReader(new File(context.getFilesDir(), ALIASES_PATH))),
+                    UserAliasesSettings.class);
+            mUserAliases = settings.userAliases;
+        } catch (Exception ignored) {
+        }
+    }
+
+    public boolean saveUserSettings() {
+        try {
+            UserAliasesSettings settings = new UserAliasesSettings();
+            settings.userAliases = mUserAliases;
+            BufferedWriter writer = new BufferedWriter(new FileWriter(
+                    new File(mContext.getFilesDir(), ALIASES_PATH)));
+            SettingsHelper.getGson().toJson(settings, writer);
+            writer.close();
+            return true;
+        } catch (IOException ignored) {
+        }
+        return false;
+    }
+
+    private static class UserAliasesSettings {
+
+        List<CommandAlias> userAliases;
+
+    }
+
+    public List<CommandAlias> getUserAliases() {
+        return mUserAliases;
+    }
+
+    public CommandAlias findCommandAlias(String name) {
+        for (CommandAlias a : mUserAliases) {
+            if (a.name.equalsIgnoreCase(name))
+                return a;
+        }
+        for (CommandAlias a : sDefaultAliases) {
+            if (a.name.equalsIgnoreCase(name))
+                return a;
+        }
+        return null;
     }
 
     private String processVariables(String str, SimpleTextVariableList variables) {
@@ -58,14 +120,7 @@ public class CommandAliasManager {
 
     public void processCommand(IRCConnection connection, String command, SimpleTextVariableList vars) {
         String[] args = command.split(" ");
-        String name = args[0];
-        CommandAlias alias = null;
-        for (CommandAlias a : sDefaultAliases) {
-            if (a.name.equalsIgnoreCase(name)) {
-                alias = a;
-                break;
-            }
-        }
+        CommandAlias alias = findCommandAlias(args[0]);
         if (alias == null)
             return;
         String[] argsVar = new String[args.length - 1];

@@ -10,7 +10,7 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
         android:layout_marginRight="@dimen/activity_horizontal_margin"
-        android:layout_marginTop="@dimen/setting_horizontal_padding"
+        android:layout_marginTop="@dimen/setting_vertical_padding"
         android:text="Name Placeholder" />
 
     <TextView
@@ -29,7 +29,7 @@
         android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="@dimen/setting_horizontal_padding"
+        android:layout_marginTop="@dimen/setting_vertical_padding"
         android:background="?android:attr/dividerHorizontal"
         android:layout_below="@+id/value" />
 

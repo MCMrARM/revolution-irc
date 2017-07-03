@@ -116,7 +116,7 @@ public class ServerConnectionInfo {
     public void disconnect() {
         mUserDisconnectRequest = true;
         if (mApi instanceof IRCConnection)
-            ((IRCConnection) mApi).disconnect(true);
+            ((IRCConnection) mApi).disconnect(null, null);
     }
 
     private void notifyDisconnected() {

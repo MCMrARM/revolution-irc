@@ -151,6 +151,10 @@
         <item>hours</item>
     </string-array>
 
+    <!-- Command aliases settings -->
+
+    <string name="pref_header_command_aliases">Command aliases</string>
+
     <!-- Color names -->
 
     <string-array name="color_picker_color_names">
