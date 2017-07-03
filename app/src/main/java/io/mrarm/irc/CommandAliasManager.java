@@ -46,8 +46,13 @@ public class CommandAliasManager {
         sDefaultAliases = new ArrayList<>();
         sDefaultAliases.add(CommandAlias.raw("raw", "${args}"));
         sDefaultAliases.add(CommandAlias.raw("join", "JOIN :${args}"));
+        sDefaultAliases.add(CommandAlias.raw("part", "PART :${args}"));
+        sDefaultAliases.add(CommandAlias.raw("nick", "NICK ${args[0]}"));
         sDefaultAliases.add(CommandAlias.message("msg", "${args[0]}", "${args[1:]}"));
         sDefaultAliases.add(CommandAlias.message("me", "${channel}", "${ctcp_delim}ACTION ${args}${ctcp_delim}"));
+        sDefaultAliases.add(CommandAlias.raw("kick", "KICK ${args[0]} ${args[1]} :${args[2:]}"));
+        sDefaultAliases.add(CommandAlias.raw("mode", "MODE ${args[0]} ${args[1]} :${args[2:]}"));
+        sDefaultAliases.add(CommandAlias.raw("quit", "QUIT :${args}"));
     }
 
     public static CommandAliasManager getInstance(Context context) {
