@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_marginBottom="@dimen/activity_vertical_margin">
+
+        <io.mrarm.irc.util.LabelLayout
+            android:id="@+id/type_ctr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin_s4"
+            android:layout_marginRight="@dimen/activity_horizontal_margin_s4"
+            android:hint="@string/edit_command_alias_type">
+
+            <io.mrarm.irc.util.AutoResizeSpinner
+                android:id="@+id/type"
+                style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+                android:layout_width="match_parent"
+                android:layout_height="45dp" />
+
+        </io.mrarm.irc.util.LabelLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/name_ctr"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin_s4"
+            android:layout_marginStart="@dimen/activity_horizontal_margin_s4"
+            android:layout_toLeftOf="@id/type_ctr"
+            android:layout_toStartOf="@id/type_ctr">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/entry_name" />
+
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/channel_ctr"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/name_ctr"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin_s4"
+            android:layout_marginRight="@dimen/activity_horizontal_margin_s4"
+            android:layout_marginTop="@dimen/edit_command_alias_spacing">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/channel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="${channel}"
+                android:hint="@string/edit_command_alias_channel" />
+
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/text_ctr"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/channel_ctr"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin_s4"
+            android:layout_marginRight="@dimen/activity_horizontal_margin_s4"
+            android:layout_marginTop="@dimen/edit_command_alias_spacing">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="${args}"
+                android:hint="@string/entry_text" />
+
+        </android.support.design.widget.TextInputLayout>
+
+    </RelativeLayout>
+
+</ScrollView>

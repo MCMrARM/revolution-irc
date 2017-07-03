@@ -34,7 +34,7 @@
             android:id="@+id/match_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/notification_match_text" />
+            android:hint="@string/entry_text" />
 
     </android.support.design.widget.TextInputLayout>
 

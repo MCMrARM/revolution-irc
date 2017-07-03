@@ -31,6 +31,9 @@
             android:name=".EditNotificationSettingsActivity"
             android:label="@string/title_activity_edit_notification_settings" />
         <activity
+            android:name=".EditCommandAliasActivity"
+            android:label="@string/title_activity_edit_command_alias" />
+        <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
             android:theme="@style/AppTheme" />

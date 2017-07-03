@@ -147,8 +147,8 @@ public class CommandAliasManager {
 
     public static class CommandAlias {
 
-        public static final int MODE_RAW = 0;
-        public static final int MODE_MESSAGE = 1;
+        public static final int MODE_MESSAGE = 0;
+        public static final int MODE_RAW = 1;
 
         public String name;
         public String text;

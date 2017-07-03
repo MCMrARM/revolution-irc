@@ -64,6 +64,7 @@
     <string name="value_none">None</string>
     <string name="value_any">Any</string>
     <string name="entry_name">Name</string>
+    <string name="entry_text">Text</string>
 
     <string name="service_title">Connected to IRC</string>
     <string name="service_status">Connected to %1$d networks.</string>
@@ -96,7 +97,6 @@
 
     <string name="notification_header_match">Match</string>
     <string name="notification_match_mode">Mode</string>
-    <string name="notification_match_text">Text</string>
     <string name="notification_match_case">Case sensitive</string>
 
     <string-array name="notification_match_modes">
@@ -155,6 +155,17 @@
     <!-- Command aliases settings -->
 
     <string name="pref_header_command_aliases">Command aliases</string>
+    <string name="title_activity_edit_command_alias">Edit command alias</string>
+
+    <string name="edit_command_alias_error_name_collision">A command alias with this name already exists. Please use a different name.</string>
+
+    <string name="edit_command_alias_type">Type</string>
+    <string name="edit_command_alias_channel">Channel</string>
+
+    <string-array name="edit_command_alias_types">
+        <item>Message</item>
+        <item>Raw</item>
+    </string-array>
 
     <!-- Color names -->
 

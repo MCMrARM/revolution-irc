@@ -68,10 +68,10 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         mRecyclerView = (RecyclerView) findViewById(R.id.list);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(layoutManager);
-        mRecyclerView.addItemDecoration(mAdapter.createItemDecoration());
 
         mAdapter = new SettingsListAdapter(this);
         mAdapter.setRequestCodeCounter(mRequestCodeCounter);
+        mRecyclerView.addItemDecoration(mAdapter.createItemDecoration());
 
         mBasicEntry = new BasicEntry();
         mMatchEntry = new MatchEntry();
