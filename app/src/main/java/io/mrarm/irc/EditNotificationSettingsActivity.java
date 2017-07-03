@@ -5,7 +5,6 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
@@ -24,7 +23,6 @@ import java.util.List;
 import java.util.UUID;
 
 import io.mrarm.irc.util.EntryRecyclerViewAdapter;
-import io.mrarm.irc.util.SettingsItemDecorator;
 import io.mrarm.irc.util.SimpleCounter;
 
 public class EditNotificationSettingsActivity extends AppCompatActivity {
@@ -70,7 +68,7 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         mRecyclerView = (RecyclerView) findViewById(R.id.list);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(layoutManager);
-        mRecyclerView.addItemDecoration(new SettingsItemDecorator(this));
+        mRecyclerView.addItemDecoration(mAdapter.createItemDecoration());
 
         mAdapter = new SettingsListAdapter(this);
         mAdapter.setRequestCodeCounter(mRequestCodeCounter);

@@ -8,6 +8,7 @@ import android.graphics.PorterDuff;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.mrarm.irc.util.AdvancedDividerItemDecoration;
 import io.mrarm.irc.util.EntryRecyclerViewAdapter;
 import io.mrarm.irc.util.SimpleCounter;
 
@@ -27,6 +29,10 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
 
     public SettingsListAdapter(Activity activity) {
         mActivity = activity;
+    }
+
+    public ItemDecoration createItemDecoration() {
+        return new ItemDecoration(mActivity);
     }
 
     public void setRequestCodeCounter(SimpleCounter counter) {
@@ -57,6 +63,19 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
             return getAdapterPosition() != mAdapter.mEntries.size() - 1;
         }
 
+    }
+
+    public static class ItemDecoration extends AdvancedDividerItemDecoration {
+
+        public ItemDecoration(Context context) {
+            super(context);
+        }
+
+        @Override
+        public boolean hasDivider(RecyclerView parent, View view) {
+            return ((SettingsListAdapter.SettingsEntryHolder) parent.getChildViewHolder(view))
+                    .hasDivider();
+        }
     }
 
     public static class HeaderEntry extends Entry {

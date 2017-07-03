@@ -56,6 +56,10 @@ public class CommandAliasManager {
         return sInstance;
     }
 
+    public static List<CommandAlias> getDefaultAliases() {
+        return sDefaultAliases;
+    }
+
     public CommandAliasManager(Context context) {
         mContext = context;
         mUserAliases = new ArrayList<>();

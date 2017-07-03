@@ -185,9 +185,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rules);
             LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
             recyclerView.setLayoutManager(layoutManager);
-            recyclerView.setAdapter(new CommandAliasesAdapter(getActivity()));
-            recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),
-                    layoutManager.getOrientation()));
+            CommandAliasesAdapter adapter = new CommandAliasesAdapter(getActivity());
+            recyclerView.setAdapter(adapter);
+            recyclerView.addItemDecoration(adapter.createItemDecoration(getActivity()));
             return view;
         }
 

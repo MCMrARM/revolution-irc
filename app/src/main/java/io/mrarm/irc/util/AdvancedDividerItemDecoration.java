@@ -25,15 +25,13 @@ import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import io.mrarm.irc.SettingsListAdapter;
-
-public class SettingsItemDecorator extends RecyclerView.ItemDecoration {
+public class AdvancedDividerItemDecoration extends RecyclerView.ItemDecoration {
 
     private Drawable mDivider;
 
     private final Rect mBounds = new Rect();
 
-    public SettingsItemDecorator(Context context) {
+    public AdvancedDividerItemDecoration(Context context) {
         TypedArray ta = context.obtainStyledAttributes(new int[] { android.R.attr.listDivider });
         mDivider = ta.getDrawable(0);
         ta.recycle();
@@ -56,8 +54,7 @@ public class SettingsItemDecorator extends RecyclerView.ItemDecoration {
         final int childCount = parent.getChildCount();
         for (int i = 0; i < childCount; i++) {
             final View child = parent.getChildAt(i);
-            if (!((SettingsListAdapter.SettingsEntryHolder) parent.getChildViewHolder(child))
-                    .hasDivider())
+            if (!hasDivider(parent, child))
                 continue;
             parent.getDecoratedBoundsWithMargins(child, mBounds);
             final int bottom = mBounds.bottom + Math.round(ViewCompat.getTranslationY(child));
@@ -72,9 +69,12 @@ public class SettingsItemDecorator extends RecyclerView.ItemDecoration {
     @Override
     public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
                                RecyclerView.State state) {
-        boolean hasDivider = ((SettingsListAdapter.SettingsEntryHolder)
-                parent.getChildViewHolder(view)).hasDivider();
-        outRect.set(0, 0, 0, hasDivider ? 0 : mDivider.getIntrinsicHeight());
+        outRect.set(0, 0, 0,
+                hasDivider(parent, view) ? 0 : mDivider.getIntrinsicHeight());
+    }
+
+    public boolean hasDivider(RecyclerView parent, View view) {
+        return true;
     }
 
 }
