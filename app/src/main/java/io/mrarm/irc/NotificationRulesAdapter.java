@@ -12,22 +12,33 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import io.mrarm.irc.util.AdvancedDividerItemDecoration;
 
-public class NotificationRulesAdapter extends RecyclerView.Adapter<NotificationRulesAdapter.RuleHolder> {
+public class NotificationRulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final int TYPE_DEFAULT_RULE = 0;
     private static final int TYPE_USER_RULE = 1;
+    private static final int TYPE_HEADER = 2;
+    private static final int TYPE_TIP = 3;
 
     private ItemTouchHelper mItemTouchHelper;
     private List<NotificationRule> mRules;
+    private List<NotificationRule> mDefaultRules;
     private boolean mHasChanges = false;
 
     public NotificationRulesAdapter(Context context) {
         mRules = NotificationManager.getUserRules(context);
+
+        mDefaultRules = new ArrayList<>();
+        mDefaultRules.add(NotificationManager.sNickMentionRule);
+        mDefaultRules.add(NotificationManager.sDirectMessageRule);
+        mDefaultRules.add(NotificationManager.sDirectNoticeRule);
+        mDefaultRules.add(NotificationManager.sChannelNoticeRule);
+        mDefaultRules.add(NotificationManager.sZNCPlaybackRule);
     }
 
     public boolean hasUnsavedChanges() {
@@ -36,6 +47,14 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<NotificationR
 
     public ItemDecoration createItemDecoration(Context context) {
         return new ItemDecoration(context);
+    }
+
+    private int getDefaultRulesStartIndex() {
+        return 0;
+    }
+
+    private int getUserRulesStartIndex() {
+        return mDefaultRules.size() + 1;
     }
 
     public void enableDragDrop(RecyclerView recyclerView) {
@@ -60,8 +79,9 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<NotificationR
             @Override
             public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
                                   RecyclerView.ViewHolder target) {
-                int fromPosition = viewHolder.getAdapterPosition() - NotificationManager.sDefaultTopRules.size();
-                int toPosition = Math.max(Math.min(target.getAdapterPosition() - NotificationManager.sDefaultTopRules.size(), mRules.size() - 1), 0);
+                int userRulesI = getUserRulesStartIndex();
+                int fromPosition = viewHolder.getAdapterPosition() - userRulesI;
+                int toPosition = Math.max(Math.min(target.getAdapterPosition() - userRulesI, mRules.size() - 1), 0);
                 if (fromPosition < toPosition) {
                     for (int i = fromPosition; i < toPosition; i++)
                         Collections.swap(mRules, i, i + 1);
@@ -69,7 +89,7 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<NotificationR
                     for (int i = fromPosition; i > toPosition; i--)
                         Collections.swap(mRules, i, i - 1);
                 }
-                notifyItemMoved(fromPosition + NotificationManager.sDefaultTopRules.size(), toPosition + NotificationManager.sDefaultTopRules.size());
+                notifyItemMoved(fromPosition + userRulesI, toPosition + userRulesI);
                 return true;
             }
 
@@ -84,37 +104,60 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<NotificationR
     }
 
     @Override
-    public RuleHolder onCreateViewHolder(ViewGroup viewGroup, int type) {
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int type) {
         if (type == TYPE_DEFAULT_RULE) {
             View view = LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.settings_notifications_rule_default, viewGroup, false);
             return new RuleHolder(this, view);
+        } else if (type == TYPE_USER_RULE) {
+            View view = LayoutInflater.from(viewGroup.getContext())
+                    .inflate(R.layout.settings_notifications_rule, viewGroup, false);
+            return new UserRuleHolder(this, view);
+        } else if (type == TYPE_HEADER) {
+            View view = LayoutInflater.from(viewGroup.getContext())
+                    .inflate(R.layout.settings_list_header, viewGroup, false);
+            return new HeaderHolder(view);
+        } else if (type == TYPE_TIP) {
+            View view = LayoutInflater.from(viewGroup.getContext())
+                    .inflate(R.layout.settings_list_tip, viewGroup, false);
+            return new TipHolder(view);
         }
-        View view = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.settings_notifications_rule, viewGroup, false);
-        return new UserRuleHolder(this, view);
+        return null;
     }
 
     @Override
-    public void onBindViewHolder(RuleHolder viewHolder, int i) {
-        if (i < NotificationManager.sDefaultTopRules.size())
-            viewHolder.bind(NotificationManager.sDefaultTopRules.get(i));
-        else if (i >= NotificationManager.sDefaultTopRules.size() + mRules.size())
-            viewHolder.bind(NotificationManager.sDefaultBottomRules.get(i - NotificationManager.sDefaultTopRules.size() - mRules.size()));
-        else
-            viewHolder.bind(mRules.get(i - NotificationManager.sDefaultTopRules.size()));
+    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int i) {
+        int defRulesI = getDefaultRulesStartIndex();
+        int userRulesI = getUserRulesStartIndex();
+        if (i >= userRulesI && i - userRulesI < mRules.size())
+            ((RuleHolder) viewHolder).bind(mRules.get(i - userRulesI));
+        else if (i >= defRulesI && i - defRulesI < mDefaultRules.size())
+            ((RuleHolder) viewHolder).bind(mDefaultRules.get(i - defRulesI));
+        else if (i == userRulesI - 1)
+            ((HeaderHolder) viewHolder).bind(R.string.notification_custom_rules);
+        else if (mRules.size() == 0 && i == userRulesI)
+            ((TipHolder) viewHolder).bind(R.string.notification_tip_no_custom_rules);
     }
 
     @Override
     public int getItemCount() {
-        return NotificationManager.sDefaultTopRules.size() + mRules.size() + NotificationManager.sDefaultBottomRules.size();
+        int rulesCount = mRules.size();
+        return mDefaultRules.size() + 1 + (rulesCount == 0 ? 1 : rulesCount);
     }
 
     @Override
-    public int getItemViewType(int position) {
-        if (position < NotificationManager.sDefaultTopRules.size() || position >= NotificationManager.sDefaultTopRules.size() + mRules.size())
+    public int getItemViewType(int i) {
+        int userRulesI = getUserRulesStartIndex();
+        int defRulesI = getDefaultRulesStartIndex();
+        if (i >= userRulesI && i - userRulesI < mRules.size())
+            return TYPE_USER_RULE;
+        if (i >= defRulesI && i - defRulesI < mDefaultRules.size())
             return TYPE_DEFAULT_RULE;
-        return TYPE_USER_RULE;
+        if (i == userRulesI - 1)
+            return TYPE_HEADER;
+        if (mRules.size() == 0 && i == userRulesI)
+            return TYPE_TIP;
+        return -1;
     }
 
     public static class RuleHolder extends RecyclerView.ViewHolder
@@ -125,6 +168,14 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<NotificationR
         protected CheckBox mEnabled;
         protected boolean mNotEditable = false;
         protected NotificationRule mRule;
+
+        private static int findDefaultRuleIndex(NotificationRule rule, List<NotificationRule> findIn) {
+            for (int i = 0; i < findIn.size(); i++) {
+                if (findIn.get(i) == rule)
+                    return i;
+            }
+            return -1;
+        }
 
         public RuleHolder(NotificationRulesAdapter adapter, View itemView) {
             super(itemView);
@@ -137,10 +188,12 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<NotificationR
             itemView.setOnClickListener((View view) -> {
                 if (mNotEditable)
                     return;
-                Intent intent = new Intent(view.getContext(), EditNotificationSettingsActivity.class);
-                int index = getAdapterPosition();
-                if (index >= NotificationManager.sDefaultTopRules.size() + adapter.mRules.size())
-                    index -= adapter.mRules.size();
+                Intent intent = new Intent(view.getContext(),
+                        EditNotificationSettingsActivity.class);
+                int index = findDefaultRuleIndex(mRule, NotificationManager.sDefaultTopRules);
+                if (index == -1)
+                    index = findDefaultRuleIndex(mRule, NotificationManager.sDefaultBottomRules) +
+                            NotificationManager.sDefaultTopRules.size();
                 intent.putExtra(EditNotificationSettingsActivity.ARG_DEFAULT_RULE_INDEX, index);
                 view.getContext().startActivity(intent);
             });
@@ -172,7 +225,7 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<NotificationR
             super(adapter, itemView);
             itemView.setOnClickListener((View view) -> {
                 Intent intent = new Intent(view.getContext(), EditNotificationSettingsActivity.class);
-                intent.putExtra(EditNotificationSettingsActivity.ARG_USER_RULE_INDEX, getAdapterPosition() - NotificationManager.sDefaultTopRules.size());
+                intent.putExtra(EditNotificationSettingsActivity.ARG_USER_RULE_INDEX, getAdapterPosition() - adapter.getUserRulesStartIndex());
                 view.getContext().startActivity(intent);
             });
             itemView.findViewById(R.id.reorder).setOnTouchListener((View v, MotionEvent e) -> {
@@ -189,6 +242,37 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<NotificationR
 
     }
 
+    public static class HeaderHolder extends RecyclerView.ViewHolder {
+
+        protected TextView mText;
+
+        public HeaderHolder(View view) {
+            super(view);
+            mText = (TextView) view.findViewById(R.id.title);
+            mText.setPadding(mText.getPaddingLeft(), mText.getPaddingTop(), mText.getPaddingRight(), mText.getResources().getDimensionPixelSize(R.dimen.notification_rule_list_header_padding));
+        }
+
+        public void bind(int textId) {
+            mText.setText(textId);
+        }
+
+    }
+
+    public static class TipHolder extends RecyclerView.ViewHolder {
+
+        protected TextView mText;
+
+        public TipHolder(View view) {
+            super(view);
+            mText = (TextView) view.findViewById(R.id.text);
+        }
+
+        public void bind(int textId) {
+            mText.setText(textId);
+        }
+
+    }
+
 
     public static class ItemDecoration extends AdvancedDividerItemDecoration {
 
@@ -198,7 +282,8 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<NotificationR
 
         @Override
         public boolean hasDivider(RecyclerView parent, View view) {
-            return true;
+            int viewType = parent.getChildViewHolder(view).getItemViewType();
+            return viewType != TYPE_HEADER && viewType != TYPE_TIP;
         }
     }
 

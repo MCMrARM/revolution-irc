@@ -86,6 +86,9 @@
 
     <string name="pref_header_notifications">Notifications</string>
 
+    <string name="notification_custom_rules">Custom rules</string>
+    <string name="notification_tip_no_custom_rules">There are no custom rules. You can add one with the plus button in the bottom right corner.</string>
+
     <string name="notification_rule_nick">Nick mentions</string>
     <string name="notification_rule_chan_messages">Channel messages</string>
     <string name="notification_rule_direct">Private messages</string>
