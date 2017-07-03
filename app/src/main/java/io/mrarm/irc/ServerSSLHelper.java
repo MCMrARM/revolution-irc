@@ -42,6 +42,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
+import io.mrarm.irc.util.ColoredTextBuilder;
 import io.mrarm.irc.util.SettableFuture;
 
 public class ServerSSLHelper {

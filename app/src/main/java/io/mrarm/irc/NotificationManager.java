@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
+import io.mrarm.irc.util.ColoredTextBuilder;
 import io.mrarm.irc.util.IRCColorUtils;
 import io.mrarm.irc.util.SettingsHelper;
 
