@@ -2,6 +2,10 @@ package io.mrarm.irc;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.TypedArray;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
@@ -29,6 +33,7 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<RecyclerView.
     private List<NotificationRule> mRules;
     private List<NotificationRule> mDefaultRules;
     private boolean mHasChanges = false;
+    private int mDragItemBgColor;
 
     public NotificationRulesAdapter(Context context) {
         mRules = NotificationManager.getUserRules(context);
@@ -39,6 +44,11 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<RecyclerView.
         mDefaultRules.add(NotificationManager.sDirectNoticeRule);
         mDefaultRules.add(NotificationManager.sChannelNoticeRule);
         mDefaultRules.add(NotificationManager.sZNCPlaybackRule);
+
+        TypedArray ta = context.getTheme().obtainStyledAttributes(R.style.AppTheme,
+                new int[] { R.attr.colorBackgroundFloating });
+        mDragItemBgColor = ta.getColor(0, Color.BLACK);
+        ta.recycle();
     }
 
     public boolean hasUnsavedChanges() {
@@ -91,6 +101,19 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<RecyclerView.
                 }
                 notifyItemMoved(fromPosition + userRulesI, toPosition + userRulesI);
                 return true;
+            }
+
+            @Override
+            public void onChildDrawOver(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+                if (Build.VERSION.SDK_INT >= 21)
+                    viewHolder.itemView.setElevation(isCurrentlyActive ? 2.f : 0.f);
+                if (isCurrentlyActive)
+                    viewHolder.itemView.setBackgroundColor(mDragItemBgColor);
+                else
+                    viewHolder.itemView.setBackgroundDrawable(null);
+                if (viewHolder instanceof RuleHolder)
+                    ((RuleHolder) viewHolder).mNoDivider = isCurrentlyActive;
+                super.onChildDrawOver(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
 
             @Override
@@ -168,6 +191,7 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<RecyclerView.
         protected CheckBox mEnabled;
         protected boolean mNotEditable = false;
         protected NotificationRule mRule;
+        public boolean mNoDivider = false;
 
         private static int findDefaultRuleIndex(NotificationRule rule, List<NotificationRule> findIn) {
             for (int i = 0; i < findIn.size(); i++) {
@@ -282,8 +306,10 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<RecyclerView.
 
         @Override
         public boolean hasDivider(RecyclerView parent, View view) {
-            int viewType = parent.getChildViewHolder(view).getItemViewType();
-            return viewType != TYPE_HEADER && viewType != TYPE_TIP;
+            RecyclerView.ViewHolder holder = parent.getChildViewHolder(view);
+            int viewType = holder.getItemViewType();
+            return viewType != TYPE_HEADER && viewType != TYPE_TIP && !(viewType != TYPE_USER_RULE
+                    && ((RuleHolder) holder).mNoDivider);
         }
     }
 
