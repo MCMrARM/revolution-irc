@@ -14,6 +14,8 @@ import android.widget.Toast;
 
 public class EditCommandAliasActivity extends AppCompatActivity {
 
+    public static final String ARG_ALIAS_NAME = "alias_name";
+
     private EditText mName;
     private Spinner mTypeSpinner;
     private EditText mChannel;
@@ -28,6 +30,18 @@ public class EditCommandAliasActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_command_alias);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        String aliasName = getIntent().getStringExtra(ARG_ALIAS_NAME);
+        if (aliasName != null) {
+            for (CommandAliasManager.CommandAlias alias :
+                    CommandAliasManager.getInstance(this).getUserAliases()) {
+                if (alias.name.equalsIgnoreCase(aliasName)) {
+                    mEditingAlias = alias;
+                    mCreatingNew = false;
+                    break;
+                }
+            }
+        }
 
         mName = (EditText) findViewById(R.id.name);
         mTypeSpinner = (Spinner) findViewById(R.id.type);
@@ -52,6 +66,15 @@ public class EditCommandAliasActivity extends AppCompatActivity {
             }
         });
         mTypeSpinner.setSelection(0);
+
+        if (mEditingAlias != null) {
+            mName.setText(mEditingAlias.name);
+            mTypeSpinner.setSelection(mEditingAlias.mode);
+            mChannel.setText(mEditingAlias.channel);
+            mText.setText(mEditingAlias.text);
+        } else {
+            getSupportActionBar().setTitle(R.string.title_activity_add_command_alias);
+        }
     }
 
     public boolean save() {

@@ -188,6 +188,12 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             CommandAliasesAdapter adapter = new CommandAliasesAdapter(getActivity());
             recyclerView.setAdapter(adapter);
             recyclerView.addItemDecoration(adapter.createItemDecoration(getActivity()));
+
+            View addButton = view.findViewById(R.id.add);
+            addButton.setOnClickListener((View v) -> {
+                startActivity(new Intent(getActivity(), EditCommandAliasActivity.class));
+            });
+
             return view;
         }
 

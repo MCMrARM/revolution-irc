@@ -1,6 +1,9 @@
 package io.mrarm.irc;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,12 +16,19 @@ public class CommandAliasesAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_ITEM = 1;
+    private static final int TYPE_USER_ITEM = 2;
 
     private CommandAliasManager mManager;
     private RecyclerView mRecyclerView;
+    private int mDefaultItemTextColor;
 
     public CommandAliasesAdapter(Context context) {
         mManager = CommandAliasManager.getInstance(context);
+
+        TypedArray ta = context.getTheme().obtainStyledAttributes(R.style.AppTheme,
+                new int[] { android.R.attr.textColorSecondary });
+        mDefaultItemTextColor = ta.getColor(0, Color.BLACK);
+        ta.recycle();
     }
 
     public ItemDecoration createItemDecoration(Context context) {
@@ -31,8 +41,10 @@ public class CommandAliasesAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         if (type == TYPE_HEADER)
             return new HeaderHolder(inflater.inflate(R.layout.settings_list_header,
                     viewGroup, false));
-        return new ItemHolder(inflater.inflate(R.layout.settings_command_alias_item,
-                viewGroup, false));
+        View view = inflater.inflate(R.layout.settings_command_alias_item, viewGroup, false);
+        if (type == TYPE_USER_ITEM)
+            return new UserItemHolder(view);
+        return new DefaultItemHolder(view, mDefaultItemTextColor);
     }
 
     @Override
@@ -40,16 +52,18 @@ public class CommandAliasesAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         int userAliases = mManager.getUserAliases().size();
         if (position == 0 || (userAliases > 0 && position == userAliases + 1))
             return TYPE_HEADER;
+        if (userAliases > 0 && position < userAliases + 1)
+            return TYPE_USER_ITEM;
         return TYPE_ITEM;
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder itemHolder, int pos) {
         int type = itemHolder.getItemViewType();
+        int userAliases = mManager.getUserAliases().size();
         if (type == TYPE_HEADER) {
-            ((HeaderHolder) itemHolder).bind(pos == 0 ? R.string.value_default : R.string.value_custom);
+            ((HeaderHolder) itemHolder).bind(pos > 0 || userAliases == 0 ? R.string.value_default : R.string.value_custom);
         } else {
-            int userAliases = mManager.getUserAliases().size();
             userAliases = (userAliases > 0 ? 1 + userAliases : 0);
             ((ItemHolder) itemHolder).bind(pos > userAliases
                     ? CommandAliasManager.getDefaultAliases().get(pos - 1 - userAliases)
@@ -86,6 +100,33 @@ public class CommandAliasesAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
         public void bind(CommandAliasManager.CommandAlias alias) {
             mText.setText(alias.name);
+        }
+
+    }
+
+    public static class DefaultItemHolder extends ItemHolder {
+
+        public DefaultItemHolder(View view, int color) {
+            super(view);
+            mText.setTextColor(color);
+        }
+
+    }
+
+    public static class UserItemHolder extends ItemHolder {
+
+        public UserItemHolder(View view) {
+            super(view);
+            view.setOnClickListener((View v) -> {
+                Intent intent = new Intent(v.getContext(), EditCommandAliasActivity.class);
+                intent.putExtra(EditCommandAliasActivity.ARG_ALIAS_NAME, mText.getText().toString());
+                v.getContext().startActivity(intent);
+            });
+        }
+
+        @Override
+        public void bind(CommandAliasManager.CommandAlias alias) {
+            super.bind(alias);
         }
 
     }

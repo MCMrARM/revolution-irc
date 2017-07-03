@@ -155,7 +155,8 @@
     <!-- Command aliases settings -->
 
     <string name="pref_header_command_aliases">Command aliases</string>
-    <string name="title_activity_edit_command_alias">Edit command alias</string>
+    <string name="title_activity_edit_command_alias">Edit a command alias</string>
+    <string name="title_activity_add_command_alias">Add a command alias</string>
 
     <string name="edit_command_alias_error_name_collision">A command alias with this name already exists. Please use a different name.</string>
 

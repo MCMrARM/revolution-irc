@@ -6,4 +6,6 @@
     android:paddingTop="16dp"
     android:paddingBottom="16dp"
     android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin" />
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:background="?attr/selectableItemBackground"
+    android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
