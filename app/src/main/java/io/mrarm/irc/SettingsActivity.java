@@ -151,6 +151,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
             mAdapter = new NotificationRulesAdapter(getActivity());
             recyclerView.setAdapter(mAdapter);
+            recyclerView.addItemDecoration(mAdapter.createItemDecoration(getActivity()));
             mAdapter.enableDragDrop(recyclerView);
 
             View addButton = view.findViewById(R.id.add);

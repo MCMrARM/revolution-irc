@@ -15,6 +15,8 @@ import android.widget.TextView;
 import java.util.Collections;
 import java.util.List;
 
+import io.mrarm.irc.util.AdvancedDividerItemDecoration;
+
 public class NotificationRulesAdapter extends RecyclerView.Adapter<NotificationRulesAdapter.RuleHolder> {
 
     private static final int TYPE_DEFAULT_RULE = 0;
@@ -30,6 +32,10 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<NotificationR
 
     public boolean hasUnsavedChanges() {
         return mHasChanges;
+    }
+
+    public ItemDecoration createItemDecoration(Context context) {
+        return new ItemDecoration(context);
     }
 
     public void enableDragDrop(RecyclerView recyclerView) {
@@ -125,6 +131,9 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<NotificationR
             mAdapter = adapter;
             mName = (TextView) itemView.findViewById(R.id.name);
             mEnabled = (CheckBox) itemView.findViewById(R.id.enabled);
+            itemView.findViewById(R.id.enabled_area).setOnClickListener((View view) -> {
+                mEnabled.setChecked(!mEnabled.isChecked());
+            });
             itemView.setOnClickListener((View view) -> {
                 if (mNotEditable)
                     return;
@@ -178,6 +187,19 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<NotificationR
             super.bind(rule);
         }
 
+    }
+
+
+    public static class ItemDecoration extends AdvancedDividerItemDecoration {
+
+        public ItemDecoration(Context context) {
+            super(context);
+        }
+
+        @Override
+        public boolean hasDivider(RecyclerView parent, View view) {
+            return true;
+        }
     }
 
 }
