@@ -5,6 +5,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.UUID;
 
 import io.mrarm.irc.util.EntryRecyclerViewAdapter;
+import io.mrarm.irc.util.SettingsItemDecorator;
 import io.mrarm.irc.util.SimpleCounter;
 
 public class EditNotificationSettingsActivity extends AppCompatActivity {
@@ -66,7 +68,9 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.list);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(layoutManager);
+        mRecyclerView.addItemDecoration(new SettingsItemDecorator(this));
 
         mAdapter = new SettingsListAdapter(this);
         mAdapter.setRequestCodeCounter(mRequestCodeCounter);
@@ -274,12 +278,12 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
 
     }
 
-    public static class BasicEntryHolder extends EntryRecyclerViewAdapter.EntryHolder<BasicEntry> {
+    public static class BasicEntryHolder extends SettingsListAdapter.SettingsEntryHolder<BasicEntry> {
 
         EditText mName;
 
-        public BasicEntryHolder(View itemView) {
-            super(itemView);
+        public BasicEntryHolder(View itemView, SettingsListAdapter adapter) {
+            super(itemView, adapter);
             mName = (EditText) itemView.findViewById(R.id.entry_name);
         }
 
@@ -314,14 +318,14 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
 
     }
 
-    public static class MatchEntryHolder extends EntryRecyclerViewAdapter.EntryHolder<MatchEntry> {
+    public static class MatchEntryHolder extends SettingsListAdapter.SettingsEntryHolder<MatchEntry> {
 
         Spinner mMode;
         EditText mText;
         CheckBox mCaseSensitive;
 
-        public MatchEntryHolder(View itemView) {
-            super(itemView);
+        public MatchEntryHolder(View itemView, SettingsListAdapter adapter) {
+            super(itemView, adapter);
 
             mMode = (Spinner) itemView.findViewById(R.id.match_mode);
             ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(
@@ -364,10 +368,10 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
 
     }
 
-    public static class AddRuleEntryHolder extends EntryRecyclerViewAdapter.EntryHolder<AddRuleEntry> {
+    public static class AddRuleEntryHolder extends SettingsListAdapter.SettingsEntryHolder<AddRuleEntry> {
 
         public AddRuleEntryHolder(View itemView, SettingsListAdapter adapter) {
-            super(itemView);
+            super(itemView, adapter);
             itemView.setOnClickListener((View v) -> {
                 adapter.add(getAdapterPosition(), new RuleEntry(NotificationRule.AppliesToEntry.channelMessages()));
             });
@@ -407,7 +411,7 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
 
     }
 
-    public static class RuleEntryHolder extends EntryRecyclerViewAdapter.EntryHolder<RuleEntry> {
+    public static class RuleEntryHolder extends SettingsListAdapter.SettingsEntryHolder<RuleEntry> {
 
         private Spinner mServerSpinner;
         private ChipsEditText mChannels;
@@ -420,7 +424,7 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         private List<UUID> mSpinnerOptionUUIDs;
 
         public RuleEntryHolder(View itemView, SettingsListAdapter adapter) {
-            super(itemView);
+            super(itemView, adapter);
 
             mServerSpinner = (Spinner) itemView.findViewById(R.id.server);
             mChannels = (ChipsEditText) itemView.findViewById(R.id.channels);
@@ -510,13 +514,13 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         }
     }
 
-    public static class CollapsedRuleEntryHolder extends EntryRecyclerViewAdapter.EntryHolder<RuleEntry> {
+    public static class CollapsedRuleEntryHolder extends SettingsListAdapter.SettingsEntryHolder<RuleEntry> {
 
         private RuleEntry mEntry;
         private TextView mDesc;
 
-        public CollapsedRuleEntryHolder(View itemView) {
-            super(itemView);
+        public CollapsedRuleEntryHolder(View itemView, SettingsListAdapter adapter) {
+            super(itemView, adapter);
             mDesc = (TextView) itemView.findViewById(R.id.desc);
             itemView.setOnClickListener((View view) -> {
                 mEntry.setCollapsed(false);

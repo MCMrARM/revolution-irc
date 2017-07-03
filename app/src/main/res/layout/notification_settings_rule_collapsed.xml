@@ -33,11 +33,4 @@
         android:layout_toStartOf="@+id/expand"
         android:layout_alignBottom="@+id/expand"/>
 
-    <View
-        android:id="@+id/divider"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="?android:attr/dividerHorizontal"
-        android:layout_below="@+id/desc" />
-
 </RelativeLayout>

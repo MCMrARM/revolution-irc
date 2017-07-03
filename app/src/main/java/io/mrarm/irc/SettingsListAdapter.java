@@ -44,6 +44,21 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
         void onActivityResult(int requestCode, int resultCode, Intent data);
     }
 
+    public abstract static class SettingsEntryHolder<T extends Entry> extends EntryHolder<T> {
+
+        protected SettingsListAdapter mAdapter;
+
+        public SettingsEntryHolder(View itemView, SettingsListAdapter adapter) {
+            super(itemView);
+            mAdapter = adapter;
+        }
+
+        public boolean hasDivider() {
+            return getAdapterPosition() != mAdapter.mEntries.size() - 1;
+        }
+
+    }
+
     public static class HeaderEntry extends Entry {
 
         private static final int sHolder = registerViewHolder(HeaderEntryHolder.class, R.layout.settings_list_header);
@@ -61,12 +76,12 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
 
     }
 
-    public static class HeaderEntryHolder extends EntryHolder<HeaderEntry> {
+    public static class HeaderEntryHolder extends SettingsEntryHolder<HeaderEntry> {
 
         protected TextView mTitle;
 
-        public HeaderEntryHolder(View itemView) {
-            super(itemView);
+        public HeaderEntryHolder(View itemView, SettingsListAdapter adapter) {
+            super(itemView, adapter);
 
             mTitle = (TextView) itemView.findViewById(R.id.title);
         }
@@ -76,6 +91,10 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
             mTitle.setText(entry.mTitle);
         }
 
+        @Override
+        public boolean hasDivider() {
+            return false;
+        }
     }
 
     public static class SimpleEntry extends Entry {
@@ -123,21 +142,17 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
 
     }
 
-    public static class SimpleEntryHolder extends EntryHolder<SimpleEntry>
+    public static class SimpleEntryHolder extends SettingsEntryHolder<SimpleEntry>
             implements View.OnClickListener {
 
-        protected SettingsListAdapter mAdapter;
         protected TextView mName;
         protected TextView mValue;
-        protected View mDivider;
 
         public SimpleEntryHolder(View itemView, SettingsListAdapter adapter) {
-            super(itemView);
+            super(itemView, adapter);
 
-            mAdapter = adapter;
             mName = (TextView) itemView.findViewById(R.id.name);
             mValue = (TextView) itemView.findViewById(R.id.value);
-            mDivider = itemView.findViewById(R.id.divider);
             itemView.setOnClickListener(this);
         }
 
@@ -148,7 +163,6 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
             mValue.setEnabled(entry.mEnabled);
             mName.setText(entry.mName);
             setValueText(entry.mValue);
-            mDivider.setVisibility(getAdapterPosition() == mAdapter.mEntries.size() - 1 ? View.INVISIBLE : View.VISIBLE);
         }
 
         protected void setValueText(String text) {
