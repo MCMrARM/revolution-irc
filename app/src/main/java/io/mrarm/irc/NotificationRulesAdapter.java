@@ -1,11 +1,14 @@
 package io.mrarm.irc;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.os.Build;
+import android.support.v4.graphics.ColorUtils;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
@@ -33,6 +36,7 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<RecyclerView.
     private List<NotificationRule> mRules;
     private List<NotificationRule> mDefaultRules;
     private boolean mHasChanges = false;
+    private int mNormalBgColor;
     private int mDragItemBgColor;
 
     public NotificationRulesAdapter(Context context) {
@@ -46,8 +50,9 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<RecyclerView.
         mDefaultRules.add(NotificationManager.sZNCPlaybackRule);
 
         TypedArray ta = context.getTheme().obtainStyledAttributes(R.style.AppTheme,
-                new int[] { R.attr.colorBackgroundFloating });
-        mDragItemBgColor = ta.getColor(0, Color.BLACK);
+                new int[] { android.R.attr.colorBackground, R.attr.colorBackgroundFloating });
+        mNormalBgColor = ta.getColor(0, Color.BLACK);
+        mDragItemBgColor = ta.getColor(1, Color.BLACK);
         ta.recycle();
     }
 
@@ -82,6 +87,8 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<RecyclerView.
 
             @Override
             public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                if (!(viewHolder instanceof UserRuleHolder))
+                    return makeMovementFlags(0, 0);
                 return makeMovementFlags(ItemTouchHelper.UP | ItemTouchHelper.DOWN,
                         ItemTouchHelper.START | ItemTouchHelper.END);
             }
@@ -105,14 +112,42 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<RecyclerView.
 
             @Override
             public void onChildDrawOver(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-                if (Build.VERSION.SDK_INT >= 21)
-                    viewHolder.itemView.setElevation(isCurrentlyActive ? 2.f : 0.f);
-                if (isCurrentlyActive)
-                    viewHolder.itemView.setBackgroundColor(mDragItemBgColor);
-                else
-                    viewHolder.itemView.setBackgroundDrawable(null);
-                if (viewHolder instanceof RuleHolder)
-                    ((RuleHolder) viewHolder).mNoDivider = isCurrentlyActive;
+                if (viewHolder instanceof RuleHolder) {
+                    RuleHolder holder = ((RuleHolder) viewHolder);
+                    boolean dragged = (dY != 0.f);
+                    if (holder.mIsDragged == dragged) {
+                        super.onChildDrawOver(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+                        return;
+                    }
+                    holder.mIsDragged = dragged;
+                    if (Build.VERSION.SDK_INT >= 21 && dragged)
+                        viewHolder.itemView.setElevation(2.f);
+
+                    if (holder.mDragAnimator == null) {
+                        holder.mDragAnimator = ValueAnimator.ofFloat(0.f, 1.f);
+                        holder.mDragAnimator.addUpdateListener((ValueAnimator animation) -> {
+                            float f = (Float) animation.getAnimatedValue();
+                            if (Build.VERSION.SDK_INT >= 21 && !holder.mIsDragged)
+                                viewHolder.itemView.setElevation(2.f);
+                            if (f == 0.f) {
+                                viewHolder.itemView.setBackgroundDrawable(null);
+                                if (Build.VERSION.SDK_INT >= 21 && !holder.mIsDragged)
+                                    viewHolder.itemView.setElevation(0.f);
+                            } else if (f == 1.f) {
+                                viewHolder.itemView.setBackgroundColor(mDragItemBgColor);
+                            } else {
+                                int color = ColorUtils.blendARGB(mNormalBgColor, mDragItemBgColor, f);
+                                viewHolder.itemView.setBackgroundColor(color);
+                            }
+                        });
+                        holder.mDragAnimator.setDuration(200L);
+                    }
+                    if (dragged)
+                        holder.mDragAnimator.setFloatValues(0.f, 1.f);
+                    else
+                        holder.mDragAnimator.setFloatValues(1.f, 0.f);
+                    holder.mDragAnimator.start();
+                }
                 super.onChildDrawOver(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
 
@@ -191,7 +226,8 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<RecyclerView.
         protected CheckBox mEnabled;
         protected boolean mNotEditable = false;
         protected NotificationRule mRule;
-        public boolean mNoDivider = false;
+        public boolean mIsDragged = false;
+        public ValueAnimator mDragAnimator;
 
         private static int findDefaultRuleIndex(NotificationRule rule, List<NotificationRule> findIn) {
             for (int i = 0; i < findIn.size(); i++) {
@@ -308,9 +344,10 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<RecyclerView.
         public boolean hasDivider(RecyclerView parent, View view) {
             RecyclerView.ViewHolder holder = parent.getChildViewHolder(view);
             int viewType = holder.getItemViewType();
-            return viewType != TYPE_HEADER && viewType != TYPE_TIP && !(viewType != TYPE_USER_RULE
-                    && ((RuleHolder) holder).mNoDivider);
+            return viewType != TYPE_HEADER && viewType != TYPE_TIP && !(viewType == TYPE_USER_RULE
+                    && ((RuleHolder) holder).mIsDragged);
         }
+
     }
 
 }
