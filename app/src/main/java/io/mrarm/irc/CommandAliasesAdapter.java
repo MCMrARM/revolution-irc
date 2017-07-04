@@ -1,9 +1,11 @@
 package io.mrarm.irc;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,7 +45,7 @@ public class CommandAliasesAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     viewGroup, false));
         View view = inflater.inflate(R.layout.settings_command_alias_item, viewGroup, false);
         if (type == TYPE_USER_ITEM)
-            return new UserItemHolder(view);
+            return new UserItemHolder(view, this);
         return new DefaultItemHolder(view, mDefaultItemTextColor);
     }
 
@@ -115,13 +117,45 @@ public class CommandAliasesAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     public static class UserItemHolder extends ItemHolder {
 
-        public UserItemHolder(View view) {
+        public UserItemHolder(View view, CommandAliasesAdapter adapter) {
             super(view);
             view.setOnClickListener((View v) -> {
-                Intent intent = new Intent(v.getContext(), EditCommandAliasActivity.class);
-                intent.putExtra(EditCommandAliasActivity.ARG_ALIAS_NAME, mText.getText().toString());
-                v.getContext().startActivity(intent);
+                startEditActivity();
             });
+            view.setOnLongClickListener((View v) -> {
+                Context ctx = v.getContext();
+                new AlertDialog.Builder(ctx)
+                        .setTitle(mText.getText())
+                        .setItems(new CharSequence[] {
+                                ctx.getString(R.string.action_edit),
+                                ctx.getString(R.string.action_delete)
+                        }, (DialogInterface di, int which) -> {
+                            if (which == 0) {
+                                startEditActivity();
+                            } else if (which == 1) {
+                                new AlertDialog.Builder(ctx)
+                                        .setTitle(R.string.action_delete_confirm_title)
+                                        .setMessage(ctx.getString(R.string.action_delete_confirm_body, mText.getText()))
+                                        .setPositiveButton(R.string.action_delete, (DialogInterface di2, int which2) -> {
+                                            adapter.mManager.getUserAliases().remove(getAdapterPosition() - 1);
+                                            adapter.mManager.saveUserSettings();
+                                            adapter.notifyItemRemoved(getAdapterPosition());
+                                            if (adapter.mManager.getUserAliases().size() == 0)
+                                                adapter.notifyItemRemoved(0); // header
+                                        })
+                                        .setNegativeButton(R.string.action_cancel, null)
+                                        .show();
+                            }
+                        })
+                        .show();
+                return true;
+            });
+        }
+
+        private void startEditActivity() {
+            Intent intent = new Intent(mText.getContext(), EditCommandAliasActivity.class);
+            intent.putExtra(EditCommandAliasActivity.ARG_ALIAS_NAME, mText.getText().toString());
+            mText.getContext().startActivity(intent);
         }
 
         @Override
