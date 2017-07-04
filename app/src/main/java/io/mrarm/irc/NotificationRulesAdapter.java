@@ -396,10 +396,14 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<RecyclerView.
             int index = position - getUserRulesStartIndex();
             NotificationRule rule = mRules.remove(index);
             notifyItemRemoved(position);
+            if (mRules.size() == 0)
+                notifyItemInserted(getUserRulesStartIndex() + 1); // the tip
             Snackbar.make(viewHolder.itemView, R.string.notification_custom_rule_deleted, Snackbar.LENGTH_SHORT)
                     .setAction(R.string.action_undo, (View v) -> {
                         int newIndex = Math.min(index, mRules.size());
                         mRules.add(newIndex, rule);
+                        if (mRules.size() == 1)
+                            notifyItemRemoved(getUserRulesStartIndex() + 1); // the tip
                         notifyItemInserted(newIndex + getUserRulesStartIndex());
                         mHasChanges = true;
                     })
