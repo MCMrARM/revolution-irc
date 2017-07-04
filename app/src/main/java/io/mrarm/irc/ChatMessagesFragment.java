@@ -1,16 +1,25 @@
 package io.mrarm.irc;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.RecyclerView;
+import android.text.SpannableStringBuilder;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import io.mrarm.chatlib.ChannelInfoListener;
@@ -123,7 +132,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         });
 
         if (channelName != null) {
-            mAdapter = new ChatMessagesAdapter(getContext(), new ArrayList<>());
+            mAdapter = new ChatMessagesAdapter(this, new ArrayList<>());
             mRecyclerView.setAdapter(mAdapter);
             LongPressSelectTouchListener selectTouchListener = new LongPressSelectTouchListener(mRecyclerView);
             mAdapter.setSelectListener(selectTouchListener);
@@ -236,5 +245,68 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             });
         }
     }
+
+    public void showMessagesActionMenu() {
+        if (mMessagesActionModeCallback == null)
+            mMessagesActionModeCallback = new MessagesActionModeCallback();
+        if (!mMessagesActionModeCallback.mShown)
+            ((MainActivity) getActivity()).startSupportActionMode(mMessagesActionModeCallback);
+    }
+
+    public void copySelectedMessages() {
+        Set<Integer> items = mAdapter.getSelectedItems();
+        SpannableStringBuilder builder = new SpannableStringBuilder();
+        boolean first = true;
+        for (Integer msgIndex : items) {
+            if (first)
+                first = false;
+            else
+                builder.append('\n');
+            builder.append(ChatMessagesAdapter.buildMessage(getContext(), mMessages.get(msgIndex)));
+        }
+        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+        clipboard.setPrimaryClip(ClipData.newPlainText("IRC Messages", builder));
+    }
+
+    private MessagesActionModeCallback mMessagesActionModeCallback;
+
+    private class MessagesActionModeCallback implements ActionMode.Callback {
+
+        public boolean mShown = false;
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            MenuInflater inflater = mode.getMenuInflater();
+            inflater.inflate(R.menu.menu_context_messages, menu);
+            ((ChatFragment) getParentFragment()).setTabsHidden(true);
+            mShown = true;
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.action_copy:
+                    copySelectedMessages();
+                    mode.finish();
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            ((ChatFragment) getParentFragment()).setTabsHidden(false);
+            mAdapter.clearSelection(mRecyclerView);
+            mShown = false;
+        }
+
+    };
 
 }

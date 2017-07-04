@@ -194,6 +194,10 @@ public class ChatFragment extends Fragment implements ServerConnectionInfo.Chann
         }
     }
 
+    public void setTabsHidden(boolean hidden) {
+        mTabLayout.setVisibility(hidden ? View.GONE : View.VISIBLE);
+    }
+
     @Override
     public void onDestroyView() {
         mConnectionInfo.removeOnChannelListChangeListener(this);

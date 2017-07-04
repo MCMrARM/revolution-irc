@@ -22,6 +22,7 @@
     <string name="action_add_rule">Add rule</string>
     <string name="action_reorder">Reorder</string>
     <string name="action_undo">Undo</string>
+    <string name="action_copy">Copy</string>
 
     <string name="action_delete_confirm_title">Are you sure?</string>
     <string name="action_delete_confirm_body">Are you sure you want to delete %1$s? This cannot be undone.</string>

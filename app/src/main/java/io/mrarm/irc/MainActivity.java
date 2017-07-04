@@ -2,6 +2,7 @@ package io.mrarm.irc;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
     private DrawerLayout mDrawerLayout;
     private DrawerHelper mDrawerHelper;
+    private Toolbar mToolbar;
 
     private static ServerConnectionInfo mTestConnection;
 
@@ -109,6 +111,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         WarningDisplayContext.setActivity(null);
+    }
+
+    @Override
+    public void setSupportActionBar(@Nullable Toolbar toolbar) {
+        super.setSupportActionBar(toolbar);
+        mToolbar = toolbar;
+    }
+
+    public Toolbar getToolbar() {
+        return mToolbar;
     }
 
     public void addActionBarDrawerToggle(Toolbar toolbar) {
