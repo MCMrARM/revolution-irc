@@ -25,8 +25,10 @@ public class LongPressSelectTouchListener implements RecyclerView.OnItemTouchLis
         mScroller = new ScrollerRunnable();
     }
 
-    public void startSelectMode() {
+    public void startSelectMode(int startPos) {
         mSelectMode = true;
+        mStartElementPos = startPos;
+        mEndElementPos = -1;
     }
 
     public void setListener(Listener listener) {
@@ -36,7 +38,8 @@ public class LongPressSelectTouchListener implements RecyclerView.OnItemTouchLis
     public boolean isElementHightlighted(int pos) {
         return pos == mStartElementPos ||
                 (pos >= mStartElementPos && pos <= mEndElementPos) ||
-                (pos <= mStartElementPos && pos >= mEndElementPos);
+                (pos <= mStartElementPos && pos >= mEndElementPos && mEndElementPos != -1
+                );
     }
 
     private void updateHightlightedElements(RecyclerView recyclerView, int endPos) {
@@ -47,7 +50,8 @@ public class LongPressSelectTouchListener implements RecyclerView.OnItemTouchLis
         }
         for (int i = Math.max(mEndElementPos, mStartElementPos) + 1; i <= endPos; i++)
             mListener.onElementHighlighted(recyclerView, i, true);
-        for (int i = Math.min(mEndElementPos, mStartElementPos) - 1; i >= endPos; i--)
+        for (int i = Math.min(mEndElementPos == -1 ? mStartElementPos : mEndElementPos,
+                mStartElementPos) - 1; i >= endPos; i--)
             mListener.onElementHighlighted(recyclerView, i, true);
 
         if (mEndElementPos != -1) {
@@ -65,9 +69,9 @@ public class LongPressSelectTouchListener implements RecyclerView.OnItemTouchLis
         if (mSelectMode) {
             if (motionEvent.getAction() == MotionEvent.ACTION_UP ||
                     motionEvent.getAction() == MotionEvent.ACTION_CANCEL) {
-                if (mListener != null) {
+                if (mListener != null && mStartElementPos != -1) {
                     int start = mStartElementPos;
-                    int end = mEndElementPos;
+                    int end = mEndElementPos == -1 ? mStartElementPos : mEndElementPos;
                     if (start > end) {
                         start = mEndElementPos;
                         end = mStartElementPos;
