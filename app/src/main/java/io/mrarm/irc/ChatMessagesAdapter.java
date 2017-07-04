@@ -1,7 +1,10 @@
 package io.mrarm.irc;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
@@ -15,19 +18,35 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import java.util.TreeSet;
 
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.dto.NickChangeMessageInfo;
 import io.mrarm.irc.util.ColoredTextBuilder;
 import io.mrarm.irc.util.IRCColorUtils;
+import io.mrarm.irc.util.LongPressSelectTouchListener;
 
-public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
+        implements LongPressSelectTouchListener.Listener {
 
     private static final int TYPE_MESSAGE = 0;
 
     private List<MessageInfo> mMessages;
+    private LongPressSelectTouchListener mSelectListener;
+    private Set<Integer> mSelectedItems = new TreeSet<>();
 
-    public ChatMessagesAdapter(List<MessageInfo> messages) {
+    private Drawable mItemBackground;
+    private Drawable mSelectedItemBackground;
+
+    public ChatMessagesAdapter(Context context, List<MessageInfo> messages) {
+        TypedArray ta = context.obtainStyledAttributes(new int[] { R.attr.selectableItemBackground, R.attr.colorControlHighlight });
+        mItemBackground = ta.getDrawable(0);
+        int color = ta.getColor(1, 0);
+        //color = ColorUtils.setAlphaComponent(color, Color.alpha(color) / 2);
+        mSelectedItemBackground = new ColorDrawable(color);
+        ta.recycle();
+
         setMessages(messages);
     }
 
@@ -45,6 +64,11 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         return mMessages != null && mMessages.size() > 0;
     }
 
+    public void setSelectListener(LongPressSelectTouchListener selectListener) {
+        mSelectListener = selectListener;
+        selectListener.setListener(this);
+    }
+
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         if (viewType == TYPE_MESSAGE) {
@@ -59,7 +83,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         int viewType = holder.getItemViewType();
         if (viewType == TYPE_MESSAGE) {
-            ((MessageHolder) holder).bind(mMessages.get(position));
+            ((MessageHolder) holder).bind(mMessages.get(position), mSelectedItems.contains(position) || mSelectListener.isElementHightlighted(position));
         }
     }
 
@@ -73,16 +97,57 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         return TYPE_MESSAGE;
     }
 
-    public static class MessageHolder extends RecyclerView.ViewHolder {
+    @Override
+    public void onElementSelected(RecyclerView recyclerView, int adapterPos) {
+        mSelectedItems.add(adapterPos);
+        onElementHighlighted(recyclerView, adapterPos, true);
+    }
+
+    @Override
+    public void onElementHighlighted(RecyclerView recyclerView, int adapterPos, boolean highlight) {
+        MessageHolder holder = ((MessageHolder) recyclerView.findViewHolderForAdapterPosition(adapterPos));
+        if (holder != null)
+            holder.setSelected(highlight || mSelectedItems.contains(adapterPos), false);
+    }
+
+    public class MessageHolder extends RecyclerView.ViewHolder {
 
         private TextView mText;
+        private boolean mSelected = false;
 
         public MessageHolder(View v) {
             super(v);
             mText = (TextView) v.findViewById(R.id.chat_message);
+            v.setOnClickListener((View view) -> {
+                setSelected(true, true);
+            });
+            v.setOnLongClickListener((View view) -> {
+                setSelected(true, true);
+                mSelectListener.startSelectMode();
+                return true;
+            });
         }
 
-        public void bind(MessageInfo message) {
+        public boolean isSelected() {
+            return mSelected;
+        }
+
+        public void setSelected(boolean selected, boolean updateAdapter) {
+            if (mSelected == selected)
+                return;
+            mSelected = selected;
+            if (updateAdapter) {
+                if (selected)
+                    mSelectedItems.add(getAdapterPosition());
+                else
+                    mSelectedItems.remove(getAdapterPosition());
+            }
+            mText.setBackgroundDrawable(selected ? mSelectedItemBackground : mItemBackground);
+        }
+
+        public void bind(MessageInfo message, boolean selected) {
+            setSelected(selected, false);
+
             Context context = mText.getContext();
             String senderNick = message.getSender() == null ? null : message.getSender().getNick();
             int nickColor = senderNick == null ? 0 : IRCColorUtils.getNickColor(context, senderNick);

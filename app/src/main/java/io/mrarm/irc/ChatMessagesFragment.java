@@ -24,6 +24,7 @@ import io.mrarm.chatlib.dto.StatusMessageInfo;
 import io.mrarm.chatlib.dto.StatusMessageList;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.chatlib.message.MessageListener;
+import io.mrarm.irc.util.LongPressSelectTouchListener;
 import io.mrarm.irc.util.ScrollPosLinearLayoutManager;
 
 
@@ -122,8 +123,11 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         });
 
         if (channelName != null) {
-            mAdapter = new ChatMessagesAdapter(new ArrayList<>());
+            mAdapter = new ChatMessagesAdapter(getContext(), new ArrayList<>());
             mRecyclerView.setAdapter(mAdapter);
+            LongPressSelectTouchListener selectTouchListener = new LongPressSelectTouchListener(mRecyclerView);
+            mAdapter.setSelectListener(selectTouchListener);
+            mRecyclerView.addOnItemTouchListener(selectTouchListener);
 
             Log.i(TAG, "Request message list for: " + channelName);
             connectionInfo.getApiInstance().getChannelInfo(channelName,
