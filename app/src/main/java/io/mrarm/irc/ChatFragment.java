@@ -2,6 +2,7 @@ package io.mrarm.irc;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -35,11 +36,15 @@ public class ChatFragment extends Fragment implements ServerConnectionInfo.Chann
 
     private ServerConnectionInfo mConnectionInfo;
 
+    private AppBarLayout mAppBar;
+    private Toolbar mToolbar;
+    private TabLayout mTabLayout;
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
     private ChannelMembersAdapter mChannelMembersAdapter;
     private EditText mSendText;
     private ImageView mSendIcon;
+    private int mNormalToolbarInset;
 
     public static ChatFragment newInstance(ServerConnectionInfo server, String channel) {
         ChatFragment fragment = new ChatFragment();
@@ -59,11 +64,15 @@ public class ChatFragment extends Fragment implements ServerConnectionInfo.Chann
         mConnectionInfo = ServerConnectionManager.getInstance(getContext()).getConnection(connectionUUID);
         String requestedChannel = getArguments().getString(ARG_CHANNEL_NAME);
 
-        Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.toolbar);
-        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+        mAppBar = (AppBarLayout) rootView.findViewById(R.id.appbar);
+
+        mToolbar = (Toolbar) rootView.findViewById(R.id.toolbar);
+        mNormalToolbarInset = mToolbar.getContentInsetStartWithNavigation();
+
+        ((AppCompatActivity) getActivity()).setSupportActionBar(mToolbar);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(mConnectionInfo.getName());
 
-        ((MainActivity) getActivity()).addActionBarDrawerToggle(toolbar);
+        ((MainActivity) getActivity()).addActionBarDrawerToggle(mToolbar);
 
         mSectionsPagerAdapter = new SectionsPagerAdapter(getChildFragmentManager(), mConnectionInfo);
 
@@ -89,8 +98,8 @@ public class ChatFragment extends Fragment implements ServerConnectionInfo.Chann
 
         mConnectionInfo.addOnChannelListChangeListener(this);
 
-        TabLayout tabLayout = (TabLayout) rootView.findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(mViewPager);
+        mTabLayout = (TabLayout) rootView.findViewById(R.id.tabs);
+        mTabLayout.setupWithViewPager(mViewPager);
 
         mChannelMembersAdapter = new ChannelMembersAdapter(null);
         RecyclerView membersRecyclerView = (RecyclerView) rootView.findViewById(R.id.members_list);
@@ -144,7 +153,45 @@ public class ChatFragment extends Fragment implements ServerConnectionInfo.Chann
             mConnectionInfo.getApiInstance().sendMessage(channel, text, null, null);
         });
 
+        rootView.addOnLayoutChangeListener((View v, int left, int top, int right, int bottom,
+                                            int oldLeft, int oldTop, int oldRight, int oldBottom) -> {
+            int height = bottom - top;
+            mAppBar.post(() -> {
+                if (!isAdded())
+                    return;
+                if (height < getResources().getDimensionPixelSize(R.dimen.collapse_toolbar_activate_height)) {
+                    mAppBar.setVisibility(View.GONE);
+                } else if (height < getResources().getDimensionPixelSize(R.dimen.compact_toolbar_activate_height)) {
+                    setUseToolbarCompactLayout(true);
+                    mAppBar.setVisibility(View.VISIBLE);
+                } else {
+                    setUseToolbarCompactLayout(false);
+                    mAppBar.setVisibility(View.VISIBLE);
+                }
+            });
+        });
+
         return rootView;
+    }
+
+    public void setUseToolbarCompactLayout(boolean enable) {
+        if (enable == (mTabLayout.getParent() == mToolbar))
+            return;
+        if (enable) {
+            mAppBar.removeView(mTabLayout);
+            mToolbar.addView(mTabLayout);
+            mToolbar.setContentInsetStartWithNavigation(0);
+            ViewGroup.LayoutParams params = mTabLayout.getLayoutParams();
+            params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+            mTabLayout.setLayoutParams(params);
+        } else {
+            mToolbar.removeView(mTabLayout);
+            mAppBar.addView(mTabLayout);
+            mToolbar.setContentInsetStartWithNavigation(mNormalToolbarInset);
+            ViewGroup.LayoutParams params = mTabLayout.getLayoutParams();
+            params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            mTabLayout.setLayoutParams(params);
+        }
     }
 
     @Override

@@ -15,4 +15,7 @@
     <dimen name="chip_edit_text_horizontal_padding">4dp</dimen>
     <dimen name="notification_rule_list_header_padding">8dp</dimen>
     <dimen name="item_swipe_icon_padding">16dp</dimen>
+
+    <dimen name="collapse_toolbar_activate_height">250dp</dimen>
+    <dimen name="compact_toolbar_activate_height">400dp</dimen>
 </resources>
