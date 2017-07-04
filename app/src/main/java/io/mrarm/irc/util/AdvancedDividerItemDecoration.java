@@ -70,7 +70,7 @@ public class AdvancedDividerItemDecoration extends RecyclerView.ItemDecoration {
     public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
                                RecyclerView.State state) {
         outRect.set(0, 0, 0,
-                hasDivider(parent, view) ? 0 : mDivider.getIntrinsicHeight());
+                hasDivider(parent, view) ? mDivider.getIntrinsicHeight() : 0);
     }
 
     public boolean hasDivider(RecyclerView parent, View view) {

@@ -319,6 +319,7 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<RecyclerView.
                     Collections.swap(mRules, i, i - 1);
             }
             notifyItemMoved(fromPosition + userRulesI, toPosition + userRulesI);
+            mHasChanges = true;
             return true;
         }
 
