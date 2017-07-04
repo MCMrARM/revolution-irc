@@ -21,6 +21,7 @@
     <string name="action_add_below">Add below</string>
     <string name="action_add_rule">Add rule</string>
     <string name="action_reorder">Reorder</string>
+    <string name="action_undo">Undo</string>
 
     <string name="action_delete_confirm_title">Are you sure?</string>
     <string name="action_delete_confirm_body">Are you sure you want to delete %1$s? This cannot be undone.</string>
@@ -88,6 +89,7 @@
 
     <string name="notification_custom_rules">Custom rules</string>
     <string name="notification_tip_no_custom_rules">There are no custom rules. You can add one with the plus button in the bottom right corner.</string>
+    <string name="notification_custom_rule_deleted">Notification rule deleted.</string>
 
     <string name="notification_rule_nick">Nick mentions</string>
     <string name="notification_rule_chan_messages">Channel messages</string>

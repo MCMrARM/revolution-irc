@@ -6,9 +6,13 @@ import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.design.widget.Snackbar;
 import android.support.v4.graphics.ColorUtils;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
@@ -73,90 +77,7 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<RecyclerView.
     }
 
     public void enableDragDrop(RecyclerView recyclerView) {
-        ItemTouchHelper.Callback callback = new ItemTouchHelper.Callback() {
-
-            @Override
-            public boolean isLongPressDragEnabled() {
-                return true;
-            }
-
-            @Override
-            public boolean isItemViewSwipeEnabled() {
-                return false;
-            }
-
-            @Override
-            public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-                if (!(viewHolder instanceof UserRuleHolder))
-                    return makeMovementFlags(0, 0);
-                return makeMovementFlags(ItemTouchHelper.UP | ItemTouchHelper.DOWN,
-                        ItemTouchHelper.START | ItemTouchHelper.END);
-            }
-
-            @Override
-            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
-                                  RecyclerView.ViewHolder target) {
-                int userRulesI = getUserRulesStartIndex();
-                int fromPosition = viewHolder.getAdapterPosition() - userRulesI;
-                int toPosition = Math.max(Math.min(target.getAdapterPosition() - userRulesI, mRules.size() - 1), 0);
-                if (fromPosition < toPosition) {
-                    for (int i = fromPosition; i < toPosition; i++)
-                        Collections.swap(mRules, i, i + 1);
-                } else {
-                    for (int i = fromPosition; i > toPosition; i--)
-                        Collections.swap(mRules, i, i - 1);
-                }
-                notifyItemMoved(fromPosition + userRulesI, toPosition + userRulesI);
-                return true;
-            }
-
-            @Override
-            public void onChildDrawOver(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-                if (viewHolder instanceof RuleHolder) {
-                    RuleHolder holder = ((RuleHolder) viewHolder);
-                    boolean dragged = (dY != 0.f);
-                    if (holder.mIsDragged == dragged) {
-                        super.onChildDrawOver(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-                        return;
-                    }
-                    holder.mIsDragged = dragged;
-                    if (Build.VERSION.SDK_INT >= 21 && dragged)
-                        viewHolder.itemView.setElevation(2.f);
-
-                    if (holder.mDragAnimator == null) {
-                        holder.mDragAnimator = ValueAnimator.ofFloat(0.f, 1.f);
-                        holder.mDragAnimator.addUpdateListener((ValueAnimator animation) -> {
-                            float f = (Float) animation.getAnimatedValue();
-                            if (Build.VERSION.SDK_INT >= 21 && !holder.mIsDragged)
-                                viewHolder.itemView.setElevation(2.f);
-                            if (f == 0.f) {
-                                viewHolder.itemView.setBackgroundDrawable(null);
-                                if (Build.VERSION.SDK_INT >= 21 && !holder.mIsDragged)
-                                    viewHolder.itemView.setElevation(0.f);
-                            } else if (f == 1.f) {
-                                viewHolder.itemView.setBackgroundColor(mDragItemBgColor);
-                            } else {
-                                int color = ColorUtils.blendARGB(mNormalBgColor, mDragItemBgColor, f);
-                                viewHolder.itemView.setBackgroundColor(color);
-                            }
-                        });
-                        holder.mDragAnimator.setDuration(200L);
-                    }
-                    if (dragged)
-                        holder.mDragAnimator.setFloatValues(0.f, 1.f);
-                    else
-                        holder.mDragAnimator.setFloatValues(1.f, 0.f);
-                    holder.mDragAnimator.start();
-                }
-                super.onChildDrawOver(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-            }
-
-            @Override
-            public void onSwiped(RecyclerView.ViewHolder viewHolder, int i) {
-                // stub
-            }
-
-        };
+        ItemTouchHelper.Callback callback = new MyItemTouchHelperCallback(recyclerView.getContext());
         mItemTouchHelper = new ItemTouchHelper(callback);
         mItemTouchHelper.attachToRecyclerView(recyclerView);
     }
@@ -346,6 +267,144 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<RecyclerView.
             int viewType = holder.getItemViewType();
             return viewType != TYPE_HEADER && viewType != TYPE_TIP && !(viewType == TYPE_USER_RULE
                     && ((RuleHolder) holder).mIsDragged);
+        }
+
+    }
+
+    public class MyItemTouchHelperCallback extends ItemTouchHelper.Callback {
+
+        private Paint mSwipePaint;
+        private Rect mTempRect = new Rect();
+        private Drawable mDeleteIcon;
+        private int mIconPadding;
+
+        MyItemTouchHelperCallback(Context context) {
+            mSwipePaint = new Paint();
+            mSwipePaint.setColor(context.getResources().getColor(R.color.colorSwipeDeleteBackground));
+            mDeleteIcon = context.getResources().getDrawable(R.drawable.ic_delete);
+            int iconColor = context.getResources().getColor(R.color.colorSwipeIconColor);
+            DrawableCompat.setTint(mDeleteIcon, iconColor);
+            mIconPadding = context.getResources().getDimensionPixelSize(R.dimen.item_swipe_icon_padding);
+        }
+
+        @Override
+        public boolean isLongPressDragEnabled() {
+            return true;
+        }
+
+        @Override
+        public boolean isItemViewSwipeEnabled() {
+            return true;
+        }
+
+        @Override
+        public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+            if (!(viewHolder instanceof UserRuleHolder))
+                return makeMovementFlags(0, 0);
+            return makeMovementFlags(ItemTouchHelper.UP | ItemTouchHelper.DOWN,
+                    ItemTouchHelper.START | ItemTouchHelper.END);
+        }
+
+        @Override
+        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
+                RecyclerView.ViewHolder target) {
+            int userRulesI = getUserRulesStartIndex();
+            int fromPosition = viewHolder.getAdapterPosition() - userRulesI;
+            int toPosition = Math.max(Math.min(target.getAdapterPosition() - userRulesI, mRules.size() - 1), 0);
+            if (fromPosition < toPosition) {
+                for (int i = fromPosition; i < toPosition; i++)
+                    Collections.swap(mRules, i, i + 1);
+            } else {
+                for (int i = fromPosition; i > toPosition; i--)
+                    Collections.swap(mRules, i, i - 1);
+            }
+            notifyItemMoved(fromPosition + userRulesI, toPosition + userRulesI);
+            return true;
+        }
+
+        @Override
+        public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+            if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                View view = viewHolder.itemView;
+                c.save();
+                mSwipePaint.setAlpha((int) (255 * view.getAlpha()));
+                mDeleteIcon.setAlpha((int) (255 * view.getAlpha()));
+                int sw = mDeleteIcon.getIntrinsicWidth();
+                int sh = mDeleteIcon.getIntrinsicHeight();
+                int cx;
+                int cy = (view.getTop() + view.getBottom()) / 2;
+                if (dX > 0.f) {
+                    mTempRect.set(view.getLeft(), view.getTop(), (int) dX, view.getBottom());
+                    cx = view.getLeft() + mIconPadding + sw / 2;
+                } else {
+                    mTempRect.set(view.getRight() + (int) dX, view.getTop(), view.getRight(), view.getBottom());
+                    cx = view.getRight() - mIconPadding - sw / 2;
+                }
+                mDeleteIcon.setBounds(cx - sw / 2, cy - sh / 2, cx + sw / 2, cy + sh / 2);
+                c.drawRect(mTempRect, mSwipePaint);
+                c.clipRect(mTempRect);
+                mDeleteIcon.draw(c);
+                c.restore();
+            }
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+        }
+
+        @Override
+        public void onChildDrawOver(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+            if (viewHolder instanceof RuleHolder) {
+                RuleHolder holder = ((RuleHolder) viewHolder);
+                boolean dragged = (dY != 0.f);
+                if (holder.mIsDragged == dragged) {
+                    super.onChildDrawOver(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+                    return;
+                }
+                holder.mIsDragged = dragged;
+                if (Build.VERSION.SDK_INT >= 21 && dragged)
+                    viewHolder.itemView.setElevation(2.f);
+
+                if (holder.mDragAnimator == null) {
+                    holder.mDragAnimator = ValueAnimator.ofFloat(0.f, 1.f);
+                    holder.mDragAnimator.addUpdateListener((ValueAnimator animation) -> {
+                        float f = (Float) animation.getAnimatedValue();
+                        if (Build.VERSION.SDK_INT >= 21 && !holder.mIsDragged)
+                            viewHolder.itemView.setElevation(2.f);
+                        if (f == 0.f) {
+                            viewHolder.itemView.setBackgroundDrawable(null);
+                            if (Build.VERSION.SDK_INT >= 21 && !holder.mIsDragged)
+                                viewHolder.itemView.setElevation(0.f);
+                        } else if (f == 1.f) {
+                            viewHolder.itemView.setBackgroundColor(mDragItemBgColor);
+                        } else {
+                            int color = ColorUtils.blendARGB(mNormalBgColor, mDragItemBgColor, f);
+                            viewHolder.itemView.setBackgroundColor(color);
+                        }
+                    });
+                    holder.mDragAnimator.setDuration(200L);
+                }
+                if (dragged)
+                    holder.mDragAnimator.setFloatValues(0.f, 1.f);
+                else
+                    holder.mDragAnimator.setFloatValues(1.f, 0.f);
+                holder.mDragAnimator.start();
+            }
+            super.onChildDrawOver(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+        }
+
+        @Override
+        public void onSwiped(RecyclerView.ViewHolder viewHolder, int i) {
+            int position = viewHolder.getAdapterPosition();
+            int index = position - getUserRulesStartIndex();
+            NotificationRule rule = mRules.remove(index);
+            notifyItemRemoved(position);
+            Snackbar.make(viewHolder.itemView, R.string.notification_custom_rule_deleted, Snackbar.LENGTH_SHORT)
+                    .setAction(R.string.action_undo, (View v) -> {
+                        int newIndex = Math.min(index, mRules.size());
+                        mRules.add(newIndex, rule);
+                        notifyItemInserted(newIndex + getUserRulesStartIndex());
+                        mHasChanges = true;
+                    })
+                    .show();
+            mHasChanges = true;
         }
 
     }

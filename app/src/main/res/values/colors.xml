@@ -6,6 +6,9 @@
 
     <color name="chipColor">#BBDEFB</color>
 
+    <color name="colorSwipeDeleteBackground">#D50000</color>
+    <color name="colorSwipeIconColor">#FFFFFF</color>
+
     <color name="colorNotificationMention">#3F51B5</color>
 
     <color name="serverListConnected">#8BC34A</color>
