@@ -10,7 +10,6 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -163,6 +162,12 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         }
 
         @Override
+        public void onResume() {
+            super.onResume();
+            mAdapter.notifyDataSetChanged();
+        }
+
+        @Override
         public void onDestroyView() {
             if (mAdapter != null && mAdapter.hasUnsavedChanges()) {
                 NotificationManager.saveUserRuleSettings(getActivity());
@@ -175,6 +180,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     public static class CommandPreferenceFragment extends MyPreferenceFragment {
 
+        private CommandAliasesAdapter mAdapter;
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -186,9 +193,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rules);
             LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
             recyclerView.setLayoutManager(layoutManager);
-            CommandAliasesAdapter adapter = new CommandAliasesAdapter(getActivity());
-            recyclerView.setAdapter(adapter);
-            recyclerView.addItemDecoration(adapter.createItemDecoration(getActivity()));
+            mAdapter = new CommandAliasesAdapter(getActivity());
+            recyclerView.setAdapter(mAdapter);
+            recyclerView.addItemDecoration(mAdapter.createItemDecoration(getActivity()));
 
             View addButton = view.findViewById(R.id.add);
             addButton.setOnClickListener((View v) -> {
@@ -196,6 +203,12 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             });
 
             return view;
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            mAdapter.notifyDataSetChanged();
         }
 
     }

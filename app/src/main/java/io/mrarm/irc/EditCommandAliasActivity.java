@@ -81,14 +81,15 @@ public class EditCommandAliasActivity extends AppCompatActivity {
         if (mEditingAlias == null)
             mEditingAlias = new CommandAliasManager.CommandAlias();
         mEditingAlias.mode = mTypeSpinner.getSelectedItemPosition();
-        CommandAliasManager.CommandAlias conflict =
-                CommandAliasManager.getInstance(this).findCommandAlias(mEditingAlias.name);
+        String name = mName.getText().toString();
+        CommandAliasManager.CommandAlias conflict = CommandAliasManager.getInstance(this)
+                .findCommandAlias(name);
         if (conflict != null && conflict != mEditingAlias) {
             Toast.makeText(this, R.string.edit_command_alias_error_name_collision,
                     Toast.LENGTH_SHORT).show();
             return false;
         }
-        mEditingAlias.name = mName.getText().toString();
+        mEditingAlias.name = name;
         if (mEditingAlias.mode == CommandAliasManager.CommandAlias.MODE_MESSAGE)
             mEditingAlias.channel = mChannel.getText().toString();
         mEditingAlias.text = mText.getText().toString();
