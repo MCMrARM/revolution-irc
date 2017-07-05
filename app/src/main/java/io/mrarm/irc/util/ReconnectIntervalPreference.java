@@ -66,25 +66,30 @@ public class ReconnectIntervalPreference extends Preference {
         this(context, null);
     }
 
-    @Override
-    protected void onClick() {
-        List<Rule> rules = null;
+    public static List<Rule> parseRules(String value) {
         try {
-            rules = SettingsHelper.getGson().fromJson(getPersistedString(null), sListRuleType);
+            List<Rule> ret = SettingsHelper.getGson().fromJson(value, sListRuleType);
+            if (ret != null)
+                return ret;
         } catch (Exception ignored) {
         }
-        if (rules == null)
-            rules = new ArrayList<>(getDefaultValue());
-        final List<Rule> fRules = rules;
-        RulesAdapter adapter = new RulesAdapter(fRules);
+        return new ArrayList<>(getDefaultValue());
+    }
+
+    @Override
+    protected void onClick() {
+        final List<Rule> rules = parseRules(getPersistedString(null));
+        RulesAdapter adapter = new RulesAdapter(rules);
 
         View dialogView = buildDialogView(adapter);
 
         AlertDialog dialog = new AlertDialog.Builder(getContext())
                 .setPositiveButton(R.string.action_ok, (DialogInterface dialogInterface, int which) -> {
-                    String newValue = SettingsHelper.getGson().toJson(fRules);
-                    if (callChangeListener(newValue))
+                    String newValue = SettingsHelper.getGson().toJson(rules);
+                    if (callChangeListener(newValue)) {
                         persistString(newValue);
+                        notifyChanged();
+                    }
                 })
                 .setView(dialogView)
                 .setTitle(getTitle())
@@ -117,6 +122,22 @@ public class ReconnectIntervalPreference extends Preference {
         public Rule(int reconnectDelay, int repeatCount) {
             this.reconnectDelay = reconnectDelay;
             this.repeatCount = repeatCount;
+        }
+
+        public String getReconnectDelayAsString(Context context) {
+            if (reconnectDelay != -1) {
+                int delay = reconnectDelay / 1000;
+                if ((delay % 60) == 0) {
+                    delay /= 60;
+                    if ((delay % 60) == 0) {
+                        delay /= 60;
+                        return context.getResources().getQuantityString(R.plurals.time_hours, delay, delay);
+                    }
+                    return context.getResources().getQuantityString(R.plurals.time_minutes, delay, delay);
+                }
+                return context.getResources().getQuantityString(R.plurals.time_seconds, delay, delay);
+            }
+            return null;
         }
 
     }

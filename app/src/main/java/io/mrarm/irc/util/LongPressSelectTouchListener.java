@@ -38,8 +38,7 @@ public class LongPressSelectTouchListener implements RecyclerView.OnItemTouchLis
     public boolean isElementHightlighted(int pos) {
         return pos == mStartElementPos ||
                 (pos >= mStartElementPos && pos <= mEndElementPos) ||
-                (pos <= mStartElementPos && pos >= mEndElementPos && mEndElementPos != -1
-                );
+                (pos <= mStartElementPos && pos >= mEndElementPos && mEndElementPos != -1);
     }
 
     private void updateHightlightedElements(RecyclerView recyclerView, int endPos) {

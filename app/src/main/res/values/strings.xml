@@ -68,9 +68,30 @@
     <string name="entry_name">Name</string>
     <string name="entry_text">Text</string>
 
+    <string name="text_comma">", "</string>
+
     <string name="service_title">Connected to IRC</string>
     <string name="service_status">Connected to %1$d networks.</string>
     <string name="notify_multiple_messages">%1$d unread messages</string>
+
+    <!-- Time -->
+
+    <plurals name="time_seconds">
+        <item quantity="one">%d second</item>
+        <item quantity="other">%d seconds</item>
+    </plurals>
+    <plurals name="time_minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+    <plurals name="time_hours">
+        <item quantity="one">%d hour</item>
+        <item quantity="other">%d hours</item>
+    </plurals>
+    <plurals name="time_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
 
     <!-- User settings -->
 
@@ -120,7 +141,6 @@
     <string name="notification_rule_summary_multi_channels">%1$d channels</string>
     <string name="notification_rule_summary_any_nick">any nick</string>
     <string name="notification_rule_summary_multi_nicks">%1$d nicks</string>
-    <string name="notification_rule_summary_delim">", "</string>
 
     <string name="notification_header_options">Options</string>
     <string name="notification_show">Show notification</string>
@@ -149,8 +169,13 @@
     <string name="pref_title_reconnect_connchg">Track connectivity changes</string>
     <string name="pref_description_reconnect_connchg">Automatically attempt reconnection after a connectivity change</string>
     <string name="pref_title_reconnect_pattern">Reconnection interval</string>
-    <string name="reconnect_interval">Interval</string>
-    <string name="reconnect_tries">Tries</string>
+    <string name="reconnect_header_interval">Interval</string>
+    <string name="reconnect_header_tries">Tries</string>
+
+    <plurals name="reconnect_desc_tries">
+        <item quantity="one">" (%d try)"</item>
+        <item quantity="other">" (%d tries)"</item>
+    </plurals>
 
     <string-array name="duration_types">
         <item>seconds</item>

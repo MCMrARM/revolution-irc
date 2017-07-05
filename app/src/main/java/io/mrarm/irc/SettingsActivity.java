@@ -19,6 +19,8 @@ import android.view.ViewGroup;
 
 import java.util.List;
 
+import io.mrarm.irc.util.ReconnectIntervalPreference;
+
 public class SettingsActivity extends AppCompatPreferenceActivity {
 
     private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener =
@@ -30,6 +32,22 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                     int index = listPreference.findIndexOfValue(stringValue);
 
                     preference.setSummary(index >= 0 ? listPreference.getEntries()[index] : null);
+                } else if (preference instanceof ReconnectIntervalPreference) {
+                    List<ReconnectIntervalPreference.Rule> rules = ReconnectIntervalPreference.parseRules(stringValue);
+                    StringBuilder builder = new StringBuilder();
+                    boolean first = true;
+                    Context context = preference.getContext();
+                    String delim = context.getString(R.string.text_comma);
+                    for (ReconnectIntervalPreference.Rule rule : rules) {
+                        if (first)
+                            first = false;
+                        else
+                            builder.append(delim);
+                        builder.append(rule.getReconnectDelayAsString(context));
+                        if (rule.repeatCount != -1)
+                            builder.append(context.getResources().getQuantityString(R.plurals.reconnect_desc_tries, rule.repeatCount, rule.repeatCount));
+                    }
+                    preference.setSummary(builder.toString());
                 } else {
                     preference.setSummary(stringValue);
                 }
@@ -123,6 +141,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_reconnect);
+
+            bindPreferenceSummaryToValue(findPreference("reconnect_interval"));
         }
     }
 

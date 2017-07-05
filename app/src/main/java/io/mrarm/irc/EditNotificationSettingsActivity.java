@@ -535,7 +535,7 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
             if (entry.mEntry.server != null) {
                 ServerConfigData s = ServerConfigManager.getInstance(mDesc.getContext()).findServer(entry.mEntry.server);
                 summaryText.append(s != null ? s.name : "null");
-                summaryText.append(mDesc.getContext().getString(R.string.notification_rule_summary_delim));
+                summaryText.append(mDesc.getContext().getString(R.string.text_comma));
                 if (entry.mEntry.channels != null && entry.mEntry.channels.size() > 0) {
                     if (entry.mEntry.channels.size() > 1) {
                         summaryText.append(mDesc.getContext().getString(R.string.notification_rule_summary_multi_channels, entry.mEntry.channels.size()));
@@ -548,7 +548,7 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
             } else {
                 summaryText.append(mDesc.getContext().getString(R.string.notification_rule_summary_any_server));
             }
-            summaryText.append(mDesc.getContext().getString(R.string.notification_rule_summary_delim));
+            summaryText.append(mDesc.getContext().getString(R.string.text_comma));
             if (entry.mEntry.nicks != null && entry.mEntry.nicks.size() > 0) {
                 if (entry.mEntry.nicks.size() > 1) {
                     summaryText.append(mDesc.getContext().getString(R.string.notification_rule_summary_multi_nicks, entry.mEntry.nicks.size()));
