@@ -98,14 +98,15 @@ public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerVi
                 return;
             }
             ColoredTextBuilder builder = new ColoredTextBuilder();
-            ChatMessagesAdapter.appendTimestamp(builder, message.getDate());
-            builder.append(message.getSender() + ": ", new ForegroundColorSpan(0xFF555555));
+            ChatMessagesAdapter.appendTimestamp(context, builder, message.getDate());
+            int statusColor = IRCColorUtils.getStatusTextColor(context);
+            builder.append(message.getSender() + ": ", new ForegroundColorSpan(statusColor));
             if (message.getType() == StatusMessageInfo.MessageType.HOST_INFO) {
                 HostInfoMessageInfo hostInfo = (HostInfoMessageInfo) message;
                 builder.append("Server name is " + hostInfo.getServerName() + ", running " +
                         hostInfo.getVersion() + ". Supported user modes: " +
                         hostInfo.getUserModes() + ", supported channel modes: " +
-                        hostInfo.getChannelModes(), new ForegroundColorSpan(0xFF555555));
+                        hostInfo.getChannelModes(), new ForegroundColorSpan(statusColor));
             } else {
                 IRCColorUtils.appendFormattedString(context, builder, message.getMessage());
             }
@@ -139,8 +140,8 @@ public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerVi
             this.mPosition = pos;
 
             ColoredTextBuilder builder = new ColoredTextBuilder();
-            ChatMessagesAdapter.appendTimestamp(builder, message.getDate());
-            builder.append(message.getSender() + ": ", new ForegroundColorSpan(0xFF555555));
+            ChatMessagesAdapter.appendTimestamp(mText.getContext(), builder, message.getDate());
+            builder.append(message.getSender() + ": ", new ForegroundColorSpan(IRCColorUtils.getStatusTextColor(mText.getContext())));
             if (message.getType() == StatusMessageInfo.MessageType.MOTD)
                 builder.append("Message of the Day", new ForegroundColorSpan(
                         mText.getContext().getResources().getColor(R.color.motdColor)));

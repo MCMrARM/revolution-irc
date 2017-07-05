@@ -37,6 +37,10 @@ public class IRCColorUtils {
         return context.getResources().getColor(COLOR_IDS[colorId]);
     }
 
+    public static int getStatusTextColor(Context context) {
+        return context.getResources().getColor(R.color.messageStatusText);
+    }
+
     public static int getNickColor(Context context, String nick) {
         int sum = 0;
         for (int i = 0; i < nick.length(); i++)

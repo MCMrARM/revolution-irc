@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="recommended_material_icon_color">#FFFFFFFF</color>
+
+    <color name="colorPrimary">#303F9F</color>
+    <color name="colorPrimaryDark">#283593</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <color name="serverListConnected">#689F38</color>
+    <color name="serverListConnecting">#FFB300</color>
+    <color name="serverListInactive">#0288D1</color>
+
+    <color name="messageTimestamp">#9E9E9E</color>
+    <color name="messageStatusText">#BDBDBD</color>
+
+    <color name="ircGray">#757575</color>
+    <color name="ircLightGray">#E0E0E0</color>
+
+</resources>

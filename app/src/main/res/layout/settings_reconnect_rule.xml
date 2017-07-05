@@ -40,7 +40,7 @@
             app:srcCompat="@drawable/ic_more_vert"
             android:background="?selectableItemBackgroundBorderless"
             android:duplicateParentState="true"
-            android:alpha="0.52" />
+            android:tint="@color/recommended_material_icon_color" />
 
     </FrameLayout>
 

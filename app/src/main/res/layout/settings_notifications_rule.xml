@@ -30,6 +30,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:srcCompat="@drawable/ic_reorder"
+        android:tint="?android:attr/colorForeground"
         android:contentDescription="@string/action_reorder"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"

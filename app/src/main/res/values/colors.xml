@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <color name="recommended_material_icon_color">#54000000</color>
+
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
@@ -32,6 +35,8 @@
     <color name="ircGray">#757575</color>
     <color name="ircLightGray">#9E9E9E</color>
 
+    <color name="messageTimestamp">#424242</color>
+    <color name="messageStatusText">#616161</color>
     <color name="messageDisconnected">#FF1744</color>
 
     <color name="memberOp">#558B2F</color>
@@ -58,4 +63,5 @@
         <item>@color/ircGray</item>
         <item>@color/ircLightGray</item>
     </integer-array>
+
 </resources>

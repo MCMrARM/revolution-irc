@@ -21,6 +21,7 @@ public class SettingsHelper {
     public static String PREF_RECONNECT_CONNCHG = "reconnect_connchg";
     public static String PREF_RECONNECT_INTERVAL = "reconnect_interval";
     public static String PREF_AUTOCONNECT_SERVERS = "connect_servers";
+    public static String PREF_APPEARANCE_DARK_THEME = "dark_theme";
 
     private static SettingsHelper mInstance;
 
@@ -97,6 +98,10 @@ public class SettingsHelper {
         mPreferences.edit()
                 .putStringSet(PREF_AUTOCONNECT_SERVERS, set)
                 .apply();
+    }
+
+    public boolean isNightModeEnabled() {
+        return mPreferences.getBoolean(PREF_APPEARANCE_DARK_THEME, false);
     }
 
 }

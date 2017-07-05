@@ -13,6 +13,7 @@ import android.os.Build;
 import android.support.design.widget.Snackbar;
 import android.support.v4.graphics.ColorUtils;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
@@ -281,7 +282,7 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<RecyclerView.
         MyItemTouchHelperCallback(Context context) {
             mSwipePaint = new Paint();
             mSwipePaint.setColor(context.getResources().getColor(R.color.colorSwipeDeleteBackground));
-            mDeleteIcon = context.getResources().getDrawable(R.drawable.ic_delete);
+            mDeleteIcon = AppCompatResources.getDrawable(context, R.drawable.ic_delete).mutate();
             int iconColor = context.getResources().getColor(R.color.colorSwipeIconColor);
             DrawableCompat.setTint(mDeleteIcon, iconColor);
             mIconPadding = context.getResources().getDimensionPixelSize(R.dimen.item_swipe_icon_padding);

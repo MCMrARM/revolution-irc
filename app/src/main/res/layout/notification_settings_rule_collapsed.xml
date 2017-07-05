@@ -15,6 +15,7 @@
         android:layout_marginEnd="@dimen/activity_horizontal_margin_s12"
         android:padding="12dp"
         android:background="?attr/selectableItemBackgroundBorderless"
+        android:tint="?android:attr/colorForeground"
         app:srcCompat="@drawable/ic_expand"
         android:contentDescription="@string/action_expand" />
 

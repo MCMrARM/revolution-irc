@@ -2,6 +2,7 @@ package io.mrarm.irc;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -10,6 +11,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,6 +23,7 @@ import java.util.UUID;
 
 import io.mrarm.chatlib.test.TestApiImpl;
 import io.mrarm.irc.drawer.DrawerHelper;
+import io.mrarm.irc.util.SettingsHelper;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -62,6 +65,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         IRCService.start(this);
+
+        if (SettingsHelper.getInstance(this).isNightModeEnabled())
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -168,5 +174,9 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    static {
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
     }
 }

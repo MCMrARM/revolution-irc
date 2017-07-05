@@ -174,13 +174,13 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private static SimpleDateFormat messageTimeFormat = new SimpleDateFormat("[HH:mm] ",
             Locale.getDefault());
 
-    public static void appendTimestamp(ColoredTextBuilder builder, Date date) {
-        builder.append(messageTimeFormat.format(date), new ForegroundColorSpan(0xFF424242));
+    public static void appendTimestamp(Context context, ColoredTextBuilder builder, Date date) {
+        builder.append(messageTimeFormat.format(date), new ForegroundColorSpan(context.getResources().getColor(R.color.messageTimestamp)));
     }
 
     public static CharSequence buildDisconnectWarning(Context context, Date date) {
         ColoredTextBuilder builder = new ColoredTextBuilder();
-        appendTimestamp(builder, date);
+        appendTimestamp(context, builder, date);
         builder.append("Disconnected", new ForegroundColorSpan(context.getResources().getColor(R.color.messageDisconnected)));
         return builder.getSpannable();
     }
@@ -191,7 +191,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         switch (message.getType()) {
             case NORMAL: {
                 ColoredTextBuilder builder = new ColoredTextBuilder();
-                appendTimestamp(builder, message.getDate());
+                appendTimestamp(context, builder, message.getDate());
                 builder.append(message.getSender().getNick() + ":", new ForegroundColorSpan(nickColor));
                 builder.append(" ");
                 IRCColorUtils.appendFormattedString(context, builder, message.getMessage());
@@ -199,9 +199,9 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             }
             case ME: {
                 ColoredTextBuilder builder = new ColoredTextBuilder();
-                appendTimestamp(builder, message.getDate());
+                appendTimestamp(context, builder, message.getDate());
                 builder.setSpan(new StyleSpan(Typeface.ITALIC));
-                builder.append("* ", new ForegroundColorSpan(0xFF616161));
+                builder.append("* ", new ForegroundColorSpan(IRCColorUtils.getStatusTextColor(context)));
                 builder.append(message.getSender().getNick(), new ForegroundColorSpan(nickColor));
                 builder.append(" ");
                 IRCColorUtils.appendFormattedString(context, builder, message.getMessage());
@@ -209,10 +209,10 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             }
             case JOIN: {
                 ColoredTextBuilder builder = new ColoredTextBuilder();
-                appendTimestamp(builder, message.getDate());
-                builder.appendWithFlags("* ", Spanned.SPAN_EXCLUSIVE_INCLUSIVE, new ForegroundColorSpan(0xFF616161), new StyleSpan(Typeface.ITALIC));
+                appendTimestamp(context, builder, message.getDate());
+                builder.appendWithFlags("* ", Spanned.SPAN_EXCLUSIVE_INCLUSIVE, new ForegroundColorSpan(IRCColorUtils.getStatusTextColor(context)), new StyleSpan(Typeface.ITALIC));
                 builder.append(message.getSender().getNick(), new ForegroundColorSpan(nickColor));
-                builder.append(" has joined", new ForegroundColorSpan(0xFF616161));
+                builder.append(" has joined", new ForegroundColorSpan(IRCColorUtils.getStatusTextColor(context))); // TODO: Translate this
                 return builder.getSpannable();
             }
             case NICK_CHANGE: {
@@ -220,10 +220,10 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 int newNickColor = IRCColorUtils.getNickColor(context, newNick);
 
                 ColoredTextBuilder builder = new ColoredTextBuilder();
-                appendTimestamp(builder, message.getDate());
-                builder.appendWithFlags("* ", Spanned.SPAN_EXCLUSIVE_INCLUSIVE, new ForegroundColorSpan(0xFF616161), new StyleSpan(Typeface.ITALIC));
+                appendTimestamp(context, builder, message.getDate());
+                builder.appendWithFlags("* ", Spanned.SPAN_EXCLUSIVE_INCLUSIVE, new ForegroundColorSpan(IRCColorUtils.getStatusTextColor(context)), new StyleSpan(Typeface.ITALIC));
                 builder.append(message.getSender().getNick(), new ForegroundColorSpan(nickColor));
-                builder.append(" is now known as ", new ForegroundColorSpan(0xFF616161));
+                builder.append(" is now known as ", new ForegroundColorSpan(IRCColorUtils.getStatusTextColor(context))); // TODO: Translate this
                 builder.append(newNick, new ForegroundColorSpan(newNickColor));
                 return builder.getSpannable();
             }

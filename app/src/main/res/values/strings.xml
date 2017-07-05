@@ -105,6 +105,9 @@
 
     <string name="pref_header_appearance">Appearance</string>
 
+    <string name="pref_title_dark_theme">Dark theme</string>
+    <string name="pref_summary_dark_theme">Apply a dark theme to the interface</string>
+
     <!-- Notification settings -->
 
     <string name="pref_header_notifications">Notifications</string>

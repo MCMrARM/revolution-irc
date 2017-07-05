@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="?attr/colorBackgroundFloating">
+    android:background="?android:attr/colorBackground">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbar"
@@ -55,7 +55,7 @@
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
                 android:layout_alignParentBottom="true"
-                android:background="#fff"
+                android:background="?attr/colorBackgroundFloating"
                 android:elevation="4dp">
 
                 <EditText

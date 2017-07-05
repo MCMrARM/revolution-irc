@@ -19,7 +19,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textColor="@drawable/drawer_item_text_color"
         android:layout_centerVertical="true"
         android:layout_marginLeft="72dp"
         android:layout_marginStart="72dp"

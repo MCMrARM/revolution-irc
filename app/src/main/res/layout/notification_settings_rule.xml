@@ -15,6 +15,7 @@
         android:layout_marginStart="@dimen/activity_horizontal_margin_s12"
         android:drawableLeft="@drawable/ic_delete"
         android:drawableStart="@drawable/ic_delete"
+        android:drawableTint="?android:attr/colorForeground"
         android:drawablePadding="8dp"
         android:paddingRight="12dp"
         android:paddingLeft="12dp"
@@ -32,7 +33,7 @@
         android:padding="12dp"
         android:rotation="180"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:clickable="true"
+        android:tint="?android:attr/colorForeground"
         app:srcCompat="@drawable/ic_expand"
         android:contentDescription="@string/action_expand" />
 

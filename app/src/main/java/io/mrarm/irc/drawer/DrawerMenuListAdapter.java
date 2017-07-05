@@ -42,18 +42,20 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private WeakReference<DrawerMenuItem> mSelectedMenuItem;
     private Drawable mChannelBackground;
     private Drawable mChannelSelectedBackground;
-    private int mSelectedIconColor;
+    private int mDefaultForegroundColor;
+    private int mSelectedForegroundColor;
 
     public DrawerMenuListAdapter(Context context, List<ServerConnectionInfo> servers) {
         mServers = servers;
         notifyServerListChanged();
 
-        TypedArray ta = context.obtainStyledAttributes(new int[] { R.attr.selectableItemBackground, R.attr.colorControlHighlight, R.attr.colorAccent });
+        TypedArray ta = context.obtainStyledAttributes(new int[] { R.attr.selectableItemBackground, R.attr.colorControlHighlight, R.attr.colorAccent, android.R.attr.textColorPrimary });
         mChannelBackground = ta.getDrawable(0);
         int color = ta.getColor(1, 0);
         color = ColorUtils.setAlphaComponent(color, Color.alpha(color) / 2);
         mChannelSelectedBackground = new ColorDrawable(color);
-        mSelectedIconColor = ta.getColor(2, 0);
+        mSelectedForegroundColor = ta.getColor(2, 0);
+        mDefaultForegroundColor = ta.getColor(3, 0);
         ta.recycle();
     }
 
@@ -275,9 +277,11 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     mAdapter.mSelectedItemChannel.equals(mChannel)) {
                 mView.setSelected(true);
                 mView.setBackgroundDrawable(mAdapter.mChannelSelectedBackground);
+                mName.setTextColor(mAdapter.mSelectedForegroundColor);
             } else {
                 mView.setSelected(false);
                 mView.setBackgroundDrawable(mAdapter.mChannelBackground.getConstantState().newDrawable());
+                mName.setTextColor(mAdapter.mDefaultForegroundColor);
             }
         }
 
@@ -309,13 +313,21 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             if (adapter.mSelectedMenuItem != null && adapter.mSelectedMenuItem.get() == item) {
                 mView.setSelected(true);
                 mView.setBackgroundDrawable(adapter.mChannelSelectedBackground);
+                mName.setTextColor(adapter.mSelectedForegroundColor);
 
                 Drawable d = DrawableCompat.wrap(mIcon.getDrawable()).mutate();
-                DrawableCompat.setTint(d, adapter.mSelectedIconColor);
+                DrawableCompat.setTint(d, adapter.mSelectedForegroundColor);
                 mIcon.setImageDrawable(d);
             } else {
                 mView.setSelected(false);
                 mView.setBackgroundDrawable(adapter.mChannelBackground.getConstantState().newDrawable());
+                mName.setTextColor(adapter.mDefaultForegroundColor);
+
+                if (adapter.mDefaultForegroundColor != 0xFF000000) {
+                    Drawable d = DrawableCompat.wrap(mIcon.getDrawable()).mutate();
+                    DrawableCompat.setTint(d, adapter.mDefaultForegroundColor);
+                    mIcon.setImageDrawable(d);
+                }
             }
         }
 
