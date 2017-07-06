@@ -98,13 +98,14 @@ public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerVi
         public MessageHolder(View v) {
             super(v);
             mText = (TextView) v.findViewById(R.id.chat_message);
+        }
+
+        public void bind(StatusMessageInfo message) {
             if (mTypeface != null)
                 mText.setTypeface(mTypeface);
             if (mFontSize != -1)
                 mText.setTextSize(TypedValue.COMPLEX_UNIT_SP, mFontSize);
-        }
 
-        public void bind(StatusMessageInfo message) {
             Context context = mText.getContext();
             if (message.getType() == StatusMessageInfo.MessageType.DISCONNECT_WARNING) {
                 mText.setText(ChatMessagesAdapter.buildDisconnectWarning(context, message.getDate()));
@@ -144,12 +145,6 @@ public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerVi
             mExpandIcon = (ImageView) v.findViewById(R.id.expand_icon);
             //setExpanded(true);
 
-            if (mTypeface != null)
-                mText.setTypeface(mTypeface);
-            if (mFontSize != -1) {
-                mText.setTextSize(TypedValue.COMPLEX_UNIT_SP, mFontSize);
-                mExpandedText.setTextSize(TypedValue.COMPLEX_UNIT_SP, mFontSize);
-            }
             mExpandedText.setTypeface(Typeface.MONOSPACE);
 
             v.setOnClickListener((View view) -> {
@@ -158,6 +153,13 @@ public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerVi
         }
 
         public void bind(int pos, StatusMessageInfo message) {
+            if (mTypeface != null)
+                mText.setTypeface(mTypeface);
+            if (mFontSize != -1) {
+                mText.setTextSize(TypedValue.COMPLEX_UNIT_SP, mFontSize);
+                mExpandedText.setTextSize(TypedValue.COMPLEX_UNIT_SP, mFontSize);
+            }
+
             this.mPosition = pos;
 
             ColoredTextBuilder builder = new ColoredTextBuilder();

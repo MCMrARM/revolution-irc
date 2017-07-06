@@ -153,10 +153,6 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 return true;
             });
             mText.setBackgroundDrawable(mItemBackground);
-            if (mTypeface != null)
-                mText.setTypeface(mTypeface);
-            if (mFontSize != -1)
-                mText.setTextSize(TypedValue.COMPLEX_UNIT_SP, mFontSize);
         }
 
         public boolean isSelected() {
@@ -177,6 +173,11 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         }
 
         public void bind(MessageInfo message, boolean selected) {
+            if (mTypeface != null)
+                mText.setTypeface(mTypeface);
+            if (mFontSize != -1)
+                mText.setTextSize(TypedValue.COMPLEX_UNIT_SP, mFontSize);
+
             setSelected(selected, false);
             mText.setText(buildMessage(mText.getContext(), message));
         }

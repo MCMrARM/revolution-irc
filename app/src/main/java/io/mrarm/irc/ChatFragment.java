@@ -1,5 +1,6 @@
 package io.mrarm.irc;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
@@ -30,7 +31,9 @@ import io.mrarm.irc.util.ImageViewTintUtils;
 import io.mrarm.irc.util.SettingsHelper;
 import io.mrarm.irc.util.SimpleTextVariableList;
 
-public class ChatFragment extends Fragment implements ServerConnectionInfo.ChannelListChangeListener {
+public class ChatFragment extends Fragment implements
+        ServerConnectionInfo.ChannelListChangeListener,
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String ARG_SERVER_UUID = "server_uuid";
     private static final String ARG_CHANNEL_NAME = "channel";
@@ -169,7 +172,16 @@ public class ChatFragment extends Fragment implements ServerConnectionInfo.Chann
             });
         });
 
+        SettingsHelper s = SettingsHelper.getInstance(getContext());
+        s.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_APPBAR_COMPACT_MODE, this);
+
         return rootView;
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (getView() != null)
+            updateToolbarCompactLayoutStatus(getView().getBottom() - getView().getTop());
     }
 
     public void updateToolbarCompactLayoutStatus(int height) {
@@ -207,6 +219,8 @@ public class ChatFragment extends Fragment implements ServerConnectionInfo.Chann
     @Override
     public void onDestroyView() {
         mConnectionInfo.removeOnChannelListChangeListener(this);
+        SettingsHelper s = SettingsHelper.getInstance(getContext());
+        s.removePreferenceChangeListener(SettingsHelper.PREF_CHAT_APPBAR_COMPACT_MODE, this);
         super.onDestroyView();
     }
 

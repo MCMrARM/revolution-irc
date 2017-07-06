@@ -9,12 +9,14 @@ import com.google.gson.Gson;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-public class SettingsHelper {
+public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final String PREF_DEFAULT_NICK = "default_nick";
     public static final String PREF_DEFAULT_USER = "default_user";
@@ -49,17 +51,39 @@ public class SettingsHelper {
     private Context mContext;
     private SharedPreferences mPreferences;
     private List<ReconnectIntervalPreference.Rule> mCachedIntervalRules;
+    private Map<String, List<SharedPreferences.OnSharedPreferenceChangeListener>> mListeners = new HashMap<>();
     private Typeface mCachedFont;
 
     public SettingsHelper(Context context) {
         mContext = context;
         mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        mPreferences.registerOnSharedPreferenceChangeListener((SharedPreferences sharedPreferences, String key) -> {
-            if (key.equals(PREF_RECONNECT_INTERVAL))
-                mCachedIntervalRules = null;
-            if (key.equals(PREF_CHAT_FONT))
-                mCachedFont = null;
-        });
+        mPreferences.registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(PREF_RECONNECT_INTERVAL))
+            mCachedIntervalRules = null;
+        if (key.equals(PREF_CHAT_FONT))
+            mCachedFont = null;
+        if (mListeners.containsKey(key)) {
+            for (SharedPreferences.OnSharedPreferenceChangeListener l : mListeners.get(key))
+                l.onSharedPreferenceChanged(sharedPreferences, key);
+        }
+    }
+
+    public SharedPreferences.OnSharedPreferenceChangeListener addPreferenceChangeListener(
+            String key, SharedPreferences.OnSharedPreferenceChangeListener listener) {
+        if (!mListeners.containsKey(key))
+            mListeners.put(key, new ArrayList<>());
+        mListeners.get(key).add(listener);
+        return listener;
+    }
+
+    public void removePreferenceChangeListener(
+            String key, SharedPreferences.OnSharedPreferenceChangeListener listener) {
+        if (listener != null && mListeners.containsKey(key))
+            mListeners.get(key).remove(listener);
     }
 
     public String getDefaultNick() {

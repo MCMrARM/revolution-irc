@@ -3,6 +3,7 @@ package io.mrarm.irc;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.view.ActionMode;
@@ -39,7 +40,7 @@ import io.mrarm.irc.util.SettingsHelper;
 
 
 public class ChatMessagesFragment extends Fragment implements StatusMessageListener,
-        MessageListener, ChannelInfoListener {
+        MessageListener, ChannelInfoListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String TAG = "ChatMessagesFragment";
 
@@ -186,12 +187,33 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                     }, null);
         }
 
+        SettingsHelper s = SettingsHelper.getInstance(getContext());
+        s.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT, this);
+        s.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT_SIZE, this);
+
         return rootView;
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        SettingsHelper settingsHelper = SettingsHelper.getInstance(getContext());
+        if (mAdapter != null) {
+            mAdapter.setMessageFont(settingsHelper.getChatFont(), settingsHelper.getChatFontSize());
+            mAdapter.notifyDataSetChanged();
+        }
+        if (mStatusAdapter != null) {
+            mStatusAdapter.setMessageFont(settingsHelper.getChatFont(), settingsHelper.getChatFontSize());
+            mStatusAdapter.notifyDataSetChanged();
+        }
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        SettingsHelper s = SettingsHelper.getInstance(getContext());
+        s.removePreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT, this);
+        s.removePreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT_SIZE, this);
+
         if (mNeedsUnsubscribeChannelInfo)
             mConnection.getApiInstance().unsubscribeChannelInfo(getArguments().getString(ARG_CHANNEL_NAME), ChatMessagesFragment.this, null, null);
         if (mNeedsUnsubscribeMessages)
