@@ -25,6 +25,7 @@ public class SettingsHelper {
     public static String PREF_AUTOCONNECT_SERVERS = "connect_servers";
     public static String PREF_DARK_THEME = "dark_theme";
     public static String PREF_CHAT_FONT = "chat_font";
+    public static String PREF_CHAT_FONT_SIZE = "chat_font_size";
 
     private static SettingsHelper mInstance;
 
@@ -130,6 +131,10 @@ public class SettingsHelper {
             return Typeface.SERIF;
         else
             return Typeface.DEFAULT;
+    }
+
+    public int getChatFontSize() {
+        return mPreferences.getInt(PREF_CHAT_FONT_SIZE, -1);
     }
 
 }

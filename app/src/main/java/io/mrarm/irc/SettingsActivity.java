@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.mrarm.irc.util.FontSizePickerPreference;
 import io.mrarm.irc.util.ListWithCustomPreference;
 import io.mrarm.irc.util.ReconnectIntervalPreference;
 import io.mrarm.irc.util.SimpleCounter;
@@ -43,6 +44,12 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                     ListPreference listPreference = (ListPreference) preference;
                     int index = listPreference.findIndexOfValue(stringValue);
                     preference.setSummary(index >= 0 ? listPreference.getEntries()[index] : null);
+                } else if (preference instanceof FontSizePickerPreference) {
+                    Integer intValue = value instanceof Integer ? (Integer) value : Integer.getInteger(stringValue);
+                    if (intValue == null || intValue == -1)
+                        preference.setSummary(R.string.value_default);
+                    else
+                        preference.setSummary(intValue + "dp");
                 } else if (preference instanceof ReconnectIntervalPreference) {
                     List<ReconnectIntervalPreference.Rule> rules = ReconnectIntervalPreference.parseRules(stringValue);
                     StringBuilder builder = new StringBuilder();
@@ -77,6 +84,15 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 PreferenceManager
                         .getDefaultSharedPreferences(preference.getContext())
                         .getString(preference.getKey(), ""));
+    }
+
+    private static void bindIntPreferenceSummaryToValue(Preference preference) {
+        preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
+
+        sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
+                PreferenceManager
+                        .getDefaultSharedPreferences(preference.getContext())
+                        .getInt(preference.getKey(), -1));
     }
 
     @Override
@@ -187,6 +203,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 return true;
             });
             bindPreferenceSummaryToValue(findPreference("chat_font"));
+            bindIntPreferenceSummaryToValue(findPreference("chat_font_size"));
         }
     }
 

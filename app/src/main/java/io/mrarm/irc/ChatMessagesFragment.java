@@ -132,9 +132,10 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             }
         });
 
+        SettingsHelper settingsHelper = SettingsHelper.getInstance(getContext());
         if (channelName != null) {
             mAdapter = new ChatMessagesAdapter(this, new ArrayList<>());
-            mAdapter.setMessageTypeface(SettingsHelper.getInstance(getContext()).getChatFont());
+            mAdapter.setMessageFont(settingsHelper.getChatFont(), settingsHelper.getChatFontSize());
             mRecyclerView.setAdapter(mAdapter);
             LongPressSelectTouchListener selectTouchListener = new LongPressSelectTouchListener(mRecyclerView);
             mAdapter.setSelectListener(selectTouchListener);
@@ -166,7 +167,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                     }, null);
         } else if (getArguments().getBoolean(ARG_DISPLAY_STATUS)) {
             mStatusAdapter = new ServerStatusMessagesAdapter(new StatusMessageList(new ArrayList<>()));
-            mStatusAdapter.setMessageTypeface(SettingsHelper.getInstance(getContext()).getChatFont());
+            mStatusAdapter.setMessageFont(settingsHelper.getChatFont(), settingsHelper.getChatFontSize());
             mRecyclerView.setAdapter(mStatusAdapter);
 
             Log.i(TAG, "Request status message list");

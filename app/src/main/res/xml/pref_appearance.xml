@@ -15,4 +15,8 @@
         android:defaultValue="default"
         app:customValueType="font" />
 
+    <io.mrarm.irc.util.FontSizePickerPreference
+        android:key="chat_font_size"
+        android:title="@string/pref_title_font_size" />
+
 </PreferenceScreen>

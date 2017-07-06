@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.text.style.ForegroundColorSpan;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,13 +28,15 @@ public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerVi
     private StatusMessageList mMessages;
     private Set<StatusMessageInfo> mExpandedMessages;
     private Typeface mTypeface;
+    private int mFontSize;
 
     public ServerStatusMessagesAdapter(StatusMessageList messages) {
         setMessages(messages);
     }
 
-    public void setMessageTypeface(Typeface typeface) {
-        this.mTypeface = typeface;
+    public void setMessageFont(Typeface typeface, int textSize) {
+        mTypeface = typeface;
+        mFontSize = textSize;
     }
 
     public void setMessages(StatusMessageList messages) {
@@ -97,6 +100,8 @@ public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerVi
             mText = (TextView) v.findViewById(R.id.chat_message);
             if (mTypeface != null)
                 mText.setTypeface(mTypeface);
+            if (mFontSize != -1)
+                mText.setTextSize(TypedValue.COMPLEX_UNIT_SP, mFontSize);
         }
 
         public void bind(StatusMessageInfo message) {
@@ -141,6 +146,10 @@ public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerVi
 
             if (mTypeface != null)
                 mText.setTypeface(mTypeface);
+            if (mFontSize != -1) {
+                mText.setTextSize(TypedValue.COMPLEX_UNIT_SP, mFontSize);
+                mExpandedText.setTextSize(TypedValue.COMPLEX_UNIT_SP, mFontSize);
+            }
             mExpandedText.setTypeface(Typeface.MONOSPACE);
 
             v.setOnClickListener((View view) -> {

@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +41,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private Drawable mItemBackground;
     private Drawable mSelectedItemBackground;
     private Typeface mTypeface;
+    private int mFontSize;
 
     public ChatMessagesAdapter(ChatMessagesFragment fragment, List<MessageInfo> messages) {
         mFragment = fragment;
@@ -53,8 +55,9 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         setMessages(messages);
     }
 
-    public void setMessageTypeface(Typeface typeface) {
-        this.mTypeface = typeface;
+    public void setMessageFont(Typeface typeface, int fontSize) {
+        mTypeface = typeface;
+        mFontSize = fontSize;
     }
 
     public void setMessages(List<MessageInfo> messages) {
@@ -152,6 +155,8 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             mText.setBackgroundDrawable(mItemBackground);
             if (mTypeface != null)
                 mText.setTypeface(mTypeface);
+            if (mFontSize != -1)
+                mText.setTextSize(TypedValue.COMPLEX_UNIT_SP, mFontSize);
         }
 
         public boolean isSelected() {

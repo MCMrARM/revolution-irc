@@ -111,6 +111,9 @@
     <string name="pref_title_dark_theme">Dark theme</string>
     <string name="pref_summary_dark_theme">Apply a dark theme to the interface</string>
     <string name="pref_title_font">Font</string>
+    <string name="pref_title_font_size">Font size</string>
+
+    <string name="font_size_sample_text">This is a sample text to reflect how the font size will look in the chat. You can change it using the slider below.</string>
 
     <string-array name="pref_entries_font">
         <item>Default (Sans)</item>

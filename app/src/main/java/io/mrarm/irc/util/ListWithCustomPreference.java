@@ -150,7 +150,7 @@ public class ListWithCustomPreference extends ListPreference
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (mRequestCode == requestCode) {
+        if (mRequestCode == requestCode && data != null && data.getData() != null) {
             String prevValue = getValue();
             try {
                 Uri uri = data.getData();
