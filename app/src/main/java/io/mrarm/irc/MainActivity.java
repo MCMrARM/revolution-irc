@@ -23,6 +23,7 @@ import java.util.UUID;
 
 import io.mrarm.chatlib.test.TestApiImpl;
 import io.mrarm.irc.drawer.DrawerHelper;
+import io.mrarm.irc.util.NightModeRecreateHelper;
 import io.mrarm.irc.util.SettingsHelper;
 
 public class MainActivity extends AppCompatActivity {
@@ -30,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String ARG_SERVER_UUID = "server_uuid";
     private static final String ARG_CHANNEL_NAME = "channel";
 
+    private NightModeRecreateHelper mNightModeHelper = new NightModeRecreateHelper(this);
     private DrawerLayout mDrawerLayout;
     private DrawerHelper mDrawerHelper;
     private Toolbar mToolbar;
@@ -99,6 +101,12 @@ public class MainActivity extends AppCompatActivity {
         } else {
             openManageServers();
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mNightModeHelper.onStart();
     }
 
     @Override

@@ -2,6 +2,7 @@ package io.mrarm.irc;
 
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.support.annotation.LayoutRes;
@@ -25,11 +26,19 @@ import io.mrarm.irc.util.ListAdapterWrapper;
 public abstract class AppCompatPreferenceActivity extends PreferenceActivity {
 
     private AppCompatDelegate mDelegate;
+    private int mThemeId = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         getDelegate().installViewFactory();
         getDelegate().onCreate(savedInstanceState);
+        if (getDelegate().applyDayNight() && mThemeId != 0) {
+            if (Build.VERSION.SDK_INT >= 23) {
+                onApplyThemeResource(getTheme(), mThemeId, false);
+            } else {
+                setTheme(mThemeId);
+            }
+        }
         super.onCreate(savedInstanceState);
 
         if (getListAdapter() != null) {
@@ -38,6 +47,12 @@ public abstract class AppCompatPreferenceActivity extends PreferenceActivity {
             ta.recycle();
             setListAdapter(new TintHeaderAdapterWrapper(getListAdapter(), fgColor));
         }
+    }
+
+    @Override
+    public void setTheme(int resid) {
+        super.setTheme(resid);
+        mThemeId = resid;
     }
 
     @Override
@@ -98,6 +113,12 @@ public abstract class AppCompatPreferenceActivity extends PreferenceActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        getDelegate().onStart();
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
         getDelegate().onStop();
@@ -113,7 +134,7 @@ public abstract class AppCompatPreferenceActivity extends PreferenceActivity {
         getDelegate().invalidateOptionsMenu();
     }
 
-    private AppCompatDelegate getDelegate() {
+    public AppCompatDelegate getDelegate() {
         if (mDelegate == null) {
             mDelegate = AppCompatDelegate.create(this, null);
         }

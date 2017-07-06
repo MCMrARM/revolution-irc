@@ -23,11 +23,13 @@ import java.util.List;
 
 import io.mrarm.irc.util.FontSizePickerPreference;
 import io.mrarm.irc.util.ListWithCustomPreference;
+import io.mrarm.irc.util.NightModeRecreateHelper;
 import io.mrarm.irc.util.ReconnectIntervalPreference;
 import io.mrarm.irc.util.SimpleCounter;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
 
+    private NightModeRecreateHelper mNightModeHelper = new NightModeRecreateHelper(this);
     private SimpleCounter mRequestCodeCounter = new SimpleCounter(1000);
     private List<ActivityResultCallback> mActivityResultCallbacks = new ArrayList<>();
 
@@ -102,6 +104,12 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null)
             actionBar.setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mNightModeHelper.onStart();
     }
 
     @Override
@@ -200,6 +208,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             findPreference("dark_theme").setOnPreferenceChangeListener((Preference preference, Object newValue) -> {
                 boolean enabled = (Boolean) newValue;
                 AppCompatDelegate.setDefaultNightMode(enabled ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
+                getActivity().recreate();
                 return true;
             });
             bindPreferenceSummaryToValue(findPreference("chat_font"));
