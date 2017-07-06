@@ -13,5 +13,10 @@
         <item>serif</item>
         <item>monospace</item>
     </string-array>
+    <string-array name="pref_entry_values_appbar_compact_mode">
+        <item>never</item>
+        <item>always</item>
+        <item>auto</item>
+    </string-array>
 
 </resources>

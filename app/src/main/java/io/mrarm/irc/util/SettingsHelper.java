@@ -16,16 +16,21 @@ import java.util.UUID;
 
 public class SettingsHelper {
 
-    public static String PREF_DEFAULT_NICK = "default_nick";
-    public static String PREF_DEFAULT_USER = "default_user";
-    public static String PREF_DEFAULT_REALNAME = "default_realname";
-    public static String PREF_RECONNECT_ENABLED = "reconnect_enabled";
-    public static String PREF_RECONNECT_CONNCHG = "reconnect_connchg";
-    public static String PREF_RECONNECT_INTERVAL = "reconnect_interval";
-    public static String PREF_AUTOCONNECT_SERVERS = "connect_servers";
-    public static String PREF_DARK_THEME = "dark_theme";
-    public static String PREF_CHAT_FONT = "chat_font";
-    public static String PREF_CHAT_FONT_SIZE = "chat_font_size";
+    public static final String PREF_DEFAULT_NICK = "default_nick";
+    public static final String PREF_DEFAULT_USER = "default_user";
+    public static final String PREF_DEFAULT_REALNAME = "default_realname";
+    public static final String PREF_RECONNECT_ENABLED = "reconnect_enabled";
+    public static final String PREF_RECONNECT_CONNCHG = "reconnect_connchg";
+    public static final String PREF_RECONNECT_INTERVAL = "reconnect_interval";
+    public static final String PREF_AUTOCONNECT_SERVERS = "connect_servers";
+    public static final String PREF_DARK_THEME = "dark_theme";
+    public static final String PREF_CHAT_FONT = "chat_font";
+    public static final String PREF_CHAT_FONT_SIZE = "chat_font_size";
+    public static final String PREF_CHAT_APPBAR_COMPACT_MODE = "chat_appbar_compact_mode";
+
+    public static final String COMPACT_MODE_ALWAYS = "always";
+    public static final String COMPACT_MODE_NEVER = "never";
+    public static final String COMPACT_MODE_AUTO = "auto";
 
     private static SettingsHelper mInstance;
 
@@ -135,6 +140,10 @@ public class SettingsHelper {
 
     public int getChatFontSize() {
         return mPreferences.getInt(PREF_CHAT_FONT_SIZE, -1);
+    }
+
+    public String getChatAppbarCompactMode() {
+        return mPreferences.getString(PREF_CHAT_APPBAR_COMPACT_MODE, COMPACT_MODE_AUTO);
     }
 
 }

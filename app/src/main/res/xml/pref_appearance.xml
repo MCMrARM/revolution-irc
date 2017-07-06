@@ -19,4 +19,11 @@
         android:key="chat_font_size"
         android:title="@string/pref_title_font_size" />
 
+    <ListPreference
+        android:key="chat_appbar_compact_mode"
+        android:title="@string/pref_title_appbar_compact_mode"
+        android:entries="@array/pref_entries_appbar_compact_mode"
+        android:entryValues="@array/pref_entry_values_appbar_compact_mode"
+        android:defaultValue="auto" />
+
 </PreferenceScreen>

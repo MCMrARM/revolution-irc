@@ -49,7 +49,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                     if (intValue == null || intValue == -1)
                         preference.setSummary(R.string.value_default);
                     else
-                        preference.setSummary(intValue + "dp");
+                        preference.setSummary(intValue + "sp");
                 } else if (preference instanceof ReconnectIntervalPreference) {
                     List<ReconnectIntervalPreference.Rule> rules = ReconnectIntervalPreference.parseRules(stringValue);
                     StringBuilder builder = new StringBuilder();
@@ -204,6 +204,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             });
             bindPreferenceSummaryToValue(findPreference("chat_font"));
             bindIntPreferenceSummaryToValue(findPreference("chat_font_size"));
+            bindPreferenceSummaryToValue(findPreference("chat_appbar_compact_mode"));
         }
     }
 

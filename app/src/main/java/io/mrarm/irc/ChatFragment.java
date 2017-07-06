@@ -27,6 +27,7 @@ import java.util.UUID;
 import io.mrarm.chatlib.dto.NickWithPrefix;
 import io.mrarm.chatlib.irc.IRCConnection;
 import io.mrarm.irc.util.ImageViewTintUtils;
+import io.mrarm.irc.util.SettingsHelper;
 import io.mrarm.irc.util.SimpleTextVariableList;
 
 public class ChatFragment extends Fragment implements ServerConnectionInfo.ChannelListChangeListener {
@@ -161,17 +162,22 @@ public class ChatFragment extends Fragment implements ServerConnectionInfo.Chann
                     return;
                 if (height < getResources().getDimensionPixelSize(R.dimen.collapse_toolbar_activate_height)) {
                     mAppBar.setVisibility(View.GONE);
-                } else if (height < getResources().getDimensionPixelSize(R.dimen.compact_toolbar_activate_height)) {
-                    setUseToolbarCompactLayout(true);
-                    mAppBar.setVisibility(View.VISIBLE);
                 } else {
-                    setUseToolbarCompactLayout(false);
+                    updateToolbarCompactLayoutStatus(height);
                     mAppBar.setVisibility(View.VISIBLE);
                 }
             });
         });
 
         return rootView;
+    }
+
+    public void updateToolbarCompactLayoutStatus(int height) {
+        String mode = SettingsHelper.getInstance(getContext()).getChatAppbarCompactMode();
+        boolean enabled = mode.equals(SettingsHelper.COMPACT_MODE_ALWAYS) ||
+                (mode.equals(SettingsHelper.COMPACT_MODE_AUTO) &&
+                        height < getResources().getDimensionPixelSize(R.dimen.compact_toolbar_activate_height));
+        setUseToolbarCompactLayout(enabled);
     }
 
     public void setUseToolbarCompactLayout(boolean enable) {

@@ -66,6 +66,8 @@
     <string name="value_custom_specific">Custom (%s)</string>
     <string name="value_none">None</string>
     <string name="value_any">Any</string>
+    <string name="value_always">Always</string>
+    <string name="value_never">Never</string>
     <string name="entry_name">Name</string>
     <string name="entry_text">Text</string>
 
@@ -112,13 +114,19 @@
     <string name="pref_summary_dark_theme">Apply a dark theme to the interface</string>
     <string name="pref_title_font">Font</string>
     <string name="pref_title_font_size">Font size</string>
-
-    <string name="font_size_sample_text">This is a sample text to reflect how the font size will look in the chat. You can change it using the slider below.</string>
+    <string name="pref_title_appbar_compact_mode">Hide the network name header</string>
 
     <string-array name="pref_entries_font">
         <item>Default (Sans)</item>
         <item>Serif</item>
         <item>Monospace</item>
+    </string-array>
+    <string name="font_size_sample_text">This is a sample text to reflect how the font size will look in the chat. You can change it using the slider below.</string>
+
+    <string-array name="pref_entries_appbar_compact_mode">
+        <item>@string/value_never</item>
+        <item>@string/value_always</item>
+        <item>If there is little space for messages</item>
     </string-array>
 
     <!-- Notification settings -->
