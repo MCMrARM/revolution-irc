@@ -1,6 +1,7 @@
 package io.mrarm.irc;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
@@ -25,9 +26,14 @@ public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerVi
 
     private StatusMessageList mMessages;
     private Set<StatusMessageInfo> mExpandedMessages;
+    private Typeface mTypeface;
 
     public ServerStatusMessagesAdapter(StatusMessageList messages) {
         setMessages(messages);
+    }
+
+    public void setMessageTypeface(Typeface typeface) {
+        this.mTypeface = typeface;
     }
 
     public void setMessages(StatusMessageList messages) {
@@ -82,13 +88,15 @@ public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerVi
         return TYPE_MESSAGE;
     }
 
-    public static class MessageHolder extends RecyclerView.ViewHolder {
+    public class MessageHolder extends RecyclerView.ViewHolder {
 
         private TextView mText;
 
         public MessageHolder(View v) {
             super(v);
             mText = (TextView) v.findViewById(R.id.chat_message);
+            if (mTypeface != null)
+                mText.setTypeface(mTypeface);
         }
 
         public void bind(StatusMessageInfo message) {
@@ -115,7 +123,7 @@ public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerVi
 
     }
 
-    public static class ExpandableMessageHolder extends RecyclerView.ViewHolder {
+    public class ExpandableMessageHolder extends RecyclerView.ViewHolder {
 
         private ServerStatusMessagesAdapter mAdapter;
         private TextView mText;
@@ -130,6 +138,10 @@ public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerVi
             mExpandedText = (TextView) v.findViewById(R.id.chat_expanded_message);
             mExpandIcon = (ImageView) v.findViewById(R.id.expand_icon);
             //setExpanded(true);
+
+            if (mTypeface != null)
+                mText.setTypeface(mTypeface);
+            mExpandedText.setTypeface(Typeface.MONOSPACE);
 
             v.setOnClickListener((View view) -> {
                 mAdapter.toggleExpandItem(mPosition);

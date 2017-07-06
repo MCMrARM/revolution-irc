@@ -39,6 +39,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     private Drawable mItemBackground;
     private Drawable mSelectedItemBackground;
+    private Typeface mTypeface;
 
     public ChatMessagesAdapter(ChatMessagesFragment fragment, List<MessageInfo> messages) {
         mFragment = fragment;
@@ -50,6 +51,10 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         ta.recycle();
 
         setMessages(messages);
+    }
+
+    public void setMessageTypeface(Typeface typeface) {
+        this.mTypeface = typeface;
     }
 
     public void setMessages(List<MessageInfo> messages) {
@@ -145,6 +150,8 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 return true;
             });
             mText.setBackgroundDrawable(mItemBackground);
+            if (mTypeface != null)
+                mText.setTypeface(mTypeface);
         }
 
         public boolean isSelected() {

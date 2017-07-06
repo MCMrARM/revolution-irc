@@ -18,20 +18,30 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import io.mrarm.irc.util.ListWithCustomPreference;
 import io.mrarm.irc.util.ReconnectIntervalPreference;
+import io.mrarm.irc.util.SimpleCounter;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
+
+    private SimpleCounter mRequestCodeCounter = new SimpleCounter(1000);
+    private List<ActivityResultCallback> mActivityResultCallbacks = new ArrayList<>();
 
     private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener =
             (Preference preference, Object value) -> {
                 String stringValue = value.toString();
 
-                if (preference instanceof ListPreference) {
+                if (preference instanceof ListWithCustomPreference &&
+                        ListWithCustomPreference.isCustomValue(stringValue)) {
+                    preference.setSummary(preference.getContext().getString(
+                            R.string.value_custom_specific,
+                            ListWithCustomPreference.getCustomValue(stringValue)));
+                } else if (preference instanceof ListPreference) {
                     ListPreference listPreference = (ListPreference) preference;
                     int index = listPreference.findIndexOfValue(stringValue);
-
                     preference.setSummary(index >= 0 ? listPreference.getEntries()[index] : null);
                 } else if (preference instanceof ReconnectIntervalPreference) {
                     List<ReconnectIntervalPreference.Rule> rules = ReconnectIntervalPreference.parseRules(stringValue);
@@ -106,6 +116,25 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 || CommandPreferenceFragment.class.getName().equals(fragmentName);
     }
 
+    public SimpleCounter getRequestCodeCounter() {
+        return mRequestCodeCounter;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        for (ActivityResultCallback callback : mActivityResultCallbacks)
+            callback.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public void addActivityResultCallback(ActivityResultCallback callback) {
+        mActivityResultCallbacks.add(callback);
+    }
+
+    public void removeActivityResultCallback(ActivityResultCallback callback) {
+        mActivityResultCallbacks.remove(callback);
+    }
+
     private static class MyPreferenceFragment extends PreferenceFragment {
 
         @Override
@@ -157,6 +186,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 AppCompatDelegate.setDefaultNightMode(enabled ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
                 return true;
             });
+            bindPreferenceSummaryToValue(findPreference("chat_font"));
         }
     }
 
@@ -237,6 +267,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             mAdapter.notifyDataSetChanged();
         }
 
+    }
+
+    public interface ActivityResultCallback {
+        void onActivityResult(int requestCode, int resultCode, Intent data);
     }
 
 }

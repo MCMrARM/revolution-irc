@@ -5,4 +5,13 @@
         <attr name="doNotExpand" format="boolean" />
     </declare-styleable>
 
+    <declare-styleable name="ListWithCustomPreference">
+        <attr name="customValueType" format="enum">
+            <enum name="string" value="0" />
+            <enum name="number" value="1" />
+            <enum name="file" value="2" />
+            <enum name="font" value="3" />
+        </attr>
+    </declare-styleable>
+
 </resources>

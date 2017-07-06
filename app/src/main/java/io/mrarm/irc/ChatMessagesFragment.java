@@ -35,6 +35,7 @@ import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.chatlib.message.MessageListener;
 import io.mrarm.irc.util.LongPressSelectTouchListener;
 import io.mrarm.irc.util.ScrollPosLinearLayoutManager;
+import io.mrarm.irc.util.SettingsHelper;
 
 
 public class ChatMessagesFragment extends Fragment implements StatusMessageListener,
@@ -133,6 +134,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
 
         if (channelName != null) {
             mAdapter = new ChatMessagesAdapter(this, new ArrayList<>());
+            mAdapter.setMessageTypeface(SettingsHelper.getInstance(getContext()).getChatFont());
             mRecyclerView.setAdapter(mAdapter);
             LongPressSelectTouchListener selectTouchListener = new LongPressSelectTouchListener(mRecyclerView);
             mAdapter.setSelectListener(selectTouchListener);
@@ -164,6 +166,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                     }, null);
         } else if (getArguments().getBoolean(ARG_DISPLAY_STATUS)) {
             mStatusAdapter = new ServerStatusMessagesAdapter(new StatusMessageList(new ArrayList<>()));
+            mStatusAdapter.setMessageTypeface(SettingsHelper.getInstance(getContext()).getChatFont());
             mRecyclerView.setAdapter(mStatusAdapter);
 
             Log.i(TAG, "Request status message list");

@@ -8,4 +8,10 @@
         <item>0</item>
     </integer-array>
 
+    <string-array name="pref_entry_values_font">
+        <item>default</item>
+        <item>serif</item>
+        <item>monospace</item>
+    </string-array>
+
 </resources>

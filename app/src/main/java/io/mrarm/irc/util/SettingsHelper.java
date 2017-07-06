@@ -2,10 +2,12 @@ package io.mrarm.irc.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.preference.PreferenceManager;
 
 import com.google.gson.Gson;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -21,7 +23,8 @@ public class SettingsHelper {
     public static String PREF_RECONNECT_CONNCHG = "reconnect_connchg";
     public static String PREF_RECONNECT_INTERVAL = "reconnect_interval";
     public static String PREF_AUTOCONNECT_SERVERS = "connect_servers";
-    public static String PREF_APPEARANCE_DARK_THEME = "dark_theme";
+    public static String PREF_DARK_THEME = "dark_theme";
+    public static String PREF_CHAT_FONT = "chat_font";
 
     private static SettingsHelper mInstance;
 
@@ -37,14 +40,19 @@ public class SettingsHelper {
         return mGson;
     }
 
+    private Context mContext;
     private SharedPreferences mPreferences;
     private List<ReconnectIntervalPreference.Rule> mCachedIntervalRules;
+    private Typeface mCachedFont;
 
     public SettingsHelper(Context context) {
+        mContext = context;
         mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         mPreferences.registerOnSharedPreferenceChangeListener((SharedPreferences sharedPreferences, String key) -> {
             if (key.equals(PREF_RECONNECT_INTERVAL))
                 mCachedIntervalRules = null;
+            if (key.equals(PREF_CHAT_FONT))
+                mCachedFont = null;
         });
     }
 
@@ -101,7 +109,27 @@ public class SettingsHelper {
     }
 
     public boolean isNightModeEnabled() {
-        return mPreferences.getBoolean(PREF_APPEARANCE_DARK_THEME, false);
+        return mPreferences.getBoolean(PREF_DARK_THEME, false);
+    }
+
+    public Typeface getChatFont() {
+        if (mCachedFont != null)
+            return mCachedFont;
+        String font = mPreferences.getString(PREF_CHAT_FONT, "default");
+        if (ListWithCustomPreference.isCustomValue(font)) {
+            File file = ListWithCustomPreference.getCustomFile(mContext, PREF_CHAT_FONT, font);
+            try {
+                mCachedFont = Typeface.createFromFile(file);
+                return mCachedFont;
+            } catch (Exception ignored) {
+            }
+        }
+        if (font.equals("monospace"))
+            return Typeface.MONOSPACE;
+        else if (font.equals("serif"))
+            return Typeface.SERIF;
+        else
+            return Typeface.DEFAULT;
     }
 
 }
