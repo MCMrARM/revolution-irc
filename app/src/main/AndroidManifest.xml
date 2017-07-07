@@ -37,6 +37,10 @@
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
             android:theme="@style/AppTheme" />
+        <activity
+            android:name=".MessageFormatSettingsActivity"
+            android:label="@string/title_activity_message_format_settings"
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <service android:name=".IRCService" />
     </application>

@@ -1,10 +1,18 @@
 <resources>
     <string name="app_name">IRC Client</string>
 
+    <!-- Chat -->
+
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="tab_server">Server</string>
+    <string name="message_hint">Send a message</string>
+    <string name="message_disconnected">Disconnected</string>
+    <string name="message_join">%s has joined</string>
+    <string name="message_nick_change">%s is now known as %s</string>
+
+    <!-- Actions -->
 
     <string name="action_ok">Ok</string>
     <string name="action_done">Done</string>
@@ -27,22 +35,20 @@
     <string name="action_delete_confirm_title">Are you sure?</string>
     <string name="action_delete_confirm_body">Are you sure you want to delete %1$s? This cannot be undone.</string>
 
-    <string name="message_hint">Send a message</string>
+    <!-- Service -->
 
-    <string name="message_disconnected">Disconnected</string>
+    <string name="service_title">Connected to IRC</string>
+    <string name="service_status">Connected to %1$d networks.</string>
+    <string name="notify_multiple_messages">%1$d unread messages</string>
 
-    <string name="certificate_error">Failed to verify certificate</string>
-    <string name="certificate_error_ignore">Accept and continue</string>
-    <string name="certificate_error_cancel">Cancel</string>
-    <string name="certificate_bad_cert">The following certificate is not recognized by the system:</string>
-    <string name="certificate_bad_hostname">The hostname provided in the certificate (%1$s) by the host does not match the hostname we are connecting to (%2$s).</string>
-    <string name="certificate_error_footer">You shouldn\'t accept this certificate if you aren\'t sure what this means.</string>
-    <string name="certificate_error_remember">Remember exception</string>
+    <!-- Server list -->
 
     <string name="server_list_header_active">Active</string>
     <string name="server_list_header_inactive">Inactive</string>
     <string name="server_list_connected">Connected, %1$d channels</string>
     <string name="server_list_connecting">Connecting...</string>
+
+    <!-- Add server -->
 
     <string name="add_server">Add a new server</string>
     <string name="edit_server">Edit a server</string>
@@ -59,6 +65,18 @@
     <string name="server_user">User</string>
     <string name="server_realname">Real name</string>
 
+    <!-- Certificate error dialog -->
+
+    <string name="certificate_error">Failed to verify certificate</string>
+    <string name="certificate_error_ignore">Accept and continue</string>
+    <string name="certificate_error_cancel">Cancel</string>
+    <string name="certificate_bad_cert">The following certificate is not recognized by the system:</string>
+    <string name="certificate_bad_hostname">The hostname provided in the certificate (%1$s) by the host does not match the hostname we are connecting to (%2$s).</string>
+    <string name="certificate_error_footer">You shouldn\'t accept this certificate if you aren\'t sure what this means.</string>
+    <string name="certificate_error_remember">Remember exception</string>
+
+    <!-- Settings -->
+
     <string name="title_activity_settings">Settings</string>
 
     <string name="value_default">Default</string>
@@ -74,10 +92,6 @@
     <string name="text_comma">", "</string>
 
     <string name="error_file_open">Failed to open the file.</string>
-
-    <string name="service_title">Connected to IRC</string>
-    <string name="service_status">Connected to %1$d networks.</string>
-    <string name="notify_multiple_messages">%1$d unread messages</string>
 
     <!-- Time -->
 
@@ -115,6 +129,7 @@
     <string name="pref_title_font">Font</string>
     <string name="pref_title_font_size">Font size</string>
     <string name="pref_title_appbar_compact_mode">Hide the network name header</string>
+    <string name="pref_title_message_format">Message format</string>
 
     <string-array name="pref_entries_font">
         <item>Default (Sans)</item>
@@ -128,6 +143,19 @@
         <item>@string/value_always</item>
         <item>If there is little space for messages</item>
     </string-array>
+
+    <!-- Message format -->
+
+    <string name="title_activity_message_format_settings">Message format</string>
+
+    <string name="message_format_date">Time format</string>
+    <string name="message_format_normal">Message format</string>
+    <string name="message_format_action">Action (me) message format</string>
+    <string name="message_format_event">Event (join/leave/etc.) message format</string>
+    <string name="message_format_date_invalid">Invalid date/time format</string>
+
+    <string name="message_example_sender">sender-nick</string>
+    <string name="message_example_message">This is an example message.</string>
 
     <!-- Notification settings -->
 

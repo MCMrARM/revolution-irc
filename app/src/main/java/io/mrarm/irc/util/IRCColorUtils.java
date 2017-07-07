@@ -41,6 +41,10 @@ public class IRCColorUtils {
         return context.getResources().getColor(R.color.messageStatusText);
     }
 
+    public static int getTimestampTextColor(Context context) {
+        return context.getResources().getColor(R.color.messageTimestamp);
+    }
+
     public static int getNickColor(Context context, String nick) {
         int sum = 0;
         for (int i = 0; i < nick.length(); i++)
@@ -48,7 +52,12 @@ public class IRCColorUtils {
         return getColor(context, NICK_COLORS[sum % NICK_COLORS.length]);
     }
 
-    // TODO: Support /me and links
+    public static CharSequence getFormattedString(Context context, String string) {
+        ColoredTextBuilder builder = new ColoredTextBuilder();
+        appendFormattedString(context, builder, string);
+        return builder.getSpannable();
+    }
+
     public static void appendFormattedString(Context context, ColoredTextBuilder builder,
                                              String string) {
         int fg = 99, bg = 99;

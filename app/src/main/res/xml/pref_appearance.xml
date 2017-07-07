@@ -26,4 +26,11 @@
         android:entryValues="@array/pref_entry_values_appbar_compact_mode"
         android:defaultValue="auto" />
 
+    <Preference
+        android:title="@string/pref_title_message_format">
+        <intent
+            android:targetPackage="io.mrarm.irc"
+            android:targetClass="io.mrarm.irc.MessageFormatSettingsActivity" />
+    </Preference>
+
 </PreferenceScreen>

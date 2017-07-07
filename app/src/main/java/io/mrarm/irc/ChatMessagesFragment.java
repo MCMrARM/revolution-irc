@@ -35,6 +35,7 @@ import io.mrarm.chatlib.dto.StatusMessageList;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.chatlib.message.MessageListener;
 import io.mrarm.irc.util.LongPressSelectTouchListener;
+import io.mrarm.irc.util.MessageBuilder;
 import io.mrarm.irc.util.ScrollPosLinearLayoutManager;
 import io.mrarm.irc.util.SettingsHelper;
 
@@ -288,7 +289,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                 first = false;
             else
                 builder.append('\n');
-            builder.append(ChatMessagesAdapter.buildMessage(getContext(), mMessages.get(msgIndex)));
+            builder.append(MessageBuilder.getInstance(getContext()).buildMessage(mMessages.get(msgIndex)));
         }
         ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
         clipboard.setPrimaryClip(ClipData.newPlainText("IRC Messages", builder));

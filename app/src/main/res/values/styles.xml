@@ -69,4 +69,27 @@
         <item name="android:layout_marginTop">@dimen/add_server_item_spacing</item>
     </style>
 
+    <style name="MessageFormatSettingsDivider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:background">?android:attr/listDivider</item>
+    </style>
+
+    <style name="MessageFormatSettingsTextInputLayout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginLeft">@dimen/activity_horizontal_margin_s4</item>
+        <item name="android:layout_marginRight">@dimen/activity_horizontal_margin_s4</item>
+        <item name="android:layout_marginTop">16dp</item>
+    </style>
+
+    <style name="MessageFormatSettingsExampleText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginLeft">@dimen/activity_horizontal_margin</item>
+        <item name="android:layout_marginRight">@dimen/activity_horizontal_margin</item>
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Body1</item>
+    </style>
+
 </resources>

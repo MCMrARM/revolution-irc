@@ -1,32 +1,23 @@
 package io.mrarm.irc;
 
-import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
-import android.text.Spanned;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.StyleSpan;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 
 import io.mrarm.chatlib.dto.MessageInfo;
-import io.mrarm.chatlib.dto.NickChangeMessageInfo;
-import io.mrarm.irc.util.ColoredTextBuilder;
-import io.mrarm.irc.util.IRCColorUtils;
 import io.mrarm.irc.util.LongPressSelectTouchListener;
+import io.mrarm.irc.util.MessageBuilder;
 
 public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         implements LongPressSelectTouchListener.Listener {
@@ -179,71 +170,9 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 mText.setTextSize(TypedValue.COMPLEX_UNIT_SP, mFontSize);
 
             setSelected(selected, false);
-            mText.setText(buildMessage(mText.getContext(), message));
+            mText.setText(MessageBuilder.getInstance(mText.getContext()).buildMessage(message));
         }
 
-    }
-
-    private static SimpleDateFormat messageTimeFormat = new SimpleDateFormat("[HH:mm] ",
-            Locale.getDefault());
-
-    public static void appendTimestamp(Context context, ColoredTextBuilder builder, Date date) {
-        builder.append(messageTimeFormat.format(date), new ForegroundColorSpan(context.getResources().getColor(R.color.messageTimestamp)));
-    }
-
-    public static CharSequence buildDisconnectWarning(Context context, Date date) {
-        ColoredTextBuilder builder = new ColoredTextBuilder();
-        appendTimestamp(context, builder, date);
-        builder.append("Disconnected", new ForegroundColorSpan(context.getResources().getColor(R.color.messageDisconnected)));
-        return builder.getSpannable();
-    }
-
-    public static CharSequence buildMessage(Context context, MessageInfo message) {
-        String senderNick = message.getSender() == null ? null : message.getSender().getNick();
-        int nickColor = senderNick == null ? 0 : IRCColorUtils.getNickColor(context, senderNick);
-        switch (message.getType()) {
-            case NORMAL: {
-                ColoredTextBuilder builder = new ColoredTextBuilder();
-                appendTimestamp(context, builder, message.getDate());
-                builder.append(message.getSender().getNick() + ":", new ForegroundColorSpan(nickColor));
-                builder.append(" ");
-                IRCColorUtils.appendFormattedString(context, builder, message.getMessage());
-                return builder.getSpannable();
-            }
-            case ME: {
-                ColoredTextBuilder builder = new ColoredTextBuilder();
-                appendTimestamp(context, builder, message.getDate());
-                builder.setSpan(new StyleSpan(Typeface.ITALIC));
-                builder.append("* ", new ForegroundColorSpan(IRCColorUtils.getStatusTextColor(context)));
-                builder.append(message.getSender().getNick(), new ForegroundColorSpan(nickColor));
-                builder.append(" ");
-                IRCColorUtils.appendFormattedString(context, builder, message.getMessage());
-                return builder.getSpannable();
-            }
-            case JOIN: {
-                ColoredTextBuilder builder = new ColoredTextBuilder();
-                appendTimestamp(context, builder, message.getDate());
-                builder.appendWithFlags("* ", Spanned.SPAN_EXCLUSIVE_INCLUSIVE, new ForegroundColorSpan(IRCColorUtils.getStatusTextColor(context)), new StyleSpan(Typeface.ITALIC));
-                builder.append(message.getSender().getNick(), new ForegroundColorSpan(nickColor));
-                builder.append(" has joined", new ForegroundColorSpan(IRCColorUtils.getStatusTextColor(context))); // TODO: Translate this
-                return builder.getSpannable();
-            }
-            case NICK_CHANGE: {
-                String newNick = ((NickChangeMessageInfo) message).getNewNick();
-                int newNickColor = IRCColorUtils.getNickColor(context, newNick);
-
-                ColoredTextBuilder builder = new ColoredTextBuilder();
-                appendTimestamp(context, builder, message.getDate());
-                builder.appendWithFlags("* ", Spanned.SPAN_EXCLUSIVE_INCLUSIVE, new ForegroundColorSpan(IRCColorUtils.getStatusTextColor(context)), new StyleSpan(Typeface.ITALIC));
-                builder.append(message.getSender().getNick(), new ForegroundColorSpan(nickColor));
-                builder.append(" is now known as ", new ForegroundColorSpan(IRCColorUtils.getStatusTextColor(context))); // TODO: Translate this
-                builder.append(newNick, new ForegroundColorSpan(newNickColor));
-                return builder.getSpannable();
-            }
-            case DISCONNECT_WARNING:
-                return buildDisconnectWarning(context, message.getDate());
-        }
-        return null;
     }
 
 }

@@ -19,6 +19,7 @@ import io.mrarm.chatlib.dto.StatusMessageInfo;
 import io.mrarm.chatlib.dto.StatusMessageList;
 import io.mrarm.irc.util.ColoredTextBuilder;
 import io.mrarm.irc.util.IRCColorUtils;
+import io.mrarm.irc.util.MessageBuilder;
 
 public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -108,11 +109,11 @@ public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerVi
 
             Context context = mText.getContext();
             if (message.getType() == StatusMessageInfo.MessageType.DISCONNECT_WARNING) {
-                mText.setText(ChatMessagesAdapter.buildDisconnectWarning(context, message.getDate()));
+                mText.setText(MessageBuilder.getInstance(context).buildDisconnectWarning(message.getDate()));
                 return;
             }
             ColoredTextBuilder builder = new ColoredTextBuilder();
-            ChatMessagesAdapter.appendTimestamp(context, builder, message.getDate());
+            MessageBuilder.getInstance(context).appendTimestamp(builder, message.getDate());
             int statusColor = IRCColorUtils.getStatusTextColor(context);
             builder.append(message.getSender() + ": ", new ForegroundColorSpan(statusColor));
             if (message.getType() == StatusMessageInfo.MessageType.HOST_INFO) {
@@ -163,7 +164,7 @@ public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerVi
             this.mPosition = pos;
 
             ColoredTextBuilder builder = new ColoredTextBuilder();
-            ChatMessagesAdapter.appendTimestamp(mText.getContext(), builder, message.getDate());
+            MessageBuilder.getInstance(mText.getContext()).appendTimestamp(builder, message.getDate());
             builder.append(message.getSender() + ": ", new ForegroundColorSpan(IRCColorUtils.getStatusTextColor(mText.getContext())));
             if (message.getType() == StatusMessageInfo.MessageType.MOTD)
                 builder.append("Message of the Day", new ForegroundColorSpan(

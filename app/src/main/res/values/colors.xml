@@ -38,6 +38,7 @@
     <color name="messageTimestamp">#424242</color>
     <color name="messageStatusText">#616161</color>
     <color name="messageDisconnected">#FF1744</color>
+    <color name="messageSenderFallbackColor">@color/ircBlue</color>
 
     <color name="memberOp">#558B2F</color>
     <color name="memberVoice">#0277BD</color>

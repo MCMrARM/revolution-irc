@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="io.mrarm.irc.MessageFormatSettingsActivity"
+    tools:showIn="@layout/activity_message_format_settings">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/date_format_ctr"
+            style="@style/MessageFormatSettingsTextInputLayout">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/date_format"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/message_format_date" />
+
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            style="@style/MessageFormatSettingsTextInputLayout"
+            android:layout_marginTop="8dp">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/message_format_normal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/message_format_normal" />
+
+        </android.support.design.widget.TextInputLayout>
+
+        <TextView
+            android:id="@+id/message_format_normal_example"
+            style="@style/MessageFormatSettingsExampleText" />
+
+        <View style="@style/MessageFormatSettingsDivider" />
+
+        <android.support.design.widget.TextInputLayout
+            style="@style/MessageFormatSettingsTextInputLayout">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/message_format_action"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/message_format_action" />
+
+        </android.support.design.widget.TextInputLayout>
+
+        <TextView
+            android:id="@+id/message_format_action_example"
+            style="@style/MessageFormatSettingsExampleText" />
+
+        <View style="@style/MessageFormatSettingsDivider" />
+
+        <android.support.design.widget.TextInputLayout
+            style="@style/MessageFormatSettingsTextInputLayout">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/message_format_event"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/message_format_event" />
+
+        </android.support.design.widget.TextInputLayout>
+
+        <TextView
+            android:id="@+id/message_format_event_example"
+            style="@style/MessageFormatSettingsExampleText" />
+
+        <View style="@style/MessageFormatSettingsDivider" />
+
+    </LinearLayout>
+
+</ScrollView>
