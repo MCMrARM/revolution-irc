@@ -46,6 +46,15 @@ public class ColorPickerDialog {
         mSelectedColor = selectedColor;
     }
 
+    public void setSelectedColor(int color) {
+        for (int i = 0; i < mColors.length; i++) {
+            if (mColors[i] == color) {
+                mSelectedColor = i;
+                return;
+            }
+        }
+    }
+
     public ColorPickerDialog setOnColorChangeListener(OnColorChangeListener listener) {
         mListener = listener;
         return this;

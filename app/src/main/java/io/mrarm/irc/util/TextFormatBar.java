@@ -19,6 +19,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import io.mrarm.irc.ColorPickerDialog;
 import io.mrarm.irc.R;
 
 public class TextFormatBar extends FrameLayout {
@@ -76,10 +77,32 @@ public class TextFormatBar extends FrameLayout {
             updateFormattingAtCursor();
         });
         mTextColorButton.setOnClickListener((View v) -> {
-            //
+            ColorPickerDialog dialog = new ColorPickerDialog(getContext());
+            dialog.setTitle(R.string.format_text_color);
+            ColorStateList list = ImageViewCompat.getImageTintList(mTextColorValue);
+            if (list != mTextColorValueDefault)
+                dialog.setSelectedColor(list.getDefaultColor());
+            dialog.setPositiveButton(R.string.action_cancel, null);
+            dialog.setOnColorChangeListener((ColorPickerDialog d, int newColorIndex, int color) -> {
+                setSpan(new ForegroundColorSpan(color));
+                updateFormattingAtCursor();
+                d.cancel();
+            });
+            dialog.show();
         });
         mFillColorButton.setOnClickListener((View v) -> {
-            //
+            ColorPickerDialog dialog = new ColorPickerDialog(getContext());
+            dialog.setTitle(R.string.format_fill_color);
+            ColorStateList list = ImageViewCompat.getImageTintList(mFillColorValue);
+            if (list != mFillColorValueDefault)
+                dialog.setSelectedColor(list.getDefaultColor());
+            dialog.setPositiveButton(R.string.action_cancel, null);
+            dialog.setOnColorChangeListener((ColorPickerDialog d, int newColorIndex, int color) -> {
+                setSpan(new BackgroundColorSpan(color));
+                updateFormattingAtCursor();
+                d.cancel();
+            });
+            dialog.show();
         });
         mClearButton.setOnClickListener((View v) -> {
             removeSpan(Object.class);
