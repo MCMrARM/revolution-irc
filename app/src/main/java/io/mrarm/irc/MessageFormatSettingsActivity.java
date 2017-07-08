@@ -41,6 +41,15 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
         MessageBuilder builder = MessageBuilder.getInstance(this);
 
         mTextFormatBar = (TextFormatBar) findViewById(R.id.format_bar);
+        mTextFormatBar.setOnChangeListener((TextFormatBar bar, FormattableEditText text) -> {
+            if (text == mMessageFormatNormal)
+                builder.setMessageFormat(text.getText());
+            else if (text == mMessageFormatAction)
+                builder.setActionMessageFormat(text.getText());
+            else if (text == mMessageFormatEvent)
+                builder.setEventMessageFormat(text.getText());
+            refreshExamples();
+        });
 
         mDateFormat = (EditText) findViewById(R.id.date_format);
         mDateFormatCtr = (TextInputLayout) findViewById(R.id.date_format_ctr);

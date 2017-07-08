@@ -6,7 +6,6 @@ import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.ImageViewCompat;
-import android.support.v7.widget.AppCompatImageView;
 import android.text.Editable;
 import android.text.Spanned;
 import android.text.style.BackgroundColorSpan;
@@ -14,7 +13,6 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -35,6 +33,7 @@ public class TextFormatBar extends FrameLayout {
     private ImageView mFillColorValue;
     private ColorStateList mFillColorValueDefault;
     private View mClearButton;
+    private OnChangeListener mChangeListener;
 
     public TextFormatBar(Context context) {
         this(context, null);
@@ -60,21 +59,18 @@ public class TextFormatBar extends FrameLayout {
                 removeSpan(new StyleSpan(Typeface.BOLD));
             else
                 setSpan(new StyleSpan(Typeface.BOLD));
-            updateFormattingAtCursor();
         });
         mItalicButton.setOnClickListener((View v) -> {
             if (v.isSelected())
                 removeSpan(new StyleSpan(Typeface.ITALIC));
             else
                 setSpan(new StyleSpan(Typeface.ITALIC));
-            updateFormattingAtCursor();
         });
         mUnderlineButton.setOnClickListener((View v) -> {
             if (v.isSelected())
                 removeSpan(UnderlineSpan.class);
             else
                 setSpan(new UnderlineSpan());
-            updateFormattingAtCursor();
         });
         mTextColorButton.setOnClickListener((View v) -> {
             ColorPickerDialog dialog = new ColorPickerDialog(getContext());
@@ -85,7 +81,6 @@ public class TextFormatBar extends FrameLayout {
             dialog.setPositiveButton(R.string.action_cancel, null);
             dialog.setOnColorChangeListener((ColorPickerDialog d, int newColorIndex, int color) -> {
                 setSpan(new ForegroundColorSpan(color));
-                updateFormattingAtCursor();
                 d.cancel();
             });
             dialog.show();
@@ -99,14 +94,12 @@ public class TextFormatBar extends FrameLayout {
             dialog.setPositiveButton(R.string.action_cancel, null);
             dialog.setOnColorChangeListener((ColorPickerDialog d, int newColorIndex, int color) -> {
                 setSpan(new BackgroundColorSpan(color));
-                updateFormattingAtCursor();
                 d.cancel();
             });
             dialog.show();
         });
         mClearButton.setOnClickListener((View v) -> {
             removeSpan(Object.class);
-            updateFormattingAtCursor();
         });
         mTextColorValueDefault = ImageViewCompat.getImageTintList(mTextColorValue);
         mFillColorValueDefault = ImageViewCompat.getImageTintList(mFillColorValue);
@@ -117,6 +110,10 @@ public class TextFormatBar extends FrameLayout {
     public void setEditText(FormattableEditText editText) {
         mEditText = editText;
         updateFormattingAtCursor();
+    }
+
+    public void setOnChangeListener(OnChangeListener listener) {
+        mChangeListener = listener;
     }
 
     public void updateFormattingAtCursor() {
@@ -165,16 +162,29 @@ public class TextFormatBar extends FrameLayout {
                 ? ColorStateList.valueOf(bgColor) : mFillColorValueDefault);
     }
 
+    private void notifyChange() {
+        updateFormattingAtCursor();
+        if (mChangeListener != null)
+            mChangeListener.onChange(this, mEditText);
+    }
+
     private void removeSpan(Class span) {
         SpannableStringHelper.removeSpans(mEditText.getText(), span, mEditText.getSelectionStart(), mEditText.getSelectionEnd(), null, true);
+        notifyChange();
     }
 
     private void removeSpan(Object span) {
         SpannableStringHelper.removeSpans(mEditText.getText(), span.getClass(), mEditText.getSelectionStart(), mEditText.getSelectionEnd(), span, true);
+        notifyChange();
     }
 
     private void setSpan(Object span) {
         SpannableStringHelper.setAndMergeSpans(mEditText.getText(), span, mEditText.getSelectionStart(), mEditText.getSelectionEnd(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        notifyChange();
+    }
+
+    public interface OnChangeListener {
+        void onChange(TextFormatBar formatBar, FormattableEditText editText);
     }
 
 }
