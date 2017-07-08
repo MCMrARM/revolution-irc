@@ -20,14 +20,18 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-    <style name="EditServerIcon">
+    <style name="Icon">
+        <item name="android:tint">@color/iconColor</item>
+        <item name="tintMode">src_in</item>
+    </style>
+
+    <style name="EditServerIcon" parent="Icon">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_alignParentLeft">true</item>
         <item name="android:layout_marginLeft">8dp</item>
         <item name="android:layout_marginRight">8dp</item>
         <item name="android:padding">8dp</item>
-        <item name="android:alpha">0.54</item>
     </style>
 
     <style name="EditServerIcon.TextInput" parent="EditServerIcon">
@@ -105,7 +109,6 @@
         <item name="android:padding">8dp</item>
         <item name="android:layout_marginRight">2dp</item>
         <item name="android:background">@drawable/format_item_background</item>
-        <item name="android:tint">@color/recommended_material_icon_color</item>
     </style>
 
 </resources>

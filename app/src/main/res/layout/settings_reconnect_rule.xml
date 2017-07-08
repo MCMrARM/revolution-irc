@@ -37,10 +37,10 @@
             android:layout_height="match_parent"
             android:layout_marginRight="-2dp"
             android:scaleType="center"
+            style="@style/Icon"
             app:srcCompat="@drawable/ic_more_vert"
             android:background="?selectableItemBackgroundBorderless"
-            android:duplicateParentState="true"
-            android:tint="@color/recommended_material_icon_color" />
+            android:duplicateParentState="true" />
 
     </FrameLayout>
 

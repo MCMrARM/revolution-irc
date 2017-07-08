@@ -37,7 +37,6 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:tint="@color/recommended_material_icon_color"
             app:srcCompat="@drawable/ic_format_color_text" />
 
         <ImageView
@@ -59,7 +58,6 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:tint="@color/recommended_material_icon_color"
             app:srcCompat="@drawable/ic_format_color_fill" />
 
         <ImageView

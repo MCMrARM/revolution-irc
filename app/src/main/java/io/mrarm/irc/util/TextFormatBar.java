@@ -14,6 +14,7 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -86,8 +87,8 @@ public class TextFormatBar extends FrameLayout {
         });
         mTextColorValueDefault = ImageViewCompat.getImageTintList(mTextColorValue);
         mFillColorValueDefault = ImageViewCompat.getImageTintList(mFillColorValue);
-        ImageViewCompat.setImageTintMode(mTextColorValue, PorterDuff.Mode.SRC_ATOP);
-        ImageViewCompat.setImageTintMode(mFillColorValue, PorterDuff.Mode.SRC_ATOP);
+        ImageViewCompat.setImageTintMode(mTextColorValue, PorterDuff.Mode.SRC_IN);
+        ImageViewCompat.setImageTintMode(mFillColorValue, PorterDuff.Mode.SRC_IN);
     }
 
     public void setEditText(FormattableEditText editText) {
