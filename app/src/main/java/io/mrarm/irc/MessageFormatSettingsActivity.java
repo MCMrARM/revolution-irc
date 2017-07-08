@@ -13,20 +13,23 @@ import java.util.Date;
 
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.dto.MessageSenderInfo;
+import io.mrarm.irc.util.FormattableEditText;
 import io.mrarm.irc.util.MessageBuilder;
 import io.mrarm.irc.util.SimpleTextWatcher;
 import io.mrarm.irc.util.StubTextWatcher;
+import io.mrarm.irc.util.TextFormatBar;
 
 public class MessageFormatSettingsActivity extends AppCompatActivity {
 
     private EditText mDateFormat;
     private TextInputLayout mDateFormatCtr;
-    private EditText mMessageFormatNormal;
+    private FormattableEditText mMessageFormatNormal;
     private TextView mMessageFormatNormalExample;
-    private EditText mMessageFormatAction;
+    private FormattableEditText mMessageFormatAction;
     private TextView mMessageFormatActionExample;
-    private EditText mMessageFormatEvent;
+    private FormattableEditText mMessageFormatEvent;
     private TextView mMessageFormatEventExample;
+    private TextFormatBar mTextFormatBar;
 
     private MessageSenderInfo mTestSender;
     private MessageInfo mSampleMessage;
@@ -39,6 +42,8 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_message_format_settings);
 
         MessageBuilder builder = MessageBuilder.getInstance(this);
+
+        mTextFormatBar = (TextFormatBar) findViewById(R.id.format_bar);
 
         mDateFormat = (EditText) findViewById(R.id.date_format);
         mDateFormatCtr = (TextInputLayout) findViewById(R.id.date_format_ctr);
@@ -55,8 +60,9 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
             refreshExamples();
         }));
 
-        mMessageFormatNormal = (EditText) findViewById(R.id.message_format_normal);
+        mMessageFormatNormal = (FormattableEditText) findViewById(R.id.message_format_normal);
         mMessageFormatNormal.setText(builder.getMessageFormat());
+        mMessageFormatNormal.setFormatBar(mTextFormatBar);
         mMessageFormatNormal.addTextChangedListener(new SimpleTextWatcher((CharSequence s, int start, int before, int count) -> {
             builder.setMessageFormat(s);
             refreshExamples();
@@ -64,8 +70,9 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
 
         mMessageFormatNormalExample = (TextView) findViewById(R.id.message_format_normal_example);
 
-        mMessageFormatAction = (EditText) findViewById(R.id.message_format_action);
+        mMessageFormatAction = (FormattableEditText) findViewById(R.id.message_format_action);
         mMessageFormatAction.setText(builder.getActionMessageFormat());
+        mMessageFormatAction.setFormatBar(mTextFormatBar);
         mMessageFormatAction.addTextChangedListener(new SimpleTextWatcher((CharSequence s, int start, int before, int count) -> {
             builder.setActionMessageFormat(s);
             refreshExamples();
@@ -73,8 +80,9 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
 
         mMessageFormatActionExample = (TextView) findViewById(R.id.message_format_action_example);
 
-        mMessageFormatEvent = (EditText) findViewById(R.id.message_format_event);
+        mMessageFormatEvent = (FormattableEditText) findViewById(R.id.message_format_event);
         mMessageFormatEvent.setText(builder.getEventMessageFormat());
+        mMessageFormatEvent.setFormatBar(mTextFormatBar);
         mMessageFormatEvent.addTextChangedListener(new SimpleTextWatcher((CharSequence s, int start, int before, int count) -> {
             builder.setEventMessageFormat(s);
             refreshExamples();

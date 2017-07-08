@@ -128,10 +128,10 @@ public class MessageBuilder {
                         IRCColorUtils.getFormattedString(mContext, message.getMessage()));
             case JOIN:
                 return processFormat(mEventMessageFormat, message.getDate(), null,
-                        SpannableFormatHelper.getText(mContext, R.string.message_join, buildColoredNick(senderNick)));
+                        SpannableStringHelper.getText(mContext, R.string.message_join, buildColoredNick(senderNick)));
             case NICK_CHANGE: {
                 String newNick = ((NickChangeMessageInfo) message).getNewNick();
-                SpannableStringBuilder ssb = (SpannableStringBuilder) SpannableFormatHelper.getText(mContext, R.string.message_nick_change, buildColoredNick(senderNick), buildColoredNick(newNick));
+                SpannableStringBuilder ssb = (SpannableStringBuilder) SpannableStringHelper.getText(mContext, R.string.message_nick_change, buildColoredNick(senderNick), buildColoredNick(newNick));
                 return processFormat(mEventMessageFormat, message.getDate(), null,
                         ssb);
             }

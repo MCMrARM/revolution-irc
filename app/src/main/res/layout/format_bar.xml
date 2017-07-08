@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/formatting_bar"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageButton
+        android:id="@+id/format_bold"
+        style="@style/TextFormatBarButton"
+        app:srcCompat="@drawable/ic_format_bold"
+        android:contentDescription="@string/format_bold" />
+
+    <ImageButton
+        android:id="@+id/format_italic"
+        style="@style/TextFormatBarButton"
+        app:srcCompat="@drawable/ic_format_italic"
+        android:layout_toEndOf="@id/format_bold"
+        android:layout_toRightOf="@id/format_bold"
+        android:contentDescription="@string/format_italic" />
+
+    <ImageButton
+        android:id="@+id/format_underline"
+        style="@style/TextFormatBarButton"
+        app:srcCompat="@drawable/ic_format_underlined"
+        android:layout_toEndOf="@id/format_italic"
+        android:layout_toRightOf="@id/format_italic"
+        android:contentDescription="@string/format_underline" />
+
+    <ImageButton
+        android:id="@+id/format_text_color"
+        style="@style/TextFormatBarButton"
+        app:srcCompat="@drawable/ic_format_color_text"
+        android:layout_toEndOf="@id/format_underline"
+        android:layout_toRightOf="@id/format_underline"
+        android:contentDescription="@string/format_text_color" />
+
+    <ImageButton
+        android:id="@+id/format_fill_color"
+        style="@style/TextFormatBarButton"
+        app:srcCompat="@drawable/ic_format_color_fill"
+        android:layout_toEndOf="@id/format_text_color"
+        android:layout_toRightOf="@id/format_text_color"
+        android:contentDescription="@string/format_fill_color" />
+
+    <ImageButton
+        android:id="@+id/format_clear"
+        style="@style/TextFormatBarButton"
+        app:srcCompat="@drawable/ic_format_clear"
+        android:layout_toEndOf="@id/format_fill_color"
+        android:layout_toRightOf="@id/format_fill_color"
+        android:contentDescription="@string/format_clear" />
+
+</RelativeLayout>

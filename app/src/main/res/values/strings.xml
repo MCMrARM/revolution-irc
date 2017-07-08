@@ -35,6 +35,15 @@
     <string name="action_delete_confirm_title">Are you sure?</string>
     <string name="action_delete_confirm_body">Are you sure you want to delete %1$s? This cannot be undone.</string>
 
+    <!-- Format -->
+
+    <string name="format_bold">Bold</string>
+    <string name="format_italic">Italic</string>
+    <string name="format_underline">Underline</string>
+    <string name="format_text_color">Text color</string>
+    <string name="format_fill_color">Background color</string>
+    <string name="format_clear">Clear formatting</string>
+
     <!-- Service -->
 
     <string name="service_title">Connected to IRC</string>

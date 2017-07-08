@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:state_selected="true" android:drawable="@drawable/format_item_background_active" />
+
+    <item>
+        <ripple android:color="?attr/colorControlHighlight">
+            <item android:id="@android:id/mask">
+                <shape>
+                    <solid android:color="#fff" />
+                    <corners android:radius="2dp" />
+                </shape>
+            </item>
+        </ripple>
+
+    </item>
+
+</selector>

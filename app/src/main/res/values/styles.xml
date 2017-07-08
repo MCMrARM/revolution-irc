@@ -6,6 +6,8 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+
+        <item name="textFormatBarStyle">@style/TextFormatBar</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -90,6 +92,20 @@
         <item name="android:layout_marginLeft">@dimen/activity_horizontal_margin</item>
         <item name="android:layout_marginRight">@dimen/activity_horizontal_margin</item>
         <item name="android:textAppearance">@style/TextAppearance.AppCompat.Body1</item>
+    </style>
+
+    <style name="TextFormatBar">
+        <item name="android:padding">4dp</item>
+        <item name="android:background">?attr/colorBackgroundFloating</item>
+    </style>
+
+    <style name="TextFormatBarButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:layout_marginRight">2dp</item>
+        <item name="android:background">@drawable/format_item_background</item>
+        <item name="android:tint">@color/recommended_material_icon_color</item>
     </style>
 
 </resources>
