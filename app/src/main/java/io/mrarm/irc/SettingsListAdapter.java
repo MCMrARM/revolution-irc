@@ -477,7 +477,7 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
             dialog.setTitle(entry.mName);
             dialog.setColors(entry.mColors, entry.mSelectedIndex);
             dialog.setPositiveButton(R.string.action_cancel, null);
-            dialog.setNegativeButton(R.string.value_default, (DialogInterface d, int which) -> {
+            dialog.setNeutralButton(R.string.value_default, (DialogInterface d, int which) -> {
                 entry.setSelectedColorIndex(-1);
                 dialog.cancel();
             });

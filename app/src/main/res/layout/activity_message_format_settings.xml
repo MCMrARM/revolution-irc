@@ -7,7 +7,7 @@
     tools:context="io.mrarm.irc.MessageFormatSettingsActivity"
     tools:showIn="@layout/activity_message_format_settings">
 
-    <io.mrarm.irc.util.TextFormatBar
+    <io.mrarm.irc.util.MessageFormatSettingsFormatBar
         android:id="@+id/format_bar"
         android:layout_alignParentBottom="true"
         android:layout_width="match_parent"

@@ -20,7 +20,7 @@ public class SimpleChipDrawable extends Drawable {
     private final Drawable mBackground;
     private int mTextWidth;
     private int mTextHeight;
-    private int mBgColor;
+    private int mDefaultTextColor;
     private Rect mTempRect = new Rect();
 
     public SimpleChipDrawable(Context ctx, String text, boolean transparent) {
@@ -28,8 +28,9 @@ public class SimpleChipDrawable extends Drawable {
         TypedArray ta = ctx.obtainStyledAttributes(new int[] { android.R.attr.textAppearance });
         int resId = ta.getResourceId(0, 0);
         ta.recycle();
-        ta = ctx.obtainStyledAttributes(resId, new int[] { android.R.attr.textSize });
+        ta = ctx.obtainStyledAttributes(resId, new int[] { android.R.attr.textSize, android.R.attr.textColor });
         int textSize = ta.getDimensionPixelSize(0, 0);
+        mDefaultTextColor = ta.getColor(1, 0);
         ta.recycle();
 
         mBackground = ctx.getResources().getDrawable(transparent ? R.drawable.transparent_chip_background : R.drawable.chip_background);
@@ -42,6 +43,10 @@ public class SimpleChipDrawable extends Drawable {
 
     public Paint getPaint() {
         return mPaint;
+    }
+
+    public void setDefaultTextColor() {
+        getPaint().setColor(mDefaultTextColor);
     }
 
     @Override

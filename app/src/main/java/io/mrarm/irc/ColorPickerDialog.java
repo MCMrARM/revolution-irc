@@ -18,12 +18,14 @@ public class ColorPickerDialog {
     private Context mContext;
     private String mTitle;
     private int[] mColors;
-    private int mSelectedColor;
+    private int mSelectedColor = -1;
     private OnColorChangeListener mListener;
     private int mPositiveButtonText = R.string.action_ok;
     private DialogInterface.OnClickListener mPositiveButtonListener;
     private int mNegativeButtonText = 0;
     private DialogInterface.OnClickListener mNegativeButtonListener;
+    private int mNeutralButtonText = 0;
+    private DialogInterface.OnClickListener mNeutralButtonListener;
     private AlertDialog mDialog;
 
     public ColorPickerDialog(Context context) {
@@ -70,6 +72,11 @@ public class ColorPickerDialog {
         mNegativeButtonListener = listener;
     }
 
+    public void setNeutralButton(int stringId, DialogInterface.OnClickListener listener) {
+        mNeutralButtonText = stringId;
+        mNeutralButtonListener = listener;
+    }
+
 
     private View buildDialogView() {
         View view = LayoutInflater.from(mContext).inflate(R.layout.dialog_color_picker, null);
@@ -89,6 +96,10 @@ public class ColorPickerDialog {
                 .setPositiveButton(mPositiveButtonText, mPositiveButtonListener);
         if (mNegativeButtonText != 0)
             builder.setNegativeButton(mNegativeButtonText, mNegativeButtonListener);
+        if (mNegativeButtonText != 0)
+            builder.setNegativeButton(mNegativeButtonText, mNegativeButtonListener);
+        if (mNeutralButtonText != 0)
+            builder.setNeutralButton(mNeutralButtonText, mNeutralButtonListener);
         mDialog = builder.show();
     }
 

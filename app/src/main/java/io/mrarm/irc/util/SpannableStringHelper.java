@@ -56,15 +56,13 @@ public class SpannableStringHelper {
     }
 
     public static boolean areSpansEqual(Object span, Object span2) {
-        if (span.getClass() != span2.getClass())
-            return false;
-        if (span instanceof ForegroundColorSpan)
+        if (span instanceof ForegroundColorSpan && span2 instanceof ForegroundColorSpan)
             return ((ForegroundColorSpan) span).getForegroundColor() ==
                     ((ForegroundColorSpan) span2).getForegroundColor();
-        if (span instanceof BackgroundColorSpan)
+        if (span instanceof BackgroundColorSpan && span2 instanceof BackgroundColorSpan)
             return ((BackgroundColorSpan) span).getBackgroundColor() ==
                     ((BackgroundColorSpan) span2).getBackgroundColor();
-        if (span instanceof StyleSpan)
+        if (span instanceof StyleSpan && span2 instanceof StyleSpan)
             return ((StyleSpan) span).getStyle() == ((StyleSpan) span2).getStyle();
         return true;
     }
@@ -147,6 +145,20 @@ public class SpannableStringHelper {
                 end = sEnd;
         }
         text.setSpan(what, start, end, flags);
+    }
+
+    public static boolean checkSpanInclude(int spanStart, int spanEnd, int spanFlags, int start, int end) {
+        int pointFlags = spanFlags & Spanned.SPAN_POINT_MARK_MASK;
+        boolean includesStart = pointFlags == Spanned.SPAN_INCLUSIVE_EXCLUSIVE ||
+                pointFlags == Spanned.SPAN_INCLUSIVE_INCLUSIVE;
+        boolean includesEnd = pointFlags == Spanned.SPAN_EXCLUSIVE_INCLUSIVE ||
+                pointFlags == Spanned.SPAN_INCLUSIVE_INCLUSIVE;
+        return (start > spanStart || (spanStart == start && includesStart)) &&
+                (end < spanEnd || (spanEnd == end && includesEnd));
+    }
+
+    public static boolean checkSpanInclude(Spannable s, Object span, int start, int end) {
+        return checkSpanInclude(s.getSpanStart(span), s.getSpanEnd(span), s.getSpanFlags(span), start, end);
     }
 
 }

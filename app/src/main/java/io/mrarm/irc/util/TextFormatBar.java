@@ -80,33 +80,24 @@ public class TextFormatBar extends FrameLayout {
                 setSpan(new UnderlineSpan());
         });
         mTextColorButton.setOnClickListener((View v) -> {
-            ColorPickerDialog dialog = new ColorPickerDialog(getContext());
-            dialog.setTitle(R.string.format_text_color);
             ColorStateList list = ImageViewCompat.getImageTintList(mTextColorValue);
+            int selectedColor = 0;
             if (list != mTextColorValueDefault)
-                dialog.setSelectedColor(list.getDefaultColor());
-            dialog.setPositiveButton(R.string.action_cancel, null);
-            dialog.setOnColorChangeListener((ColorPickerDialog d, int newColorIndex, int color) -> {
-                setSpan(new ForegroundColorSpan(color));
-                d.cancel();
-            });
-            dialog.show();
+                selectedColor = list.getDefaultColor();
+            createColorPicker(false, selectedColor).show();
         });
         mFillColorButton.setOnClickListener((View v) -> {
-            ColorPickerDialog dialog = new ColorPickerDialog(getContext());
-            dialog.setTitle(R.string.format_fill_color);
             ColorStateList list = ImageViewCompat.getImageTintList(mFillColorValue);
-            if (list != mFillColorValueDefault)
-                dialog.setSelectedColor(list.getDefaultColor());
-            dialog.setPositiveButton(R.string.action_cancel, null);
-            dialog.setOnColorChangeListener((ColorPickerDialog d, int newColorIndex, int color) -> {
-                setSpan(new BackgroundColorSpan(color));
-                d.cancel();
-            });
-            dialog.show();
+            int selectedColor = 0;
+            if (list != mTextColorValueDefault)
+                selectedColor = list.getDefaultColor();
+            createColorPicker(true, selectedColor).show();
         });
         mClearButton.setOnClickListener((View v) -> {
-            removeSpan(Object.class);
+            removeSpan(ForegroundColorSpan.class);
+            removeSpan(BackgroundColorSpan.class);
+            removeSpan(UnderlineSpan.class);
+            removeSpan(StyleSpan.class);
         });
         mTextColorValueDefault = ImageViewCompat.getImageTintList(mTextColorValue);
         mFillColorValueDefault = ImageViewCompat.getImageTintList(mFillColorValue);
@@ -158,14 +149,7 @@ public class TextFormatBar extends FrameLayout {
         int bgColor = -1;
 
         for (Object span : spans) {
-            int pointFlags = text.getSpanFlags(span) & Spanned.SPAN_POINT_MARK_MASK;
-            boolean includesEnd = pointFlags == Spanned.SPAN_EXCLUSIVE_INCLUSIVE ||
-                    pointFlags == Spanned.SPAN_INCLUSIVE_INCLUSIVE;
-            boolean includesStart = pointFlags == Spanned.SPAN_INCLUSIVE_EXCLUSIVE ||
-                    pointFlags == Spanned.SPAN_INCLUSIVE_INCLUSIVE;
-            if (text.getSpanStart(span) > start || text.getSpanEnd(span) < end ||
-                    (text.getSpanEnd(span) == end && !includesEnd) ||
-                    (text.getSpanStart(span) == start && !includesStart))
+            if (!SpannableStringHelper.checkSpanInclude(text, span, start, end))
                 continue;
             if (span instanceof StyleSpan) {
                 int style = ((StyleSpan) span).getStyle();
@@ -194,19 +178,39 @@ public class TextFormatBar extends FrameLayout {
             mChangeListener.onChange(this, mEditText);
     }
 
-    private void removeSpan(Class span) {
+    protected void removeSpan(Class span) {
         SpannableStringHelper.removeSpans(mEditText.getText(), span, mEditText.getSelectionStart(), mEditText.getSelectionEnd(), null, true);
         notifyChange();
     }
 
-    private void removeSpan(Object span) {
+    protected void removeSpan(Object span) {
         SpannableStringHelper.removeSpans(mEditText.getText(), span.getClass(), mEditText.getSelectionStart(), mEditText.getSelectionEnd(), span, true);
         notifyChange();
     }
 
-    private void setSpan(Object span) {
+    protected void setSpan(Object span) {
         SpannableStringHelper.setAndMergeSpans(mEditText.getText(), span, mEditText.getSelectionStart(), mEditText.getSelectionEnd(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
         notifyChange();
+    }
+
+    protected ColorPickerDialog createColorPicker(boolean fillColor, int selectedColor) {
+        ColorPickerDialog dialog = new ColorPickerDialog(getContext());
+        if (!fillColor) {
+            dialog.setTitle(R.string.format_text_color);
+        } else {
+            dialog.setTitle(R.string.format_fill_color);
+        }
+        dialog.setSelectedColor(selectedColor);
+        dialog.setPositiveButton(R.string.action_cancel, null);
+        dialog.setOnColorChangeListener((ColorPickerDialog d, int newColorIndex, int color) -> {
+            removeSpan(ForegroundColorSpan.class);
+            if (!fillColor)
+                setSpan(new ForegroundColorSpan(color));
+            else
+                setSpan(new BackgroundColorSpan(color));
+            d.cancel();
+        });
+        return dialog;
     }
 
     public interface OnChangeListener {
