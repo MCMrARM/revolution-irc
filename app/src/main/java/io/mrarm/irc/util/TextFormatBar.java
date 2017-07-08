@@ -92,7 +92,14 @@ public class TextFormatBar extends FrameLayout {
         int bgColor = -1;
 
         for (Object span : spans) {
-            if (text.getSpanStart(span) > start || text.getSpanEnd(span) < end)
+            int pointFlags = text.getSpanFlags(span) & Spanned.SPAN_POINT_MARK_MASK;
+            boolean includesEnd = pointFlags == Spanned.SPAN_EXCLUSIVE_INCLUSIVE ||
+                    pointFlags == Spanned.SPAN_INCLUSIVE_INCLUSIVE;
+            boolean includesStart = pointFlags == Spanned.SPAN_INCLUSIVE_EXCLUSIVE ||
+                    pointFlags == Spanned.SPAN_INCLUSIVE_INCLUSIVE;
+            if (text.getSpanStart(span) > start || text.getSpanEnd(span) < end ||
+                    (text.getSpanEnd(span) == end && !includesEnd) ||
+                    (text.getSpanStart(span) == start && !includesStart))
                 continue;
             if (span instanceof StyleSpan) {
                 int style = ((StyleSpan) span).getStyle();

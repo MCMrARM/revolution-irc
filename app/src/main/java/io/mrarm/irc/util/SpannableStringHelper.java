@@ -5,6 +5,7 @@ import android.text.Editable;
 import android.text.NoCopySpan;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
@@ -64,8 +65,6 @@ public class SpannableStringHelper {
     }
 
     public static void removeSpans(Spannable text, Class<?> type, int start, int end, Object mustEqual, boolean excludeNoCopySpans) {
-        if (start == end)
-            return;
         Object[] spans = text.getSpans(start, end, type);
         for (Object span : spans) {
             if (excludeNoCopySpans && span instanceof NoCopySpan)
@@ -73,16 +72,24 @@ public class SpannableStringHelper {
             if (mustEqual != null && !areSpansEqual(span, mustEqual))
                 continue;
             int flags = text.getSpanFlags(span);
+            int pointFlags = flags & Spanned.SPAN_POINT_MARK_MASK;
+            int otherFlags = flags & ~Spanned.SPAN_POINT_MARK_MASK;
             int sStart = text.getSpanStart(span);
             int sEnd = text.getSpanEnd(span);
             text.removeSpan(span);
             if (sStart < start) {
-                text.setSpan(span, sStart, start, flags);
+                int newPointFlags = Spanned.SPAN_EXCLUSIVE_EXCLUSIVE;
+                if (pointFlags == Spanned.SPAN_INCLUSIVE_INCLUSIVE || pointFlags == Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+                    newPointFlags = Spanned.SPAN_INCLUSIVE_EXCLUSIVE;
+                text.setSpan(span, sStart, start, newPointFlags | otherFlags);
                 if (sEnd > end)
                     span = cloneSpan(span);
             }
             if (sEnd > end) {
-                text.setSpan(span, end, sEnd, flags);
+                int newPointFlags = Spanned.SPAN_EXCLUSIVE_EXCLUSIVE;
+                if (pointFlags == Spanned.SPAN_INCLUSIVE_INCLUSIVE || pointFlags == Spanned.SPAN_EXCLUSIVE_INCLUSIVE)
+                    newPointFlags = Spanned.SPAN_EXCLUSIVE_INCLUSIVE;
+                text.setSpan(span, end, sEnd, newPointFlags | otherFlags);
             }
         }
     }
