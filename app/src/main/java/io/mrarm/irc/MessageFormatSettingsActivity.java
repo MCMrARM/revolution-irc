@@ -105,16 +105,20 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
         refreshExamples();
     }
 
+    public static Date getSampleMessageTime() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR, 0);
+        calendar.set(Calendar.AM_PM, Calendar.PM);
+        calendar.set(Calendar.HOUR_OF_DAY, 12);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        return calendar.getTime();
+    }
+
     private void refreshExamples() {
         if (mTestSender == null) {
             mTestSender = new MessageSenderInfo(getString(R.string.message_example_sender), "", "", null, null);
-            Calendar calendar = Calendar.getInstance();
-            calendar.set(Calendar.HOUR, 0);
-            calendar.set(Calendar.AM_PM, Calendar.PM);
-            calendar.set(Calendar.HOUR_OF_DAY, 12);
-            calendar.set(Calendar.MINUTE, 0);
-            calendar.set(Calendar.SECOND, 0);
-            Date date = calendar.getTime();
+            Date date = getSampleMessageTime();
             mSampleMessage = new MessageInfo(mTestSender, date, getString(R.string.message_example_message), MessageInfo.MessageType.NORMAL);
             mSampleActionMessage = new MessageInfo(mTestSender, date, getString(R.string.message_example_message), MessageInfo.MessageType.ME);
             mSampleEventMessage = new MessageInfo(mTestSender, date, null, MessageInfo.MessageType.JOIN);

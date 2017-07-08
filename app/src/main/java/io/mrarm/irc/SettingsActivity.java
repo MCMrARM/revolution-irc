@@ -19,10 +19,14 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import io.mrarm.chatlib.dto.MessageInfo;
+import io.mrarm.chatlib.dto.MessageSenderInfo;
 import io.mrarm.irc.util.FontSizePickerPreference;
 import io.mrarm.irc.util.ListWithCustomPreference;
+import io.mrarm.irc.util.MessageBuilder;
 import io.mrarm.irc.util.NightModeRecreateHelper;
 import io.mrarm.irc.util.ReconnectIntervalPreference;
 import io.mrarm.irc.util.SimpleCounter;
@@ -201,6 +205,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     }
 
     public static class AppearancePreferenceFragment extends MyPreferenceFragment {
+        private MessageInfo mSampleMessage;
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -214,6 +220,16 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             bindPreferenceSummaryToValue(findPreference("chat_font"));
             bindIntPreferenceSummaryToValue(findPreference("chat_font_size"));
             bindPreferenceSummaryToValue(findPreference("chat_appbar_compact_mode"));
+
+            MessageSenderInfo testSender = new MessageSenderInfo(getString(R.string.message_example_sender), "", "", null, null);
+            Date date = MessageFormatSettingsActivity.getSampleMessageTime();
+            mSampleMessage = new MessageInfo(testSender, date, getString(R.string.message_example_message), MessageInfo.MessageType.NORMAL);
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            findPreference("message_format").setSummary(MessageBuilder.getInstance(getActivity()).buildMessage(mSampleMessage));
         }
     }
 

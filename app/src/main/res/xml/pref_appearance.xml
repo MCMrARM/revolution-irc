@@ -27,6 +27,7 @@
         android:defaultValue="auto" />
 
     <Preference
+        android:key="message_format"
         android:title="@string/pref_title_message_format">
         <intent
             android:targetPackage="io.mrarm.irc"
