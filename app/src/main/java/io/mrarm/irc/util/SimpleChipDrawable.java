@@ -10,7 +10,6 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.text.TextPaint;
 
 import io.mrarm.irc.R;
 
@@ -21,6 +20,7 @@ public class SimpleChipDrawable extends Drawable {
     private final Drawable mBackground;
     private int mTextWidth;
     private int mTextHeight;
+    private int mBgColor;
     private Rect mTempRect = new Rect();
 
     public SimpleChipDrawable(Context ctx, String text, boolean transparent) {
@@ -33,7 +33,7 @@ public class SimpleChipDrawable extends Drawable {
         ta.recycle();
 
         mBackground = ctx.getResources().getDrawable(transparent ? R.drawable.transparent_chip_background : R.drawable.chip_background);
-        mPaint = new TextPaint();
+        mPaint = new Paint();
         mPaint.setTextAlign(Paint.Align.CENTER);
         mPaint.setTextSize(textSize);
         mTextWidth = (int) mPaint.measureText(mText);
@@ -58,8 +58,8 @@ public class SimpleChipDrawable extends Drawable {
 
     @Override
     public void draw(@NonNull Canvas canvas) {
-        mBackground.draw(canvas);
         Rect bounds = getBounds();
+        mBackground.draw(canvas);
         canvas.drawText(mText, bounds.centerX(), bounds.centerY() - (mPaint.descent() + mPaint.ascent()) / 2, mPaint);
     }
 

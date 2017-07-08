@@ -6,6 +6,7 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.text.Spannable;
 import android.text.Spanned;
+import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
 import android.text.style.StyleSpan;
@@ -19,11 +20,18 @@ public class SimpleChipSpan extends ImageSpan {
 
     @Override
     public void draw(Canvas canvas, CharSequence text, int start, int end, float x, int top, int y, int bottom, Paint paint) {
-        Paint myPaint = ((SimpleChipDrawable) getDrawable()).getPaint();
+        SimpleChipDrawable chipDrawable = ((SimpleChipDrawable) getDrawable());
+        Paint myPaint = chipDrawable.getPaint();
         if (text instanceof Spannable) {
             Spanned spannable = (Spannable) text;
             for (ForegroundColorSpan o : spannable.getSpans(start, end, ForegroundColorSpan.class))
                 myPaint.setColor(o.getForegroundColor());
+            for (BackgroundColorSpan o : spannable.getSpans(start, end, BackgroundColorSpan.class)) {
+                int c = paint.getColor();
+                paint.setColor(o.getBackgroundColor());
+                canvas.drawRect(x, top, x + chipDrawable.getBounds().width(), bottom, paint);
+                paint.setColor(c);
+            }
             int style = 0;
             for (StyleSpan o : spannable.getSpans(start, end, StyleSpan.class))
                 style |= o.getStyle();
