@@ -3,6 +3,9 @@ package io.mrarm.irc;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -17,6 +20,8 @@ import io.mrarm.irc.util.SimpleTextWatcher;
 import io.mrarm.irc.util.TextFormatBar;
 
 public class MessageFormatSettingsActivity extends AppCompatActivity {
+
+    private MessageBuilder mMessageBuilder;
 
     private EditText mDateFormat;
     private TextInputLayout mDateFormatCtr;
@@ -37,26 +42,27 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message_format_settings);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        MessageBuilder builder = MessageBuilder.getInstance(this);
+        mMessageBuilder = new MessageBuilder(this);
 
         mTextFormatBar = (TextFormatBar) findViewById(R.id.format_bar);
         mTextFormatBar.setOnChangeListener((TextFormatBar bar, FormattableEditText text) -> {
             if (text == mMessageFormatNormal)
-                builder.setMessageFormat(text.getText());
+                mMessageBuilder.setMessageFormat(text.getText());
             else if (text == mMessageFormatAction)
-                builder.setActionMessageFormat(text.getText());
+                mMessageBuilder.setActionMessageFormat(text.getText());
             else if (text == mMessageFormatEvent)
-                builder.setEventMessageFormat(text.getText());
+                mMessageBuilder.setEventMessageFormat(text.getText());
             refreshExamples();
         });
 
         mDateFormat = (EditText) findViewById(R.id.date_format);
         mDateFormatCtr = (TextInputLayout) findViewById(R.id.date_format_ctr);
-        mDateFormat.setText(builder.getMessageTimeFormat().toPattern());
+        mDateFormat.setText(mMessageBuilder.getMessageTimeFormat().toPattern());
         mDateFormat.addTextChangedListener(new SimpleTextWatcher((CharSequence s, int start, int before, int count) -> {
             try {
-                builder.setMessageTimeFormat(s.toString());
+                mMessageBuilder.setMessageTimeFormat(s.toString());
                 mDateFormatCtr.setError(null);
                 mDateFormatCtr.setErrorEnabled(false);
             } catch (Exception e) {
@@ -67,30 +73,30 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
         }));
 
         mMessageFormatNormal = (FormattableEditText) findViewById(R.id.message_format_normal);
-        mMessageFormatNormal.setText(builder.getMessageFormat());
+        mMessageFormatNormal.setText(mMessageBuilder.getMessageFormat());
         mMessageFormatNormal.setFormatBar(mTextFormatBar);
         mMessageFormatNormal.addTextChangedListener(new SimpleTextWatcher((CharSequence s, int start, int before, int count) -> {
-            builder.setMessageFormat(s);
+            mMessageBuilder.setMessageFormat(s);
             refreshExamples();
         }));
 
         mMessageFormatNormalExample = (TextView) findViewById(R.id.message_format_normal_example);
 
         mMessageFormatAction = (FormattableEditText) findViewById(R.id.message_format_action);
-        mMessageFormatAction.setText(builder.getActionMessageFormat());
+        mMessageFormatAction.setText(mMessageBuilder.getActionMessageFormat());
         mMessageFormatAction.setFormatBar(mTextFormatBar);
         mMessageFormatAction.addTextChangedListener(new SimpleTextWatcher((CharSequence s, int start, int before, int count) -> {
-            builder.setActionMessageFormat(s);
+            mMessageBuilder.setActionMessageFormat(s);
             refreshExamples();
         }));
 
         mMessageFormatActionExample = (TextView) findViewById(R.id.message_format_action_example);
 
         mMessageFormatEvent = (FormattableEditText) findViewById(R.id.message_format_event);
-        mMessageFormatEvent.setText(builder.getEventMessageFormat());
+        mMessageFormatEvent.setText(mMessageBuilder.getEventMessageFormat());
         mMessageFormatEvent.setFormatBar(mTextFormatBar);
         mMessageFormatEvent.addTextChangedListener(new SimpleTextWatcher((CharSequence s, int start, int before, int count) -> {
-            builder.setEventMessageFormat(s);
+            mMessageBuilder.setEventMessageFormat(s);
             refreshExamples();
         }));
 
@@ -114,10 +120,40 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
             mSampleEventMessage = new MessageInfo(mTestSender, date, null, MessageInfo.MessageType.JOIN);
         }
 
-        MessageBuilder builder = MessageBuilder.getInstance(this);
-        mMessageFormatNormalExample.setText(builder.buildMessage(mSampleMessage));
-        mMessageFormatActionExample.setText(builder.buildMessage(mSampleActionMessage));
-        mMessageFormatEventExample.setText(builder.buildMessage(mSampleEventMessage));
+        mMessageFormatNormalExample.setText(mMessageBuilder.buildMessage(mSampleMessage));
+        mMessageFormatActionExample.setText(mMessageBuilder.buildMessage(mSampleActionMessage));
+        mMessageFormatEventExample.setText(mMessageBuilder.buildMessage(mSampleEventMessage));
+    }
+
+    public void save() {
+        MessageBuilder global = MessageBuilder.getInstance(this);
+        global.setMessageTimeFormat(mMessageBuilder.getMessageTimeFormat().toPattern());
+        global.setMessageFormat(mMessageBuilder.getMessageFormat());
+        global.setActionMessageFormat(mMessageBuilder.getActionMessageFormat());
+        global.setEventMessageFormat(mMessageBuilder.getEventMessageFormat());
+        global.saveFormats();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_edit_only_done, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_done || id == android.R.id.home) {
+            if (id == R.id.action_done) {
+                save();
+            }
+
+            InputMethodManager manager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            manager.hideSoftInputFromWindow(getWindow().getDecorView().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
 }

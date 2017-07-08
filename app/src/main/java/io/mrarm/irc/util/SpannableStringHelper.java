@@ -1,7 +1,6 @@
 package io.mrarm.irc.util;
 
 import android.content.Context;
-import android.text.Editable;
 import android.text.NoCopySpan;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -10,7 +9,13 @@ import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 
+import com.google.gson.JsonObject;
+
 public class SpannableStringHelper {
+
+    public static final String SPAN_TYPE_FOREGROUND = "foreground";
+    public static final String SPAN_TYPE_BACKGROUND = "background";
+    public static final String SPAN_TYPE_STYLE = "style";
 
     public static CharSequence format(CharSequence seq, Object... args) {
         int argI = 0;
@@ -62,6 +67,34 @@ public class SpannableStringHelper {
         if (span instanceof StyleSpan)
             return ((StyleSpan) span).getStyle() == ((StyleSpan) span2).getStyle();
         return true;
+    }
+
+    public static JsonObject spanToJson(Object span) {
+        JsonObject ret = new JsonObject();
+        if (span instanceof ForegroundColorSpan) {
+            ret.addProperty("type", SPAN_TYPE_FOREGROUND);
+            ret.addProperty("color", ((ForegroundColorSpan) span).getForegroundColor());
+        } else if (span instanceof BackgroundColorSpan) {
+            ret.addProperty("type", SPAN_TYPE_BACKGROUND);
+            ret.addProperty("color", ((BackgroundColorSpan) span).getBackgroundColor());
+        } else if (span instanceof StyleSpan) {
+            ret.addProperty("type", SPAN_TYPE_STYLE);
+            ret.addProperty("style", ((StyleSpan) span).getStyle());
+        } else {
+            return null;
+        }
+        return ret;
+    }
+
+    public static Object spanFromJson(JsonObject obj) {
+        String type = obj.get("type").getAsString();
+        if (type.equals(SPAN_TYPE_FOREGROUND))
+            return new ForegroundColorSpan(obj.get("color").getAsNumber().intValue());
+        if (type.equals(SPAN_TYPE_BACKGROUND))
+            return new BackgroundColorSpan(obj.get("color").getAsNumber().intValue());
+        if (type.equals(SPAN_TYPE_STYLE))
+            return new StyleSpan(obj.get("style").getAsNumber().intValue());
+        return null;
     }
 
     public static void removeSpans(Spannable text, Class<?> type, int start, int end, Object mustEqual, boolean excludeNoCopySpans) {

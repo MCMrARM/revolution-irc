@@ -1,12 +1,20 @@
 package io.mrarm.irc.util;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
+import android.preference.PreferenceManager;
+import android.text.GetChars;
+import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -22,8 +30,10 @@ public class MessageBuilder {
 
     private static final int FORMAT_SPAN_FLAGS = Spanned.SPAN_EXCLUSIVE_EXCLUSIVE | Spanned.SPAN_PRIORITY;
 
-    private static SimpleDateFormat sDefaultMessageTimeFormat = new SimpleDateFormat("[HH:mm]",
-            Locale.getDefault());
+    public static final String SPAN_TYPE_META_FOREGROUND = "meta_foreground";
+    public static final String SPAN_TYPE_META_CHIP = "meta_chip";
+
+    private static final String DEFAULT_TIME_FORMAT = "[HH:mm]";
 
     public static MessageBuilder getInstance(Context context) {
         if (sInstance == null)
@@ -32,7 +42,7 @@ public class MessageBuilder {
     }
 
     private Context mContext;
-    private SimpleDateFormat mMessageTimeFormat = sDefaultMessageTimeFormat;
+    private SimpleDateFormat mMessageTimeFormat;
     private CharSequence mMessageFormat;
     private CharSequence mActionMessageFormat;
     private CharSequence mEventMessageFormat;
@@ -69,11 +79,102 @@ public class MessageBuilder {
         return spannable;
     }
 
+    public static JsonObject spannableToJson(CharSequence text) {
+        JsonObject ret = new JsonObject();
+        ret.addProperty("text", text.toString());
+        JsonArray a = new JsonArray();
+        if (text instanceof Spannable) {
+            Spannable spannable = (Spannable) text;
+            for (Object span : spannable.getSpans(0, text.length(), Object.class)) {
+                JsonObject o = spanToJson(span);
+                if (o != null) {
+                    o.addProperty("start", spannable.getSpanStart(span));
+                    o.addProperty("end", spannable.getSpanEnd(span));
+                    o.addProperty("flags", spannable.getSpanFlags(span));
+                    a.add(o);
+                }
+            }
+        }
+        ret.add("spans", a);
+        return ret;
+    }
+
+    public static SpannableString spannableFromJson(Context context, JsonObject o) {
+        SpannableString spannable = new SpannableString(o.get("text").getAsString());
+        for (JsonElement el : o.getAsJsonArray("spans")) {
+            if (el instanceof JsonObject) {
+                JsonObject obj = (JsonObject) el;
+                Object span = spanFromJson(context, obj);
+                if (span != null)
+                    spannable.setSpan(span, obj.get("start").getAsInt(), obj.get("end").getAsInt(),
+                            obj.get("flags").getAsInt());
+            }
+        }
+        return spannable;
+    }
+
+    public static JsonObject spanToJson(Object span) {
+        if (span instanceof MetaForegroundColorSpan) {
+            JsonObject ret = new JsonObject();
+            ret.addProperty("type", SPAN_TYPE_META_FOREGROUND);
+            ret.addProperty("colorId", ((MetaForegroundColorSpan) span).getColorId());
+            return ret;
+        } else if (span instanceof MetaChipSpan) {
+            JsonObject ret = new JsonObject();
+            ret.addProperty("type", SPAN_TYPE_META_CHIP);
+            ret.addProperty("chipType", ((MetaChipSpan) span).getType());
+            return ret;
+        }
+        return SpannableStringHelper.spanToJson(span);
+    }
+
+    public static Object spanFromJson(Context context, JsonObject obj) {
+        String type = obj.get("type").getAsString();
+        if (type.equals(SPAN_TYPE_META_FOREGROUND))
+            return new MetaForegroundColorSpan(context, obj.get("colorId").getAsInt());
+        if (type.equals(SPAN_TYPE_META_CHIP))
+            return new MetaChipSpan(context, obj.get("chipType").getAsInt());
+        return SpannableStringHelper.spanFromJson(obj);
+    }
+
     public MessageBuilder(Context context) {
         mContext = context;
-        mMessageFormat = buildDefaultMessageFormat(context);
-        mActionMessageFormat = buildDefaultActionMessageFormat(context);
-        mEventMessageFormat = buildDefaultEventMessageFormat(context);
+        SharedPreferences mgr = PreferenceManager.getDefaultSharedPreferences(context);
+        try {
+            mMessageTimeFormat = new SimpleDateFormat(mgr.getString(
+                    SettingsHelper.PREF_MESSAGE_TIME_FORMAT, DEFAULT_TIME_FORMAT), Locale.getDefault());
+        } catch (Exception ignored) {
+        }
+        mMessageFormat = getMessageFormat(mgr, SettingsHelper.PREF_MESSAGE_FORMAT);
+        if (mMessageFormat == null)
+            mMessageFormat = buildDefaultMessageFormat(context);
+        mActionMessageFormat = getMessageFormat(mgr, SettingsHelper.PREF_MESSAGE_FORMAT_ACTION);
+        if (mActionMessageFormat == null)
+            mActionMessageFormat = buildDefaultActionMessageFormat(context);
+        mEventMessageFormat = getMessageFormat(mgr, SettingsHelper.PREF_MESSAGE_FORMAT_EVENT);
+        if (mEventMessageFormat == null)
+            mEventMessageFormat = buildDefaultEventMessageFormat(context);
+    }
+
+    public void saveFormats() {
+        SharedPreferences.Editor mgr = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
+        mgr.putString(SettingsHelper.PREF_MESSAGE_TIME_FORMAT, mMessageTimeFormat.toPattern());
+        mgr.putString(SettingsHelper.PREF_MESSAGE_FORMAT, SettingsHelper.getGson().toJson(spannableToJson(mMessageFormat)));
+        mgr.putString(SettingsHelper.PREF_MESSAGE_FORMAT_ACTION, SettingsHelper.getGson().toJson(spannableToJson(mActionMessageFormat)));
+        mgr.putString(SettingsHelper.PREF_MESSAGE_FORMAT_EVENT, SettingsHelper.getGson().toJson(spannableToJson(mEventMessageFormat)));
+        mgr.apply();
+    }
+
+    private CharSequence getMessageFormat(SharedPreferences mgr, String key) {
+        try {
+            String s = mgr.getString(key, null);
+            if (s == null)
+                return null;
+            JsonObject o = SettingsHelper.getGson().fromJson(s, JsonObject.class);
+            return spannableFromJson(mContext, o);
+        } catch (Exception ignored) {
+        }
+        return null;
     }
 
     public SimpleDateFormat getMessageTimeFormat() {
