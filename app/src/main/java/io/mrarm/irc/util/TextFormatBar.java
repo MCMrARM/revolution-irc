@@ -203,11 +203,13 @@ public class TextFormatBar extends FrameLayout {
         dialog.setSelectedColor(selectedColor);
         dialog.setPositiveButton(R.string.action_cancel, null);
         dialog.setOnColorChangeListener((ColorPickerDialog d, int newColorIndex, int color) -> {
-            removeSpan(ForegroundColorSpan.class);
-            if (!fillColor)
+            if (!fillColor) {
+                removeSpan(ForegroundColorSpan.class);
                 setSpan(new ForegroundColorSpan(color));
-            else
+            } else {
+                removeSpan(BackgroundColorSpan.class);
                 setSpan(new BackgroundColorSpan(color));
+            }
             d.cancel();
         });
         return dialog;

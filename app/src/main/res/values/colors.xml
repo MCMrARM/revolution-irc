@@ -68,6 +68,9 @@
         <item>@color/ircLightGray</item>
     </integer-array>
 
+    <color name="extraFormatTextColor1">#D84315</color>
+    <color name="extraFormatTextColor2">#283593</color>
+
     <integer-array name="formatTextColors">
         <item>@color/ircBlack</item>
         <item>@color/ircWhite</item>
@@ -82,7 +85,11 @@
         <item>@color/ircCyan</item>
         <item>@color/ircLightCyan</item>
         <item>@color/ircLightBlue</item>
+        <item>@color/extraFormatTextColor2</item>
         <item>@color/ircPink</item>
+        <item>@color/extraFormatTextColor1</item>
+        <item>@color/ircLightGray</item>
+        <item>@color/ircGray</item>
         <item>@color/messageStatusText</item>
         <item>@color/messageTimestamp</item>
     </integer-array>
