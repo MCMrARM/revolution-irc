@@ -3,8 +3,6 @@ package io.mrarm.irc;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.text.TextWatcher;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -16,7 +14,6 @@ import io.mrarm.chatlib.dto.MessageSenderInfo;
 import io.mrarm.irc.util.FormattableEditText;
 import io.mrarm.irc.util.MessageBuilder;
 import io.mrarm.irc.util.SimpleTextWatcher;
-import io.mrarm.irc.util.StubTextWatcher;
 import io.mrarm.irc.util.TextFormatBar;
 
 public class MessageFormatSettingsActivity extends AppCompatActivity {

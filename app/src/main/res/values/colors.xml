@@ -8,6 +8,7 @@
     <color name="colorAccent">#FF4081</color>
 
     <color name="chipColor">#BBDEFB</color>
+    <color name="transparentChipColor">#20000000</color>
 
     <color name="colorSwipeDeleteBackground">#D50000</color>
     <color name="colorSwipeIconColor">#FFFFFF</color>

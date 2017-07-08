@@ -163,6 +163,10 @@
     <string name="message_format_event">Event (join/leave/etc.) message format</string>
     <string name="message_format_date_invalid">Invalid date/time format</string>
 
+    <string name="message_format_time">time</string>
+    <string name="message_format_sender">sender</string>
+    <string name="message_format_message">message</string>
+
     <string name="message_example_sender">sender-nick</string>
     <string name="message_example_message">This is an example message.</string>
 

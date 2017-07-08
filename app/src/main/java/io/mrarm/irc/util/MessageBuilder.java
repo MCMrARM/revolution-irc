@@ -41,6 +41,9 @@ public class MessageBuilder {
         SpannableString spannable = new SpannableString("%t %s: %m");
         spannable.setSpan(new MetaForegroundColorSpan(context, MetaForegroundColorSpan.COLOR_TIMESTAMP), 0, 2, FORMAT_SPAN_FLAGS);
         spannable.setSpan(new MetaForegroundColorSpan(context, MetaForegroundColorSpan.COLOR_SENDER), 3, 6, FORMAT_SPAN_FLAGS);
+        spannable.setSpan(new MetaChipSpan(context, MetaChipSpan.TYPE_TIME), 0, 2, FORMAT_SPAN_FLAGS);
+        spannable.setSpan(new MetaChipSpan(context, MetaChipSpan.TYPE_SENDER), 3, 5, FORMAT_SPAN_FLAGS);
+        spannable.setSpan(new MetaChipSpan(context, MetaChipSpan.TYPE_MESSAGE),  7, 9, FORMAT_SPAN_FLAGS);
         return spannable;
     }
 
@@ -50,6 +53,9 @@ public class MessageBuilder {
         spannable.setSpan(new StyleSpan(Typeface.ITALIC), 3, 10, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
         spannable.setSpan(new MetaForegroundColorSpan(context, MetaForegroundColorSpan.COLOR_STATUS), 3, 4, FORMAT_SPAN_FLAGS);
         spannable.setSpan(new MetaForegroundColorSpan(context, MetaForegroundColorSpan.COLOR_SENDER), 5, 7, FORMAT_SPAN_FLAGS);
+        spannable.setSpan(new MetaChipSpan(context, MetaChipSpan.TYPE_TIME), 0, 2, FORMAT_SPAN_FLAGS);
+        spannable.setSpan(new MetaChipSpan(context, MetaChipSpan.TYPE_SENDER), 5, 7, FORMAT_SPAN_FLAGS);
+        spannable.setSpan(new MetaChipSpan(context, MetaChipSpan.TYPE_MESSAGE),  8, 10, FORMAT_SPAN_FLAGS);
         return spannable;
     }
 
@@ -58,6 +64,8 @@ public class MessageBuilder {
         spannable.setSpan(new MetaForegroundColorSpan(context, MetaForegroundColorSpan.COLOR_TIMESTAMP), 0, 2, FORMAT_SPAN_FLAGS);
         spannable.setSpan(new StyleSpan(Typeface.ITALIC), 3, 7, FORMAT_SPAN_FLAGS);
         spannable.setSpan(new MetaForegroundColorSpan(context, MetaForegroundColorSpan.COLOR_STATUS), 3, 7, FORMAT_SPAN_FLAGS);
+        spannable.setSpan(new MetaChipSpan(context, MetaChipSpan.TYPE_TIME), 0, 2, FORMAT_SPAN_FLAGS);
+        spannable.setSpan(new MetaChipSpan(context, MetaChipSpan.TYPE_MESSAGE),  5, 7, FORMAT_SPAN_FLAGS);
         return spannable;
     }
 
@@ -145,6 +153,18 @@ public class MessageBuilder {
                                        CharSequence message) {
         int nickColor = sender == null ? 0 : IRCColorUtils.getNickColor(mContext, sender);
         SpannableStringBuilder builder = new SpannableStringBuilder(format);
+        for (MetaChipSpan span : builder.getSpans(0, builder.length(), MetaChipSpan.class)) {
+            CharSequence replacement = null;
+            if (span.mType == MetaChipSpan.TYPE_SENDER)
+                replacement = sender;
+            else if (span.mType == MetaChipSpan.TYPE_MESSAGE)
+                replacement = message;
+            else if (span.mType == MetaChipSpan.TYPE_TIME)
+                replacement = getMessageTimeFormat().format(date);
+            if (replacement != null)
+                builder.replace(builder.getSpanStart(span), builder.getSpanEnd(span), replacement);
+            builder.removeSpan(span);
+        }
         for (MetaForegroundColorSpan span : builder.getSpans(0, builder.length(), MetaForegroundColorSpan.class)) {
             int color = MetaForegroundColorSpan.resolveColor(mContext, span.getColorId());
             if (span.getColorId() == MetaForegroundColorSpan.COLOR_SENDER)
@@ -153,31 +173,37 @@ public class MessageBuilder {
                     builder.getSpanEnd(span), builder.getSpanFlags(span));
             builder.removeSpan(span);
         }
-        for (int i = 0; i < builder.length() - 1; i++) {
-            if (builder.charAt(i) == '%') {
-                int c = builder.charAt(++i);
-                CharSequence replacement = null;
-                switch (c) {
-                    case 't':
-                        replacement = mMessageTimeFormat.format(date);
-                        break;
-                    case 's':
-                        replacement = sender;
-                        break;
-                    case 'm':
-                        replacement = message;
-                        break;
-                    case '%':
-                        replacement = "%";
-                        break;
-                }
-                if (replacement != null) {
-                    builder.replace(i - 1, i + 1, replacement);
-                    i += replacement.length() - 2;
-                }
-            }
-        }
         return new SpannableString(builder);
+    }
+
+    public static class MetaChipSpan extends SimpleChipSpan {
+
+        public static final int TYPE_SENDER = 0;
+        public static final int TYPE_MESSAGE = 1;
+        public static final int TYPE_TIME = 2;
+
+        public static String getTextFor(Context context, int type) {
+            String text = null;
+            if (type == TYPE_SENDER)
+                text = context.getString(R.string.message_format_sender);
+            else if (type == TYPE_MESSAGE)
+                text = context.getString(R.string.message_format_message);
+            else if (type == TYPE_TIME)
+                text = context.getString(R.string.message_format_time);
+            return text;
+        }
+
+        private int mType;
+
+        public MetaChipSpan(Context context, int type) {
+            super(context, getTextFor(context, type), true);
+            mType = type;
+        }
+
+        public int getType() {
+            return mType;
+        }
+
     }
 
     public static class MetaForegroundColorSpan extends ForegroundColorSpan {
