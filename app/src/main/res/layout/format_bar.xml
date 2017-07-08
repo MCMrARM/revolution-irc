@@ -27,21 +27,49 @@
         android:layout_toRightOf="@id/format_italic"
         android:contentDescription="@string/format_underline" />
 
-    <ImageButton
+    <FrameLayout
         android:id="@+id/format_text_color"
         style="@style/TextFormatBarButton"
-        app:srcCompat="@drawable/ic_format_color_text"
         android:layout_toEndOf="@id/format_underline"
         android:layout_toRightOf="@id/format_underline"
-        android:contentDescription="@string/format_text_color" />
+        android:contentDescription="@string/format_text_color">
 
-    <ImageButton
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tint="@color/recommended_material_icon_color"
+            app:srcCompat="@drawable/ic_format_color_text" />
+
+        <ImageView
+            android:id="@+id/format_text_color_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tint="@color/formatDefaultColorIndicator"
+            app:srcCompat="@drawable/ic_format_color_color" />
+
+    </FrameLayout>
+
+    <RelativeLayout
         android:id="@+id/format_fill_color"
         style="@style/TextFormatBarButton"
-        app:srcCompat="@drawable/ic_format_color_fill"
         android:layout_toEndOf="@id/format_text_color"
         android:layout_toRightOf="@id/format_text_color"
-        android:contentDescription="@string/format_fill_color" />
+        android:contentDescription="@string/format_fill_color">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tint="@color/recommended_material_icon_color"
+            app:srcCompat="@drawable/ic_format_color_fill" />
+
+        <ImageView
+            android:id="@+id/format_fill_color_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tint="@color/formatDefaultColorIndicator"
+            app:srcCompat="@drawable/ic_format_color_color" />
+
+    </RelativeLayout>
 
     <ImageButton
         android:id="@+id/format_clear"

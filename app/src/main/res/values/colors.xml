@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="recommended_material_icon_color">#54000000</color>
+    <color name="recommended_material_icon_color">#000000</color>
 
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
@@ -45,6 +45,8 @@
     <color name="memberNormal">#000</color>
 
     <color name="motdColor">#1976D2</color>
+
+    <color name="formatDefaultColorIndicator">#5C000000</color>
 
     <integer-array name="colorPickerColors">
         <item>@color/ircBlack</item>

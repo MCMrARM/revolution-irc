@@ -1,8 +1,12 @@
 package io.mrarm.irc.util;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.support.annotation.Nullable;
+import android.support.v4.widget.ImageViewCompat;
+import android.support.v7.widget.AppCompatImageView;
 import android.text.Editable;
 import android.text.Spanned;
 import android.text.style.BackgroundColorSpan;
@@ -10,22 +14,25 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 
 import io.mrarm.irc.R;
 
 public class TextFormatBar extends FrameLayout {
 
     private FormattableEditText mEditText;
-    private ImageButton mBoldButton;
-    private ImageButton mItalicButton;
-    private ImageButton mUnderlineButton;
-    private ImageButton mTextColorButton;
-    private ImageButton mFillColorButton;
-    private ImageButton mClearButton;
+    private View mBoldButton;
+    private View mItalicButton;
+    private View mUnderlineButton;
+    private View mTextColorButton;
+    private ImageView mTextColorValue;
+    private ColorStateList mTextColorValueDefault;
+    private View mFillColorButton;
+    private ImageView mFillColorValue;
+    private ColorStateList mFillColorValueDefault;
+    private View mClearButton;
 
     public TextFormatBar(Context context) {
         this(context, null);
@@ -38,12 +45,14 @@ public class TextFormatBar extends FrameLayout {
     public TextFormatBar(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         View.inflate(getContext(), R.layout.format_bar, this);
-        mBoldButton = (ImageButton) findViewById(R.id.format_bold);
-        mItalicButton = (ImageButton) findViewById(R.id.format_italic);
-        mUnderlineButton = (ImageButton) findViewById(R.id.format_underline);
-        mTextColorButton = (ImageButton) findViewById(R.id.format_text_color);
-        mFillColorButton = (ImageButton) findViewById(R.id.format_fill_color);
-        mClearButton = (ImageButton) findViewById(R.id.format_clear);
+        mBoldButton = findViewById(R.id.format_bold);
+        mItalicButton = findViewById(R.id.format_italic);
+        mUnderlineButton = findViewById(R.id.format_underline);
+        mTextColorButton = findViewById(R.id.format_text_color);
+        mTextColorValue = (ImageView) findViewById(R.id.format_text_color_value);
+        mFillColorButton = findViewById(R.id.format_fill_color);
+        mFillColorValue = (ImageView) findViewById(R.id.format_fill_color_value);
+        mClearButton = findViewById(R.id.format_clear);
         mBoldButton.setOnClickListener((View v) -> {
             if (v.isSelected())
                 removeSpan(new StyleSpan(Typeface.BOLD));
@@ -65,10 +74,20 @@ public class TextFormatBar extends FrameLayout {
                 setSpan(new UnderlineSpan());
             updateFormattingAtCursor();
         });
+        mTextColorButton.setOnClickListener((View v) -> {
+            //
+        });
+        mFillColorButton.setOnClickListener((View v) -> {
+            //
+        });
         mClearButton.setOnClickListener((View v) -> {
             removeSpan(Object.class);
             updateFormattingAtCursor();
         });
+        mTextColorValueDefault = ImageViewCompat.getImageTintList(mTextColorValue);
+        mFillColorValueDefault = ImageViewCompat.getImageTintList(mFillColorValue);
+        ImageViewCompat.setImageTintMode(mTextColorValue, PorterDuff.Mode.SRC_ATOP);
+        ImageViewCompat.setImageTintMode(mFillColorValue, PorterDuff.Mode.SRC_ATOP);
     }
 
     public void setEditText(FormattableEditText editText) {
@@ -115,6 +134,11 @@ public class TextFormatBar extends FrameLayout {
                 bgColor = ((BackgroundColorSpan) span).getBackgroundColor();
             }
         }
+
+        ImageViewCompat.setImageTintList(mTextColorValue, fgColor != -1
+                ? ColorStateList.valueOf(fgColor) : mTextColorValueDefault);
+        ImageViewCompat.setImageTintList(mFillColorValue, bgColor != -1
+                ? ColorStateList.valueOf(bgColor) : mFillColorValueDefault);
     }
 
     private void removeSpan(Class span) {
