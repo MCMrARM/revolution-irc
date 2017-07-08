@@ -77,4 +77,11 @@
         android:layout_toRightOf="@id/format_fill_color"
         android:contentDescription="@string/format_clear" />
 
+    <ImageButton
+        android:id="@+id/format_extra"
+        style="@style/TextFormatBarButton"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:visibility="gone" />
+
 </RelativeLayout>

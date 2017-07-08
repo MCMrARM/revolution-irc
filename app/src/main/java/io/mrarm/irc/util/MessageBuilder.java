@@ -48,34 +48,34 @@ public class MessageBuilder {
     private CharSequence mEventMessageFormat;
 
     private static SpannableString buildDefaultMessageFormat(Context context) {
-        SpannableString spannable = new SpannableString("%t %s: %m");
-        spannable.setSpan(new MetaForegroundColorSpan(context, MetaForegroundColorSpan.COLOR_TIMESTAMP), 0, 2, FORMAT_SPAN_FLAGS);
-        spannable.setSpan(new MetaForegroundColorSpan(context, MetaForegroundColorSpan.COLOR_SENDER), 3, 6, FORMAT_SPAN_FLAGS);
-        spannable.setSpan(new MetaChipSpan(context, MetaChipSpan.TYPE_TIME), 0, 2, FORMAT_SPAN_FLAGS);
-        spannable.setSpan(new MetaChipSpan(context, MetaChipSpan.TYPE_SENDER), 3, 5, FORMAT_SPAN_FLAGS);
-        spannable.setSpan(new MetaChipSpan(context, MetaChipSpan.TYPE_MESSAGE),  7, 9, FORMAT_SPAN_FLAGS);
+        SpannableString spannable = new SpannableString("   :  ");
+        spannable.setSpan(new MetaForegroundColorSpan(context, MetaForegroundColorSpan.COLOR_TIMESTAMP), 0, 1, FORMAT_SPAN_FLAGS);
+        spannable.setSpan(new MetaForegroundColorSpan(context, MetaForegroundColorSpan.COLOR_SENDER), 2, 3, FORMAT_SPAN_FLAGS);
+        spannable.setSpan(new MetaChipSpan(context, MetaChipSpan.TYPE_TIME), 0, 1, FORMAT_SPAN_FLAGS);
+        spannable.setSpan(new MetaChipSpan(context, MetaChipSpan.TYPE_SENDER), 2, 3, FORMAT_SPAN_FLAGS);
+        spannable.setSpan(new MetaChipSpan(context, MetaChipSpan.TYPE_MESSAGE), 5, 6, FORMAT_SPAN_FLAGS);
         return spannable;
     }
 
     private static SpannableString buildDefaultActionMessageFormat(Context context) {
-        SpannableString spannable = new SpannableString("%t * %s %m");
-        spannable.setSpan(new MetaForegroundColorSpan(context, MetaForegroundColorSpan.COLOR_TIMESTAMP), 0, 2, FORMAT_SPAN_FLAGS);
-        spannable.setSpan(new StyleSpan(Typeface.ITALIC), 3, 10, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-        spannable.setSpan(new MetaForegroundColorSpan(context, MetaForegroundColorSpan.COLOR_STATUS), 3, 4, FORMAT_SPAN_FLAGS);
-        spannable.setSpan(new MetaForegroundColorSpan(context, MetaForegroundColorSpan.COLOR_SENDER), 5, 7, FORMAT_SPAN_FLAGS);
-        spannable.setSpan(new MetaChipSpan(context, MetaChipSpan.TYPE_TIME), 0, 2, FORMAT_SPAN_FLAGS);
-        spannable.setSpan(new MetaChipSpan(context, MetaChipSpan.TYPE_SENDER), 5, 7, FORMAT_SPAN_FLAGS);
-        spannable.setSpan(new MetaChipSpan(context, MetaChipSpan.TYPE_MESSAGE),  8, 10, FORMAT_SPAN_FLAGS);
+        SpannableString spannable = new SpannableString("  *    ");
+        spannable.setSpan(new MetaForegroundColorSpan(context, MetaForegroundColorSpan.COLOR_TIMESTAMP), 0, 1, FORMAT_SPAN_FLAGS);
+        spannable.setSpan(new StyleSpan(Typeface.ITALIC), 2, 7, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+        spannable.setSpan(new MetaForegroundColorSpan(context, MetaForegroundColorSpan.COLOR_STATUS), 2, 3, FORMAT_SPAN_FLAGS);
+        spannable.setSpan(new MetaForegroundColorSpan(context, MetaForegroundColorSpan.COLOR_SENDER), 4, 5, FORMAT_SPAN_FLAGS);
+        spannable.setSpan(new MetaChipSpan(context, MetaChipSpan.TYPE_TIME), 0, 1, FORMAT_SPAN_FLAGS);
+        spannable.setSpan(new MetaChipSpan(context, MetaChipSpan.TYPE_SENDER), 4, 5, FORMAT_SPAN_FLAGS);
+        spannable.setSpan(new MetaChipSpan(context, MetaChipSpan.TYPE_MESSAGE),  6, 7, FORMAT_SPAN_FLAGS);
         return spannable;
     }
 
     private static SpannableString buildDefaultEventMessageFormat(Context context) {
-        SpannableString spannable = new SpannableString("%t * %m");
-        spannable.setSpan(new MetaForegroundColorSpan(context, MetaForegroundColorSpan.COLOR_TIMESTAMP), 0, 2, FORMAT_SPAN_FLAGS);
-        spannable.setSpan(new StyleSpan(Typeface.ITALIC), 3, 7, FORMAT_SPAN_FLAGS);
-        spannable.setSpan(new MetaForegroundColorSpan(context, MetaForegroundColorSpan.COLOR_STATUS), 3, 7, FORMAT_SPAN_FLAGS);
-        spannable.setSpan(new MetaChipSpan(context, MetaChipSpan.TYPE_TIME), 0, 2, FORMAT_SPAN_FLAGS);
-        spannable.setSpan(new MetaChipSpan(context, MetaChipSpan.TYPE_MESSAGE),  5, 7, FORMAT_SPAN_FLAGS);
+        SpannableString spannable = new SpannableString("  *  ");
+        spannable.setSpan(new MetaForegroundColorSpan(context, MetaForegroundColorSpan.COLOR_TIMESTAMP), 0, 1, FORMAT_SPAN_FLAGS);
+        spannable.setSpan(new StyleSpan(Typeface.ITALIC), 2, 5, FORMAT_SPAN_FLAGS);
+        spannable.setSpan(new MetaForegroundColorSpan(context, MetaForegroundColorSpan.COLOR_STATUS), 2, 5, FORMAT_SPAN_FLAGS);
+        spannable.setSpan(new MetaChipSpan(context, MetaChipSpan.TYPE_TIME), 0, 1, FORMAT_SPAN_FLAGS);
+        spannable.setSpan(new MetaChipSpan(context, MetaChipSpan.TYPE_MESSAGE),  4, 5, FORMAT_SPAN_FLAGS);
         return spannable;
     }
 

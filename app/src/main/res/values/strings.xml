@@ -166,6 +166,11 @@
     <string name="message_format_time">time</string>
     <string name="message_format_sender">sender</string>
     <string name="message_format_message">message</string>
+    <string name="message_format_time_add">Time</string>
+    <string name="message_format_sender_add">Sender</string>
+    <string name="message_format_message_add">Message</string>
+
+    <string name="message_format_add_chip">Add format chip</string>
 
     <string name="message_example_sender">sender-nick</string>
     <string name="message_example_message">This is an example message.</string>

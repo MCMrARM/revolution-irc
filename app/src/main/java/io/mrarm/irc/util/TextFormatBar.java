@@ -1,8 +1,10 @@
 package io.mrarm.irc.util;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.ImageViewCompat;
@@ -13,9 +15,12 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import io.mrarm.irc.ColorPickerDialog;
 import io.mrarm.irc.R;
@@ -33,6 +38,7 @@ public class TextFormatBar extends FrameLayout {
     private ImageView mFillColorValue;
     private ColorStateList mFillColorValueDefault;
     private View mClearButton;
+    private ImageButton mExtraButton;
     private OnChangeListener mChangeListener;
 
     public TextFormatBar(Context context) {
@@ -54,6 +60,7 @@ public class TextFormatBar extends FrameLayout {
         mFillColorButton = findViewById(R.id.format_fill_color);
         mFillColorValue = (ImageView) findViewById(R.id.format_fill_color_value);
         mClearButton = findViewById(R.id.format_clear);
+        mExtraButton = (ImageButton) findViewById(R.id.format_extra);
         mBoldButton.setOnClickListener((View v) -> {
             if (v.isSelected())
                 removeSpan(new StyleSpan(Typeface.BOLD));
@@ -105,11 +112,30 @@ public class TextFormatBar extends FrameLayout {
         mFillColorValueDefault = ImageViewCompat.getImageTintList(mFillColorValue);
         ImageViewCompat.setImageTintMode(mTextColorValue, PorterDuff.Mode.SRC_IN);
         ImageViewCompat.setImageTintMode(mFillColorValue, PorterDuff.Mode.SRC_IN);
+
+        mBoldButton.setOnLongClickListener(mExplainationListener);
+        mItalicButton.setOnLongClickListener(mExplainationListener);
+        mUnderlineButton.setOnLongClickListener(mExplainationListener);
+        mTextColorButton.setOnLongClickListener(mExplainationListener);
+        mFillColorButton.setOnLongClickListener(mExplainationListener);
+        mClearButton.setOnLongClickListener(mExplainationListener);
+        mExtraButton.setOnLongClickListener(mExplainationListener);
     }
 
     public void setEditText(FormattableEditText editText) {
         mEditText = editText;
         updateFormattingAtCursor();
+    }
+
+    public FormattableEditText getEditText() {
+        return mEditText;
+    }
+
+    public void setExtraButton(int icon, CharSequence contentDesc, OnClickListener listener) {
+        mExtraButton.setImageResource(icon);
+        mExtraButton.setContentDescription(contentDesc);
+        mExtraButton.setOnClickListener(listener);
+        mExtraButton.setVisibility(View.VISIBLE);
     }
 
     public void setOnChangeListener(OnChangeListener listener) {
@@ -186,5 +212,16 @@ public class TextFormatBar extends FrameLayout {
     public interface OnChangeListener {
         void onChange(TextFormatBar formatBar, FormattableEditText editText);
     }
+
+    private static OnLongClickListener mExplainationListener = (View view) -> {
+        Toast toast = Toast.makeText(view.getContext(), view.getContentDescription(), Toast.LENGTH_SHORT);
+        Rect rectWindow = new Rect();
+        Rect rectView = new Rect();
+        view.getGlobalVisibleRect(rectView);
+        ((Activity) view.getContext()).getWindow().getDecorView().getGlobalVisibleRect(rectWindow);
+        toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, rectView.centerX() - rectWindow.centerX(), rectWindow.bottom - rectView.top);
+        toast.show();
+        return true;
+    };
 
 }

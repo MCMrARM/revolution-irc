@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/message_format_time"
+        android:title="@string/message_format_time_add" />
+    <item
+        android:id="@+id/message_format_sender"
+        android:title="@string/message_format_sender_add" />
+    <item
+        android:id="@+id/message_format_message"
+        android:title="@string/message_format_message_add" />
+
+</menu>

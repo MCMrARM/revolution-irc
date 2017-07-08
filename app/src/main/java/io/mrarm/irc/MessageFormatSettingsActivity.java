@@ -2,9 +2,14 @@ package io.mrarm.irc;
 
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.view.GravityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.PopupMenu;
+import android.text.Spannable;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -56,6 +61,23 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
                 mMessageBuilder.setEventMessageFormat(text.getText());
             refreshExamples();
         });
+        mTextFormatBar.setExtraButton(R.drawable.ic_add_circle_outline,
+                getString(R.string.message_format_add_chip), (View v) -> {
+                    PopupMenu menu = new PopupMenu(v.getContext(), v, GravityCompat.END);
+                    MenuInflater inflater = menu.getMenuInflater();
+                    inflater.inflate(R.menu.menu_format_add_chip, menu.getMenu());
+                    menu.setOnMenuItemClickListener((MenuItem item) -> {
+                        int id = item.getItemId();
+                        if (id == R.id.message_format_time)
+                            insertChip(MessageBuilder.MetaChipSpan.TYPE_TIME, " ");
+                        else if (id == R.id.message_format_sender)
+                            insertChip(MessageBuilder.MetaChipSpan.TYPE_SENDER, " ");
+                        else if (id == R.id.message_format_message)
+                            insertChip(MessageBuilder.MetaChipSpan.TYPE_MESSAGE, " ");
+                        return false;
+                    });
+                    menu.show();
+                });
 
         mDateFormat = (EditText) findViewById(R.id.date_format);
         mDateFormatCtr = (TextInputLayout) findViewById(R.id.date_format_ctr);
@@ -102,6 +124,15 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
 
         mMessageFormatEventExample = (TextView) findViewById(R.id.message_format_event_example);
 
+        refreshExamples();
+    }
+
+    private void insertChip(int type, String str) {
+        FormattableEditText editText = mTextFormatBar.getEditText();
+        int sStart = editText.getSelectionStart();
+        int sEnd = editText.getSelectionEnd();
+        editText.getText().replace(sStart, sEnd, str);
+        editText.getText().setSpan(new MessageBuilder.MetaChipSpan(this, type), sStart, sStart + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         refreshExamples();
     }
 
