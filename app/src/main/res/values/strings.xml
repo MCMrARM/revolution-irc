@@ -23,6 +23,7 @@
     <string name="action_settings">Settings</string>
     <string name="action_connect">Connect</string>
     <string name="action_disconnect">Disconnect</string>
+    <string name="action_close">Close</string>
     <string name="action_disconnect_and_close">Disconnect and close</string>
     <string name="action_open">Open</string>
     <string name="action_servers">Manage servers</string>
@@ -156,6 +157,8 @@
     <!-- Message format -->
 
     <string name="title_activity_message_format_settings">Message format</string>
+
+    <string name="message_format">Format</string>
 
     <string name="message_format_date">Time format</string>
     <string name="message_format_normal">Message format</string>

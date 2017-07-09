@@ -15,10 +15,12 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
@@ -27,9 +29,12 @@ import java.util.UUID;
 
 import io.mrarm.chatlib.dto.NickWithPrefix;
 import io.mrarm.chatlib.irc.IRCConnection;
+import io.mrarm.irc.util.FormattableEditText;
+import io.mrarm.irc.util.IRCColorUtils;
 import io.mrarm.irc.util.ImageViewTintUtils;
 import io.mrarm.irc.util.SettingsHelper;
 import io.mrarm.irc.util.SimpleTextVariableList;
+import io.mrarm.irc.util.TextFormatBar;
 
 public class ChatFragment extends Fragment implements
         ServerConnectionInfo.ChannelListChangeListener,
@@ -46,7 +51,9 @@ public class ChatFragment extends Fragment implements
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
     private ChannelMembersAdapter mChannelMembersAdapter;
-    private EditText mSendText;
+    private FormattableEditText mSendText;
+    private View mFormatBarDivider;
+    private TextFormatBar mFormatBar;
     private ImageView mSendIcon;
     private int mNormalToolbarInset;
 
@@ -110,8 +117,17 @@ public class ChatFragment extends Fragment implements
         membersRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         membersRecyclerView.setAdapter(mChannelMembersAdapter);
 
-        mSendText = (EditText) rootView.findViewById(R.id.send_text);
+        mFormatBar = (TextFormatBar) rootView.findViewById(R.id.format_bar);
+        mFormatBarDivider = rootView.findViewById(R.id.format_bar_divider);
+        mSendText = (FormattableEditText) rootView.findViewById(R.id.send_text);
         mSendIcon = (ImageButton) rootView.findViewById(R.id.send_button);
+
+        mSendText.setFormatBar(mFormatBar);
+        mSendText.setCustomSelectionActionModeCallback(new FormatItemActionMode());
+
+        mFormatBar.setExtraButton(R.drawable.ic_close, getString(R.string.action_close), (View v) -> {
+            setFormatBarVisible(false);
+        });
 
         ImageViewTintUtils.setTint(mSendIcon, 0x54000000);
 
@@ -142,7 +158,7 @@ public class ChatFragment extends Fragment implements
         });
 
         mSendIcon.setOnClickListener((View view) -> {
-            String text = mSendText.getText().toString();
+            String text = IRCColorUtils.convertSpannableToIRCString(getContext(), mSendText.getText());
             if (text.length() == 0)
                 return;
             mSendText.setText("");
@@ -214,6 +230,16 @@ public class ChatFragment extends Fragment implements
 
     public void setTabsHidden(boolean hidden) {
         mTabLayout.setVisibility(hidden ? View.GONE : View.VISIBLE);
+    }
+
+    public void setFormatBarVisible(boolean visible) {
+        if (visible) {
+            mFormatBar.setVisibility(View.VISIBLE);
+            mFormatBarDivider.setVisibility(View.VISIBLE);
+        } else {
+            mFormatBar.setVisibility(View.GONE);
+            mFormatBarDivider.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -288,4 +314,36 @@ public class ChatFragment extends Fragment implements
         }
 
     }
+
+    private class FormatItemActionMode implements ActionMode.Callback {
+
+        private MenuItem mFormatMenuItem;
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            mFormatMenuItem = menu.add(R.string.message_format)
+                    .setIcon(R.drawable.ic_text_format);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            if (mFormatMenuItem == item) {
+                setFormatBarVisible(true);
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+        }
+
+    }
+
 }

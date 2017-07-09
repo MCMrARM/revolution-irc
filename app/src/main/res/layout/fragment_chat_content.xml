@@ -52,15 +52,15 @@
                 android:id="@+id/send_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
                 android:layout_alignParentBottom="true"
                 android:background="?attr/colorBackgroundFloating"
                 android:elevation="4dp">
 
-                <EditText
+                <io.mrarm.irc.util.FormattableEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
                     android:imeOptions="flagNoExtractUi"
                     android:inputType="text"
                     android:id="@+id/send_text"
@@ -80,9 +80,26 @@
                     android:layout_alignBottom="@+id/send_text"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentEnd="true"
+                    android:layout_alignTop="@id/send_text"
+                    android:layout_above="@id/send_text"
                     android:paddingLeft="16dp"
                     android:paddingRight="16dp"
                     android:background="?selectableItemBackgroundBorderless"/>
+
+                <View
+                    android:id="@+id/format_bar_divider"
+                    android:layout_below="@id/send_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:visibility="gone"
+                    android:background="?android:attr/listDivider" />
+
+                <io.mrarm.irc.util.TextFormatBar
+                    android:id="@+id/format_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:layout_below="@+id/format_bar_divider" />
 
             </RelativeLayout>
 
