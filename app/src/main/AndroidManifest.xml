@@ -39,13 +39,7 @@
             android:theme="@style/AppTheme" />
         <activity
             android:name=".MessageFormatSettingsActivity"
-            android:label="@string/title_activity_message_format_settings">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:label="@string/title_activity_message_format_settings" />
 
         <service android:name=".IRCService" />
     </application>
