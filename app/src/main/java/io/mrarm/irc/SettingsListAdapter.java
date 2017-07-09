@@ -60,7 +60,7 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
         }
 
         public boolean hasDivider() {
-            return getAdapterPosition() != mAdapter.mEntries.size() - 1;
+            return true;
         }
 
     }
