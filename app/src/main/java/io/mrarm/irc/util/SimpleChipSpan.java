@@ -24,12 +24,17 @@ public class SimpleChipSpan extends ImageSpan {
         if (text instanceof Spannable) {
             Spannable spannable = (Spannable) text;
             int style = 0;
-            chipDrawable.setDefaultTextColor();
+            int fgColor = -1;
+            int fgColorS = -1;
             for (Object o : spannable.getSpans(start, end, Object.class)) {
-                if (!SpannableStringHelper.checkSpanInclude(spannable, o, start, start))
+                int spanStart = spannable.getSpanStart(o);
+                if (spanStart > start)
                     continue;
                 if (o instanceof ForegroundColorSpan) {
-                    myPaint.setColor(((ForegroundColorSpan) o).getForegroundColor());
+                    if (spanStart > fgColorS) {
+                        fgColor = ((ForegroundColorSpan) o).getForegroundColor();
+                        fgColorS = spanStart;
+                    }
                 } else if (o instanceof BackgroundColorSpan) {
                     int c = paint.getColor();
                     paint.setColor(((BackgroundColorSpan) o).getBackgroundColor());
@@ -39,6 +44,10 @@ public class SimpleChipSpan extends ImageSpan {
                     style |= ((StyleSpan) o).getStyle();
                 }
             }
+            if (fgColor != -1)
+                myPaint.setColor(fgColor);
+            else
+                chipDrawable.setDefaultTextColor();
             myPaint.setTypeface(Typeface.create(Typeface.DEFAULT, style));
         }
         super.draw(canvas, text, start, end, x, top, y, bottom, paint);
