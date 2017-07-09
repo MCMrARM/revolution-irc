@@ -179,6 +179,13 @@
     <string name="message_example_sender">sender-nick</string>
     <string name="message_example_message">This is an example message.</string>
 
+    <string-array name="time_format_presets_desc">
+        <item>24-hour time in brackets</item>
+        <item>24-hour time</item>
+        <item>24-hour time with seconds</item>
+        <item>12-hour time</item>
+    </string-array>
+
     <!-- Notification settings -->
 
     <string name="pref_header_notifications">Notifications</string>

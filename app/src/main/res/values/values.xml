@@ -19,4 +19,11 @@
         <item>auto</item>
     </string-array>
 
+    <string-array name="time_format_presets">
+        <item>[HH:mm]</item>
+        <item>HH:mm</item>
+        <item>HH:mm:ss</item>
+        <item>hh:mma</item>
+    </string-array>
+
 </resources>

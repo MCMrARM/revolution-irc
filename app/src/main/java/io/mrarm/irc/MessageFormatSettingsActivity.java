@@ -2,6 +2,8 @@ package io.mrarm.irc;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
@@ -10,6 +12,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,6 +40,7 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
 
     private EditText mDateFormat;
     private TextInputLayout mDateFormatCtr;
+    private View mDateFormatPresetButton;
     private FormattableEditText mMessageFormatNormal;
     private TextView mMessageFormatNormalExample;
     private FormattableEditText mMessageFormatAction;
@@ -104,6 +109,28 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
             }
             refreshExamples();
         }));
+        mDateFormatPresetButton = findViewById(R.id.date_format_preset);
+        mDateFormatPresetButton.setOnClickListener((View v) -> {
+            PopupMenu menu = new PopupMenu(v.getContext(), mDateFormat, GravityCompat.START);
+            String[] presets = getResources().getStringArray(R.array.time_format_presets);
+            String[] presetsText = getResources().getStringArray(R.array.time_format_presets_desc);
+
+            TypedArray ta = getTheme().obtainStyledAttributes(R.style.AppTheme,
+                    new int[] { android.R.attr.textColorSecondary });
+            int secondaryColor = ta.getColor(0, Color.BLACK);
+            ta.recycle();
+
+            for (int i = 0; i < presets.length; i++) {
+                SpannableString s = new SpannableString(presets[i] + " " + presetsText[i]);
+                s.setSpan(new ForegroundColorSpan(secondaryColor), presets[i].length() + 1, s.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                menu.getMenu().add(s).setTitleCondensed(presets[i]);
+            }
+            menu.setOnMenuItemClickListener((MenuItem item) -> {
+                mDateFormat.setText(item.getTitleCondensed());
+                return false;
+            });
+            menu.show();
+        });
 
         mMessageFormatNormal = (FormattableEditText) findViewById(R.id.message_format_normal);
         mMessageFormatNormal.setText(mMessageBuilder.getMessageFormat());
