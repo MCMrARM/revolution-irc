@@ -96,6 +96,7 @@
     <string name="value_any">Any</string>
     <string name="value_always">Always</string>
     <string name="value_never">Never</string>
+    <string name="value_preset">Preset</string>
     <string name="entry_name">Name</string>
     <string name="entry_text">Text</string>
 

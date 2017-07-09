@@ -1,11 +1,9 @@
 package io.mrarm.irc;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -14,7 +12,6 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
-import android.util.AttributeSet;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -42,6 +39,7 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
     private TextInputLayout mDateFormatCtr;
     private View mDateFormatPresetButton;
     private FormattableEditText mMessageFormatNormal;
+    private View mMessageFormatPresetButton;
     private TextView mMessageFormatNormalExample;
     private FormattableEditText mMessageFormatAction;
     private TextView mMessageFormatActionExample;
@@ -141,6 +139,18 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
             refreshExamples();
         }));
 
+        mMessageFormatPresetButton = findViewById(R.id.message_format_preset);
+        mMessageFormatPresetButton.setOnClickListener((View v) -> {
+            PopupMenu menu = new PopupMenu(v.getContext(), mMessageFormatNormal, GravityCompat.START);
+            for (int i = 0; i < 2; i++)
+                menu.getMenu().add(Menu.NONE, i, Menu.NONE, buildPresetMessageFormat(MessageFormatSettingsActivity.this, i));
+            menu.setOnMenuItemClickListener((MenuItem item) -> {
+                mMessageFormatNormal.setText(buildPresetMessageFormat(MessageFormatSettingsActivity.this, item.getItemId()));
+                return false;
+            });
+            menu.show();
+        });
+
         mMessageFormatNormalExample = (TextView) findViewById(R.id.message_format_normal_example);
 
         mMessageFormatAction = (FormattableEditText) findViewById(R.id.message_format_action);
@@ -166,6 +176,21 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
         mMessageFormatEventExample = (TextView) findViewById(R.id.message_format_event_example);
 
         refreshExamples();
+    }
+
+    public static SpannableString buildPresetMessageFormat(Context context, int preset) {
+        if (preset == 0)
+            return MessageBuilder.buildDefaultMessageFormat(context);
+        if (preset == 1) {
+            SpannableString spannable = new SpannableString("  < >  ");
+            spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_TIMESTAMP), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
+            spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_SENDER), 2, 5, MessageBuilder.FORMAT_SPAN_FLAGS);
+            spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_TIME), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
+            spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_SENDER), 3, 4, MessageBuilder.FORMAT_SPAN_FLAGS);
+            spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_MESSAGE), 6, 7, MessageBuilder.FORMAT_SPAN_FLAGS);
+            return spannable;
+        }
+        return null;
     }
 
     private void insertChip(int type, String str) {

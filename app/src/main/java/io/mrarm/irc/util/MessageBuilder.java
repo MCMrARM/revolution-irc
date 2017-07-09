@@ -28,7 +28,7 @@ public class MessageBuilder {
 
     private static MessageBuilder sInstance;
 
-    private static final int FORMAT_SPAN_FLAGS = Spanned.SPAN_EXCLUSIVE_EXCLUSIVE | Spanned.SPAN_PRIORITY;
+    public static final int FORMAT_SPAN_FLAGS = Spanned.SPAN_EXCLUSIVE_EXCLUSIVE | Spanned.SPAN_PRIORITY;
 
     public static final String SPAN_TYPE_META_FOREGROUND = "meta_foreground";
     public static final String SPAN_TYPE_META_CHIP = "meta_chip";
@@ -47,7 +47,7 @@ public class MessageBuilder {
     private CharSequence mActionMessageFormat;
     private CharSequence mEventMessageFormat;
 
-    private static SpannableString buildDefaultMessageFormat(Context context) {
+    public static SpannableString buildDefaultMessageFormat(Context context) {
         SpannableString spannable = new SpannableString("   :  ");
         spannable.setSpan(new MetaForegroundColorSpan(context, MetaForegroundColorSpan.COLOR_TIMESTAMP), 0, 1, FORMAT_SPAN_FLAGS);
         spannable.setSpan(new MetaForegroundColorSpan(context, MetaForegroundColorSpan.COLOR_SENDER), 2, 3, FORMAT_SPAN_FLAGS);
@@ -57,7 +57,7 @@ public class MessageBuilder {
         return spannable;
     }
 
-    private static SpannableString buildDefaultActionMessageFormat(Context context) {
+    public static SpannableString buildDefaultActionMessageFormat(Context context) {
         SpannableString spannable = new SpannableString("  *    ");
         spannable.setSpan(new MetaForegroundColorSpan(context, MetaForegroundColorSpan.COLOR_TIMESTAMP), 0, 1, FORMAT_SPAN_FLAGS);
         spannable.setSpan(new StyleSpan(Typeface.ITALIC), 2, 7, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
@@ -69,7 +69,7 @@ public class MessageBuilder {
         return spannable;
     }
 
-    private static SpannableString buildDefaultEventMessageFormat(Context context) {
+    public static SpannableString buildDefaultEventMessageFormat(Context context) {
         SpannableString spannable = new SpannableString("  *  ");
         spannable.setSpan(new MetaForegroundColorSpan(context, MetaForegroundColorSpan.COLOR_TIMESTAMP), 0, 1, FORMAT_SPAN_FLAGS);
         spannable.setSpan(new StyleSpan(Typeface.ITALIC), 2, 5, FORMAT_SPAN_FLAGS);
