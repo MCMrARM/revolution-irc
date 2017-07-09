@@ -222,11 +222,13 @@ public class ReconnectIntervalPreference extends Preference {
                         if (item.getItemId() == R.id.action_add) {
                             adapter.mRules.add(getAdapterPosition() + 1, new Rule());
                             adapter.notifyItemInserted(getAdapterPosition() + 1);
+                            adapter.updateDialogOkButtonState(false);
                             return true;
                         } else if (item.getItemId() == R.id.action_delete) {
                             if (adapter.mRules.size() > 1) {
                                 adapter.mRules.remove(getAdapterPosition());
                                 adapter.notifyItemRemoved(getAdapterPosition());
+                                adapter.updateDialogOkButtonState(true);
                             }
                             return true;
                         }
