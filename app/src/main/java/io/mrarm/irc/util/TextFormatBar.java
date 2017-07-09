@@ -149,7 +149,8 @@ public class TextFormatBar extends FrameLayout {
         int bgColor = -1;
 
         for (Object span : spans) {
-            if (!SpannableStringHelper.checkSpanInclude(text, span, start, end))
+            if (!SpannableStringHelper.checkSpanInclude(text, span, start, end) ||
+                    (text.getSpanFlags(span) & Spanned.SPAN_COMPOSING) != 0)
                 continue;
             if (span instanceof StyleSpan) {
                 int style = ((StyleSpan) span).getStyle();

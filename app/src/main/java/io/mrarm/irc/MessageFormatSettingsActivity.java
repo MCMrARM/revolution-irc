@@ -9,6 +9,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.text.Spannable;
+import android.text.SpannableString;
 import android.util.AttributeSet;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,6 +27,7 @@ import io.mrarm.chatlib.dto.MessageSenderInfo;
 import io.mrarm.irc.util.FormattableEditText;
 import io.mrarm.irc.util.MessageBuilder;
 import io.mrarm.irc.util.SimpleTextWatcher;
+import io.mrarm.irc.util.SpannableStringHelper;
 import io.mrarm.irc.util.TextFormatBar;
 
 public class MessageFormatSettingsActivity extends AppCompatActivity {
@@ -59,11 +61,11 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
         mTextFormatBar.setVisibility(View.GONE);
         mTextFormatBar.setOnChangeListener((TextFormatBar bar, FormattableEditText text) -> {
             if (text == mMessageFormatNormal)
-                mMessageBuilder.setMessageFormat(text.getText());
+                mMessageBuilder.setMessageFormat(SpannableStringHelper.removeComposingSpans(text.getText()));
             else if (text == mMessageFormatAction)
-                mMessageBuilder.setActionMessageFormat(text.getText());
+                mMessageBuilder.setActionMessageFormat(SpannableStringHelper.removeComposingSpans(text.getText()));
             else if (text == mMessageFormatEvent)
-                mMessageBuilder.setEventMessageFormat(text.getText());
+                mMessageBuilder.setEventMessageFormat(SpannableStringHelper.removeComposingSpans(text.getText()));
             refreshExamples();
         });
         mTextFormatBar.setExtraButton(R.drawable.ic_add_circle_outline,
@@ -108,7 +110,7 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
         mMessageFormatNormal.setFormatBar(mTextFormatBar);
         mMessageFormatNormal.setOnFocusChangeListener(focusListener);
         mMessageFormatNormal.addTextChangedListener(new SimpleTextWatcher((CharSequence s, int start, int before, int count) -> {
-            mMessageBuilder.setMessageFormat(s);
+            mMessageBuilder.setMessageFormat(SpannableStringHelper.removeComposingSpans((Spannable) s));
             refreshExamples();
         }));
 
@@ -119,7 +121,7 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
         mMessageFormatAction.setFormatBar(mTextFormatBar);
         mMessageFormatAction.setOnFocusChangeListener(focusListener);
         mMessageFormatAction.addTextChangedListener(new SimpleTextWatcher((CharSequence s, int start, int before, int count) -> {
-            mMessageBuilder.setActionMessageFormat(s);
+            mMessageBuilder.setActionMessageFormat(SpannableStringHelper.removeComposingSpans((Spannable) s));
             refreshExamples();
         }));
 
@@ -130,7 +132,7 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
         mMessageFormatEvent.setFormatBar(mTextFormatBar);
         mMessageFormatEvent.setOnFocusChangeListener(focusListener);
         mMessageFormatEvent.addTextChangedListener(new SimpleTextWatcher((CharSequence s, int start, int before, int count) -> {
-            mMessageBuilder.setEventMessageFormat(s);
+            mMessageBuilder.setEventMessageFormat(SpannableStringHelper.removeComposingSpans((Spannable) s));
             refreshExamples();
         }));
 

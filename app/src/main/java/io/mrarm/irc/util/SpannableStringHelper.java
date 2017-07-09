@@ -3,6 +3,7 @@ package io.mrarm.irc.util;
 import android.content.Context;
 import android.text.NoCopySpan;
 import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.BackgroundColorSpan;
@@ -43,6 +44,15 @@ public class SpannableStringHelper {
 
     public static CharSequence getText(Context context, int resId, Object... args) {
         return format(context.getText(resId), args);
+    }
+
+    public static Spannable removeComposingSpans(Spannable s) {
+        SpannableString ret = new SpannableString(s);
+        for (Object span : ret.getSpans(0, ret.length(), Object.class)) {
+            if ((ret.getSpanFlags(span) & Spannable.SPAN_COMPOSING) != 0)
+                ret.removeSpan(span);
+        }
+        return ret;
     }
 
     public static Object cloneSpan(Object span) {
@@ -103,6 +113,8 @@ public class SpannableStringHelper {
             if (mustEqual != null && !areSpansEqual(span, mustEqual))
                 continue;
             int flags = text.getSpanFlags(span);
+            if ((flags & Spanned.SPAN_COMPOSING) != 0)
+                continue;
             int pointFlags = flags & Spanned.SPAN_POINT_MARK_MASK;
             int otherFlags = flags & ~Spanned.SPAN_POINT_MARK_MASK;
             int sStart = text.getSpanStart(span);
@@ -134,6 +146,10 @@ public class SpannableStringHelper {
         for (Object span : spans) {
             if (!areSpansEqual(span, what))
                 continue;
+            int sFlags = text.getSpanFlags(span);
+            if ((sFlags & Spanned.SPAN_COMPOSING) != 0)
+                continue;
+
             int sStart = text.getSpanStart(span);
             int sEnd = text.getSpanEnd(span);
             if (sEnd < start || sStart > end)
