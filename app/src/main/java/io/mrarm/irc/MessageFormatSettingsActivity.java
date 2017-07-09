@@ -11,6 +11,7 @@ import android.support.v7.widget.PopupMenu;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.style.CharacterStyle;
 import android.text.style.ForegroundColorSpan;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -28,7 +29,6 @@ import io.mrarm.chatlib.dto.MessageSenderInfo;
 import io.mrarm.irc.util.FormattableEditText;
 import io.mrarm.irc.util.MessageBuilder;
 import io.mrarm.irc.util.SimpleTextWatcher;
-import io.mrarm.irc.util.SpannableStringHelper;
 import io.mrarm.irc.util.TextFormatBar;
 
 public class MessageFormatSettingsActivity extends AppCompatActivity {
@@ -64,11 +64,11 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
         mTextFormatBar.setVisibility(View.GONE);
         mTextFormatBar.setOnChangeListener((TextFormatBar bar, FormattableEditText text) -> {
             if (text == mMessageFormatNormal)
-                mMessageBuilder.setMessageFormat(SpannableStringHelper.removeComposingSpans(text.getText()));
+                mMessageBuilder.setMessageFormat(prepareFormat(text.getText()));
             else if (text == mMessageFormatAction)
-                mMessageBuilder.setActionMessageFormat(SpannableStringHelper.removeComposingSpans(text.getText()));
+                mMessageBuilder.setActionMessageFormat(prepareFormat(text.getText()));
             else if (text == mMessageFormatEvent)
-                mMessageBuilder.setEventMessageFormat(SpannableStringHelper.removeComposingSpans(text.getText()));
+                mMessageBuilder.setEventMessageFormat(prepareFormat(text.getText()));
             refreshExamples();
         });
         mTextFormatBar.setExtraButton(R.drawable.ic_add_circle_outline,
@@ -135,7 +135,7 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
         mMessageFormatNormal.setFormatBar(mTextFormatBar);
         mMessageFormatNormal.setOnFocusChangeListener(focusListener);
         mMessageFormatNormal.addTextChangedListener(new SimpleTextWatcher((CharSequence s, int start, int before, int count) -> {
-            mMessageBuilder.setMessageFormat(SpannableStringHelper.removeComposingSpans((Spannable) s));
+            mMessageBuilder.setMessageFormat(prepareFormat((Spannable) s));
             refreshExamples();
         }));
 
@@ -158,7 +158,7 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
         mMessageFormatAction.setFormatBar(mTextFormatBar);
         mMessageFormatAction.setOnFocusChangeListener(focusListener);
         mMessageFormatAction.addTextChangedListener(new SimpleTextWatcher((CharSequence s, int start, int before, int count) -> {
-            mMessageBuilder.setActionMessageFormat(SpannableStringHelper.removeComposingSpans((Spannable) s));
+            mMessageBuilder.setActionMessageFormat(prepareFormat((Spannable) s));
             refreshExamples();
         }));
 
@@ -169,13 +169,23 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
         mMessageFormatEvent.setFormatBar(mTextFormatBar);
         mMessageFormatEvent.setOnFocusChangeListener(focusListener);
         mMessageFormatEvent.addTextChangedListener(new SimpleTextWatcher((CharSequence s, int start, int before, int count) -> {
-            mMessageBuilder.setEventMessageFormat(SpannableStringHelper.removeComposingSpans((Spannable) s));
+            mMessageBuilder.setEventMessageFormat(prepareFormat((Spannable) s));
             refreshExamples();
         }));
 
         mMessageFormatEventExample = (TextView) findViewById(R.id.message_format_event_example);
 
         refreshExamples();
+    }
+
+    private CharSequence prepareFormat(Spannable s) {
+        SpannableString ret = new SpannableString(s.toString());
+        for (Object span : s.getSpans(0, s.length(), CharacterStyle.class)) {
+            if ((ret.getSpanFlags(span) & Spannable.SPAN_COMPOSING) != 0)
+                continue;
+            ret.setSpan(span, s.getSpanStart(span), s.getSpanEnd(span), s.getSpanFlags(span) & Spanned.SPAN_PRIORITY);
+        }
+        return ret;
     }
 
     public static SpannableString buildPresetMessageFormat(Context context, int preset) {
