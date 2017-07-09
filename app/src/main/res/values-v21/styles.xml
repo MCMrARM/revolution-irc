@@ -35,4 +35,21 @@
         <item name="android:layout_alignParentEnd">true</item>
     </style>
 
+    <style name="EditTextExpandIconButton" parent="Icon">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">-40dp</item>
+        <item name="android:layout_marginBottom">4dp</item>
+        <item name="android:layout_marginEnd">-4dp</item>
+        <item name="android:layout_gravity">end</item>
+        <item name="android:padding">4dp</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+    </style>
+
+    <style name="EditTextWithExpandIcon">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingEnd">32dp</item>
+    </style>
+
 </resources>

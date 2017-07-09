@@ -3,6 +3,7 @@ package io.mrarm.irc;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.view.GravityCompat;
@@ -13,6 +14,7 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.CharacterStyle;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -39,11 +41,13 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
     private TextInputLayout mDateFormatCtr;
     private View mDateFormatPresetButton;
     private FormattableEditText mMessageFormatNormal;
-    private View mMessageFormatPresetButton;
+    private View mMessageFormatNormalPresetButton;
     private TextView mMessageFormatNormalExample;
     private FormattableEditText mMessageFormatAction;
+    private View mMessageFormatActionPresetButton;
     private TextView mMessageFormatActionExample;
     private FormattableEditText mMessageFormatEvent;
+    private View mMessageFormatEventPresetButton;
     private TextView mMessageFormatEventExample;
     private TextFormatBar mTextFormatBar;
 
@@ -139,16 +143,12 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
             refreshExamples();
         }));
 
-        mMessageFormatPresetButton = findViewById(R.id.message_format_preset);
-        mMessageFormatPresetButton.setOnClickListener((View v) -> {
-            PopupMenu menu = new PopupMenu(v.getContext(), mMessageFormatNormal, GravityCompat.START);
-            for (int i = 0; i < 2; i++)
-                menu.getMenu().add(Menu.NONE, i, Menu.NONE, buildPresetMessageFormat(MessageFormatSettingsActivity.this, i));
-            menu.setOnMenuItemClickListener((MenuItem item) -> {
-                mMessageFormatNormal.setText(buildPresetMessageFormat(MessageFormatSettingsActivity.this, item.getItemId()));
-                return false;
+        mMessageFormatNormalPresetButton = findViewById(R.id.message_format_normal_preset);
+        mMessageFormatNormalPresetButton.setOnClickListener((View v) -> {
+            selectPreset(mMessageFormatNormal, new CharSequence[] {
+                    buildPresetMessageFormat(this, 0),
+                    buildPresetMessageFormat(this, 1)
             });
-            menu.show();
         });
 
         mMessageFormatNormalExample = (TextView) findViewById(R.id.message_format_normal_example);
@@ -162,6 +162,14 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
             refreshExamples();
         }));
 
+        mMessageFormatActionPresetButton = findViewById(R.id.message_format_action_preset);
+        mMessageFormatActionPresetButton.setOnClickListener((View v) -> {
+            selectPreset(mMessageFormatAction, new CharSequence[] {
+                    buildActionPresetMessageFormat(this, 0),
+                    buildActionPresetMessageFormat(this, 1)
+            });
+        });
+
         mMessageFormatActionExample = (TextView) findViewById(R.id.message_format_action_example);
 
         mMessageFormatEvent = (FormattableEditText) findViewById(R.id.message_format_event);
@@ -172,6 +180,14 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
             mMessageBuilder.setEventMessageFormat(prepareFormat((Spannable) s));
             refreshExamples();
         }));
+
+        mMessageFormatEventPresetButton = findViewById(R.id.message_format_event_preset);
+        mMessageFormatEventPresetButton.setOnClickListener((View v) -> {
+            selectPreset(mMessageFormatEvent, new CharSequence[] {
+                    buildEventPresetMessageFormat(this, 0),
+                    buildEventPresetMessageFormat(this, 1)
+            });
+        });
 
         mMessageFormatEventExample = (TextView) findViewById(R.id.message_format_event_example);
 
@@ -188,9 +204,27 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
         return ret;
     }
 
+    private void selectPreset(EditText editText, CharSequence[] presets) {
+        PopupMenu menu = new PopupMenu(editText.getContext(), editText, GravityCompat.START);
+        for (int i = 0; i < presets.length; i++)
+            menu.getMenu().add(Menu.NONE, i, Menu.NONE, presets[i]);
+        menu.setOnMenuItemClickListener((MenuItem item) -> {
+            editText.setText(presets[item.getItemId()]);
+            return false;
+        });
+        menu.show();
+    }
+
     public static SpannableString buildPresetMessageFormat(Context context, int preset) {
-        if (preset == 0)
-            return MessageBuilder.buildDefaultMessageFormat(context);
+        if (preset == 0) {
+            SpannableString spannable = new SpannableString("   :  ");
+            spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_TIMESTAMP), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
+            spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_SENDER), 2, 4, MessageBuilder.FORMAT_SPAN_FLAGS);
+            spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_TIME), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
+            spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_SENDER), 2, 3, MessageBuilder.FORMAT_SPAN_FLAGS);
+            spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_MESSAGE), 5, 6, MessageBuilder.FORMAT_SPAN_FLAGS);
+            return spannable;
+        }
         if (preset == 1) {
             SpannableString spannable = new SpannableString("  < >  ");
             spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_TIMESTAMP), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
@@ -200,6 +234,36 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
             spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_TIME), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
             spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_SENDER), 3, 4, MessageBuilder.FORMAT_SPAN_FLAGS);
             spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_MESSAGE), 6, 7, MessageBuilder.FORMAT_SPAN_FLAGS);
+            return spannable;
+        }
+        return null;
+    }
+
+    public static SpannableString buildActionPresetMessageFormat(Context context, int preset) {
+        if (preset == 0 || preset == 1) {
+            SpannableString spannable = new SpannableString("  *    ");
+            spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_TIMESTAMP), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
+            if (preset == 0)
+                spannable.setSpan(new StyleSpan(Typeface.ITALIC), 2, 7, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+            spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_STATUS), 2, 3, MessageBuilder.FORMAT_SPAN_FLAGS);
+            spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_SENDER), 4, 5, MessageBuilder.FORMAT_SPAN_FLAGS);
+            spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_TIME), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
+            spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_SENDER), 4, 5, MessageBuilder.FORMAT_SPAN_FLAGS);
+            spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_MESSAGE),  6, 7, MessageBuilder.FORMAT_SPAN_FLAGS);
+            return spannable;
+        }
+        return null;
+    }
+
+    public static SpannableString buildEventPresetMessageFormat(Context context, int preset) {
+        if (preset == 0 || preset == 1) {
+            SpannableString spannable = new SpannableString("  *  ");
+            spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_TIMESTAMP), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
+            if (preset == 0)
+                spannable.setSpan(new StyleSpan(Typeface.ITALIC), 2, 5, MessageBuilder.FORMAT_SPAN_FLAGS);
+            spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_STATUS), 2, 5, MessageBuilder.FORMAT_SPAN_FLAGS);
+            spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_TIME), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
+            spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_MESSAGE),  4, 5, MessageBuilder.FORMAT_SPAN_FLAGS);
             return spannable;
         }
         return null;
