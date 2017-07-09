@@ -8,14 +8,13 @@
         <item name="windowActionModeOverlay">true</item>
     </style>
 
-    <style name="EditServerIcon">
+    <style name="EditServerIcon" parent="Icon">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_alignParentStart">true</item>
         <item name="android:layout_marginStart">8dp</item>
         <item name="android:layout_marginEnd">8dp</item>
         <item name="android:padding">8dp</item>
-        <item name="android:alpha">0.54</item>
     </style>
 
     <style name="EditServerTextInput" parent="Widget.Design.TextInputLayout">

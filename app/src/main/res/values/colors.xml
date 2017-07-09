@@ -7,7 +7,7 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
 
-    <color name="chipColor">#BBDEFB</color>
+    <color name="chipColor">#402196F3</color>
     <color name="transparentChipColor">#20000000</color>
 
     <color name="colorSwipeDeleteBackground">#D50000</color>

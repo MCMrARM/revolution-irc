@@ -111,6 +111,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 app:srcCompat="@drawable/ic_settings"
+                android:tint="?android:attr/textColorPrimary"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
@@ -122,7 +123,7 @@
 
             <TextView
                 android:id="@+id/server_ssl_cert_lbl"
-                android:textColor="#000"
+                android:textColor="?android:attr/textColorPrimary"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginLeft="64dp"

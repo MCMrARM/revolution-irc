@@ -52,7 +52,7 @@
         <item name="android:layout_marginRight">56dp</item>
     </style>
 
-    <style name="BaseEditServerExtraAction" parent="Widget.AppCompat.ImageButton">
+    <style name="BaseEditServerExtraAction" parent="Icon">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_alignParentTop">true</item>
