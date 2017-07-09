@@ -2,15 +2,13 @@ package io.mrarm.irc.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Typeface;
 import android.preference.PreferenceManager;
-import android.text.GetChars;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
-import android.text.style.StyleSpan;
+import android.text.util.Linkify;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -213,10 +211,10 @@ public class MessageBuilder {
         switch (message.getType()) {
             case NORMAL:
                 return processFormat(mMessageFormat, message.getDate(), senderNick,
-                        IRCColorUtils.getFormattedString(mContext, message.getMessage()));
+                        addLinks(IRCColorUtils.getFormattedString(mContext, message.getMessage())));
             case ME:
                 return processFormat(mActionMessageFormat, message.getDate(), senderNick,
-                        IRCColorUtils.getFormattedString(mContext, message.getMessage()));
+                        addLinks(IRCColorUtils.getFormattedString(mContext, message.getMessage())));
             case JOIN:
                 return processFormat(mEventMessageFormat, message.getDate(), null,
                         SpannableStringHelper.getText(mContext, R.string.message_join, buildColoredNick(senderNick)));
@@ -234,7 +232,12 @@ public class MessageBuilder {
 
     public CharSequence buildStatusMessage(StatusMessageInfo message, CharSequence text) {
         return processFormat(mMessageFormat, message.getDate(), message.getSender(),
-                IRCColorUtils.getStatusTextColor(mContext), text);
+                IRCColorUtils.getStatusTextColor(mContext), addLinks(text));
+    }
+
+    private static CharSequence addLinks(CharSequence spannable) {
+        Linkify.addLinks((Spannable) spannable, Linkify.WEB_URLS);
+        return spannable;
     }
 
     private CharSequence processFormat(CharSequence format, Date date, String sender,

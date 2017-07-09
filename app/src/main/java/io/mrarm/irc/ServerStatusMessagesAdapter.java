@@ -5,6 +5,7 @@ import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -101,6 +102,7 @@ public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerVi
         public MessageHolder(View v) {
             super(v);
             mText = (TextView) v.findViewById(R.id.chat_message);
+            mText.setMovementMethod(LinkMovementMethod.getInstance());
         }
 
         public void bind(StatusMessageInfo message) {

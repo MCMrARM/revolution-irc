@@ -5,6 +5,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
+import android.text.method.LinkMovementMethod;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -143,7 +144,8 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 mFragment.showMessagesActionMenu();
                 return true;
             });
-            mText.setBackgroundDrawable(mItemBackground);
+            mText.setBackgroundDrawable(mItemBackground.getConstantState().newDrawable());
+            mText.setMovementMethod(LinkMovementMethod.getInstance());
         }
 
         public boolean isSelected() {
@@ -160,7 +162,9 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 else
                     mSelectedItems.remove(getAdapterPosition());
             }
-            mText.setBackgroundDrawable(selected ? mSelectedItemBackground : mItemBackground);
+            mText.setBackgroundDrawable(selected
+                    ? mSelectedItemBackground.getConstantState().newDrawable()
+                    : mItemBackground.getConstantState().newDrawable());
         }
 
         public void bind(MessageInfo message, boolean selected) {
