@@ -3,6 +3,8 @@ package io.mrarm.irc;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -112,20 +114,19 @@ public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerVi
                 mText.setText(MessageBuilder.getInstance(context).buildDisconnectWarning(message.getDate()));
                 return;
             }
-            ColoredTextBuilder builder = new ColoredTextBuilder();
-            MessageBuilder.getInstance(context).appendTimestamp(builder, message.getDate());
-            int statusColor = IRCColorUtils.getStatusTextColor(context);
-            builder.append(message.getSender() + ": ", new ForegroundColorSpan(statusColor));
+            CharSequence text;
             if (message.getType() == StatusMessageInfo.MessageType.HOST_INFO) {
                 HostInfoMessageInfo hostInfo = (HostInfoMessageInfo) message;
-                builder.append("Server name is " + hostInfo.getServerName() + ", running " +
-                        hostInfo.getVersion() + ". Supported user modes: " +
-                        hostInfo.getUserModes() + ", supported channel modes: " +
-                        hostInfo.getChannelModes(), new ForegroundColorSpan(statusColor));
+                SpannableString str = new SpannableString(context.getString(
+                        R.string.message_host_info, hostInfo.getServerName(), hostInfo.getVersion(),
+                        hostInfo.getUserModes(), hostInfo.getChannelModes()));
+                str.setSpan(new ForegroundColorSpan(IRCColorUtils.getStatusTextColor(context)),
+                        0, str.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+                text = str;
             } else {
-                IRCColorUtils.appendFormattedString(context, builder, message.getMessage());
+                text = IRCColorUtils.getFormattedString(context, message.getMessage());
             }
-            mText.setText(builder.getSpannable());
+            mText.setText(MessageBuilder.getInstance(context).buildStatusMessage(message, text));
         }
 
     }
@@ -163,13 +164,12 @@ public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerVi
 
             this.mPosition = pos;
 
-            ColoredTextBuilder builder = new ColoredTextBuilder();
-            MessageBuilder.getInstance(mText.getContext()).appendTimestamp(builder, message.getDate());
-            builder.append(message.getSender() + ": ", new ForegroundColorSpan(IRCColorUtils.getStatusTextColor(mText.getContext())));
-            if (message.getType() == StatusMessageInfo.MessageType.MOTD)
-                builder.append("Message of the Day", new ForegroundColorSpan(
-                        mText.getContext().getResources().getColor(R.color.motdColor)));
-            mText.setText(builder.getSpannable());
+            SpannableString str = new SpannableString(
+                    mText.getContext().getString(R.string.message_motd));
+            str.setSpan(new ForegroundColorSpan(
+                    mText.getContext().getResources().getColor(R.color.motdColor)),
+                    0, str.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+            mText.setText(MessageBuilder.getInstance(mText.getContext()).buildStatusMessage(message, str));
 
             boolean expanded = mAdapter.mExpandedMessages.contains(message);
 

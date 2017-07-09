@@ -12,6 +12,9 @@
     <string name="message_join">%s has joined</string>
     <string name="message_nick_change">%s is now known as %s</string>
 
+    <string name="message_host_info">Server name is %s, running %s. Supported user modes: %s, supported channel modes: %s</string>
+    <string name="message_motd">Message of the Day</string>
+
     <!-- Actions -->
 
     <string name="action_ok">Ok</string>

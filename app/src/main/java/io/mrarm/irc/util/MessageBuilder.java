@@ -22,6 +22,7 @@ import java.util.Locale;
 
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.dto.NickChangeMessageInfo;
+import io.mrarm.chatlib.dto.StatusMessageInfo;
 import io.mrarm.irc.MessageFormatSettingsActivity;
 import io.mrarm.irc.R;
 
@@ -197,7 +198,7 @@ public class MessageBuilder {
     public CharSequence buildDisconnectWarning(Date date) {
         ColoredTextBuilder builder = new ColoredTextBuilder();
         appendTimestamp(builder, date);
-        builder.append("Disconnected", new ForegroundColorSpan(mContext.getResources().getColor(R.color.messageDisconnected)));
+        builder.append(" Disconnected", new ForegroundColorSpan(mContext.getResources().getColor(R.color.messageDisconnected)));
         return builder.getSpannable();
     }
 
@@ -231,9 +232,19 @@ public class MessageBuilder {
         return "Test";
     }
 
+    public CharSequence buildStatusMessage(StatusMessageInfo message, CharSequence text) {
+        return processFormat(mMessageFormat, message.getDate(), message.getSender(),
+                IRCColorUtils.getStatusTextColor(mContext), text);
+    }
+
     private CharSequence processFormat(CharSequence format, Date date, String sender,
                                        CharSequence message) {
         int nickColor = sender == null ? 0 : IRCColorUtils.getNickColor(mContext, sender);
+        return processFormat(format, date, sender, nickColor, message);
+    }
+
+    private CharSequence processFormat(CharSequence format, Date date, String sender,
+                                       int senderColor, CharSequence message) {
         SpannableStringBuilder builder = new SpannableStringBuilder(format);
         for (MetaChipSpan span : builder.getSpans(0, builder.length(), MetaChipSpan.class)) {
             CharSequence replacement = null;
@@ -250,7 +261,7 @@ public class MessageBuilder {
         for (MetaForegroundColorSpan span : builder.getSpans(0, builder.length(), MetaForegroundColorSpan.class)) {
             int color = MetaForegroundColorSpan.resolveColor(mContext, span.getColorId());
             if (span.getColorId() == MetaForegroundColorSpan.COLOR_SENDER)
-                color = nickColor;
+                color = senderColor;
             builder.setSpan(new ForegroundColorSpan(color), builder.getSpanStart(span),
                     builder.getSpanEnd(span), builder.getSpanFlags(span));
             builder.removeSpan(span);
