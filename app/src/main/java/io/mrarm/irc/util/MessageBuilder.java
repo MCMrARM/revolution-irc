@@ -50,7 +50,7 @@ public class MessageBuilder {
     public static SpannableString buildDefaultMessageFormat(Context context) {
         SpannableString spannable = new SpannableString("   :  ");
         spannable.setSpan(new MetaForegroundColorSpan(context, MetaForegroundColorSpan.COLOR_TIMESTAMP), 0, 1, FORMAT_SPAN_FLAGS);
-        spannable.setSpan(new MetaForegroundColorSpan(context, MetaForegroundColorSpan.COLOR_SENDER), 2, 3, FORMAT_SPAN_FLAGS);
+        spannable.setSpan(new MetaForegroundColorSpan(context, MetaForegroundColorSpan.COLOR_SENDER), 2, 4, FORMAT_SPAN_FLAGS);
         spannable.setSpan(new MetaChipSpan(context, MetaChipSpan.TYPE_TIME), 0, 1, FORMAT_SPAN_FLAGS);
         spannable.setSpan(new MetaChipSpan(context, MetaChipSpan.TYPE_SENDER), 2, 3, FORMAT_SPAN_FLAGS);
         spannable.setSpan(new MetaChipSpan(context, MetaChipSpan.TYPE_MESSAGE), 5, 6, FORMAT_SPAN_FLAGS);
