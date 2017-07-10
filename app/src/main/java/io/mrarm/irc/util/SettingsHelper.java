@@ -33,6 +33,10 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     public static final String PREF_MESSAGE_FORMAT_ACTION = "message_format_action";
     public static final String PREF_MESSAGE_FORMAT_EVENT = "message_format_event";
     public static final String PREF_MESSAGE_TIME_FORMAT = "message_time_format";
+    public static final String PREF_NICK_AUTOCOMPLETE_SHOW_BUTTON = "nicK_autocomplete_show_button";
+    public static final String PREF_NICK_AUTOCOMPLETE_DOUBLE_TAP = "nicK_autocomplete_double_tap";
+    public static final String PREF_NICK_AUTOCOMPLETE_AT_SUGGESTIONS = "nicK_autocomplete_at_suggestions";
+    public static final String PREF_NICK_AUTOCOMPLETE_AT_SUGGESTIONS_REMOVE_AT = "nicK_autocomplete_at_suggestions_remove_at";
 
     public static final String COMPACT_MODE_ALWAYS = "always";
     public static final String COMPACT_MODE_NEVER = "never";
@@ -172,6 +176,10 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
 
     public String getChatAppbarCompactMode() {
         return mPreferences.getString(PREF_CHAT_APPBAR_COMPACT_MODE, COMPACT_MODE_AUTO);
+    }
+
+    public boolean isNickAutocompleteButtonVisible() {
+        return mPreferences.getBoolean(PREF_NICK_AUTOCOMPLETE_SHOW_BUTTON, false);
     }
 
 }

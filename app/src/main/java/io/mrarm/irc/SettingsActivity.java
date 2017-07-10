@@ -140,6 +140,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 || UserPreferenceFragment.class.getName().equals(fragmentName)
                 || ReconnectPreferenceFragment.class.getName().equals(fragmentName)
                 || AppearancePreferenceFragment.class.getName().equals(fragmentName)
+                || NickAutocompletePreferenceFragment.class.getName().equals(fragmentName)
                 || NotificationPreferenceFragment.class.getName().equals(fragmentName)
                 || CommandPreferenceFragment.class.getName().equals(fragmentName);
     }
@@ -230,6 +231,14 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         public void onResume() {
             super.onResume();
             findPreference("message_format").setSummary(MessageBuilder.getInstance(getActivity()).buildMessage(mSampleMessage));
+        }
+    }
+
+    public static class NickAutocompletePreferenceFragment extends MyPreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.pref_nick_autocomplete);
         }
     }
 

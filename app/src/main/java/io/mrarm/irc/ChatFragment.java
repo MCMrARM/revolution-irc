@@ -8,6 +8,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.MarginLayoutParamsCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -23,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import java.util.List;
 import java.util.UUID;
@@ -55,6 +57,7 @@ public class ChatFragment extends Fragment implements
     private View mFormatBarDivider;
     private TextFormatBar mFormatBar;
     private ImageView mSendIcon;
+    private ImageView mTabIcon;
     private int mNormalToolbarInset;
 
     public static ChatFragment newInstance(ServerConnectionInfo server, String channel) {
@@ -121,6 +124,7 @@ public class ChatFragment extends Fragment implements
         mFormatBarDivider = rootView.findViewById(R.id.format_bar_divider);
         mSendText = (FormattableEditText) rootView.findViewById(R.id.send_text);
         mSendIcon = (ImageButton) rootView.findViewById(R.id.send_button);
+        mTabIcon = (ImageButton) rootView.findViewById(R.id.tab_button);
 
         mSendText.setFormatBar(mFormatBar);
         mSendText.setCustomSelectionActionModeCallback(new FormatItemActionMode());
@@ -173,6 +177,10 @@ public class ChatFragment extends Fragment implements
             mConnectionInfo.getApiInstance().sendMessage(channel, text, null, null);
         });
 
+        mTabIcon.setOnClickListener((View v) -> {
+            doTabNickComplete();
+        });
+
         rootView.addOnLayoutChangeListener((View v, int left, int top, int right, int bottom,
                                             int oldLeft, int oldTop, int oldRight, int oldBottom) -> {
             int height = bottom - top;
@@ -191,13 +199,17 @@ public class ChatFragment extends Fragment implements
         SettingsHelper s = SettingsHelper.getInstance(getContext());
         s.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_APPBAR_COMPACT_MODE, this);
 
+        setTabButtonVisible(s.isNickAutocompleteButtonVisible());
+
         return rootView;
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (getView() != null)
+        if (getView() != null) {
             updateToolbarCompactLayoutStatus(getView().getBottom() - getView().getTop());
+            setTabButtonVisible(SettingsHelper.getInstance(getContext()).isNickAutocompleteButtonVisible());
+        }
     }
 
     public void updateToolbarCompactLayoutStatus(int height) {
@@ -239,6 +251,37 @@ public class ChatFragment extends Fragment implements
         } else {
             mFormatBar.setVisibility(View.GONE);
             mFormatBarDivider.setVisibility(View.GONE);
+        }
+    }
+
+    public void setTabButtonVisible(boolean visible) {
+        RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)
+                mSendText.getLayoutParams();
+        if (visible) {
+            MarginLayoutParamsCompat.setMarginStart(layoutParams, 0);
+            mTabIcon.setVisibility(View.VISIBLE);
+        } else {
+            MarginLayoutParamsCompat.setMarginStart(layoutParams,
+                    getResources().getDimensionPixelSize(R.dimen.message_edit_text_margin_left));
+            mTabIcon.setVisibility(View.GONE);
+        }
+        mSendText.setLayoutParams(layoutParams);
+    }
+
+    public void doTabNickComplete() {
+        int end = mSendText.getSelectionStart();
+        int start;
+        for (start = end; start > 0; start--) {
+            char c = mSendText.getText().charAt(start - 1);
+            if (c == ' ')
+                break;
+        }
+        String startNick = mSendText.getText().subSequence(start, end).toString();
+        for (NickWithPrefix n : mChannelMembersAdapter.getMembers()) {
+            if (n.getNick().startsWith(startNick)) {
+                mSendText.getText().replace(end, end, n.getNick().substring(startNick.length()));
+                return;
+            }
         }
     }
 

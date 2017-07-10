@@ -144,6 +144,16 @@
     <string name="pref_title_font_size">Font size</string>
     <string name="pref_title_appbar_compact_mode">Hide the network name header</string>
     <string name="pref_title_message_format">Message format</string>
+    <string name="pref_title_nick_autocomplete">Nick autocomplete</string>
+
+    <string name="pref_title_nick_autocomplete_show_button">Show a button</string>
+    <string name="pref_summary_nick_autocomplete_show_button">Show a nick autocomplete button</string>
+    <string name="pref_title_nick_autocomplete_double_tap">Double tap the text field</string>
+    <string name="pref_summary_nick_autocomplete_double_tap">Double tap the text field to complete the nick</string>
+    <string name="pref_title_nick_autocomplete_at_suggestions">Suggest nicks</string>
+    <string name="pref_summary_nick_autocomplete_at_suggestions">Show nick suggestions after a \'@\' character</string>
+    <string name="pref_title_nick_autocomplete_at_suggestions_remove_at">Automatically remove the \'@\'</string>
+    <string name="pref_summary_nick_autocomplete_at_suggestions_remove_at">Remove the \'@\' character after selecting a suggestion</string>
 
     <string-array name="pref_entries_font">
         <item>Default (Sans)</item>
@@ -283,7 +293,7 @@
         <item>Message</item>
         <item>Raw</item>
     </string-array>
-
+0
     <!-- Color names -->
 
     <string-array name="color_picker_color_names">

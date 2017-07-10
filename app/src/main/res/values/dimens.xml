@@ -19,5 +19,7 @@
     <dimen name="collapse_toolbar_activate_height">250dp</dimen>
     <dimen name="compact_toolbar_activate_height">400dp</dimen>
 
+    <dimen name="message_edit_text_margin_left">16dp</dimen>
+
     <dimen name="touch_press_select_autoscroll_amount">500dp</dimen>
 </resources>

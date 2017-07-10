@@ -34,4 +34,9 @@
             android:targetClass="io.mrarm.irc.MessageFormatSettingsActivity" />
     </Preference>
 
+    <Preference
+        android:key="nick_autocomplete"
+        android:title="@string/pref_title_nick_autocomplete"
+        android:fragment="io.mrarm.irc.SettingsActivity$NickAutocompletePreferenceFragment" />
+
 </PreferenceScreen>

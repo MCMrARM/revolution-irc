@@ -23,6 +23,10 @@ public class ChannelMembersAdapter extends RecyclerView.Adapter<ChannelMembersAd
         notifyDataSetChanged();
     }
 
+    public List<NickWithPrefix> getMembers() {
+        return mMembers;
+    }
+
     @Override
     public MemberHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View view = LayoutInflater.from(viewGroup.getContext())
