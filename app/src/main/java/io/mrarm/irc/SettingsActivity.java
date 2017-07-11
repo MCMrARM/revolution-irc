@@ -29,6 +29,7 @@ import io.mrarm.irc.preference.ListWithCustomPreference;
 import io.mrarm.irc.util.MessageBuilder;
 import io.mrarm.irc.util.NightModeRecreateHelper;
 import io.mrarm.irc.preference.ReconnectIntervalPreference;
+import io.mrarm.irc.util.SettingsHelper;
 import io.mrarm.irc.util.SimpleCounter;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
@@ -230,7 +231,29 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         @Override
         public void onResume() {
             super.onResume();
+            SettingsHelper settingsHelper = SettingsHelper.getInstance(getActivity());
+
             findPreference("message_format").setSummary(MessageBuilder.getInstance(getActivity()).buildMessage(mSampleMessage));
+
+            StringBuilder builder = new StringBuilder();
+            if (settingsHelper.isNickAutocompleteButtonVisible())
+                appendString(builder, getString(R.string.pref_title_nick_autocomplete_show_button));
+            if (settingsHelper.isNickAutocompleteDoubleTapEnabled())
+                appendString(builder, getString(R.string.pref_title_nick_autocomplete_double_tap));
+            if (settingsHelper.shouldShowNickAutocompleteSuggestions())
+                appendString(builder, getString(R.string.pref_title_nick_autocomplete_suggestions));
+            if (settingsHelper.shouldShowNickAutocompleteAtSuggestions())
+                appendString(builder, getString(R.string.pref_title_nick_autocomplete_at_suggestions));
+            findPreference("nick_autocomplete").setSummary(builder.toString());
+        }
+
+        private void appendString(StringBuilder builder, String str) {
+            if (builder.length() > 0) {
+                builder.append(getString(R.string.text_comma));
+                builder.append(str.substring(0, 1).toLowerCase() + str.substring(1));
+            } else {
+                builder.append(str);
+            }
         }
     }
 
