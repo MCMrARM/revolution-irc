@@ -67,7 +67,10 @@ public class ChannelMembersListAdapter extends BaseAdapter implements Filterable
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
             FilterResults ret = new FilterResults();
-            if (constraint == null || constraint.length() == 0 ||
+            if (mMembers == null) {
+                ret.values = null;
+                ret.count = 0;
+            } else if (constraint == null || constraint.length() == 0 ||
                     (constraint.length() == 1 && constraint.charAt(0) == '@')) {
                 ret.values = mMembers;
                 ret.count = mMembers.size();
