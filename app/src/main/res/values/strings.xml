@@ -134,9 +134,9 @@
     <string name="pref_title_default_user">User</string>
     <string name="pref_title_default_realname">Real name</string>
 
-    <!-- Appearance settings -->
+    <!-- Interface settings -->
 
-    <string name="pref_header_appearance">Appearance</string>
+    <string name="pref_header_interface">Interface</string>
 
     <string name="pref_title_dark_theme">Dark theme</string>
     <string name="pref_summary_dark_theme">Apply a dark theme to the interface</string>

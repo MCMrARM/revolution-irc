@@ -11,9 +11,9 @@
         android:title="@string/pref_header_reconnect" />
 
     <header
-        android:fragment="io.mrarm.irc.SettingsActivity$AppearancePreferenceFragment"
+        android:fragment="io.mrarm.irc.SettingsActivity$InterfacePreferenceFragment"
         android:icon="@drawable/ic_appearance"
-        android:title="@string/pref_header_appearance" />
+        android:title="@string/pref_header_interface" />
 
     <header
         android:fragment="io.mrarm.irc.SettingsActivity$NotificationPreferenceFragment"

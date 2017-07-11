@@ -133,14 +133,14 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     @Override
     public void onBuildHeaders(List<Header> target) {
-        loadHeadersFromResource(R.xml.pref_headers, target);
+        loadHeadersFromResource(R.xml.pref_interface, target);
     }
 
     protected boolean isValidFragment(String fragmentName) {
         return PreferenceFragment.class.getName().equals(fragmentName)
                 || UserPreferenceFragment.class.getName().equals(fragmentName)
                 || ReconnectPreferenceFragment.class.getName().equals(fragmentName)
-                || AppearancePreferenceFragment.class.getName().equals(fragmentName)
+                || InterfacePreferenceFragment.class.getName().equals(fragmentName)
                 || NickAutocompletePreferenceFragment.class.getName().equals(fragmentName)
                 || NotificationPreferenceFragment.class.getName().equals(fragmentName)
                 || CommandPreferenceFragment.class.getName().equals(fragmentName);
@@ -206,7 +206,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         }
     }
 
-    public static class AppearancePreferenceFragment extends MyPreferenceFragment {
+    public static class InterfacePreferenceFragment extends MyPreferenceFragment {
         private MessageInfo mSampleMessage;
 
         @Override
