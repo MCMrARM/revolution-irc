@@ -38,7 +38,7 @@
         android:contentDescription="@string/action_expand" />
 
 
-    <io.mrarm.irc.util.LabelLayout
+    <io.mrarm.irc.view.LabelLayout
         android:id="@+id/server_ctr"
         android:layout_marginLeft="@dimen/activity_horizontal_margin_s4"
         android:layout_marginRight="@dimen/activity_horizontal_margin_s4"
@@ -54,10 +54,10 @@
             android:layout_height="45dp"
             style="@style/Base.Widget.AppCompat.Spinner.Underlined" />
 
-    </io.mrarm.irc.util.LabelLayout>
+    </io.mrarm.irc.view.LabelLayout>
 
 
-    <io.mrarm.irc.util.LabelLayout
+    <io.mrarm.irc.view.LabelLayout
         android:id="@+id/channels_ctr"
         android:layout_marginLeft="@dimen/activity_horizontal_margin_s4"
         android:layout_marginRight="@dimen/activity_horizontal_margin_s4"
@@ -68,16 +68,16 @@
         android:hint="@string/notification_rule_channels"
         app:doNotExpand="true">
 
-        <io.mrarm.irc.ChipsEditText
+        <io.mrarm.irc.view.ChipsEditText
             android:id="@+id/channels"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/value_any" />
 
-    </io.mrarm.irc.util.LabelLayout>
+    </io.mrarm.irc.view.LabelLayout>
 
 
-    <io.mrarm.irc.util.LabelLayout
+    <io.mrarm.irc.view.LabelLayout
         android:id="@+id/nicks_ctr"
         android:layout_marginLeft="@dimen/activity_horizontal_margin_s4"
         android:layout_marginRight="@dimen/activity_horizontal_margin_s4"
@@ -88,13 +88,13 @@
         android:hint="@string/notification_rule_nicks"
         app:doNotExpand="true">
 
-        <io.mrarm.irc.ChipsEditText
+        <io.mrarm.irc.view.ChipsEditText
             android:id="@+id/nicks"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/value_any" />
 
-    </io.mrarm.irc.util.LabelLayout>
+    </io.mrarm.irc.view.LabelLayout>
 
 
     <CheckBox

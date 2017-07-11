@@ -44,6 +44,7 @@ import javax.net.ssl.X509TrustManager;
 
 import io.mrarm.irc.util.ColoredTextBuilder;
 import io.mrarm.irc.util.SettableFuture;
+import io.mrarm.irc.util.WarningDisplayContext;
 
 public class ServerSSLHelper {
 

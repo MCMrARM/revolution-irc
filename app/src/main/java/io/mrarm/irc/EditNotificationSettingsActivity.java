@@ -24,6 +24,7 @@ import java.util.UUID;
 
 import io.mrarm.irc.util.EntryRecyclerViewAdapter;
 import io.mrarm.irc.util.SimpleCounter;
+import io.mrarm.irc.view.ChipsEditText;
 
 public class EditNotificationSettingsActivity extends AppCompatActivity {
 

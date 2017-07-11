@@ -16,6 +16,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import io.mrarm.irc.preference.ListWithCustomPreference;
+import io.mrarm.irc.preference.ReconnectIntervalPreference;
+
 public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final String PREF_DEFAULT_NICK = "default_nick";

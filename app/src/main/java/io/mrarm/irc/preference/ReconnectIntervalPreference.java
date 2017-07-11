@@ -1,4 +1,4 @@
-package io.mrarm.irc.util;
+package io.mrarm.irc.preference;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -31,6 +31,8 @@ import java.util.Collections;
 import java.util.List;
 
 import io.mrarm.irc.R;
+import io.mrarm.irc.util.SettingsHelper;
+import io.mrarm.irc.util.StubTextWatcher;
 
 public class ReconnectIntervalPreference extends Preference {
 

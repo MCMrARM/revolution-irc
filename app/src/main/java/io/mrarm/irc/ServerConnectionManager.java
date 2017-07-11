@@ -1,18 +1,14 @@
 package io.mrarm.irc;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.provider.Settings;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-import io.mrarm.chatlib.irc.IRCConnection;
 import io.mrarm.chatlib.irc.IRCConnectionRequest;
-import io.mrarm.irc.util.ReconnectIntervalPreference;
+import io.mrarm.irc.preference.ReconnectIntervalPreference;
 import io.mrarm.irc.util.SettingsHelper;
 
 public class ServerConnectionManager {

@@ -7,7 +7,7 @@
     tools:context="io.mrarm.irc.MessageFormatSettingsActivity"
     tools:showIn="@layout/activity_message_format_settings">
 
-    <io.mrarm.irc.util.MessageFormatSettingsFormatBar
+    <io.mrarm.irc.view.MessageFormatSettingsFormatBar
         android:id="@+id/format_bar"
         android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
@@ -45,7 +45,7 @@
                 style="@style/MessageFormatSettingsTextInputLayout"
                 android:layout_marginTop="8dp">
 
-                <io.mrarm.irc.util.FormattableEditText
+                <io.mrarm.irc.view.FormattableEditText
                     android:id="@+id/message_format_normal"
                     style="@style/EditTextWithExpandIcon"
                     android:hint="@string/message_format_normal" />
@@ -66,7 +66,7 @@
 
             <android.support.design.widget.TextInputLayout style="@style/MessageFormatSettingsTextInputLayout">
 
-                <io.mrarm.irc.util.FormattableEditText
+                <io.mrarm.irc.view.FormattableEditText
                     android:id="@+id/message_format_action"
                     style="@style/EditTextWithExpandIcon"
                     android:hint="@string/message_format_action" />
@@ -87,7 +87,7 @@
 
             <android.support.design.widget.TextInputLayout style="@style/MessageFormatSettingsTextInputLayout">
 
-                <io.mrarm.irc.util.FormattableEditText
+                <io.mrarm.irc.view.FormattableEditText
                     android:id="@+id/message_format_event"
                     style="@style/EditTextWithExpandIcon"
                     android:hint="@string/message_format_event" />

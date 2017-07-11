@@ -1,4 +1,4 @@
-package io.mrarm.irc.util;
+package io.mrarm.irc.preference;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;

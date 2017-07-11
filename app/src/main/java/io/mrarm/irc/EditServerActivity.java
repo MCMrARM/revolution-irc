@@ -21,7 +21,8 @@ import java.util.Arrays;
 import java.util.UUID;
 
 import io.mrarm.irc.util.ExpandIconStateHelper;
-import io.mrarm.irc.util.StaticLabelTextInputLayout;
+import io.mrarm.irc.view.StaticLabelTextInputLayout;
+import io.mrarm.irc.view.ChipsEditText;
 
 public class EditServerActivity extends AppCompatActivity {
 

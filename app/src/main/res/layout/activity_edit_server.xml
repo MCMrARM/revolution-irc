@@ -144,7 +144,7 @@
                 app:srcCompat="@drawable/ic_server_password"
                 style="@style/EditServerIcon.TextInput" />
 
-            <io.mrarm.irc.util.StaticLabelTextInputLayout
+            <io.mrarm.irc.view.StaticLabelTextInputLayout
                 android:id="@+id/server_password_ctr"
                 android:hint="@string/server_password"
                 app:hintEnabled="true"
@@ -158,7 +158,7 @@
                     android:id="@+id/server_password"
                     android:inputType="textPassword" />
 
-            </io.mrarm.irc.util.StaticLabelTextInputLayout>
+            </io.mrarm.irc.view.StaticLabelTextInputLayout>
 
             <ImageButton
                 android:id="@+id/server_password_reset"
@@ -185,16 +185,16 @@
                 style="@style/EditServerExtraAction"
                 android:contentDescription="@string/action_expand" />
 
-            <io.mrarm.irc.util.LabelLayout
+            <io.mrarm.irc.view.LabelLayout
                 style="@style/EditServerTextInput.ExtraAction"
                 android:hint="@string/server_nick">
 
-                <io.mrarm.irc.ChipsEditText
+                <io.mrarm.irc.view.ChipsEditText
                     android:id="@+id/server_nick"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
 
-            </io.mrarm.irc.util.LabelLayout>
+            </io.mrarm.irc.view.LabelLayout>
 
         </RelativeLayout>
 

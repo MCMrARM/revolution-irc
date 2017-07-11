@@ -1,4 +1,4 @@
-package io.mrarm.irc.util;
+package io.mrarm.irc.view;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -8,6 +8,9 @@ import android.util.AttributeSet;
 
 import io.mrarm.irc.ColorPickerDialog;
 import io.mrarm.irc.R;
+import io.mrarm.irc.util.IRCColorUtils;
+import io.mrarm.irc.util.MessageBuilder;
+import io.mrarm.irc.view.TextFormatBar;
 
 public class MessageFormatSettingsFormatBar extends TextFormatBar {
 

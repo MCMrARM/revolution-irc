@@ -28,10 +28,10 @@ import java.util.Date;
 
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.dto.MessageSenderInfo;
-import io.mrarm.irc.util.FormattableEditText;
+import io.mrarm.irc.view.FormattableEditText;
 import io.mrarm.irc.util.MessageBuilder;
 import io.mrarm.irc.util.SimpleTextWatcher;
-import io.mrarm.irc.util.TextFormatBar;
+import io.mrarm.irc.view.TextFormatBar;
 
 public class MessageFormatSettingsActivity extends AppCompatActivity {
 

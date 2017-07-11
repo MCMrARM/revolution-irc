@@ -1,4 +1,4 @@
-package io.mrarm.irc.util;
+package io.mrarm.irc.view;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
@@ -20,7 +20,6 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import io.mrarm.irc.ChipsEditText;
 import io.mrarm.irc.R;
 
 public class LabelLayout extends FrameLayout {

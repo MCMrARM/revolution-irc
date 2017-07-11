@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <io.mrarm.irc.util.LabelLayout
+    <io.mrarm.irc.view.LabelLayout
         android:id="@+id/match_mode_ctr"
         android:layout_marginLeft="@dimen/activity_horizontal_margin_s4"
         android:layout_marginStart="@dimen/activity_horizontal_margin_s4"
@@ -18,7 +18,7 @@
             android:layout_height="45dp"
             style="@style/Base.Widget.AppCompat.Spinner.Underlined" />
 
-    </io.mrarm.irc.util.LabelLayout>
+    </io.mrarm.irc.view.LabelLayout>
 
     <android.support.design.widget.TextInputLayout
         android:id="@+id/match_text_ctr"

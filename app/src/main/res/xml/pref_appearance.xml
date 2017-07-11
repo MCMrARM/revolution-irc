@@ -7,7 +7,7 @@
         android:summary="@string/pref_summary_dark_theme"
         android:defaultValue="false" />
 
-    <io.mrarm.irc.util.ListWithCustomPreference
+    <io.mrarm.irc.preference.ListWithCustomPreference
         android:key="chat_font"
         android:title="@string/pref_title_font"
         android:entries="@array/pref_entries_font"
@@ -15,7 +15,7 @@
         android:defaultValue="default"
         app:customValueType="font" />
 
-    <io.mrarm.irc.util.FontSizePickerPreference
+    <io.mrarm.irc.preference.FontSizePickerPreference
         android:key="chat_font_size"
         android:title="@string/pref_title_font_size" />
 

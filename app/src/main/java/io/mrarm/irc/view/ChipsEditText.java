@@ -1,4 +1,4 @@
-package io.mrarm.irc;
+package io.mrarm.irc.view;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
+import io.mrarm.irc.R;
 
 public class ChipsEditText extends FrameLayout {
 

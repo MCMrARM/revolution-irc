@@ -2,7 +2,6 @@ package io.mrarm.irc;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -25,6 +24,7 @@ import io.mrarm.chatlib.test.TestApiImpl;
 import io.mrarm.irc.drawer.DrawerHelper;
 import io.mrarm.irc.util.NightModeRecreateHelper;
 import io.mrarm.irc.util.SettingsHelper;
+import io.mrarm.irc.util.WarningDisplayContext;
 
 public class MainActivity extends AppCompatActivity {
 

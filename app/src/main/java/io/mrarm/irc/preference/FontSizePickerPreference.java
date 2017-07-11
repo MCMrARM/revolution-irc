@@ -1,4 +1,4 @@
-package io.mrarm.irc.util;
+package io.mrarm.irc.preference;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -11,6 +11,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import io.mrarm.irc.R;
+import io.mrarm.irc.util.SettingsHelper;
 
 public class FontSizePickerPreference extends DialogPreference {
 

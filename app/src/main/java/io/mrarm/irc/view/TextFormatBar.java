@@ -1,4 +1,4 @@
-package io.mrarm.irc.util;
+package io.mrarm.irc.view;
 
 import android.app.Activity;
 import android.content.Context;
@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import io.mrarm.irc.ColorPickerDialog;
 import io.mrarm.irc.R;
+import io.mrarm.irc.util.SpannableStringHelper;
 
 public class TextFormatBar extends FrameLayout {
 

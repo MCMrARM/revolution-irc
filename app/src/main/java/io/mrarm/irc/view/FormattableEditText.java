@@ -1,4 +1,4 @@
-package io.mrarm.irc.util;
+package io.mrarm.irc.view;
 
 import android.content.Context;
 import android.graphics.Rect;
