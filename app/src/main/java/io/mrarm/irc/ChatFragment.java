@@ -18,6 +18,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.ActionMode;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -179,7 +180,6 @@ public class ChatFragment extends Fragment implements
 
             @Override
             public void afterTextChanged(Editable s) {
-
             }
         });
 
@@ -220,8 +220,11 @@ public class ChatFragment extends Fragment implements
 
         SettingsHelper s = SettingsHelper.getInstance(getContext());
         s.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_APPBAR_COMPACT_MODE, this);
+        s.addPreferenceChangeListener(SettingsHelper.PREF_NICK_AUTOCOMPLETE_SHOW_BUTTON, this);
+        s.addPreferenceChangeListener(SettingsHelper.PREF_NICK_AUTOCOMPLETE_DOUBLE_TAP, this);
 
         setTabButtonVisible(s.isNickAutocompleteButtonVisible());
+        setDoubleTapCompleteEnabled(s.isNickAutocompleteDoubleTapEnabled());
 
         return rootView;
     }
@@ -230,7 +233,9 @@ public class ChatFragment extends Fragment implements
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (getView() != null) {
             updateToolbarCompactLayoutStatus(getView().getBottom() - getView().getTop());
-            setTabButtonVisible(SettingsHelper.getInstance(getContext()).isNickAutocompleteButtonVisible());
+            SettingsHelper s = SettingsHelper.getInstance(getContext());
+            setTabButtonVisible(s.isNickAutocompleteButtonVisible());
+            setDoubleTapCompleteEnabled(s.isNickAutocompleteDoubleTapEnabled());
         }
     }
 
@@ -290,6 +295,21 @@ public class ChatFragment extends Fragment implements
         mSendText.setLayoutParams(layoutParams);
     }
 
+    public void setDoubleTapCompleteEnabled(boolean enabled) {
+        if (enabled) {
+            GestureDetector detector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
+                @Override
+                public boolean onDoubleTap(MotionEvent e) {
+                    doTabNickComplete();
+                    return true;
+                }
+            });
+            mSendText.setOnTouchListener((View v, MotionEvent event) -> detector.onTouchEvent(event));
+        } else {
+            mSendText.setOnTouchListener(null);
+        }
+    }
+
     public void doTabNickComplete() {
         int end = mSendText.getSelectionStart();
         int start = mSendText.getTokenizer().findTokenStart(mSendText.getText(), end);
@@ -318,6 +338,8 @@ public class ChatFragment extends Fragment implements
         mConnectionInfo.removeOnChannelListChangeListener(this);
         SettingsHelper s = SettingsHelper.getInstance(getContext());
         s.removePreferenceChangeListener(SettingsHelper.PREF_CHAT_APPBAR_COMPACT_MODE, this);
+        s.removePreferenceChangeListener(SettingsHelper.PREF_NICK_AUTOCOMPLETE_SHOW_BUTTON, this);
+        s.removePreferenceChangeListener(SettingsHelper.PREF_NICK_AUTOCOMPLETE_DOUBLE_TAP, this);
         super.onDestroyView();
     }
 
