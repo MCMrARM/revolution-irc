@@ -1,6 +1,7 @@
 package io.mrarm.irc;
 
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
@@ -15,19 +16,16 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.MultiAutoCompleteTextView;
 import android.widget.RelativeLayout;
 
 import java.util.List;
@@ -39,7 +37,7 @@ import io.mrarm.irc.util.IRCColorUtils;
 import io.mrarm.irc.util.ImageViewTintUtils;
 import io.mrarm.irc.util.SettingsHelper;
 import io.mrarm.irc.util.SimpleTextVariableList;
-import io.mrarm.irc.view.FormattableMultiAutoCompleteEditText;
+import io.mrarm.irc.view.NickAutoCompleteEditText;
 import io.mrarm.irc.view.TextFormatBar;
 
 public class ChatFragment extends Fragment implements
@@ -58,12 +56,14 @@ public class ChatFragment extends Fragment implements
     private ViewPager mViewPager;
     private ChannelMembersAdapter mChannelMembersAdapter;
     private ChannelMembersListAdapter mChannelMembersListAdapter;
-    private FormattableMultiAutoCompleteEditText mSendText;
+    private NickAutoCompleteEditText mSendText;
     private View mFormatBarDivider;
     private TextFormatBar mFormatBar;
     private ImageView mSendIcon;
     private ImageView mTabIcon;
     private int mNormalToolbarInset;
+    private boolean mJustDismissedPopup;
+    private boolean mClickForceAutocomplete;
 
     public static ChatFragment newInstance(ServerConnectionInfo server, String channel) {
         ChatFragment fragment = new ChatFragment();
@@ -127,9 +127,23 @@ public class ChatFragment extends Fragment implements
 
         mFormatBar = (TextFormatBar) rootView.findViewById(R.id.format_bar);
         mFormatBarDivider = rootView.findViewById(R.id.format_bar_divider);
-        mSendText = (FormattableMultiAutoCompleteEditText) rootView.findViewById(R.id.send_text);
+        mSendText = (NickAutoCompleteEditText) rootView.findViewById(R.id.send_text);
         mSendIcon = (ImageButton) rootView.findViewById(R.id.send_button);
         mTabIcon = (ImageButton) rootView.findViewById(R.id.tab_button);
+
+        if (Build.VERSION.SDK_INT >= 17) {
+            mSendText.setOnDismissListener(() -> {
+                mJustDismissedPopup = true;
+                mSendText.postDelayed(() -> {
+                    mJustDismissedPopup = false;
+                }, 100L);
+            });
+            mTabIcon.setOnTouchListener((View v, MotionEvent event) -> {
+                if (event.getAction() == MotionEvent.ACTION_DOWN)
+                    mClickForceAutocomplete = mJustDismissedPopup;
+                return false;
+            });
+        }
 
         mSendText.setFormatBar(mFormatBar);
         mSendText.setCustomSelectionActionModeCallback(new FormatItemActionMode());
@@ -278,18 +292,24 @@ public class ChatFragment extends Fragment implements
 
     public void doTabNickComplete() {
         int end = mSendText.getSelectionStart();
-        int start;
-        for (start = end; start > 0; start--) {
-            char c = mSendText.getText().charAt(start - 1);
-            if (c == ' ')
-                break;
-        }
+        int start = mSendText.getTokenizer().findTokenStart(mSendText.getText(), end);
+        if (start < mSendText.length() && mSendText.getText().charAt(start) == '@')
+            start++;
         String startNick = mSendText.getText().subSequence(start, end).toString();
+        int matches = 0;
+        String match = null;
         for (NickWithPrefix n : mChannelMembersAdapter.getMembers()) {
-            if (n.getNick().startsWith(startNick)) {
-                mSendText.getText().replace(end, end, n.getNick().substring(startNick.length()));
-                return;
-            }
+            if (n.getNick().startsWith(startNick) && matches++ == 0)
+                match = n.getNick();
+        }
+        if (match == null)
+            return;
+
+        if (mClickForceAutocomplete || matches == 1) {
+            mSendText.getText().replace(end, end, mSendText.getTokenizer().terminateToken(match.substring(startNick.length())));
+            mSendText.dismissDropDown();
+        } else {
+            mSendText.forceShowDropDown();
         }
     }
 

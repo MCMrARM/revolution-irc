@@ -9,12 +9,14 @@ import android.widget.MultiAutoCompleteTextView;
 import io.mrarm.irc.util.SettingsHelper;
 
 public class NickAutoCompleteEditText extends FormattableMultiAutoCompleteEditText
-        implements SharedPreferences.OnSharedPreferenceChangeListener{
+        implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private NickTokenizer mTokenizer;
     private boolean mDoThresholdSuggestions;
     private boolean mDoAtSuggestions;
     private boolean mAtSuggestionsRemoveAt;
+    private boolean mForceShowSuggestions = false;
+    private int mOldSelectionStart;
 
     public NickAutoCompleteEditText(Context context) {
         super(context);
@@ -29,6 +31,20 @@ public class NickAutoCompleteEditText extends FormattableMultiAutoCompleteEditTe
     public NickAutoCompleteEditText(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
+    }
+
+    private void init() {
+        mTokenizer = new NickTokenizer();
+        super.setTokenizer(mTokenizer);
+    }
+
+    public NickTokenizer getTokenizer() {
+        return mTokenizer;
+    }
+
+    @Override
+    public void setTokenizer(Tokenizer t) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -58,11 +74,6 @@ public class NickAutoCompleteEditText extends FormattableMultiAutoCompleteEditTe
         mAtSuggestionsRemoveAt = s.shouldRemoveAtWithNickAutocompleteAtSuggestions();
     }
 
-    private void init() {
-        mTokenizer = new NickTokenizer();
-        setTokenizer(mTokenizer);
-    }
-
     @Override
     public boolean enoughToFilter() {
         Editable s = getText();
@@ -71,8 +82,25 @@ public class NickAutoCompleteEditText extends FormattableMultiAutoCompleteEditTe
             return false;
         int start = mTokenizer.findTokenStart(s, end);
         boolean hasAt = s.length() > start && s.charAt(start) == '@';
-        return (mDoThresholdSuggestions && end - start >= getThreshold() &&
-                (mDoAtSuggestions || !hasAt)) || (mDoAtSuggestions && hasAt);
+        return mForceShowSuggestions ||
+                ((mDoThresholdSuggestions && end - start >= getThreshold() &&
+                        (mDoAtSuggestions || !hasAt)) || (mDoAtSuggestions && hasAt));
+    }
+
+    @Override
+    protected void onSelectionChanged(int selStart, int selEnd) {
+        super.onSelectionChanged(selStart, selEnd);
+        if (selStart != mOldSelectionStart) {
+            mOldSelectionStart = selStart;
+            mForceShowSuggestions = false;
+        }
+    }
+
+    public void forceShowDropDown() {
+        mForceShowSuggestions = true;
+        mOldSelectionStart = getSelectionStart();
+        performFiltering(getText(), 0);
+        showDropDown();
     }
 
     public class NickTokenizer implements MultiAutoCompleteTextView.Tokenizer {
