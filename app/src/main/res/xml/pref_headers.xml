@@ -1,0 +1,28 @@
+<preference-headers xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <header
+        android:fragment="io.mrarm.irc.SettingsActivity$UserPreferenceFragment"
+        android:icon="@drawable/ic_user"
+        android:title="@string/pref_header_user" />
+
+    <header
+        android:fragment="io.mrarm.irc.SettingsActivity$ReconnectPreferenceFragment"
+        android:icon="@drawable/ic_refresh"
+        android:title="@string/pref_header_reconnect" />
+
+    <header
+        android:fragment="io.mrarm.irc.SettingsActivity$InterfacePreferenceFragment"
+        android:icon="@drawable/ic_appearance"
+        android:title="@string/pref_header_interface" />
+
+    <header
+        android:fragment="io.mrarm.irc.SettingsActivity$NotificationPreferenceFragment"
+        android:icon="@drawable/ic_notifications"
+        android:title="@string/pref_header_notifications" />
+
+    <header
+        android:fragment="io.mrarm.irc.SettingsActivity$CommandPreferenceFragment"
+        android:icon="@drawable/ic_keyboard"
+        android:title="@string/pref_header_command_aliases" />
+
+</preference-headers>

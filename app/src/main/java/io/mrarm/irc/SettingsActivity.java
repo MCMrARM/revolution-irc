@@ -133,7 +133,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     @Override
     public void onBuildHeaders(List<Header> target) {
-        loadHeadersFromResource(R.xml.pref_interface, target);
+        loadHeadersFromResource(R.xml.pref_headers, target);
     }
 
     protected boolean isValidFragment(String fragmentName) {
@@ -212,7 +212,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_appearance);
+            addPreferencesFromResource(R.xml.pref_interface);
             findPreference("dark_theme").setOnPreferenceChangeListener((Preference preference, Object newValue) -> {
                 boolean enabled = (Boolean) newValue;
                 AppCompatDelegate.setDefaultNightMode(enabled ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);

@@ -1,28 +1,42 @@
-<preference-headers xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <header
-        android:fragment="io.mrarm.irc.SettingsActivity$UserPreferenceFragment"
-        android:icon="@drawable/ic_user"
-        android:title="@string/pref_header_user" />
+    <CheckBoxPreference
+        android:key="dark_theme"
+        android:title="@string/pref_title_dark_theme"
+        android:summary="@string/pref_summary_dark_theme"
+        android:defaultValue="false" />
 
-    <header
-        android:fragment="io.mrarm.irc.SettingsActivity$ReconnectPreferenceFragment"
-        android:icon="@drawable/ic_refresh"
-        android:title="@string/pref_header_reconnect" />
+    <io.mrarm.irc.preference.ListWithCustomPreference
+        android:key="chat_font"
+        android:title="@string/pref_title_font"
+        android:entries="@array/pref_entries_font"
+        android:entryValues="@array/pref_entry_values_font"
+        android:defaultValue="default"
+        app:customValueType="font" />
 
-    <header
-        android:fragment="io.mrarm.irc.SettingsActivity$InterfacePreferenceFragment"
-        android:icon="@drawable/ic_appearance"
-        android:title="@string/pref_header_interface" />
+    <io.mrarm.irc.preference.FontSizePickerPreference
+        android:key="chat_font_size"
+        android:title="@string/pref_title_font_size" />
 
-    <header
-        android:fragment="io.mrarm.irc.SettingsActivity$NotificationPreferenceFragment"
-        android:icon="@drawable/ic_notifications"
-        android:title="@string/pref_header_notifications" />
+    <ListPreference
+        android:key="chat_appbar_compact_mode"
+        android:title="@string/pref_title_appbar_compact_mode"
+        android:entries="@array/pref_entries_appbar_compact_mode"
+        android:entryValues="@array/pref_entry_values_appbar_compact_mode"
+        android:defaultValue="auto" />
 
-    <header
-        android:fragment="io.mrarm.irc.SettingsActivity$CommandPreferenceFragment"
-        android:icon="@drawable/ic_keyboard"
-        android:title="@string/pref_header_command_aliases" />
+    <Preference
+        android:key="message_format"
+        android:title="@string/pref_title_message_format">
+        <intent
+            android:targetPackage="io.mrarm.irc"
+            android:targetClass="io.mrarm.irc.MessageFormatSettingsActivity" />
+    </Preference>
 
-</preference-headers>
+    <Preference
+        android:key="nick_autocomplete"
+        android:title="@string/pref_title_nick_autocomplete"
+        android:fragment="io.mrarm.irc.SettingsActivity$NickAutocompletePreferenceFragment" />
+
+</PreferenceScreen>
