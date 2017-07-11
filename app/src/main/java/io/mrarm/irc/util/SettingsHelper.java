@@ -72,6 +72,14 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         mPreferences.registerOnSharedPreferenceChangeListener(this);
     }
 
+    public List<File> getCustomFiles() {
+        List<File> ret = new ArrayList<>();
+        String font = mPreferences.getString(PREF_CHAT_FONT, "default");
+        if (ListWithCustomPreference.isCustomValue(font))
+            ret.add(ListWithCustomPreference.getCustomFile(mContext, PREF_CHAT_FONT, font));
+        return ret;
+    }
+
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(PREF_RECONNECT_INTERVAL))

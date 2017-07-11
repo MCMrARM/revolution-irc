@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -68,22 +70,34 @@ public class CommandAliasManager {
     public CommandAliasManager(Context context) {
         mContext = context;
         mUserAliases = new ArrayList<>();
+        loadUserSettings();
+    }
+
+    public void loadUserSettings(Reader reader) {
+        UserAliasesSettings settings = SettingsHelper.getGson().fromJson(reader,
+                UserAliasesSettings.class);
+        mUserAliases = settings.userAliases;
+    }
+
+    public void loadUserSettings() {
         try {
-            UserAliasesSettings settings = SettingsHelper.getGson().fromJson(new BufferedReader(
-                            new FileReader(new File(context.getFilesDir(), ALIASES_PATH))),
-                    UserAliasesSettings.class);
-            mUserAliases = settings.userAliases;
+            loadUserSettings(new BufferedReader(new FileReader(
+                    new File(mContext.getFilesDir(), ALIASES_PATH))));
         } catch (Exception ignored) {
         }
     }
 
+    public void saveUserSettings(Writer writer) {
+        UserAliasesSettings settings = new UserAliasesSettings();
+        settings.userAliases = mUserAliases;
+        SettingsHelper.getGson().toJson(settings, writer);
+    }
+
     public boolean saveUserSettings() {
         try {
-            UserAliasesSettings settings = new UserAliasesSettings();
-            settings.userAliases = mUserAliases;
             BufferedWriter writer = new BufferedWriter(new FileWriter(
                     new File(mContext.getFilesDir(), ALIASES_PATH)));
-            SettingsHelper.getGson().toJson(settings, writer);
+            saveUserSettings(writer);
             writer.close();
             return true;
         } catch (IOException ignored) {

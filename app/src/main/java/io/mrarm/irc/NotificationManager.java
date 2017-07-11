@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -74,38 +76,48 @@ public class NotificationManager {
         sDefaultBottomRules.add(NotificationManager.sChannelNoticeRule);
     }
 
+    public static void loadUserRuleSettings(Reader reader) {
+        UserRuleSettings settings = SettingsHelper.getGson().fromJson(reader,
+                UserRuleSettings.class);
+        sZNCPlaybackRule.settings.enabled = settings.zncPlaybackRuleEnabled;
+        sNickMentionRule.settings = settings.nickMentionRuleSettings;
+        sDirectMessageRule.settings = settings.directMessageRuleSettings;
+        sDirectNoticeRule.settings = settings.directNoticeRuleSettings;
+        sChannelNoticeRule.settings = settings.channelNoticeRuleSettings;
+        sUserRules = settings.userRules;
+    }
+
     public static boolean loadUserRuleSettings(Context context) {
         if (sUserRulesLoaded)
             return true;
         sUserRulesLoaded = true;
         try {
-            UserRuleSettings settings = SettingsHelper.getGson().fromJson(new BufferedReader(
-                    new FileReader(new File(context.getFilesDir(), RULES_PATH))),
-                    UserRuleSettings.class);
-            sZNCPlaybackRule.settings.enabled = settings.zncPlaybackRuleEnabled;
-            sNickMentionRule.settings = settings.nickMentionRuleSettings;
-            sDirectMessageRule.settings = settings.directMessageRuleSettings;
-            sDirectNoticeRule.settings = settings.directNoticeRuleSettings;
-            sChannelNoticeRule.settings = settings.channelNoticeRuleSettings;
-            sUserRules = settings.userRules;
+            BufferedReader reader = new BufferedReader(new FileReader(
+                    new File(context.getFilesDir(), RULES_PATH)));
+            loadUserRuleSettings(reader);
+            reader.close();
             return true;
         } catch (Exception ignored) {
         }
         return false;
     }
 
+    public static void saveUserRuleSettings(Context context, Writer writer) {
+        UserRuleSettings settings = new UserRuleSettings();
+        settings.userRules = getUserRules(context);
+        settings.zncPlaybackRuleEnabled = sZNCPlaybackRule.settings.enabled;
+        settings.nickMentionRuleSettings = sNickMentionRule.settings;
+        settings.directMessageRuleSettings = sDirectMessageRule.settings;
+        settings.directNoticeRuleSettings = sDirectNoticeRule.settings;
+        settings.channelNoticeRuleSettings = sChannelNoticeRule.settings;
+        SettingsHelper.getGson().toJson(settings, writer);
+    }
+
     public static boolean saveUserRuleSettings(Context context) {
         try {
-            UserRuleSettings settings = new UserRuleSettings();
-            settings.userRules = getUserRules(context);
-            settings.zncPlaybackRuleEnabled = sZNCPlaybackRule.settings.enabled;
-            settings.nickMentionRuleSettings = sNickMentionRule.settings;
-            settings.directMessageRuleSettings = sDirectMessageRule.settings;
-            settings.directNoticeRuleSettings = sDirectNoticeRule.settings;
-            settings.channelNoticeRuleSettings = sChannelNoticeRule.settings;
             BufferedWriter writer = new BufferedWriter(new FileWriter(
                     new File(context.getFilesDir(), RULES_PATH)));
-            SettingsHelper.getGson().toJson(settings, writer);
+            saveUserRuleSettings(context, writer);
             writer.close();
             return true;
         } catch (IOException ignored) {

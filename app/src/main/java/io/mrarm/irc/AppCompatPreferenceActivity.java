@@ -28,6 +28,8 @@ public abstract class AppCompatPreferenceActivity extends PreferenceActivity {
     private AppCompatDelegate mDelegate;
     private int mThemeId = 0;
 
+    private int mFgColor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         getDelegate().installViewFactory();
@@ -42,11 +44,17 @@ public abstract class AppCompatPreferenceActivity extends PreferenceActivity {
         super.onCreate(savedInstanceState);
 
         if (getListAdapter() != null) {
-            TypedArray ta = obtainStyledAttributes(new int[]{android.R.attr.colorForeground});
-            int fgColor = ta.getColor(0, 0);
-            ta.recycle();
-            setListAdapter(new TintHeaderAdapterWrapper(getListAdapter(), fgColor));
+            setListAdapter(new TintHeaderAdapterWrapper(getListAdapter(), getForegroundColor()));
         }
+    }
+
+    public int getForegroundColor() {
+        if (mFgColor == 0) {
+            TypedArray ta = obtainStyledAttributes(new int[]{android.R.attr.colorForeground});
+            mFgColor = ta.getColor(0, 0);
+            ta.recycle();
+        }
+        return mFgColor;
     }
 
     @Override

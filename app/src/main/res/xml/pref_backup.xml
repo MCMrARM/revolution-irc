@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Preference
+        android:key="backup_create"
+        android:title="@string/pref_title_backup_create"
+        android:fragment="io.mrarm.irc.SettingsActivity$BackupCreatePreferenceFragment" />
+
+    <Preference
+        android:key="backup_restore"
+        android:title="@string/pref_title_backup_restore"
+        android:fragment="io.mrarm.irc.SettingsActivity$BackupPreferenceFragment" />
+
+</PreferenceScreen>

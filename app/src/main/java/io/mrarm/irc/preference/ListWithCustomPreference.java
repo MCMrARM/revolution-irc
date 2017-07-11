@@ -28,6 +28,7 @@ public class ListWithCustomPreference extends ListPreference
         implements SettingsActivity.ActivityResultCallback {
 
     public static final String CUSTOM_VALUE_PREFIX = "custom:";
+    public static final String FILES_DIR = "pref_values";
     public static final String FILENAME_PREFIX = "pref_";
     public static final String FILENAME_TEMP_PREFIX = "temp_";
 
@@ -94,12 +95,19 @@ public class ListWithCustomPreference extends ListPreference
         return mCustomValueType == TYPE_FILE || mCustomValueType == TYPE_FONT;
     }
 
+    public static File getCustomFilesDir(Context context) {
+        File dir = new File(context.getFilesDir(), FILES_DIR);
+        if (!dir.exists())
+            dir.mkdir();
+        return dir;
+    }
+
     public static File getCustomFile(Context context, String key, String filename) {
         int iof = filename.lastIndexOf('.');
         if (iof == -1)
             return null;
         String ext = filename.substring(iof + 1);
-        return new File(context.getFilesDir(), FILENAME_PREFIX + key + "." + ext);
+        return new File(getCustomFilesDir(context), FILENAME_PREFIX + key + "." + ext);
     }
 
     public File getCustomFile() {

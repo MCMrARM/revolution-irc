@@ -3,10 +3,12 @@ package io.mrarm.irc;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.support.annotation.Nullable;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.ActionBar;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
@@ -18,6 +20,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -143,7 +147,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 || InterfacePreferenceFragment.class.getName().equals(fragmentName)
                 || NickAutocompletePreferenceFragment.class.getName().equals(fragmentName)
                 || NotificationPreferenceFragment.class.getName().equals(fragmentName)
-                || CommandPreferenceFragment.class.getName().equals(fragmentName);
+                || CommandPreferenceFragment.class.getName().equals(fragmentName)
+                || BackupPreferenceFragment.class.getName().equals(fragmentName);
     }
 
     public SimpleCounter getRequestCodeCounter() {
@@ -342,6 +347,33 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             mAdapter.notifyDataSetChanged();
         }
 
+    }
+
+    public static class BackupPreferenceFragment extends MyPreferenceFragment {
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.pref_backup);
+
+            findPreference("backup_create").setOnPreferenceClickListener((Preference preference) -> {
+                try {
+                    BackupManager.createBackup(getActivity(), new File(getActivity().getExternalFilesDir(null), "test-backup.zip"), "test");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return true;
+            });
+            ((SettingsActivity) getActivity()).setTintedPreferenceIcon(findPreference("backup_create"), R.drawable.ic_save);
+            ((SettingsActivity) getActivity()).setTintedPreferenceIcon(findPreference("backup_restore"), R.drawable.ic_settings_backup);
+        }
+
+    }
+
+    public void setTintedPreferenceIcon(Preference pref, int icon) {
+        Drawable drawable = DrawableCompat.wrap(getResources().getDrawable(icon).mutate());
+        DrawableCompat.setTint(drawable, getForegroundColor());
+        pref.setIcon(drawable);
     }
 
     public interface ActivityResultCallback {

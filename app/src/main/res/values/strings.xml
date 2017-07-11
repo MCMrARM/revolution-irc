@@ -35,6 +35,7 @@
     <string name="action_reorder">Reorder</string>
     <string name="action_undo">Undo</string>
     <string name="action_copy">Copy</string>
+    <string name="action_continue">Continue</string>
 
     <string name="action_delete_confirm_title">Are you sure?</string>
     <string name="action_delete_confirm_body">Are you sure you want to delete %1$s? This cannot be undone.</string>
@@ -102,6 +103,7 @@
     <string name="value_preset">Preset</string>
     <string name="entry_name">Name</string>
     <string name="entry_text">Text</string>
+    <string name="entry_password">Password</string>
 
     <string name="text_comma">", "</string>
 
@@ -295,6 +297,15 @@
         <item>Message</item>
         <item>Raw</item>
     </string-array>
+
+    <!-- Backup settings -->
+
+    <string name="pref_header_backup">Backup</string>
+
+    <string name="pref_title_backup_create">Create a new backup</string>
+    <string name="pref_title_backup_restore">Restore a backup</string>
+
+    <string name="backup_password_text">The backup will contain all of your settings, including server information and unencrypted passwords. It is recommended to set a password that will be required to restore the data from the backup.</string>
 0
     <!-- Color names -->
 

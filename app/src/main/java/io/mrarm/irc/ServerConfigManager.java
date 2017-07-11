@@ -105,6 +105,11 @@ public class ServerConfigManager {
             listener.onConnectionRemoved(data);
     }
 
+    public void deleteAllServers() {
+        for (ServerConfigData server : mServers)
+            deleteServer(server);
+    }
+
     public File getServerChatLogDir(UUID uuid) {
         return new File(mServerLogsPath, uuid.toString());
     }
