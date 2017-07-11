@@ -144,6 +144,7 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
     private void onMessage(ServerConnectionInfo connection, String channel, MessageInfo info) {
         if (info.getMessage() == null)
             return;
+        Log.d("IRCService", "onMessage: " + info.getMessage());
         NotificationRule rule = connection.getNotificationManager().findRule(channel, info);
         if (rule != null && !rule.settings.noNotification) {
             NotificationManager.ChannelNotificationData notificationData = connection.getNotificationManager().getChannelNotificationData(channel, true);

@@ -71,7 +71,7 @@ public class NotificationRule {
 
     public void setMatchText(String text, boolean matchWord, boolean caseInsensitive) {
         if (matchWord)
-            setRegex("(^| |,)" + Pattern.quote(text) + "($| |,)", caseInsensitive);
+            setRegex("(^| |,|:|;)" + Pattern.quote(text) + "($| |,|:|;)", caseInsensitive);
         else
             setRegex(Pattern.quote(text), caseInsensitive);
     }
@@ -135,7 +135,7 @@ public class NotificationRule {
             }
             if (entry.nicks != null && !entry.nicks.contains(message.getSender().getNick()))
                 continue;
-            if (entry.messageBatches != null && message.getBatch() != null && !entry.messageBatches.contains(message.getBatch().getType()))
+            if (entry.messageBatches != null && (message.getBatch() == null || !entry.messageBatches.contains(message.getBatch().getType())))
                 continue;
             return true;
         }
