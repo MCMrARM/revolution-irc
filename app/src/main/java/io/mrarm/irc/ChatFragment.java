@@ -15,6 +15,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -24,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.RelativeLayout;
 
 import java.util.List;
@@ -31,11 +35,11 @@ import java.util.UUID;
 
 import io.mrarm.chatlib.dto.NickWithPrefix;
 import io.mrarm.chatlib.irc.IRCConnection;
-import io.mrarm.irc.view.FormattableEditText;
 import io.mrarm.irc.util.IRCColorUtils;
 import io.mrarm.irc.util.ImageViewTintUtils;
 import io.mrarm.irc.util.SettingsHelper;
 import io.mrarm.irc.util.SimpleTextVariableList;
+import io.mrarm.irc.view.FormattableMultiAutoCompleteEditText;
 import io.mrarm.irc.view.TextFormatBar;
 
 public class ChatFragment extends Fragment implements
@@ -53,7 +57,8 @@ public class ChatFragment extends Fragment implements
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
     private ChannelMembersAdapter mChannelMembersAdapter;
-    private FormattableEditText mSendText;
+    private ChannelMembersListAdapter mChannelMembersListAdapter;
+    private FormattableMultiAutoCompleteEditText mSendText;
     private View mFormatBarDivider;
     private TextFormatBar mFormatBar;
     private ImageView mSendIcon;
@@ -122,12 +127,15 @@ public class ChatFragment extends Fragment implements
 
         mFormatBar = (TextFormatBar) rootView.findViewById(R.id.format_bar);
         mFormatBarDivider = rootView.findViewById(R.id.format_bar_divider);
-        mSendText = (FormattableEditText) rootView.findViewById(R.id.send_text);
+        mSendText = (FormattableMultiAutoCompleteEditText) rootView.findViewById(R.id.send_text);
         mSendIcon = (ImageButton) rootView.findViewById(R.id.send_button);
         mTabIcon = (ImageButton) rootView.findViewById(R.id.tab_button);
 
         mSendText.setFormatBar(mFormatBar);
         mSendText.setCustomSelectionActionModeCallback(new FormatItemActionMode());
+
+        mChannelMembersListAdapter = new ChannelMembersListAdapter(null);
+        mSendText.setAdapter(mChannelMembersListAdapter);
 
         mFormatBar.setExtraButton(R.drawable.ic_close, getString(R.string.action_close), (View v) -> {
             setFormatBarVisible(false);
@@ -303,6 +311,7 @@ public class ChatFragment extends Fragment implements
 
     public void setCurrentChannelMembers(List<NickWithPrefix> members) {
         mChannelMembersAdapter.setMembers(members);
+        mChannelMembersListAdapter.setMembers(members);
     }
 
     @Override

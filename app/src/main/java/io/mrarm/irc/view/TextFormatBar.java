@@ -17,6 +17,7 @@ import android.text.style.UnderlineSpan;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -28,7 +29,7 @@ import io.mrarm.irc.util.SpannableStringHelper;
 
 public class TextFormatBar extends FrameLayout {
 
-    private FormattableEditText mEditText;
+    private EditText mEditText;
     private View mBoldButton;
     private View mItalicButton;
     private View mUnderlineButton;
@@ -114,12 +115,12 @@ public class TextFormatBar extends FrameLayout {
         mExtraButton.setOnLongClickListener(mExplainationListener);
     }
 
-    public void setEditText(FormattableEditText editText) {
+    public void setEditText(EditText editText) {
         mEditText = editText;
         updateFormattingAtCursor();
     }
 
-    public FormattableEditText getEditText() {
+    public EditText getEditText() {
         return mEditText;
     }
 
@@ -218,7 +219,7 @@ public class TextFormatBar extends FrameLayout {
     }
 
     public interface OnChangeListener {
-        void onChange(TextFormatBar formatBar, FormattableEditText editText);
+        void onChange(TextFormatBar formatBar, EditText editText);
     }
 
     private static OnLongClickListener mExplainationListener = (View view) -> {

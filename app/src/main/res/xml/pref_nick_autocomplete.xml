@@ -2,24 +2,34 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <CheckBoxPreference
-        android:key="nicK_autocomplete_show_button"
+        android:key="nick_autocomplete_show_button"
+        android:defaultValue="false"
         android:title="@string/pref_title_nick_autocomplete_show_button"
         android:summary="@string/pref_summary_nick_autocomplete_show_button" />
 
     <CheckBoxPreference
-        android:key="nicK_autocomplete_double_tap"
+        android:key="nick_autocomplete_double_tap"
+        android:defaultValue="true"
         android:title="@string/pref_title_nick_autocomplete_double_tap"
         android:summary="@string/pref_summary_nick_autocomplete_double_tap" />
 
     <CheckBoxPreference
-        android:key="nicK_autocomplete_at_suggestions"
+        android:key="nick_autocomplete_suggestions"
+        android:defaultValue="false"
+        android:title="@string/pref_title_nick_autocomplete_suggestions"
+        android:summary="@string/pref_summary_nick_autocomplete_suggestions" />
+
+    <CheckBoxPreference
+        android:key="nick_autocomplete_at_suggestions"
+        android:defaultValue="true"
         android:title="@string/pref_title_nick_autocomplete_at_suggestions"
         android:summary="@string/pref_summary_nick_autocomplete_at_suggestions" />
 
     <CheckBoxPreference
-        android:key="nicK_autocomplete_at_suggestions_remove_at"
+        android:key="nick_autocomplete_at_suggestions_remove_at"
+        android:defaultValue="true"
         android:title="@string/pref_title_nick_autocomplete_at_suggestions_remove_at"
         android:summary="@string/pref_summary_nick_autocomplete_at_suggestions_remove_at"
-        android:dependency="nicK_autocomplete_at_suggestions" />
+        android:dependency="nick_autocomplete_at_suggestions" />
 
 </PreferenceScreen>

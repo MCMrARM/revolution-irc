@@ -17,4 +17,8 @@
     <color name="ircGray">#757575</color>
     <color name="ircLightGray">#E0E0E0</color>
 
+    <color name="memberOp">#8BC34A</color>
+    <color name="memberVoice">#03A9F4</color>
+    <color name="memberNormal">#fff</color>
+
 </resources>

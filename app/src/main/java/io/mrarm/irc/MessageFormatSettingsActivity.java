@@ -67,7 +67,7 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
 
         mTextFormatBar = (TextFormatBar) findViewById(R.id.format_bar);
         mTextFormatBar.setVisibility(View.GONE);
-        mTextFormatBar.setOnChangeListener((TextFormatBar bar, FormattableEditText text) -> {
+        mTextFormatBar.setOnChangeListener((TextFormatBar bar, EditText text) -> {
             if (text == mMessageFormatNormal)
                 mMessageBuilder.setMessageFormat(prepareFormat(text.getText()));
             else if (text == mMessageFormatAction)
@@ -271,7 +271,7 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
     }
 
     private void insertChip(int type, String str) {
-        FormattableEditText editText = mTextFormatBar.getEditText();
+        EditText editText = mTextFormatBar.getEditText();
         int sStart = editText.getSelectionStart();
         int sEnd = editText.getSelectionEnd();
         editText.getText().replace(sStart, sEnd, str);
