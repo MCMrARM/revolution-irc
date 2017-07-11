@@ -75,12 +75,12 @@ public class ChannelMembersListAdapter extends BaseAdapter implements Filterable
                 ret.values = mMembers;
                 ret.count = mMembers.size();
             } else {
-                String str = constraint.toString();
+                String str = constraint.toString().toLowerCase();
                 if (str.charAt(0) == '@')
                     str = str.substring(1);
                 List<NickWithPrefix> list = new ArrayList<>();
                 for (NickWithPrefix member : mMembers) {
-                    if (member.getNick().startsWith(str))
+                    if (member.getNick().regionMatches(true, 0, str, 0, str.length()))
                         list.add(member);
                 }
                 ret.values = list;
