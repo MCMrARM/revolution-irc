@@ -9,6 +9,7 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
+import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -100,7 +101,7 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
         mDateFormat = (EditText) findViewById(R.id.date_format);
         mDateFormatCtr = (TextInputLayout) findViewById(R.id.date_format_ctr);
         mDateFormat.setText(mMessageBuilder.getMessageTimeFormat().toPattern());
-        mDateFormat.addTextChangedListener(new SimpleTextWatcher((CharSequence s, int start, int before, int count) -> {
+        mDateFormat.addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
             try {
                 mMessageBuilder.setMessageTimeFormat(s.toString());
                 mDateFormatCtr.setError(null);
@@ -138,7 +139,7 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
         mMessageFormatNormal.setText(mMessageBuilder.getMessageFormat());
         mMessageFormatNormal.setFormatBar(mTextFormatBar);
         mMessageFormatNormal.setOnFocusChangeListener(focusListener);
-        mMessageFormatNormal.addTextChangedListener(new SimpleTextWatcher((CharSequence s, int start, int before, int count) -> {
+        mMessageFormatNormal.addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
             mMessageBuilder.setMessageFormat(prepareFormat((Spannable) s));
             refreshExamples();
         }));
@@ -157,7 +158,7 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
         mMessageFormatAction.setText(mMessageBuilder.getActionMessageFormat());
         mMessageFormatAction.setFormatBar(mTextFormatBar);
         mMessageFormatAction.setOnFocusChangeListener(focusListener);
-        mMessageFormatAction.addTextChangedListener(new SimpleTextWatcher((CharSequence s, int start, int before, int count) -> {
+        mMessageFormatAction.addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
             mMessageBuilder.setActionMessageFormat(prepareFormat((Spannable) s));
             refreshExamples();
         }));
@@ -176,7 +177,7 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
         mMessageFormatEvent.setText(mMessageBuilder.getEventMessageFormat());
         mMessageFormatEvent.setFormatBar(mTextFormatBar);
         mMessageFormatEvent.setOnFocusChangeListener(focusListener);
-        mMessageFormatEvent.addTextChangedListener(new SimpleTextWatcher((CharSequence s, int start, int before, int count) -> {
+        mMessageFormatEvent.addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
             mMessageBuilder.setEventMessageFormat(prepareFormat((Spannable) s));
             refreshExamples();
         }));

@@ -32,12 +32,12 @@ import java.util.List;
 
 import io.mrarm.irc.R;
 import io.mrarm.irc.util.SettingsHelper;
-import io.mrarm.irc.util.StubTextWatcher;
+import io.mrarm.irc.util.SimpleTextWatcher;
 
 public class ReconnectIntervalPreference extends Preference {
 
     private static List<Rule> sDefaultValue;
-    static Type sListRuleType = new TypeToken<List<Rule>>(){}.getType();
+    public static final Type sListRuleType = new TypeToken<List<Rule>>(){}.getType();
 
     static {
         sDefaultValue = new ArrayList<>();
@@ -239,12 +239,9 @@ public class ReconnectIntervalPreference extends Preference {
                     menu.show();
                 });
 
-                mReconnectDelayText.addTextChangedListener(new StubTextWatcher() {
-                    @Override
-                    public void afterTextChanged(Editable s) {
-                        updateReconnectDelay(adapter);
-                    }
-                });
+                mReconnectDelayText.addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
+                    updateReconnectDelay(adapter);
+                }));
                 mReconnectDelaySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -255,34 +252,31 @@ public class ReconnectIntervalPreference extends Preference {
                     public void onNothingSelected(AdapterView<?> parent) {
                     }
                 });
-                mRepeatCountText.addTextChangedListener(new StubTextWatcher() {
-                    @Override
-                    public void afterTextChanged(Editable s) {
-                        Rule rule = adapter.mRules.get(getAdapterPosition());
-                        try {
-                            rule.repeatCount = Integer.parseInt(mRepeatCountText.getText().toString());
-                        } catch (NumberFormatException e) {
-                            rule.repeatCount = -1;
-                        }
-
-                        if (getAdapterPosition() == adapter.mRules.size() - 1) { // last item
-                            if (mRepeatCountText.getText().length() > 0) {
-                                // add a new empty item
-                                adapter.mRules.add(getAdapterPosition() + 1, new Rule());
-                                adapter.notifyItemInserted(getAdapterPosition() + 1);
-                            }
-                        } else if (getAdapterPosition() == adapter.mRules.size() - 2) {
-                            int ii = adapter.mRules.size() - 1;
-                            Rule lastRule = adapter.mRules.get(ii);
-                            if (lastRule.reconnectDelay == -1 && lastRule.repeatCount == -1) {
-                                // remove last, empty rule
-                                adapter.mRules.remove(ii);
-                                adapter.notifyItemRemoved(ii);
-                            }
-                        }
-                        adapter.updateDialogOkButtonState();
+                mRepeatCountText.addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
+                    Rule rule = adapter.mRules.get(getAdapterPosition());
+                    try {
+                        rule.repeatCount = Integer.parseInt(mRepeatCountText.getText().toString());
+                    } catch (NumberFormatException e) {
+                        rule.repeatCount = -1;
                     }
-                });
+
+                    if (getAdapterPosition() == adapter.mRules.size() - 1) { // last item
+                        if (mRepeatCountText.getText().length() > 0) {
+                            // add a new empty item
+                            adapter.mRules.add(getAdapterPosition() + 1, new Rule());
+                            adapter.notifyItemInserted(getAdapterPosition() + 1);
+                        }
+                    } else if (getAdapterPosition() == adapter.mRules.size() - 2) {
+                        int ii = adapter.mRules.size() - 1;
+                        Rule lastRule = adapter.mRules.get(ii);
+                        if (lastRule.reconnectDelay == -1 && lastRule.repeatCount == -1) {
+                            // remove last, empty rule
+                            adapter.mRules.remove(ii);
+                            adapter.notifyItemRemoved(ii);
+                        }
+                    }
+                    adapter.updateDialogOkButtonState();
+                }));
             }
 
             private void updateReconnectDelay(RulesAdapter adapter) {
