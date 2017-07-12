@@ -42,6 +42,7 @@ public class ChipsEditText extends FrameLayout {
     private FlexboxLayout mFlexbox;
     private MyEditText mItemEditText;
     private int mEditTextHorizontalPadding;
+    private int mEditTextMinHeight;
 
     private Editable mEditable;
     private List<Integer> mEditableLineStarts;
@@ -76,6 +77,7 @@ public class ChipsEditText extends FrameLayout {
         mEditableLineStarts.add(0);
 
         mEditTextHorizontalPadding = getResources().getDimensionPixelSize(R.dimen.chip_edit_text_horizontal_padding);
+        mEditTextMinHeight = getResources().getDimensionPixelSize(R.dimen.chip_edit_text_min_height);
 
         mHintTextSize = getResources().getDimensionPixelSize(R.dimen.abc_text_size_medium_material);
 
@@ -104,12 +106,13 @@ public class ChipsEditText extends FrameLayout {
         mItemEditText.setPadding(mEditTextHorizontalPadding, 0, mEditTextHorizontalPadding, 0);
         FlexboxLayout.LayoutParams params = new FlexboxLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.flexGrow = 0.f;
+        params.minHeight = mEditTextMinHeight;
         mItemEditText.setLayoutParams(params);
         mItemEditText.setText("");
 
         mEditable = mItemEditText.getEditableText();
 
-        setMinimumHeight(mItemEditText.getLineHeight() + getPaddingTop() + getPaddingBottom());
+        setMinimumHeight(mEditTextMinHeight + getPaddingTop() + getPaddingBottom());
     }
 
 
@@ -155,6 +158,10 @@ public class ChipsEditText extends FrameLayout {
         mItemEditText.requestFocus();
         InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.showSoftInput(mItemEditText, 0);
+    }
+
+    public void startItemEdit() {
+        startItemEdit(mFlexbox.getChildCount());
     }
 
     private boolean isDirectlyEditing = false;
@@ -287,7 +294,7 @@ public class ChipsEditText extends FrameLayout {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         if (mHintPaint != null && mEditable.length() == 0) {
-            canvas.drawText(mHint, getPaddingLeft(), getPaddingTop() - mHintPaint.ascent(), mHintPaint);
+            canvas.drawText(mHint, getPaddingLeft(), (getTop() + getBottom()) / 2 - (mHintPaint.descent() + mHintPaint.ascent()) / 2, mHintPaint);
         }
     }
 
