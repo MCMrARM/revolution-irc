@@ -117,9 +117,14 @@ public class ServerConnectionManager {
             saveAutoconnectList();
     }
 
-
     public void removeConnection(ServerConnectionInfo connection) {
         removeConnection(connection, true);
+    }
+
+    public void removeAllConnections() {
+        while (mConnections.size() > 0)
+            removeConnection(mConnections.get(mConnections.size() - 1), false);
+        saveAutoconnectList();
     }
 
     public ServerConnectionInfo getConnection(UUID uuid) {

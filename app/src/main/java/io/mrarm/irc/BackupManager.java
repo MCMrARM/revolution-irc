@@ -124,6 +124,7 @@ public class BackupManager {
             importPreferencesFromJson(context, reader);
             reader.close();
 
+            ServerConnectionManager.getInstance(context).removeAllConnections();
             ServerConfigManager.getInstance(context).deleteAllServers();
 
             for (Object header : zipFile.getFileHeaders()) {
