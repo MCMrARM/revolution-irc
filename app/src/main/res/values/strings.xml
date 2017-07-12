@@ -26,6 +26,7 @@
     <string name="action_settings">Settings</string>
     <string name="action_connect">Connect</string>
     <string name="action_disconnect">Disconnect</string>
+    <string name="action_reconnect">Reconnect</string>
     <string name="action_close">Close</string>
     <string name="action_disconnect_and_close">Disconnect and close</string>
     <string name="action_open">Open</string>
@@ -37,6 +38,9 @@
     <string name="action_copy">Copy</string>
     <string name="action_continue">Continue</string>
     <string name="action_finish">Finish</string>
+    <string name="action_join_channel">Join channel</string>
+    <string name="action_message_user">Message user</string>
+    <string name="action_part_channel">Leave channel</string>
 
     <string name="action_delete_confirm_title">Are you sure?</string>
     <string name="action_delete_confirm_body">Are you sure you want to delete %1$s? This cannot be undone.</string>

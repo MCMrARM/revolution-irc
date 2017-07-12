@@ -3,8 +3,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="io.mrarm.irc.MainActivity">
     <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
+        android:id="@+id/action_join_channel"
+        android:title="@string/action_join_channel"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_message_user"
+        android:title="@string/action_message_user"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_part_channel"
+        android:title="@string/action_part_channel"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_reconnect"
+        android:title="@string/action_reconnect"
+        android:visible="false"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_disconnect"
+        android:title="@string/action_disconnect"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_disconnect_and_close"
+        android:title="@string/action_disconnect_and_close"
         app:showAsAction="never" />
 </menu>

@@ -120,10 +120,10 @@ public class ServerConnectionInfo {
     }
 
     private void notifyDisconnected() {
+        setConnected(false);
         if (mUserDisconnectRequest)
             return;
         mConnecting = false;
-        setConnected(false);
         int reconnectDelay = mManager.getReconnectDelay(mCurrentReconnectAttempt++);
         if (reconnectDelay == -1)
             return;
