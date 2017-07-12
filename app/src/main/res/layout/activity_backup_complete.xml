@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <include
+        layout="@layout/activity_setup_big_header_appbar" />
+
+    <TextView
+        android:id="@+id/desc"
+        style="@style/TextAppearance.AppCompat.Body1"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/setup_header_padding"
+        android:layout_marginRight="@dimen/setup_header_padding"
+        android:layout_marginTop="32dp"
+        android:text="@string/backup_created" />
+
+    <Button
+        android:id="@+id/finish"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="@dimen/setup_header_padding_m4"
+        android:layout_marginEnd="@dimen/setup_header_padding_m4"
+        android:layout_marginRight="@dimen/setup_header_padding_m4"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:text="@string/action_finish" />
+
+</android.support.design.widget.CoordinatorLayout>

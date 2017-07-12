@@ -26,8 +26,11 @@
         android:title="@string/pref_header_command_aliases" />
 
     <header
-        android:fragment="io.mrarm.irc.SettingsActivity$BackupPreferenceFragment"
         android:icon="@drawable/ic_settings_backup"
-        android:title="@string/pref_header_backup" />
+        android:title="@string/pref_header_backup">
+        <intent
+            android:targetPackage="io.mrarm.irc"
+            android:targetClass="io.mrarm.irc.setup.BackupActivity" />
+    </header>
 
 </preference-headers>

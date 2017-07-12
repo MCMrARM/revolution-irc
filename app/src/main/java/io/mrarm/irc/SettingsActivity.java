@@ -20,8 +20,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -147,8 +145,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 || InterfacePreferenceFragment.class.getName().equals(fragmentName)
                 || NickAutocompletePreferenceFragment.class.getName().equals(fragmentName)
                 || NotificationPreferenceFragment.class.getName().equals(fragmentName)
-                || CommandPreferenceFragment.class.getName().equals(fragmentName)
-                || BackupPreferenceFragment.class.getName().equals(fragmentName);
+                || CommandPreferenceFragment.class.getName().equals(fragmentName);
     }
 
     public SimpleCounter getRequestCodeCounter() {
@@ -345,27 +342,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         public void onResume() {
             super.onResume();
             mAdapter.notifyDataSetChanged();
-        }
-
-    }
-
-    public static class BackupPreferenceFragment extends MyPreferenceFragment {
-
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_backup);
-
-            findPreference("backup_create").setOnPreferenceClickListener((Preference preference) -> {
-                try {
-                    BackupManager.createBackup(getActivity(), new File(getActivity().getExternalFilesDir(null), "test-backup.zip"), "test");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return true;
-            });
-            ((SettingsActivity) getActivity()).setTintedPreferenceIcon(findPreference("backup_create"), R.drawable.ic_save);
-            ((SettingsActivity) getActivity()).setTintedPreferenceIcon(findPreference("backup_restore"), R.drawable.ic_settings_backup);
         }
 
     }

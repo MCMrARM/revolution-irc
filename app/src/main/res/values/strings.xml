@@ -36,6 +36,7 @@
     <string name="action_undo">Undo</string>
     <string name="action_copy">Copy</string>
     <string name="action_continue">Continue</string>
+    <string name="action_finish">Finish</string>
 
     <string name="action_delete_confirm_title">Are you sure?</string>
     <string name="action_delete_confirm_body">Are you sure you want to delete %1$s? This cannot be undone.</string>
@@ -107,6 +108,7 @@
 
     <string name="text_comma">", "</string>
 
+    <string name="error_generic">An error has occurred.</string>
     <string name="error_file_open">Failed to open the file.</string>
 
     <!-- Time -->
@@ -302,11 +304,26 @@
 
     <string name="pref_header_backup">Backup</string>
 
-    <string name="pref_title_backup_create">Create a new backup</string>
-    <string name="pref_title_backup_restore">Restore a backup</string>
+    <string name="backup_create">Create a new backup</string>
+    <string name="backup_restore">Restore a backup</string>
+
+    <string name="title_activity_backup">Backup</string>
+
+    <string name="backup_desc">To be able to restore the application settings later, for example after a system reinstall you might want to create a configuration backup and save it somewhere safe.</string>
+
+    <string name="title_activity_backup_password">Set a password</string>
 
     <string name="backup_password_text">The backup will contain all of your settings, including server information and unencrypted passwords. It is recommended to set a password that will be required to restore the data from the backup.</string>
-0
+
+    <string name="title_activity_backup_progress">Creating the backup</string>
+
+    <string name="backup_created">The backup file was successfully created.</string>
+    <string name="backup_cancelled">Backup creation has been cancelled.</string>
+
+    <!-- Setup -->
+
+    <string name="please_wait_generic">Please wait…</string>
+
     <!-- Color names -->
 
     <string-array name="color_picker_color_names">
@@ -327,6 +344,5 @@
         <item>Gray</item>
         <item>Light Gray</item>
     </string-array>
-
 
 </resources>

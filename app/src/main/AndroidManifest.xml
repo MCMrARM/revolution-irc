@@ -42,6 +42,30 @@
             android:label="@string/title_activity_message_format_settings" />
 
         <service android:name=".IRCService" />
+
+        <activity
+            android:name=".setup.BackupActivity"
+            android:label="@string/title_activity_backup"
+            android:theme="@style/AppTheme.Setup">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".setup.BackupPasswordActivity"
+            android:label="@string/title_activity_backup_password"
+            android:theme="@style/AppTheme.Setup"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".setup.BackupProgressActivity"
+            android:label="@string/title_activity_backup_progress"
+            android:theme="@style/AppTheme.Setup" />
+        <activity
+            android:name=".setup.BackupCompleteActivity"
+            android:label="@string/title_activity_backup"
+            android:theme="@style/AppTheme.Setup" />
     </application>
 
 </manifest>
