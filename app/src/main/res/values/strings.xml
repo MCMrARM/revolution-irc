@@ -308,17 +308,22 @@
     <string name="backup_restore">Restore a backup</string>
 
     <string name="title_activity_backup">Backup</string>
+    <string name="title_activity_restore">Restore</string>
+    <string name="title_activity_backup_password">Set a password</string>
+    <string name="title_activity_backup_password_restore">Enter the password</string>
+    <string name="title_activity_backup_progress">Creating a backup</string>
+    <string name="title_activity_backup_progress_restore">Restoring a backup</string>
 
     <string name="backup_desc">To be able to restore the application settings later, for example after a system reinstall you might want to create a configuration backup and save it somewhere safe.</string>
-
-    <string name="title_activity_backup_password">Set a password</string>
-
     <string name="backup_password_text">The backup will contain all of your settings, including server information and unencrypted passwords. It is recommended to set a password that will be required to restore the data from the backup.</string>
-
-    <string name="title_activity_backup_progress">Creating the backup</string>
+    <string name="backup_restore_password_text">The specified backup is protected with a password. To be able to restore it, you need to enter the password.</string>
 
     <string name="backup_created">The backup file was successfully created.</string>
     <string name="backup_cancelled">Backup creation has been cancelled.</string>
+    <string name="backup_restored">The backup file was successfully restored.</string>
+    <string name="backup_restore_cancelled">Restoration has been cancelled.</string>
+    <string name="backup_restore_invalid">The specified backup file is invalid.</string>
+    <string name="backup_restore_invalid_password">Invalid password</string>
 
     <!-- Setup -->
 

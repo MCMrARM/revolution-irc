@@ -17,6 +17,11 @@ public class BackupActivity extends SetupActivity {
             Intent intent = new Intent(BackupActivity.this, BackupPasswordActivity.class);
             startNextActivity(intent);
         });
+        findViewById(R.id.restore).setOnClickListener((View v) -> {
+            Intent intent = new Intent(BackupActivity.this, BackupProgressActivity.class);
+            intent.putExtra(BackupProgressActivity.ARG_RESTORE_MODE, true);
+            startNextActivity(intent);
+        });
     }
 
 }

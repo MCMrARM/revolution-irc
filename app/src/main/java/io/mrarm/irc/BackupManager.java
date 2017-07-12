@@ -13,6 +13,7 @@ import com.google.gson.JsonPrimitive;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.FileHeader;
+import net.lingala.zip4j.model.UnzipParameters;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
 
@@ -87,9 +88,37 @@ public class BackupManager {
         }
     }
 
+    public static boolean verifyBackupFile(File file) {
+        try {
+            ZipFile zipFile = new ZipFile(file);
+            FileHeader preferences = zipFile.getFileHeader(BACKUP_PREFERENCES_PATH);
+            FileHeader notificationRules = zipFile.getFileHeader(BACKUP_NOTIFICATION_RULES_PATH);
+            FileHeader commandAliases = zipFile.getFileHeader(BACKUP_COMMAND_ALIASES_PATH);
+            return preferences != null && notificationRules != null && commandAliases != null;
+        } catch (ZipException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean isBackupPasswordProtected(File file) {
+        try {
+            ZipFile zipFile = new ZipFile(file);
+            FileHeader preferences = zipFile.getFileHeader(BACKUP_PREFERENCES_PATH);
+            return preferences.isEncrypted();
+        } catch (ZipException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public static void restoreBackup(Context context, File file, String password) throws IOException {
         try {
             ZipFile zipFile = new ZipFile(file);
+
+            if (password != null)
+                zipFile.setPassword(password);
+
             Reader reader = new BufferedReader(new InputStreamReader(zipFile.getInputStream(
                     zipFile.getFileHeader(BACKUP_PREFERENCES_PATH))));
             importPreferencesFromJson(context, reader);
@@ -116,8 +145,8 @@ public class BackupManager {
                     if (iof != -1)
                         name = name.substring(iof + 1);
                     zipFile.extractFile(fileHeader,
-                            new File(ListWithCustomPreference.getCustomFilesDir(context), name)
-                                    .getAbsolutePath());
+                            ListWithCustomPreference.getCustomFilesDir(context).getAbsolutePath(),
+                            null, name);
                 }
             }
 
@@ -147,7 +176,7 @@ public class BackupManager {
     @SuppressLint("ApplySharedPref")
     private static void importPreferencesFromJson(Context context, Reader reader) {
         SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(context).edit();
-        prefs.clear();
+        SettingsHelper.getInstance(context).clear();
         JsonObject obj = SettingsHelper.getGson().fromJson(reader, JsonObject.class);
         for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
             JsonElement el = entry.getValue();

@@ -112,12 +112,14 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     @Override
     public void onConnectionAdded(ServerConfigData data) {
-        boolean hadHeader = (getActiveHeaderIndex() != -1);
-        updateConnections();
-        if (hadHeader)
-            notifyItemInserted(mFilteredInactiveServers.indexOf(data) + 1 + getInactiveHeaderIndex());
-        else
-            notifyItemRangeChanged(getDividerIndex(), 3);
+        mContext.runOnUiThread(() -> {
+            boolean hadHeader = (getActiveHeaderIndex() != -1);
+            updateConnections();
+            if (hadHeader)
+                notifyItemInserted(mFilteredInactiveServers.indexOf(data) + 1 + getInactiveHeaderIndex());
+            else
+                notifyItemRangeChanged(getDividerIndex(), 3);
+        });
     }
 
     @Override
@@ -129,13 +131,15 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     @Override
     public void onConnectionRemoved(ServerConfigData data) {
-        int oldHeaderIndex = getInactiveHeaderIndex();
-        int oldEntryIndex = mFilteredInactiveServers.indexOf(data);
-        updateConnections();
-        if (getInactiveHeaderIndex() == -1 && oldHeaderIndex != -1)
-            notifyItemRangeRemoved(oldHeaderIndex - 1, 3);
-        else
-            notifyItemRemoved(getInactiveHeaderIndex() + 1 + oldEntryIndex);
+        mContext.runOnUiThread(() -> {
+            int oldHeaderIndex = getInactiveHeaderIndex();
+            int oldEntryIndex = mFilteredInactiveServers.indexOf(data);
+            updateConnections();
+            if (getInactiveHeaderIndex() == -1 && oldHeaderIndex != -1)
+                notifyItemRangeRemoved(oldHeaderIndex - 1, 3);
+            else
+                notifyItemRemoved(getInactiveHeaderIndex() + 1 + oldEntryIndex);
+        });
     }
 
     public void updateConnections() {

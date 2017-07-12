@@ -80,6 +80,12 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         return ret;
     }
 
+    public void clear() {
+        for (File file : getCustomFiles())
+            file.delete();
+        mPreferences.edit().clear().commit();
+    }
+
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(PREF_RECONNECT_INTERVAL))

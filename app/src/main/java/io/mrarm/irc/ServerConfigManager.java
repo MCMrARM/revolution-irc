@@ -106,8 +106,8 @@ public class ServerConfigManager {
     }
 
     public void deleteAllServers() {
-        for (ServerConfigData server : mServers)
-            deleteServer(server);
+        while (mServers.size() > 0)
+            deleteServer(mServers.get(mServers.size() - 1));
     }
 
     public File getServerChatLogDir(UUID uuid) {
