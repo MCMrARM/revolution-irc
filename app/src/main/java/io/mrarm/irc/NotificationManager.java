@@ -192,6 +192,7 @@ public class NotificationManager {
         private final String mChannel;
         private final int mNotificationId = mNextChatNotificationId++;
         private List<NotificationMessage> mMessages = new ArrayList<>();
+        private boolean mOpened = false;
 
         public ChannelNotificationData(String channel) {
             mChannel = channel;
@@ -210,9 +211,17 @@ public class NotificationManager {
         }
 
         public NotificationMessage addNotificationMessage(MessageInfo messageInfo) {
+            if (mOpened)
+                return null;
             NotificationMessage ret = new NotificationMessage(messageInfo);
             mMessages.add(ret);
             return ret;
+        }
+
+        public void setOpened(boolean opened) {
+            mOpened = opened;
+            if (mOpened)
+                mMessages.clear();
         }
 
     }

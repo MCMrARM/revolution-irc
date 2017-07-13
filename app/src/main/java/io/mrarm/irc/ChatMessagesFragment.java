@@ -54,6 +54,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     private List<NickWithPrefix> mMembers = null;
 
     private ServerConnectionInfo mConnection;
+    private String mChannelName;
     private RecyclerView mRecyclerView;
     private ScrollPosLinearLayoutManager mLayoutManager;
     private ChatMessagesAdapter mAdapter;
@@ -75,6 +76,9 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         if (isVisibleToUser && getParentFragment() != null) {
             Log.d(TAG, "setMembers " + (mMembers == null ? -1 : mMembers.size()));
             ((ChatFragment) getParentFragment()).setCurrentChannelMembers(mMembers);
+        }
+        if (mConnection != null && mChannelName != null) {
+            mConnection.getNotificationManager().getChannelNotificationData(mChannelName, true).setOpened(isVisibleToUser);
         }
     }
 
@@ -136,6 +140,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
 
         SettingsHelper settingsHelper = SettingsHelper.getInstance(getContext());
         if (channelName != null) {
+            mChannelName = channelName;
             mAdapter = new ChatMessagesAdapter(this, new ArrayList<>());
             mAdapter.setMessageFont(settingsHelper.getChatFont(), settingsHelper.getChatFontSize());
             mRecyclerView.setAdapter(mAdapter);
@@ -193,6 +198,20 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         s.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT_SIZE, this);
 
         return rootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (getUserVisibleHint())
+            mConnection.getNotificationManager().getChannelNotificationData(mChannelName, true).setOpened(true);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (getUserVisibleHint())
+            mConnection.getNotificationManager().getChannelNotificationData(mChannelName, true).setOpened(false);
     }
 
     @Override
