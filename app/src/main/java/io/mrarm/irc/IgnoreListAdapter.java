@@ -1,6 +1,8 @@
 package io.mrarm.irc;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -10,9 +12,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import java.util.List;
-import java.util.UUID;
+import java.io.IOException;
 
 import io.mrarm.irc.util.ColoredTextBuilder;
 
@@ -26,7 +28,7 @@ public class IgnoreListAdapter extends RecyclerView.Adapter<IgnoreListAdapter.It
 
     public IgnoreListAdapter(Context context, ServerConfigData server) {
         TypedArray ta = context.obtainStyledAttributes(R.style.AppTheme,
-                new int[] { android.R.attr.textColorSecondary });
+                new int[]{android.R.attr.textColorSecondary});
         mTextColorSecondary = ta.getColor(0, Color.BLACK);
         ta.recycle();
         mTextColorNick = context.getResources().getColor(R.color.ignoreEntryNick);
@@ -60,11 +62,39 @@ public class IgnoreListAdapter extends RecyclerView.Adapter<IgnoreListAdapter.It
             super(itemView);
             mText = (TextView) itemView;
             mText.setOnClickListener((View v) -> {
-                Intent intent = new Intent(v.getContext(), EditIgnoreEntryActivity.class);
-                intent.putExtra(EditIgnoreEntryActivity.ARG_SERVER_UUID, mServer.uuid.toString());
-                intent.putExtra(EditIgnoreEntryActivity.ARG_ENTRY_INDEX, getAdapterPosition());
-                v.getContext().startActivity(intent);
+                startEdit();
             });
+            mText.setOnLongClickListener((View v) -> {
+                Context context = v.getContext();
+                new AlertDialog.Builder(context)
+                        .setTitle(mText.getText())
+                        .setItems(new CharSequence[] {
+                                context.getString(R.string.action_edit),
+                                context.getString(R.string.action_delete)
+                        }, (DialogInterface i, int which) -> {
+                            if (which == 0) {
+                                startEdit();
+                            } else if (which == 1) {
+                                mServer.ignoreList.remove(getAdapterPosition());
+                                notifyItemRemoved(getAdapterPosition());
+                                try {
+                                    ServerConfigManager.getInstance(context).saveServer(mServer);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                    Toast.makeText(context, R.string.error_generic, Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        })
+                        .show();
+                return true;
+            });
+        }
+
+        private void startEdit() {
+            Intent intent = new Intent(mText.getContext(), EditIgnoreEntryActivity.class);
+            intent.putExtra(EditIgnoreEntryActivity.ARG_SERVER_UUID, mServer.uuid.toString());
+            intent.putExtra(EditIgnoreEntryActivity.ARG_ENTRY_INDEX, getAdapterPosition());
+            mText.getContext().startActivity(intent);
         }
 
         public void bind(ServerConfigData.IgnoreEntry entry) {
