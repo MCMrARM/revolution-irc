@@ -19,15 +19,18 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.ActionMode;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import java.util.List;
 import java.util.UUID;
@@ -182,21 +185,14 @@ public class ChatFragment extends Fragment implements
             public void afterTextChanged(Editable s) {
             }
         });
+        mSendText.setOnEditorActionListener((TextView v, int actionId, KeyEvent event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEND)
+                sendMessage();
+            return false;
+        });
 
         mSendIcon.setOnClickListener((View view) -> {
-            String text = IRCColorUtils.convertSpannableToIRCString(getContext(), mSendText.getText());
-            if (text.length() == 0)
-                return;
-            mSendText.setText("");
-            String channel = mSectionsPagerAdapter.getChannel(mViewPager.getCurrentItem());
-            if (text.charAt(0) == '/') {
-                SimpleTextVariableList vars = new SimpleTextVariableList();
-                vars.set(CommandAliasManager.VAR_CHANNEL, channel);
-                vars.set(CommandAliasManager.VAR_MYNICK, mConnectionInfo.getNotificationManager().getUserNick());
-                CommandAliasManager.getInstance(getContext()).processCommand((IRCConnection) mConnectionInfo.getApiInstance(), text.substring(1), vars);
-                return;
-            }
-            mConnectionInfo.getApiInstance().sendMessage(channel, text, null, null);
+            sendMessage();
         });
 
         mTabIcon.setOnClickListener((View v) -> {
@@ -331,6 +327,22 @@ public class ChatFragment extends Fragment implements
         } else {
             mSendText.forceShowDropDown();
         }
+    }
+
+    public void sendMessage() {
+        String text = IRCColorUtils.convertSpannableToIRCString(getContext(), mSendText.getText());
+        if (text.length() == 0)
+            return;
+        mSendText.setText("");
+        String channel = mSectionsPagerAdapter.getChannel(mViewPager.getCurrentItem());
+        if (text.charAt(0) == '/') {
+            SimpleTextVariableList vars = new SimpleTextVariableList();
+            vars.set(CommandAliasManager.VAR_CHANNEL, channel);
+            vars.set(CommandAliasManager.VAR_MYNICK, mConnectionInfo.getNotificationManager().getUserNick());
+            CommandAliasManager.getInstance(getContext()).processCommand((IRCConnection) mConnectionInfo.getApiInstance(), text.substring(1), vars);
+            return;
+        }
+        mConnectionInfo.getApiInstance().sendMessage(channel, text, null, null);
     }
 
     @Override
