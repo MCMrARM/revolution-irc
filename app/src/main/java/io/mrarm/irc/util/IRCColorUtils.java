@@ -104,6 +104,8 @@ public class IRCColorUtils {
                     break;
                 }
                 case '\n': { // newline
+                    i++;
+                    spannable.append('\n');
                     builder.endSpans(Object.class);
                     break;
                 }
