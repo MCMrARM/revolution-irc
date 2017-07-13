@@ -52,6 +52,10 @@
 
     <color name="formatDefaultColorIndicator">#5C000000</color>
 
+    <color name="ignoreEntryNick">#0277BD</color>
+    <color name="ignoreEntryUser">#558B2F</color>
+    <color name="ignoreEntryHost">#D84315</color>
+
     <integer-array name="colorPickerColors">
         <item>@color/ircBlack</item>
         <item>@color/ircWhite</item>

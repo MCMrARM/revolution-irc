@@ -233,6 +233,11 @@ public class MainActivity extends AppCompatActivity {
             String channel = ((ChatFragment) getCurrentFragment()).getCurrentChannel();
             if (channel != null)
                 api.leaveChannel(channel, SettingsHelper.getInstance(this).getDefaultPartMessage(), null, null);
+        } else if (id == R.id.action_ignore_list) {
+            ServerConnectionInfo info = ((ChatFragment) getCurrentFragment()).getConnectionInfo();
+            Intent intent = new Intent(this, IgnoreListActivity.class);
+            intent.putExtra(IgnoreListActivity.ARG_SERVER_UUID, info.getUUID().toString());
+            startActivity(intent);
         } else if (id == R.id.action_disconnect) {
             ((ChatFragment) getCurrentFragment()).getConnectionInfo().disconnect();
         } else if (id == R.id.action_disconnect_and_close) {

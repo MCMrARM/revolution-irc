@@ -34,6 +34,9 @@
             android:name=".EditCommandAliasActivity"
             android:label="@string/title_activity_edit_command_alias" />
         <activity
+            android:name=".IgnoreListActivity"
+            android:label="@string/title_activity_ignore_list" />
+        <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
             android:theme="@style/AppTheme" />

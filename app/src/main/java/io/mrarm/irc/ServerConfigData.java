@@ -18,5 +18,17 @@ public class ServerConfigData {
     public String realname;
 
     public List<String> autojoinChannels;
+    public List<IgnoreEntry> ignoreList;
+
+    public static class IgnoreEntry {
+
+        public String nick;
+        public String user;
+        public String host;
+
+        public boolean direct = true;
+        public boolean channel = true;
+
+    }
 
 }

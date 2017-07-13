@@ -339,6 +339,11 @@
 
     <string name="please_wait_generic">Please wait…</string>
 
+    <!-- Ignore list -->
+
+    <string name="title_activity_ignore_list">Ignore list</string>
+    <string name="title_activity_ignore_list_network">Ignore list for %s</string>
+
     <!-- Color names -->
 
     <string-array name="color_picker_color_names">

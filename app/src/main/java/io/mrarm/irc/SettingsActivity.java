@@ -167,7 +167,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         mActivityResultCallbacks.remove(callback);
     }
 
-    private static class MyPreferenceFragment extends PreferenceFragment {
+    public static class MyPreferenceFragment extends PreferenceFragment {
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -279,8 +279,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
         @Override
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-            View view = inflater.inflate(R.layout.settings_simple_list_with_fab, container, false);
-            RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rules);
+            View view = inflater.inflate(R.layout.simple_list_with_fab, container, false);
+            RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.items);
             recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
             mAdapter = new NotificationRulesAdapter(getActivity());
             recyclerView.setAdapter(mAdapter);
@@ -323,8 +323,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
         @Override
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-            View view = inflater.inflate(R.layout.settings_simple_list_with_fab, container, false);
-            RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rules);
+            View view = inflater.inflate(R.layout.simple_list_with_fab, container, false);
+            RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.items);
             LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
             recyclerView.setLayoutManager(layoutManager);
             mAdapter = new CommandAliasesAdapter(getActivity());
