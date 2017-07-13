@@ -107,7 +107,6 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
     private void updateSummaryNotification() {
         NotificationCompat.Builder notification = new NotificationCompat.Builder(this);
         notification
-                .setContentIntent(PendingIntent.getActivity(this, CHAT_SUMMARY_NOTIFICATION_ID, new Intent(this, MainActivity.class), 0))
                 .setAutoCancel(true)
                 .setSmallIcon(R.drawable.ic_message)
                 .setGroup(NOTIFICATION_GROUP_CHAT)
@@ -124,7 +123,8 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
                         List<NotificationManager.NotificationMessage> list = notificationData.getNotificationMessages();
                         notification
                                 .setContentTitle(notificationData.getChannel())
-                                .setContentText(list.get(list.size() - 1).getNotificationText(this));
+                                .setContentText(list.get(list.size() - 1).getNotificationText(this))
+                                .setContentIntent(PendingIntent.getActivity(this, CHAT_SUMMARY_NOTIFICATION_ID, MainActivity.getLaunchIntent(this, info, notificationData.getChannel()), PendingIntent.FLAG_CANCEL_CURRENT));
                     } else {
                         longBuilder.append(", ");
                         isLong = true;
@@ -136,7 +136,8 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
         if (isLong) {
             notification
                     .setContentTitle(getString(R.string.notify_multiple_messages))
-                    .setContentText(longBuilder.toString());
+                    .setContentText(longBuilder.toString())
+                    .setContentIntent(PendingIntent.getActivity(this, CHAT_SUMMARY_NOTIFICATION_ID, new Intent(this, MainActivity.class), PendingIntent.FLAG_CANCEL_CURRENT));
         }
         NotificationManagerCompat.from(this).notify(CHAT_SUMMARY_NOTIFICATION_ID, notification.build());
     }
