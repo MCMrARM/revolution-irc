@@ -256,10 +256,10 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                 char leftPrefix = left.getNickPrefixes().get(0);
                 char rightPrefix = right.getNickPrefixes().get(0);
                 for (char c : ((ServerConnectionApi) mConnection.getApiInstance())
-                        .getServerConnectionData().getSupportedNickPrefixes()) {
-                    if (leftPrefix == c)
+                        .getServerConnectionData().getSupportList().getSupportedNickPrefixes()) {
+                    if (leftPrefix == c && rightPrefix != c)
                         return -1;
-                    if (rightPrefix == c)
+                    if (rightPrefix == c && leftPrefix != c)
                         return 1;
                 }
             } else if (left.getNickPrefixes() != null || right.getNickPrefixes() != null)

@@ -64,13 +64,18 @@ public class ChannelMembersAdapter extends RecyclerView.Adapter<ChannelMembersAd
             if (nickWithPrefix.getNickPrefixes() != null &&
                     nickWithPrefix.getNickPrefixes().length() > 0)
                 prefix = nickWithPrefix.getNickPrefixes().get(0);
-            if (prefix == '@') {
+            if (prefix == '~')
+                text.setTextColor(text.getContext().getResources().getColor(R.color.memberOwner));
+            else if (prefix == '&')
+                text.setTextColor(text.getContext().getResources().getColor(R.color.memberAdmin));
+            else if (prefix == '@')
                 text.setTextColor(text.getContext().getResources().getColor(R.color.memberOp));
-            } else if (prefix == '+') {
+            else if (prefix == '%')
+                text.setTextColor(text.getContext().getResources().getColor(R.color.memberHalfOp));
+            else if (prefix == '+')
                 text.setTextColor(text.getContext().getResources().getColor(R.color.memberVoice));
-            } else {
+            else
                 text.setTextColor(text.getContext().getResources().getColor(R.color.memberNormal));
-            }
             text.setText(nickWithPrefix.toString());
         }
 

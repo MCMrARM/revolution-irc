@@ -41,7 +41,10 @@
     <color name="messageDisconnected">#FF1744</color>
     <color name="messageSenderFallbackColor">@color/ircBlue</color>
 
+    <color name="memberOwner">#FF8F00</color>
+    <color name="memberAdmin">#9E9D24</color>
     <color name="memberOp">#558B2F</color>
+    <color name="memberHalfOp">#00695C</color>
     <color name="memberVoice">#0277BD</color>
     <color name="memberNormal">#000</color>
 
