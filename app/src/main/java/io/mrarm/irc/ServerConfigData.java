@@ -25,9 +25,12 @@ public class ServerConfigData {
         public String nick;
         public String user;
         public String host;
+        public String comment;
 
-        public boolean direct = true;
-        public boolean channel = true;
+        public boolean matchDirectMessages = true;
+        public boolean matchDirectNotices = true;
+        public boolean matchChannelMessages = true;
+        public boolean matchChannelNotices = true;
 
     }
 

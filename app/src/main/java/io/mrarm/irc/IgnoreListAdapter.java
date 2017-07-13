@@ -1,6 +1,7 @@
 package io.mrarm.irc;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
@@ -11,18 +12,19 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.List;
+import java.util.UUID;
 
 import io.mrarm.irc.util.ColoredTextBuilder;
 
 public class IgnoreListAdapter extends RecyclerView.Adapter<IgnoreListAdapter.ItemHolder> {
 
-    private List<ServerConfigData.IgnoreEntry> mEntries;
+    private ServerConfigData mServer;
     private int mTextColorSecondary;
     private int mTextColorNick;
     private int mTextColorUser;
     private int mTextColorHost;
 
-    public IgnoreListAdapter(Context context, List<ServerConfigData.IgnoreEntry> entries) {
+    public IgnoreListAdapter(Context context, ServerConfigData server) {
         TypedArray ta = context.obtainStyledAttributes(R.style.AppTheme,
                 new int[] { android.R.attr.textColorSecondary });
         mTextColorSecondary = ta.getColor(0, Color.BLACK);
@@ -30,7 +32,7 @@ public class IgnoreListAdapter extends RecyclerView.Adapter<IgnoreListAdapter.It
         mTextColorNick = context.getResources().getColor(R.color.ignoreEntryNick);
         mTextColorUser = context.getResources().getColor(R.color.ignoreEntryUser);
         mTextColorHost = context.getResources().getColor(R.color.ignoreEntryHost);
-        mEntries = entries;
+        mServer = server;
     }
 
     @Override
@@ -42,12 +44,12 @@ public class IgnoreListAdapter extends RecyclerView.Adapter<IgnoreListAdapter.It
 
     @Override
     public void onBindViewHolder(ItemHolder holder, int position) {
-        holder.bind(mEntries.get(position));
+        holder.bind(mServer.ignoreList.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return mEntries == null ? 0 : mEntries.size();
+        return mServer.ignoreList == null ? 0 : mServer.ignoreList.size();
     }
 
     public class ItemHolder extends RecyclerView.ViewHolder {
@@ -57,6 +59,12 @@ public class IgnoreListAdapter extends RecyclerView.Adapter<IgnoreListAdapter.It
         public ItemHolder(View itemView) {
             super(itemView);
             mText = (TextView) itemView;
+            mText.setOnClickListener((View v) -> {
+                Intent intent = new Intent(v.getContext(), EditIgnoreEntryActivity.class);
+                intent.putExtra(EditIgnoreEntryActivity.ARG_SERVER_UUID, mServer.uuid.toString());
+                intent.putExtra(EditIgnoreEntryActivity.ARG_ENTRY_INDEX, getAdapterPosition());
+                v.getContext().startActivity(intent);
+            });
         }
 
         public void bind(ServerConfigData.IgnoreEntry entry) {
@@ -70,13 +78,18 @@ public class IgnoreListAdapter extends RecyclerView.Adapter<IgnoreListAdapter.It
             if (entry.user == null || entry.user.equals("*"))
                 builder.append("*", new ForegroundColorSpan(mTextColorSecondary));
             else
-                builder.append(entry.nick, new ForegroundColorSpan(mTextColorUser));
+                builder.append(entry.user, new ForegroundColorSpan(mTextColorUser));
 
             builder.append("@");
             if (entry.host == null || entry.host.equals("*"))
                 builder.append("*", new ForegroundColorSpan(mTextColorSecondary));
             else
                 builder.append(entry.host, new ForegroundColorSpan(mTextColorHost));
+
+            if (entry.comment != null) {
+                builder.append(" ");
+                builder.append(entry.comment, new ForegroundColorSpan(mTextColorSecondary));
+            }
             mText.setText(builder.getSpannable());
         }
 

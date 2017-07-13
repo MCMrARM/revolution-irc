@@ -110,6 +110,7 @@
     <string name="entry_name">Name</string>
     <string name="entry_text">Text</string>
     <string name="entry_password">Password</string>
+    <string name="entry_comment">Comment</string>
 
     <string name="text_comma">", "</string>
 
@@ -343,6 +344,10 @@
 
     <string name="title_activity_ignore_list">Ignore list</string>
     <string name="title_activity_ignore_list_network">Ignore list for %s</string>
+    <string name="title_activity_edit_ignore_entry">Edit an ignore entry</string>
+    <string name="title_activity_add_ignore_entry">Add an ignore entry</string>
+
+    <string name="ignore_hostname">Hostname</string>
 
     <!-- Color names -->
 
