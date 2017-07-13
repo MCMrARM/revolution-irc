@@ -1,6 +1,7 @@
 package io.mrarm.irc;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -188,9 +189,17 @@ public class ServerConnectionManager {
     public void notifyConnectivityChanged() {
         SettingsHelper helper = SettingsHelper.getInstance(mContext);
         if (helper.isReconnectEnabled() && helper.shouldReconnectOnConnectivityChange()) {
+            if (helper.isReconnectWifiRequired() && !isWifiConnected(mContext))
+                return;
             for (ServerConnectionInfo server : mConnectionsMap.values())
                 server.connect(); // this will be ignored if we are already corrected
         }
+    }
+
+    public static boolean isWifiConnected(Context context) {
+        ConnectivityManager mgr = (ConnectivityManager) context.getSystemService(
+                Context.CONNECTIVITY_SERVICE);
+        return mgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected();
     }
 
     public interface ConnectionsListener {

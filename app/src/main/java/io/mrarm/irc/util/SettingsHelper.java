@@ -28,6 +28,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     public static final String PREF_DEFAULT_PART_MESSAGE = "default_part_message";
     public static final String PREF_RECONNECT_ENABLED = "reconnect_enabled";
     public static final String PREF_RECONNECT_CONNCHG = "reconnect_connchg";
+    public static final String PREF_RECONNECT_WIFI = "reconnect_wifi";
     public static final String PREF_RECONNECT_INTERVAL = "reconnect_interval";
     public static final String PREF_AUTOCONNECT_SERVERS = "connect_servers";
     public static final String PREF_DARK_THEME = "dark_theme";
@@ -133,6 +134,10 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
 
     public boolean isReconnectEnabled() {
         return mPreferences.getBoolean(PREF_RECONNECT_ENABLED, true);
+    }
+
+    public boolean isReconnectWifiRequired() {
+        return mPreferences.getBoolean(PREF_RECONNECT_WIFI, false);
     }
 
     public boolean shouldReconnectOnConnectivityChange() {

@@ -277,6 +277,8 @@
     <string name="pref_description_auto_reconnect">Automatically attempt reconnection after a connection loss</string>
     <string name="pref_title_reconnect_connchg">Track connectivity changes</string>
     <string name="pref_description_reconnect_connchg">Automatically attempt reconnection after a connectivity change</string>
+    <string name="pref_title_reconnect_wifi">Only reconnect on WiFi</string>
+    <string name="pref_description_reconnect_wifi">Only attempt reconnection while using a WiFi connection</string>
     <string name="pref_title_reconnect_pattern">Reconnection interval</string>
     <string name="reconnect_header_interval">Interval</string>
     <string name="reconnect_header_tries">Tries</string>

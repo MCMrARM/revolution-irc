@@ -12,6 +12,7 @@ import io.mrarm.chatlib.ChatApi;
 import io.mrarm.chatlib.android.storage.SQLiteMessageStorageApi;
 import io.mrarm.chatlib.irc.IRCConnection;
 import io.mrarm.chatlib.irc.IRCConnectionRequest;
+import io.mrarm.irc.util.SettingsHelper;
 
 // TODO: this runs stuff on another thread but does not synchronize contents
 public class ServerConnectionInfo {
@@ -128,7 +129,14 @@ public class ServerConnectionInfo {
         if (reconnectDelay == -1)
             return;
         Log.i("ServerConnectionInfo", "Queuing reconnect in " + reconnectDelay + " ms");
-        mReconnectHandler.postDelayed(this::connect, reconnectDelay);
+        mReconnectHandler.postDelayed(() -> {
+            SettingsHelper helper = SettingsHelper.getInstance(mManager.getContext());
+            if (!helper.isReconnectEnabled() || !helper.shouldReconnectOnConnectivityChange() ||
+                    (helper.isReconnectWifiRequired() && !ServerConnectionManager.isWifiConnected(
+                            mManager.getContext())))
+                return;
+            this.connect();
+        }, reconnectDelay);
     }
 
     public UUID getUUID() {
