@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import io.mrarm.irc.R;
 import io.mrarm.irc.preference.ListWithCustomPreference;
 import io.mrarm.irc.preference.ReconnectIntervalPreference;
 
@@ -24,6 +25,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     public static final String PREF_DEFAULT_NICK = "default_nick";
     public static final String PREF_DEFAULT_USER = "default_user";
     public static final String PREF_DEFAULT_REALNAME = "default_realname";
+    public static final String PREF_DEFAULT_PART_MESSAGE = "default_part_message";
     public static final String PREF_RECONNECT_ENABLED = "reconnect_enabled";
     public static final String PREF_RECONNECT_CONNCHG = "reconnect_connchg";
     public static final String PREF_RECONNECT_INTERVAL = "reconnect_interval";
@@ -122,6 +124,11 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
 
     public String getDefaultRealname() {
         return mPreferences.getString(PREF_DEFAULT_REALNAME, null);
+    }
+
+    public String getDefaultPartMessage() {
+        return mPreferences.getString(PREF_DEFAULT_PART_MESSAGE,
+                mContext.getString(R.string.pref_value_default_part_message));
     }
 
     public boolean isReconnectEnabled() {

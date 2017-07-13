@@ -228,6 +228,11 @@ public class MainActivity extends AppCompatActivity {
             dialog.show();
             dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
             return true;
+        } else if (id == R.id.action_part_channel) {
+            ChatApi api = ((ChatFragment) getCurrentFragment()).getConnectionInfo().getApiInstance();
+            String channel = ((ChatFragment) getCurrentFragment()).getCurrentChannel();
+            if (channel != null)
+                api.leaveChannel(channel, SettingsHelper.getInstance(this).getDefaultPartMessage(), null, null);
         } else if (id == R.id.action_disconnect) {
             ((ChatFragment) getCurrentFragment()).getConnectionInfo().disconnect();
         } else if (id == R.id.action_disconnect_and_close) {

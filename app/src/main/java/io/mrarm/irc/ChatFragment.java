@@ -356,6 +356,10 @@ public class ChatFragment extends Fragment implements
         mChannelMembersListAdapter.setMembers(members);
     }
 
+    public String getCurrentChannel() {
+        return mSectionsPagerAdapter.getChannel(mViewPager.getCurrentItem());
+    }
+
     @Override
     public void onChannelListChanged(ServerConnectionInfo connection, List<String> newChannels) {
         getActivity().runOnUiThread(() -> {

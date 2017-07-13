@@ -27,4 +27,14 @@
         android:singleLine="true"
         android:title="@string/pref_title_default_realname" />
 
+    <EditTextPreference
+        android:capitalize="words"
+        android:inputType="textCapWords"
+        android:key="default_part_message"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_default_part_message"
+        android:defaultValue="@string/pref_value_default_part_message" />
+
 </PreferenceScreen>

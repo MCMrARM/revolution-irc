@@ -195,6 +195,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             bindPreferenceSummaryToValue(findPreference("default_nick"));
             bindPreferenceSummaryToValue(findPreference("default_user"));
             bindPreferenceSummaryToValue(findPreference("default_realname"));
+            bindPreferenceSummaryToValue(findPreference("default_part_message"));
         }
     }
 
