@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
@@ -17,7 +16,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.UUID;
 
 import io.mrarm.irc.util.ExpandIconStateHelper;
@@ -41,7 +39,7 @@ public class EditServerActivity extends AppCompatActivity {
     private ChipsEditText mServerNick;
     private EditText mServerUser;
     private EditText mServerRealname;
-    private EditText mServerChannels;
+    private ChipsEditText mServerChannels;
 
     private View mServerUserExpandIcon;
     private View mServerUserExpandContent;
@@ -96,7 +94,7 @@ public class EditServerActivity extends AppCompatActivity {
         mServerNick = (ChipsEditText) findViewById(R.id.server_nick);
         mServerUser = (EditText) findViewById(R.id.server_user);
         mServerRealname = (EditText) findViewById(R.id.server_realname);
-        mServerChannels = (EditText) findViewById(R.id.server_channels);
+        mServerChannels = (ChipsEditText) findViewById(R.id.server_channels);
 
         mServerUserExpandIcon = findViewById(R.id.server_user_expand);
         mServerUserExpandContent = findViewById(R.id.server_user_expand_content);
@@ -127,7 +125,7 @@ public class EditServerActivity extends AppCompatActivity {
             }
 
             if (mEditServer.autojoinChannels != null)
-                mServerChannels.setText(TextUtils.join(" ", mEditServer.autojoinChannels));
+                mServerChannels.setItems(mEditServer.autojoinChannels);
 
             if (mEditServer.nicks != null)
                 mServerNick.setItems(mEditServer.nicks);
@@ -159,7 +157,7 @@ public class EditServerActivity extends AppCompatActivity {
         mEditServer.realname = mServerRealname.getText().length() > 0 ? mServerRealname.getText().toString() : null;
         if (mServerPassReset.getVisibility() == View.GONE)
             mEditServer.pass = mServerPass.getText().length() > 0 ? mServerPass.getText().toString() : null;
-        mEditServer.autojoinChannels = Arrays.asList(mServerChannels.getText().toString().split(" "));
+        mEditServer.autojoinChannels = mServerChannels.getItems();
         try {
             ServerConfigManager.getInstance(this).saveServer(mEditServer);
         } catch (IOException e) {
@@ -182,6 +180,7 @@ public class EditServerActivity extends AppCompatActivity {
         if (id == R.id.action_done || id == android.R.id.home) {
             if (id == R.id.action_done) {
                 mServerNick.clearFocus();
+                mServerChannels.clearFocus();
                 save();
             }
 

@@ -241,16 +241,16 @@
                 app:srcCompat="@drawable/ic_list"
                 style="@style/EditServerIcon.TextInput" />
 
-            <android.support.design.widget.TextInputLayout
-                style="@style/EditServerTextInput">
+            <io.mrarm.irc.view.LabelLayout
+                style="@style/EditServerTextInput"
+                android:hint="@string/server_channels">
 
-                <android.support.design.widget.TextInputEditText
+                <io.mrarm.irc.view.ChipsEditText
                     android:id="@+id/server_channels"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/server_channels"/>
+                    android:layout_height="wrap_content" />
 
-            </android.support.design.widget.TextInputLayout>
+            </io.mrarm.irc.view.LabelLayout>
 
         </RelativeLayout>
 
