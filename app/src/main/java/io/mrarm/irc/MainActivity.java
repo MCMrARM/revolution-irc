@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra(ARG_SERVER_UUID, server.getUUID().toString());
         if (channel != null)
             intent.putExtra(ARG_CHANNEL_NAME, channel);
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         return intent;
     }
 
@@ -135,6 +136,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         WarningDisplayContext.setActivity(null);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        String serverUUID = intent.getStringExtra(ARG_SERVER_UUID);
+        if (serverUUID != null) {
+            ServerConnectionInfo server = ServerConnectionManager.getInstance(this).getConnection(UUID.fromString(serverUUID));
+            openServer(server, intent.getStringExtra(ARG_CHANNEL_NAME));
+        }
     }
 
     @Override

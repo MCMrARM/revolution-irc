@@ -123,7 +123,7 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
                         first = false;
                         List<NotificationManager.NotificationMessage> list = notificationData.getNotificationMessages();
                         notification
-                                .setContentText(notificationData.getChannel())
+                                .setContentTitle(notificationData.getChannel())
                                 .setContentText(list.get(list.size() - 1).getNotificationText(this));
                     } else {
                         longBuilder.append(", ");
@@ -161,7 +161,7 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
             notification
                     .setContentTitle(title)
                     .setContentText(messageData.getNotificationText(this))
-                    .setContentIntent(PendingIntent.getActivity(this, notificationId, MainActivity.getLaunchIntent(this, connection, channel), PendingIntent.FLAG_ONE_SHOT)) // TODO: Do not replace the activity if already open?
+                    .setContentIntent(PendingIntent.getActivity(this, notificationId, MainActivity.getLaunchIntent(this, connection, channel), PendingIntent.FLAG_CANCEL_CURRENT))
                     .setAutoCancel(true)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setSmallIcon(R.drawable.ic_message)
