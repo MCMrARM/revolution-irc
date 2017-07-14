@@ -8,13 +8,18 @@ import io.mrarm.irc.util.SimpleWildcardPattern;
 
 public class ServerConfigData {
 
+    public static final String AUTH_PASSWORD = "password";
+    public static final String AUTH_SASL = "sasl";
+
     public String name;
     public UUID uuid;
 
     public String address;
     public int port;
     public boolean ssl;
-    public String pass;
+    public String authMode;
+    public String authUser;
+    public String authPass;
 
     public List<String> nicks;
     public String user;

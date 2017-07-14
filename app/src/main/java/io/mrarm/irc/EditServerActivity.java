@@ -2,6 +2,7 @@ package io.mrarm.irc;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -11,14 +12,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.UUID;
 
 import io.mrarm.irc.util.ExpandIconStateHelper;
+import io.mrarm.irc.util.SpinnerNoPaddingArrayAdapter;
 import io.mrarm.irc.view.StaticLabelTextInputLayout;
 import io.mrarm.irc.view.ChipsEditText;
 
@@ -33,9 +37,13 @@ public class EditServerActivity extends AppCompatActivity {
     private EditText mServerAddress;
     private EditText mServerPort;
     private CheckBox mServerSSL;
-    private EditText mServerPass;
-    private StaticLabelTextInputLayout mServerPassCtr;
-    private View mServerPassReset;
+    private Spinner mServerAuthMode;
+    private EditText mServerAuthUser;
+    private TextInputLayout mServerAuthUserCtr;
+    private EditText mServerAuthPass;
+    private StaticLabelTextInputLayout mServerAuthPassCtr;
+    private View mServerAuthPassMainCtr;
+    private View mServerAuthPassReset;
     private ChipsEditText mServerNick;
     private EditText mServerUser;
     private EditText mServerRealname;
@@ -64,11 +72,11 @@ public class EditServerActivity extends AppCompatActivity {
         @Override
         public void afterTextChanged(Editable s) {
             if (s.length() > 0) {
-                mServerPassReset.setVisibility(View.GONE);
-                mServerPassCtr.setPasswordVisibilityToggleEnabled(true);
+                mServerAuthPassReset.setVisibility(View.GONE);
+                mServerAuthPassCtr.setPasswordVisibilityToggleEnabled(true);
             } else {
-                mServerPassReset.setVisibility(View.VISIBLE);
-                mServerPassCtr.setPasswordVisibilityToggleEnabled(false);
+                mServerAuthPassReset.setVisibility(View.VISIBLE);
+                mServerAuthPassCtr.setPasswordVisibilityToggleEnabled(false);
             }
         }
     };
@@ -88,9 +96,13 @@ public class EditServerActivity extends AppCompatActivity {
         mServerAddress = (EditText) findViewById(R.id.server_address_name);
         mServerPort = (EditText) findViewById(R.id.server_address_port);
         mServerSSL = (CheckBox) findViewById(R.id.server_ssl_checkbox);
-        mServerPass = (EditText) findViewById(R.id.server_password);
-        mServerPassCtr = (StaticLabelTextInputLayout) findViewById(R.id.server_password_ctr);
-        mServerPassReset = findViewById(R.id.server_password_reset);
+        mServerAuthMode = (Spinner) findViewById(R.id.server_auth_mode);
+        mServerAuthUser = (EditText) findViewById(R.id.server_username);
+        mServerAuthUserCtr = (TextInputLayout) findViewById(R.id.server_username_ctr);
+        mServerAuthPass = (EditText) findViewById(R.id.server_password);
+        mServerAuthPassCtr = (StaticLabelTextInputLayout) findViewById(R.id.server_password_ctr);
+        mServerAuthPassMainCtr = findViewById(R.id.server_password_main_ctr);
+        mServerAuthPassReset = findViewById(R.id.server_password_reset);
         mServerNick = (ChipsEditText) findViewById(R.id.server_nick);
         mServerUser = (EditText) findViewById(R.id.server_user);
         mServerRealname = (EditText) findViewById(R.id.server_realname);
@@ -103,11 +115,34 @@ public class EditServerActivity extends AppCompatActivity {
             ExpandIconStateHelper.animateSetExpanded(mServerUserExpandIcon, mServerUserExpandContent.getVisibility() == View.VISIBLE);
         });
 
-        mServerPassReset.setOnClickListener((View view) -> {
-            mServerPassCtr.setForceShowHint(false);
-            mServerPassReset.setVisibility(View.GONE);
-            mServerPassCtr.setPasswordVisibilityToggleEnabled(true);
-            mServerPass.removeTextChangedListener(mResetPasswordWatcher);
+        SpinnerNoPaddingArrayAdapter<CharSequence> spinnerAdapter = new SpinnerNoPaddingArrayAdapter<>(this, android.R.layout.simple_spinner_item, getResources().getTextArray(R.array.server_auth_modes));
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mServerAuthMode.setAdapter(spinnerAdapter);
+        mServerAuthMode.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position == 0) {
+                    mServerAuthUserCtr.setVisibility(View.GONE);
+                    mServerAuthPassMainCtr.setVisibility(View.GONE);
+                } else if (position == 1) {
+                    mServerAuthUserCtr.setVisibility(View.GONE);
+                    mServerAuthPassMainCtr.setVisibility(View.VISIBLE);
+                } else if (position == 2) {
+                    mServerAuthUserCtr.setVisibility(View.VISIBLE);
+                    mServerAuthPassMainCtr.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
+        mServerAuthPassReset.setOnClickListener((View view) -> {
+            mServerAuthPassCtr.setForceShowHint(false);
+            mServerAuthPassReset.setVisibility(View.GONE);
+            mServerAuthPassCtr.setPasswordVisibilityToggleEnabled(true);
+            mServerAuthPass.removeTextChangedListener(mResetPasswordWatcher);
         });
 
         if (mEditServer != null) {
@@ -116,12 +151,25 @@ public class EditServerActivity extends AppCompatActivity {
             mServerPort.setText(String.valueOf(mEditServer.port));
             mServerSSL.setChecked(mEditServer.ssl);
 
-            if (mEditServer.pass != null) {
-                mServerPassReset.setVisibility(View.VISIBLE);
-                mServerPassCtr.setForceShowHint(true);
-                mServerPass.setHint(R.string.server_password_unchanged);
-                mServerPass.addTextChangedListener(mResetPasswordWatcher);
-                mServerPassCtr.setPasswordVisibilityToggleEnabled(false);
+            if (mEditServer.authPass != null) {
+                mServerAuthPassReset.setVisibility(View.VISIBLE);
+                mServerAuthPassCtr.setForceShowHint(true);
+                mServerAuthPass.setHint(R.string.server_password_unchanged);
+                mServerAuthPass.addTextChangedListener(mResetPasswordWatcher);
+                mServerAuthPassCtr.setPasswordVisibilityToggleEnabled(false);
+            }
+            if (mEditServer.authMode != null) {
+                switch (mEditServer.authMode) {
+                    case ServerConfigData.AUTH_PASSWORD:
+                        mServerAuthMode.setSelection(1);
+                        break;
+                    case ServerConfigData.AUTH_SASL:
+                        mServerAuthMode.setSelection(2);
+                        break;
+                    default:
+                        mServerAuthMode.setSelection(0);
+                        break;
+                }
             }
 
             if (mEditServer.autojoinChannels != null)
@@ -155,8 +203,20 @@ public class EditServerActivity extends AppCompatActivity {
             mEditServer.nicks = null;
         mEditServer.user = mServerUser.getText().length() > 0 ? mServerUser.getText().toString() : null;
         mEditServer.realname = mServerRealname.getText().length() > 0 ? mServerRealname.getText().toString() : null;
-        if (mServerPassReset.getVisibility() == View.GONE)
-            mEditServer.pass = mServerPass.getText().length() > 0 ? mServerPass.getText().toString() : null;
+        int authModeInt = mServerAuthMode.getSelectedItemPosition();
+        boolean authModePassword = false;
+        if (authModeInt == 1) {
+            mEditServer.authMode = ServerConfigData.AUTH_PASSWORD;
+            authModePassword = true;
+        } else if (authModeInt == 2) {
+            mEditServer.authMode = ServerConfigData.AUTH_SASL;
+            mEditServer.authUser = mServerAuthUser.getText().toString();
+            authModePassword = true;
+        } else {
+            mEditServer.authMode = null;
+        }
+        if (mServerAuthPassReset.getVisibility() == View.GONE && authModePassword)
+            mEditServer.authPass = mServerAuthPass.getText().length() > 0 ? mServerAuthPass.getText().toString() : null;
         mEditServer.autojoinChannels = mServerChannels.getItems();
         try {
             ServerConfigManager.getInstance(this).saveServer(mEditServer);

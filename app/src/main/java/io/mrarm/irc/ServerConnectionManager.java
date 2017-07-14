@@ -96,8 +96,9 @@ public class ServerConnectionManager {
         else
             request.setRealName(settings.getDefaultNick());
 
-        if (data.pass != null)
-            request.setServerPass(data.pass);
+        if (data.authMode != null && data.authMode.equals(ServerConfigData.AUTH_PASSWORD) &&
+                data.authPass != null)
+            request.setServerPass(data.authPass);
 
         if (data.ssl) {
             ServerSSLHelper sslHelper = new ServerSSLHelper(null);

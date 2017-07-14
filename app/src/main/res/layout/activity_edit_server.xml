@@ -144,31 +144,68 @@
                 app:srcCompat="@drawable/ic_server_password"
                 style="@style/EditServerIcon.TextInput" />
 
-            <io.mrarm.irc.view.StaticLabelTextInputLayout
-                android:id="@+id/server_password_ctr"
-                android:hint="@string/server_password"
-                app:hintEnabled="true"
-                app:hintTextAppearance="@style/TextAppearance.Design.Hint"
-                app:passwordToggleEnabled="true"
+            <io.mrarm.irc.view.LabelLayout
+                android:id="@+id/server_auth_mode_ctr"
+                android:hint="@string/server_authentication_mode"
+                style="@style/EditServerTextInput">
+
+                <Spinner
+                    android:id="@+id/server_auth_mode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/Base.Widget.AppCompat.Spinner.Underlined" />
+
+            </io.mrarm.irc.view.LabelLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/server_username_ctr"
+                android:layout_below="@+id/server_auth_mode_ctr"
+                android:layout_marginTop="8dp"
+                android:visibility="gone"
                 style="@style/EditServerTextInput">
 
                 <android.support.design.widget.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/server_password"
-                    android:inputType="textPassword" />
+                    android:id="@+id/server_username"
+                    android:hint="@string/entry_username" />
 
-            </io.mrarm.irc.view.StaticLabelTextInputLayout>
+            </android.support.design.widget.TextInputLayout>
 
-            <ImageButton
-                android:id="@+id/server_password_reset"
-                app:srcCompat="@drawable/ic_close"
-                style="@style/EditServerExtraAction"
-                android:alpha="0.54"
-                android:layout_marginRight="8dp"
-                android:layout_marginEnd="8dp"
+            <RelativeLayout
+                android:id="@+id/server_password_main_ctr"
                 android:visibility="gone"
-                android:contentDescription="@string/action_delete" />
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_below="@+id/server_username_ctr">
+
+                <io.mrarm.irc.view.StaticLabelTextInputLayout
+                    android:id="@+id/server_password_ctr"
+                    android:hint="@string/entry_password"
+                    app:hintEnabled="true"
+                    app:hintTextAppearance="@style/TextAppearance.Design.Hint"
+                    app:passwordToggleEnabled="true"
+                    style="@style/EditServerTextInput">
+
+                    <android.support.design.widget.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/server_password"
+                        android:inputType="textPassword" />
+
+                </io.mrarm.irc.view.StaticLabelTextInputLayout>
+
+                <ImageButton
+                    android:id="@+id/server_password_reset"
+                    app:srcCompat="@drawable/ic_close"
+                    style="@style/EditServerExtraAction"
+                    android:visibility="gone"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:contentDescription="@string/action_delete" />
+
+            </RelativeLayout>
 
         </RelativeLayout>
 

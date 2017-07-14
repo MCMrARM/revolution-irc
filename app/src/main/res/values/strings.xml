@@ -78,12 +78,18 @@
     <string name="server_ssl">Use SSL</string>
     <string name="server_manage_custom_certs_placeholder">0 custom certificates saved</string>
     <string name="server_manage_custom_certs">Manage custom certificates</string>
-    <string name="server_password">Server password</string>
     <string name="server_password_unchanged">Unchanged</string>
+    <string name="server_authentication_mode">Authentication mode</string>
     <string name="server_channels">Auto-join channel list</string>
     <string name="server_nick">Nick</string>
     <string name="server_user">User</string>
     <string name="server_realname">Real name</string>
+
+    <string-array name="server_auth_modes">
+        <item>None</item>
+        <item>Server password</item>
+        <item>Username with password (SASL)</item>
+    </string-array>
 
     <!-- Certificate error dialog -->
 
@@ -110,6 +116,7 @@
     <string name="value_not_set">Not set</string>
     <string name="entry_name">Name</string>
     <string name="entry_text">Text</string>
+    <string name="entry_username">Username</string>
     <string name="entry_password">Password</string>
     <string name="entry_comment">Comment</string>
 
