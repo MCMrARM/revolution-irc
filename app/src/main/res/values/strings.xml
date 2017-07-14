@@ -107,6 +107,7 @@
     <string name="value_always">Always</string>
     <string name="value_never">Never</string>
     <string name="value_preset">Preset</string>
+    <string name="value_not_set">Not set</string>
     <string name="entry_name">Name</string>
     <string name="entry_text">Text</string>
     <string name="entry_password">Password</string>
@@ -140,9 +141,9 @@
 
     <string name="pref_header_user">User information</string>
 
-    <string name="pref_title_default_nick">Nick</string>
-    <string name="pref_title_default_user">User</string>
-    <string name="pref_title_default_realname">Real name</string>
+    <string name="pref_title_default_nick">Default nick</string>
+    <string name="pref_title_default_user">Default user</string>
+    <string name="pref_title_default_realname">Default real name</string>
     <string name="pref_title_default_part_message">Channel leave message</string>
 
     <string name="pref_value_default_part_message">Leaving</string>

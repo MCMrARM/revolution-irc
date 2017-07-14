@@ -85,12 +85,16 @@ public class ServerConnectionManager {
             request.addNick(settings.getDefaultNick());
         if (data.user != null)
             request.setUser(data.user);
-        else
+        else if (settings.getDefaultUser() != null && settings.getDefaultUser().length() > 0)
             request.setUser(settings.getDefaultUser());
+        else
+            request.setUser(settings.getDefaultNick());
         if (data.realname != null)
             request.setRealName(data.realname);
-        else
+        else if (settings.getDefaultRealname() != null && settings.getDefaultRealname().length() > 0)
             request.setRealName(settings.getDefaultRealname());
+        else
+            request.setRealName(settings.getDefaultNick());
 
         if (data.pass != null)
             request.setServerPass(data.pass);

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.support.annotation.Nullable;
@@ -86,13 +87,17 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
     }
 
-    private static void bindPreferenceSummaryToValue(Preference preference) {
-        preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
+    private static void bindPreferenceSummaryToValue(Preference preference,
+                                                     Preference.OnPreferenceChangeListener listener) {
+        preference.setOnPreferenceChangeListener(listener);
 
-        sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
-                PreferenceManager
-                        .getDefaultSharedPreferences(preference.getContext())
-                        .getString(preference.getKey(), ""));
+        listener.onPreferenceChange(preference, PreferenceManager
+                .getDefaultSharedPreferences(preference.getContext())
+                .getString(preference.getKey(), ""));
+    }
+
+    private static void bindPreferenceSummaryToValue(Preference preference) {
+        bindPreferenceSummaryToValue(preference, sBindPreferenceSummaryToValueListener);
     }
 
     private static void bindIntPreferenceSummaryToValue(Preference preference) {
@@ -187,14 +192,51 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     }
 
     public static class UserPreferenceFragment extends MyPreferenceFragment {
+        private EditTextPreference mDefaultNickPreference;
+        private EditTextPreference mDefaultUserPreference;
+        private EditTextPreference mDefaultRealNamePreference;
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_user);
 
-            bindPreferenceSummaryToValue(findPreference("default_nick"));
-            bindPreferenceSummaryToValue(findPreference("default_user"));
-            bindPreferenceSummaryToValue(findPreference("default_realname"));
+            mDefaultNickPreference = (EditTextPreference) findPreference("default_nick");
+            mDefaultUserPreference = (EditTextPreference) findPreference("default_user");
+            mDefaultRealNamePreference = (EditTextPreference) findPreference("default_realname");
+
+            bindPreferenceSummaryToValue(mDefaultNickPreference,
+                    (Preference preference, Object newValue) -> {
+                        String stringValue = newValue.toString();
+                        if (stringValue.length() > 0)
+                            preference.setSummary(stringValue);
+                        else
+                            preference.setSummary(R.string.value_not_set);
+
+                        if (mDefaultUserPreference.getText() == null || mDefaultUserPreference.getText().length() == 0)
+                            mDefaultUserPreference.setSummary(mDefaultNickPreference.getSummary());
+                        if (mDefaultRealNamePreference.getText() == null || mDefaultRealNamePreference.getText().length() == 0)
+                            mDefaultRealNamePreference.setSummary(mDefaultNickPreference.getSummary());
+                        return true;
+                    });
+            bindPreferenceSummaryToValue(mDefaultUserPreference,
+                    (Preference preference, Object newValue) -> {
+                        String stringValue = newValue.toString();
+                        if (stringValue.length() > 0)
+                            preference.setSummary(stringValue);
+                        else
+                            preference.setSummary(mDefaultNickPreference.getSummary());
+                        return true;
+                    });
+            bindPreferenceSummaryToValue(mDefaultRealNamePreference,
+                    (Preference preference, Object newValue) -> {
+                        String stringValue = newValue.toString();
+                        if (stringValue.length() > 0)
+                            preference.setSummary(stringValue);
+                        else
+                            preference.setSummary(mDefaultNickPreference.getSummary());
+                        return true;
+                    });
             bindPreferenceSummaryToValue(findPreference("default_part_message"));
         }
     }
