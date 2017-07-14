@@ -79,6 +79,7 @@ public class EditIgnoreEntryActivity extends AppCompatActivity {
         mEntry.matchChannelNotices = mChannelNotices.isChecked();
         mEntry.matchDirectMessages = mDirectMessages.isChecked();
         mEntry.matchDirectNotices = mDirectNotices.isChecked();
+        mEntry.updateRegexes();
         try {
             ServerConfigManager.getInstance(this).saveServer(mServer);
         } catch (IOException e) {

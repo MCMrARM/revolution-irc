@@ -12,6 +12,7 @@ import io.mrarm.chatlib.ChatApi;
 import io.mrarm.chatlib.android.storage.SQLiteMessageStorageApi;
 import io.mrarm.chatlib.irc.IRCConnection;
 import io.mrarm.chatlib.irc.IRCConnectionRequest;
+import io.mrarm.irc.util.FilteredStorageApi;
 import io.mrarm.irc.util.SettingsHelper;
 
 // TODO: this runs stuff on another thread but does not synchronize contents
@@ -88,8 +89,10 @@ public class ServerConnectionInfo {
         boolean createdNewConnection = false;
         if (mApi == null || !(mApi instanceof IRCConnection)) {
             connection = new IRCConnection();
-            connection.getServerConnectionData().setMessageStorageApi(new SQLiteMessageStorageApi(
-                    ServerConfigManager.getInstance(mManager.getContext()).getServerChatLogDir(mUUID)));
+            ServerConfigManager configManager = ServerConfigManager.getInstance(mManager.getContext());
+            connection.getServerConnectionData().setMessageStorageApi(new FilteredStorageApi(
+                    new SQLiteMessageStorageApi(configManager.getServerChatLogDir(mUUID)),
+                    configManager.findServer(mUUID)));
             connection.addDisconnectListener((IRCConnection conn, Exception reason) -> {
                 notifyDisconnected();
             });
