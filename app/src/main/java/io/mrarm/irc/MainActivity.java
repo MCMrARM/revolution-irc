@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout mDrawerLayout;
     private DrawerHelper mDrawerHelper;
     private Toolbar mToolbar;
+    private boolean mBackReturnToServerList;
 
     private static ServerConnectionInfo mTestConnection;
 
@@ -167,12 +168,18 @@ public class MainActivity extends AppCompatActivity {
         toggle.onDrawerClosed(mDrawerLayout);
     }
 
-    public void openServer(ServerConnectionInfo server, String channel) {
+    public void openServer(ServerConnectionInfo server, String channel, boolean fromServerList) {
         getSupportFragmentManager().beginTransaction()
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .replace(R.id.content_frame, ChatFragment.newInstance(server, channel))
                 .commit();
         mDrawerHelper.setSelectedChannel(server, channel);
+        if (fromServerList)
+            mBackReturnToServerList = true;
+    }
+
+    public void openServer(ServerConnectionInfo server, String channel) {
+        openServer(server, channel, false);
     }
 
     public void openManageServers() {
@@ -181,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
                 .replace(R.id.content_frame, ServerListFragment.newInstance())
                 .commit();
         mDrawerHelper.setSelectedMenuItem(mDrawerHelper.getManageServersItem());
+        mBackReturnToServerList = false;
     }
 
     public DrawerHelper getDrawerHelper() {
@@ -189,6 +197,15 @@ public class MainActivity extends AppCompatActivity {
 
     private Fragment getCurrentFragment() {
         return getSupportFragmentManager().findFragmentById(R.id.content_frame);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mBackReturnToServerList) {
+            openManageServers();
+            return;
+        }
+        super.onBackPressed();
     }
 
     @Override
