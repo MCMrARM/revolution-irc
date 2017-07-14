@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 import io.mrarm.chatlib.irc.IRCConnectionRequest;
+import io.mrarm.chatlib.irc.cap.SASLOptions;
 import io.mrarm.irc.preference.ReconnectIntervalPreference;
 import io.mrarm.irc.util.SettingsHelper;
 
@@ -96,15 +97,20 @@ public class ServerConnectionManager {
         else
             request.setRealName(settings.getDefaultNick());
 
-        if (data.authMode != null && data.authMode.equals(ServerConfigData.AUTH_PASSWORD) &&
-                data.authPass != null)
-            request.setServerPass(data.authPass);
+        SASLOptions saslOptions = null;
+        if (data.authMode != null) {
+            if (data.authMode.equals(ServerConfigData.AUTH_PASSWORD) && data.authPass != null)
+                request.setServerPass(data.authPass);
+            if (data.authMode.equals(ServerConfigData.AUTH_SASL) && data.authUser != null &&
+                    data.authPass != null)
+                saslOptions = SASLOptions.createPlainAuth(data.authUser, data.authPass);
+        }
 
         if (data.ssl) {
             ServerSSLHelper sslHelper = new ServerSSLHelper(null);
             request.enableSSL(sslHelper.createSocketFactory(), sslHelper.createHostnameVerifier());
         }
-        ServerConnectionInfo connectionInfo = new ServerConnectionInfo(this, data.uuid, data.name, request, data.autojoinChannels);
+        ServerConnectionInfo connectionInfo = new ServerConnectionInfo(this, data.uuid, data.name, request, saslOptions, data.autojoinChannels);
         connectionInfo.connect();
         addConnection(connectionInfo, saveAutoconnect);
         return connectionInfo;

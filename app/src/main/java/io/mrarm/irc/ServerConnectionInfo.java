@@ -12,6 +12,8 @@ import io.mrarm.chatlib.ChatApi;
 import io.mrarm.chatlib.android.storage.SQLiteMessageStorageApi;
 import io.mrarm.chatlib.irc.IRCConnection;
 import io.mrarm.chatlib.irc.IRCConnectionRequest;
+import io.mrarm.chatlib.irc.cap.SASLCapability;
+import io.mrarm.chatlib.irc.cap.SASLOptions;
 import io.mrarm.irc.util.FilteredStorageApi;
 import io.mrarm.irc.util.SettingsHelper;
 
@@ -26,6 +28,7 @@ public class ServerConnectionInfo {
     private List<String> mChannels;
     private ChatApi mApi;
     private IRCConnectionRequest mConnectionRequest;
+    private SASLOptions mSASLOptions;
     private List<String> mAutojoinChannels;
     private boolean mExpandedInDrawer = true;
     private boolean mConnected = false;
@@ -37,12 +40,14 @@ public class ServerConnectionInfo {
     private int mCurrentReconnectAttempt = -1;
 
     public ServerConnectionInfo(ServerConnectionManager manager, UUID uuid, String name,
-                                IRCConnectionRequest connectionRequest, List<String> autojoinChannels) {
+                                IRCConnectionRequest connectionRequest, SASLOptions saslOptions,
+                                List<String> autojoinChannels) {
         mManager = manager;
         mUUID = uuid;
         mName = name;
         mConnectionRequest = connectionRequest;
         mAutojoinChannels = autojoinChannels;
+        mSASLOptions = saslOptions;
         mNotificationManager = new NotificationManager(this);
     }
 
@@ -93,6 +98,9 @@ public class ServerConnectionInfo {
             connection.getServerConnectionData().setMessageStorageApi(new FilteredStorageApi(
                     new SQLiteMessageStorageApi(configManager.getServerChatLogDir(mUUID)),
                     configManager.findServer(mUUID)));
+            if (mSASLOptions != null)
+                connection.getServerConnectionData().getCapabilityManager().registerCapability(
+                        new SASLCapability(mSASLOptions));
             connection.addDisconnectListener((IRCConnection conn, Exception reason) -> {
                 notifyDisconnected();
             });
