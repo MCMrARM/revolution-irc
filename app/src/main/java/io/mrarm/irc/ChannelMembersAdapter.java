@@ -76,7 +76,10 @@ public class ChannelMembersAdapter extends RecyclerView.Adapter<ChannelMembersAd
                 text.setTextColor(text.getContext().getResources().getColor(R.color.memberVoice));
             else
                 text.setTextColor(text.getContext().getResources().getColor(R.color.memberNormal));
-            text.setText(nickWithPrefix.toString());
+            if (prefix != ' ')
+                text.setText(prefix + nickWithPrefix.getNick());
+            else
+                text.setText(nickWithPrefix.getNick());
         }
 
     }
