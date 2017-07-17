@@ -363,7 +363,7 @@ public class MessageBuilder {
                 if (mode.getKey() == 'b')
                     appendDelim(builder, SpannableStringHelper.getText(mContext, R.string.message_mode_channel_ban, buildColoredMessage(val, IRCColorUtils.getBanMaskColor(mContext))));
                 else
-                    appendDelim(builder, SpannableStringHelper.getText(mContext, R.string.message_mode_channel_value, String.valueOf(mode.getKey()), mode.getValue()));
+                    appendDelim(builder, SpannableStringHelper.getText(mContext, R.string.message_mode_channel_value, String.valueOf(mode.getKey()), val));
             }
         }
     }
