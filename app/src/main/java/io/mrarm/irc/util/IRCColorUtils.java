@@ -47,6 +47,10 @@ public class IRCColorUtils {
         return context.getResources().getColor(R.color.messageTimestamp);
     }
 
+    public static int getBanMaskColor(Context context) {
+        return context.getResources().getColor(R.color.ircLightRed);
+    }
+
     public static int getNickColor(Context context, String nick) {
         int sum = 0;
         for (int i = 0; i < nick.length(); i++)

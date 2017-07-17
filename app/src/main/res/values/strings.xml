@@ -16,6 +16,26 @@
     <string name="message_host_info">Server name is %s, running %s. Supported user modes: %s, supported channel modes: %s</string>
     <string name="message_motd">Message of the Day</string>
 
+    <string name="message_mode">%s %s</string>
+    <string name="message_mode_set">set %s</string>
+    <string name="message_mode_unset">unset %s</string>
+    <string name="message_mode_gave">gave %s</string>
+    <string name="message_mode_removed">removed %s</string>
+
+    <string name="message_mode_gave_to">%s to %s</string>
+    <string name="message_mode_removed_from">%s from %s</string>
+
+    <plurals name="message_mode_channel">
+        <item quantity="one">channel mode \'%s\'</item>
+        <item quantity="other">channel modes \'%s\'</item>
+    </plurals>
+    <string name="message_mode_channel_value">channel mode \'%s\' to %s</string>
+    <string name="message_mode_channel_ban">a ban on %s</string>
+    <string name="message_mode_nick_admin">channel admin status</string>
+    <string name="message_mode_nick_op">channel operator status</string>
+    <string name="message_mode_nick_half_op">channel half-operator status</string>
+    <string name="message_mode_nick_voice">voice</string>
+
     <!-- Actions -->
 
     <string name="action_ok">Ok</string>
@@ -121,6 +141,7 @@
     <string name="entry_comment">Comment</string>
 
     <string name="text_comma">", "</string>
+    <string name="text_and">" and "</string>
 
     <string name="error_generic">An error has occurred.</string>
     <string name="error_file_open">Failed to open the file.</string>
