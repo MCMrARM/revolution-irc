@@ -124,7 +124,7 @@ public class ChatFragment extends Fragment implements
         mTabLayout = (TabLayout) rootView.findViewById(R.id.tabs);
         mTabLayout.setupWithViewPager(mViewPager);
 
-        mChannelMembersAdapter = new ChannelMembersAdapter(null);
+        mChannelMembersAdapter = new ChannelMembersAdapter(mConnectionInfo, null);
         RecyclerView membersRecyclerView = (RecyclerView) rootView.findViewById(R.id.members_list);
         membersRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         membersRecyclerView.setAdapter(mChannelMembersAdapter);

@@ -14,6 +14,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.mrarm.chatlib.ChatApi;
+import io.mrarm.chatlib.dto.WhoisInfo;
 import io.mrarm.irc.util.StatusBarColorBottomSheetDialog;
 
 public class UserBottomSheetDialog {
@@ -23,6 +25,7 @@ public class UserBottomSheetDialog {
     private ItemAdapter mAdapter;
 
     private String mNick;
+    private String mUser;
     private String mRealName;
     private List<Pair<String, String>> mEntries = new ArrayList<>();
 
@@ -30,13 +33,48 @@ public class UserBottomSheetDialog {
         mContext = context;
     }
 
-    public void setUser(String nick, String realName) {
+    public void requestData(String nick, ChatApi connection) {
+        setUser(nick, null, null);
+        connection.sendWhois(nick, (WhoisInfo info) -> {
+            setUser(info.getNick(), info.getUser(), info.getRealName());
+            addEntry(R.string.user_hostname, info.getHost());
+            if (info.getServer() != null)
+                addEntry(R.string.user_server, mContext.getString(R.string.user_server_format, info.getServer(), info.getServerInfo()));
+            if (info.getChannels() != null) {
+                StringBuilder b = new StringBuilder();
+                for (WhoisInfo.ChannelWithNickPrefixes channel : info.getChannels()) {
+                    if (b.length() > 0)
+                        b.append(mContext.getString(R.string.text_comma));
+                    if (channel.getPrefixes() != null)
+                        b.append(channel.getPrefixes());
+                    b.append(channel.getChannel());
+                }
+                addEntry(R.string.user_channels, b.toString());
+            }
+            if (info.getIdleSeconds() > 0)
+                addEntry(R.string.user_idle, mContext.getResources().getQuantityString(R.plurals.time_seconds, info.getIdleSeconds(), info.getIdleSeconds()));
+            if (info.isOperator())
+                addEntry(R.string.user_server_op, mContext.getString(R.string.user_server_op_desc));
+            mAdapter.notifyDataSetChanged();
+        }, null);
+    }
+
+    public void setUser(String nick, String user, String realName) {
         mNick = nick;
+        mUser = user;
         mRealName = realName;
+        if (mAdapter != null)
+            mAdapter.notifyDataSetChanged();
+    }
+
+    public void addEntry(int titleId, String value) {
+        addEntry(mContext.getString(titleId), value);
     }
 
     public void addEntry(String title, String value) {
         mEntries.add(new Pair<>(title, value));
+        if (mAdapter != null)
+            mAdapter.notifyItemInserted(mEntries.size() - 1 + 1);
     }
 
     private void create() {
@@ -103,16 +141,19 @@ public class UserBottomSheetDialog {
         private class HeaderHolder extends RecyclerView.ViewHolder {
             private TextView mName;
             private TextView mNick;
+            private TextView mUser;
 
             public HeaderHolder(View itemView) {
                 super(itemView);
                 mName = (TextView) itemView.findViewById(R.id.name);
                 mNick = (TextView) itemView.findViewById(R.id.nick);
+                mUser = (TextView) itemView.findViewById(R.id.user);
             }
 
             public void bind() {
                 mName.setText(UserBottomSheetDialog.this.mRealName);
                 mNick.setText(UserBottomSheetDialog.this.mNick);
+                mUser.setText(UserBottomSheetDialog.this.mUser);
             }
         }
 

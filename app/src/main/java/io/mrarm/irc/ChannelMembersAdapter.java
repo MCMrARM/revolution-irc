@@ -12,9 +12,11 @@ import io.mrarm.chatlib.dto.NickWithPrefix;
 
 public class ChannelMembersAdapter extends RecyclerView.Adapter<ChannelMembersAdapter.MemberHolder> {
 
+    private ServerConnectionInfo mConnection;
     private List<NickWithPrefix> mMembers;
 
-    public ChannelMembersAdapter(List<NickWithPrefix> members) {
+    public ChannelMembersAdapter(ServerConnectionInfo connection, List<NickWithPrefix> members) {
+        mConnection = connection;
         setMembers(members);
     }
 
@@ -31,7 +33,7 @@ public class ChannelMembersAdapter extends RecyclerView.Adapter<ChannelMembersAd
     public MemberHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View view = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.chat_member, viewGroup, false);
-        return new MemberHolder(view);
+        return new MemberHolder(view, mConnection);
     }
 
     @Override
@@ -50,12 +52,12 @@ public class ChannelMembersAdapter extends RecyclerView.Adapter<ChannelMembersAd
 
         private TextView mText;
 
-        public MemberHolder(View v) {
+        public MemberHolder(View v, ServerConnectionInfo connection) {
             super(v);
             mText = (TextView) v.findViewById(R.id.chat_member);
             v.setOnClickListener((View view) -> {
                 UserBottomSheetDialog dialog = new UserBottomSheetDialog(view.getContext());
-                dialog.setUser((String) mText.getTag(), null);
+                dialog.requestData((String) mText.getTag(), connection.getApiInstance());
                 dialog.show();
             });
         }

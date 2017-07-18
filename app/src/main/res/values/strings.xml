@@ -376,7 +376,15 @@
     <string name="title_activity_edit_ignore_entry">Edit an ignore entry</string>
     <string name="title_activity_add_ignore_entry">Add an ignore entry</string>
 
-    <string name="ignore_hostname">Hostname</string>
+    <!-- User info -->
+
+    <string name="user_hostname">Hostname</string>
+    <string name="user_server">Server</string>
+    <string name="user_server_format">%s (%s)</string>
+    <string name="user_channels">Channels</string>
+    <string name="user_idle">Idle time</string>
+    <string name="user_server_op">Server operator status</string>
+    <string name="user_server_op_desc">This user is an IRC server operator.</string>
 
     <!-- Color names -->
 

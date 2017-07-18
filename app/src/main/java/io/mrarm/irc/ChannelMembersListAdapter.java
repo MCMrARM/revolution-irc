@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,10 +56,9 @@ public class ChannelMembersListAdapter extends BaseAdapter implements Filterable
         if (convertView == null) {
             convertView = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.chat_member, parent, false);
-            convertView.setTag(new ChannelMembersAdapter.MemberHolder(convertView));
         }
-        ChannelMembersAdapter.MemberHolder holder = (ChannelMembersAdapter.MemberHolder) convertView.getTag();
-        holder.bind(mFilteredMembers.get(position));
+        ChannelMembersAdapter.MemberHolder.bindText((TextView)
+                convertView.findViewById(R.id.chat_member), mFilteredMembers.get(position));
         return convertView;
     }
 

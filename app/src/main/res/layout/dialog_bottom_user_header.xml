@@ -17,13 +17,25 @@
         android:textColor="?android:attr/textColorPrimaryInverse" />
 
     <TextView
+        android:id="@+id/user"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/nick"
+        android:layout_toRightOf="@id/nick"
+        android:layout_toEndOf="@id/nick"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:textColor="?android:attr/textColorSecondaryInverse"
+        android:text="User placeholder" />
+
+    <TextView
         android:id="@+id/name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@id/nick"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:text="User placeholder"
+        android:text="Realname placeholder"
         android:textAppearance="@style/TextAppearance.AppCompat.Title"
         android:textColor="?android:attr/textColorPrimaryInverse" />
 
