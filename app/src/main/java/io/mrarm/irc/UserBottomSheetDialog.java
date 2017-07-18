@@ -1,12 +1,16 @@
 package io.mrarm.irc;
 
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Pair;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -30,6 +34,8 @@ public class UserBottomSheetDialog {
     private String mRealName;
     private boolean mAway;
     private List<Pair<String, String>> mEntries = new ArrayList<>();
+
+    private HeaderHelper mHeader;
 
     public UserBottomSheetDialog(Context context) {
         mContext = context;
@@ -71,6 +77,7 @@ public class UserBottomSheetDialog {
             addEntry(R.string.user_server_op, mContext.getString(R.string.user_server_op_desc));
         if (info.isConnectionSecure())
             addEntry(R.string.user_secure, mContext.getString(R.string.user_secure_desc));
+        mAdapter.notifyDataSetChanged();
     }
 
     private String formatTime(int seconds) {
@@ -94,9 +101,9 @@ public class UserBottomSheetDialog {
         mUser = user;
         mRealName = realName;
         mAway = away;
-        if (mAdapter != null)
-            mAdapter.notifyDataSetChanged();
         updateDialogStatusBarColor();
+        if (mHeader != null)
+            mHeader.bind();
     }
 
     public void addEntry(int titleId, String value) {
@@ -106,22 +113,41 @@ public class UserBottomSheetDialog {
     public void addEntry(String title, String value) {
         mEntries.add(new Pair<>(title, value));
         if (mAdapter != null)
-            mAdapter.notifyItemInserted(mEntries.size() - 1 + 1);
+            mAdapter.notifyItemInserted(mEntries.size() - 1);
     }
 
     private void create() {
-        mRecyclerView = new RecyclerView(mContext);
+        View view = LayoutInflater.from(mContext).inflate(R.layout.dialog_bottom_user, null);
+
+        mHeader = new HeaderHelper(view.findViewById(R.id.header));
+        mHeader.bind();
+
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
-        mRecyclerView.addItemDecoration(new MyItemDecorator(mContext));
+        mRecyclerView.addItemDecoration(new AdvancedDividerItemDecoration(mContext));
+        mRecyclerView.setPadding(0, mHeader.mMaxHeight, 0, 0);
+
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                View v = mRecyclerView.getChildAt(0);
+                if (mRecyclerView.getChildAdapterPosition(v) != 0) {
+                    mHeader.setScrollY(mHeader.mMaxHeight - mHeader.mMinHeight);
+                    return;
+                }
+                mHeader.setScrollY(mRecyclerView.getPaddingTop() - v.getTop());
+            }
+        });
+
         mAdapter = new ItemAdapter();
         mRecyclerView.setAdapter(mAdapter);
 
         mDialog = new StatusBarColorBottomSheetDialog(mContext);
-        mDialog.setContentView(mRecyclerView);
+        mDialog.setContentView(view);
         mDialog.getWindow().getDecorView().addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                mRecyclerView.setMinimumHeight(bottom-top);
+                view.setMinimumHeight(bottom - top);
             }
         });
         updateDialogStatusBarColor();
@@ -144,67 +170,21 @@ public class UserBottomSheetDialog {
 
     private class ItemAdapter extends RecyclerView.Adapter {
 
-        public static final int ITEM_HEADER = 0;
-        public static final int ITEM_ENTRY = 1;
-
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            if (viewType == ITEM_HEADER) {
-                View view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.dialog_bottom_user_header, parent, false);
-                return new HeaderHolder(view);
-            } else {
-                View view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.dialog_bottom_user_entry, parent, false);
-                return new EntryHolder(view);
-            }
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.dialog_bottom_user_entry, parent, false);
+            return new EntryHolder(view);
         }
 
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-            if (position == 0)
-                ((HeaderHolder) holder).bind();
-            else
-                ((EntryHolder) holder).bind(mEntries.get(position - 1));
+            ((EntryHolder) holder).bind(mEntries.get(position));
         }
 
         @Override
         public int getItemCount() {
-            return mEntries.size() + 1;
-        }
-
-        @Override
-        public int getItemViewType(int position) {
-            if (position == 0)
-                return ITEM_HEADER;
-            return ITEM_ENTRY;
-        }
-
-        private class HeaderHolder extends RecyclerView.ViewHolder {
-            private View mContainer;
-            private TextView mName;
-            private TextView mNick;
-            private TextView mUser;
-
-            public HeaderHolder(View itemView) {
-                super(itemView);
-                mContainer = itemView;
-                mName = (TextView) itemView.findViewById(R.id.name);
-                mNick = (TextView) itemView.findViewById(R.id.nick);
-                mUser = (TextView) itemView.findViewById(R.id.user);
-            }
-
-            public void bind() {
-                if (mAway) {
-                    mName.setText(mContext.getString(R.string.user_title_away, mRealName));
-                    mContainer.setBackgroundResource(R.color.userAwayColorPrimary);
-                } else {
-                    mName.setText(UserBottomSheetDialog.this.mRealName);
-                    mContainer.setBackgroundResource(R.color.colorPrimary);
-                }
-                mNick.setText(UserBottomSheetDialog.this.mNick);
-                mUser.setText(UserBottomSheetDialog.this.mUser);
-            }
+            return mEntries.size();
         }
 
         private class EntryHolder extends RecyclerView.ViewHolder {
@@ -225,17 +205,66 @@ public class UserBottomSheetDialog {
 
     }
 
-    private static final class MyItemDecorator extends AdvancedDividerItemDecoration {
+    private class HeaderHelper {
+        private View mContainer;
+        private TextView mName;
+        private TextView mNick;
+        private TextView mUser;
+        private int mBottomMargin;
+        private int mNameBottomMargin;
+        private int mTargetNameBottomMargin;
+        private int mMaxHeight;
+        private int mMinHeight;
+        private int mElevation;
 
-        public MyItemDecorator(Context context) {
-            super(context);
+        public HeaderHelper(View itemView) {
+            mContainer = itemView;
+            mName = (TextView) itemView.findViewById(R.id.name);
+            mNick = (TextView) itemView.findViewById(R.id.nick);
+            mUser = (TextView) itemView.findViewById(R.id.user);
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mNick.getLayoutParams();
+            mBottomMargin = params.bottomMargin;
+            params = (RelativeLayout.LayoutParams) mName.getLayoutParams();
+            mNameBottomMargin = params.bottomMargin;
+            mTargetNameBottomMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 14, mContext.getResources().getDisplayMetrics());
+            params = (RelativeLayout.LayoutParams) mContainer.getLayoutParams();
+            mMaxHeight = params.height;
+
+            TypedArray ta = mContext.obtainStyledAttributes(new int[] { R.attr.actionBarSize });
+            mMinHeight = ta.getDimensionPixelSize(0, 0);
+            ta.recycle();
+
+            mElevation = mContext.getResources().getDimensionPixelSize(R.dimen.abc_action_bar_elevation_material);
         }
 
-        @Override
-        public boolean hasDivider(RecyclerView parent, View view) {
-            return parent.getChildAdapterPosition(view) != 0;
+        public void bind() {
+            if (mAway) {
+                mName.setText(mContext.getString(R.string.user_title_away, mRealName));
+                mContainer.setBackgroundResource(R.color.userAwayColorPrimary);
+            } else {
+                mName.setText(UserBottomSheetDialog.this.mRealName);
+                mContainer.setBackgroundResource(R.color.colorPrimary);
+            }
+            mNick.setText(UserBottomSheetDialog.this.mNick);
+            mUser.setText(UserBottomSheetDialog.this.mUser);
         }
 
+        public void setScrollY(int y) {
+            y = Math.min(y, mMaxHeight - mMinHeight);
+            ViewCompat.setElevation(mContainer, y == (mMaxHeight - mMinHeight) ? mElevation : 0);
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mNick.getLayoutParams();
+            params.bottomMargin = mBottomMargin - y;
+            mNick.setLayoutParams(params);
+            params = (RelativeLayout.LayoutParams) mUser.getLayoutParams();
+            params.bottomMargin = mBottomMargin - y;
+            mUser.setLayoutParams(params);
+            params = (RelativeLayout.LayoutParams) mName.getLayoutParams();
+            params.bottomMargin = Math.max(mNameBottomMargin - y, mTargetNameBottomMargin);
+            mName.setLayoutParams(params);
+            params = (RelativeLayout.LayoutParams) mContainer.getLayoutParams();
+            params.height = mMaxHeight - y;
+            mContainer.setLayoutParams(params);
+        }
     }
 
 }
