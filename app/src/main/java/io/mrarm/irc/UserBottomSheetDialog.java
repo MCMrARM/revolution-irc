@@ -144,11 +144,12 @@ public class UserBottomSheetDialog {
 
         mDialog = new StatusBarColorBottomSheetDialog(mContext);
         mDialog.setContentView(view);
-        mDialog.getWindow().getDecorView().addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+        mDialog.getWindow().getDecorView().addOnLayoutChangeListener((View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) -> {
+            if (bottom - top == oldBottom - oldTop)
+                return;
+            view.post(() -> {
                 view.setMinimumHeight(bottom - top);
-            }
+            });
         });
         updateDialogStatusBarColor();
     }
@@ -262,8 +263,11 @@ public class UserBottomSheetDialog {
             params.bottomMargin = Math.max(mNameBottomMargin - y, mTargetNameBottomMargin);
             mName.setLayoutParams(params);
             params = (RelativeLayout.LayoutParams) mContainer.getLayoutParams();
-            params.height = mMaxHeight - y;
-            mContainer.setLayoutParams(params);
+            int newH = mMaxHeight - y;
+            if (newH != params.height) {
+                params.height = mMaxHeight - y;
+                mContainer.setLayoutParams(params);
+            }
         }
     }
 

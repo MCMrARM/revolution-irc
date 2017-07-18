@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="224dp"
-    android:background="@color/colorPrimary"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp">
+    android:theme="@style/Theme.AppCompat"
+    android:background="@color/colorPrimary">
 
     <TextView
         android:id="@+id/nick"
@@ -14,9 +14,11 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginBottom="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
         android:text="Nick placeholder"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-        android:textColor="?android:attr/textColorPrimaryInverse" />
+        android:textColor="?android:attr/textColorPrimary" />
 
     <TextView
         android:id="@+id/user"
@@ -27,8 +29,12 @@
         android:layout_toEndOf="@id/nick"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
-        android:textColor="?android:attr/textColorSecondaryInverse"
-        android:text="User placeholder" />
+        android:layout_marginRight="16dp"
+        android:layout_marginEnd="16dp"
+        android:textColor="?android:attr/textColorSecondary"
+        android:text="User placeholder"
+        android:layout_alignRight="@+id/message_button"
+        android:layout_alignEnd="@+id/message_button" />
 
     <TextView
         android:id="@+id/name"
@@ -38,9 +44,25 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
         android:text="Realname placeholder"
         android:textAppearance="@style/TextAppearance.AppCompat.Title"
-        android:textColor="?android:attr/textColorPrimaryInverse" />
+        android:textColor="?android:attr/textColorPrimary"
+        android:layout_toLeftOf="@+id/message_button"
+        android:layout_toStartOf="@+id/message_button" />
+
+    <ImageButton
+        android:id="@+id/message_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:padding="16dp"
+        android:background="?attr/actionBarItemBackground"
+        android:tint="?android:attr/textColorPrimary"
+        app:srcCompat="@drawable/ic_message" />
 
 
 </RelativeLayout>

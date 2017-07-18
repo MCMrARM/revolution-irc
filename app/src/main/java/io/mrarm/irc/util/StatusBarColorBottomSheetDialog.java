@@ -41,6 +41,12 @@ public class StatusBarColorBottomSheetDialog extends BottomSheetDialog {
         addCallback();
     }
 
+    @Override
+    public void dismiss() {
+        super.dismiss();
+        updateActivityStatusBar(false);
+    }
+
     private void addCallback() {
         BottomSheetBehavior behaviour = BottomSheetBehavior.from(
                 findViewById(android.support.design.R.id.design_bottom_sheet));
@@ -48,7 +54,6 @@ public class StatusBarColorBottomSheetDialog extends BottomSheetDialog {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
                 if (newState == BottomSheetBehavior.STATE_HIDDEN) {
-                    behaviour.setBottomSheetCallback(null);
                     cancel();
                     return;
                 }
