@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.MarginLayoutParamsCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -58,6 +59,7 @@ public class ChatFragment extends Fragment implements
     private TabLayout mTabLayout;
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
+    private DrawerLayout mDrawerLayout;
     private ChannelMembersAdapter mChannelMembersAdapter;
     private ChannelMembersListAdapter mChannelMembersListAdapter;
     private NickAutoCompleteEditText mSendText;
@@ -123,6 +125,9 @@ public class ChatFragment extends Fragment implements
 
         mTabLayout = (TabLayout) rootView.findViewById(R.id.tabs);
         mTabLayout.setupWithViewPager(mViewPager);
+
+        mDrawerLayout = (DrawerLayout) rootView.findViewById(R.id.drawer_layout);
+        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 
         mChannelMembersAdapter = new ChannelMembersAdapter(mConnectionInfo, null);
         RecyclerView membersRecyclerView = (RecyclerView) rootView.findViewById(R.id.members_list);
@@ -366,6 +371,10 @@ public class ChatFragment extends Fragment implements
     public void setCurrentChannelMembers(List<NickWithPrefix> members) {
         mChannelMembersAdapter.setMembers(members);
         mChannelMembersListAdapter.setMembers(members);
+        if (members == null || members.size() == 0)
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        else
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
     }
 
     public String getCurrentChannel() {
