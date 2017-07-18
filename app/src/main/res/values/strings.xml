@@ -378,6 +378,7 @@
 
     <!-- User info -->
 
+    <string name="user_title_away">%s (away)</string>
     <string name="user_hostname">Hostname</string>
     <string name="user_server">Server</string>
     <string name="user_server_format">%s (%s)</string>
@@ -388,6 +389,7 @@
     <string name="user_secure">Connection security status</string>
     <string name="user_secure_desc">This user is using a secure connection.</string>
     <string name="user_account">Account</string>
+    <string name="user_away">Away message</string>
 
     <!-- Color names -->
 
