@@ -1,7 +1,6 @@
 package io.mrarm.irc;
 
 import android.content.Context;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Pair;
@@ -12,6 +11,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import io.mrarm.chatlib.ChatApi;
 import io.mrarm.chatlib.dto.WhoisInfo;
@@ -64,13 +64,29 @@ public class UserBottomSheetDialog {
             addEntry(R.string.user_channels, b.toString());
         }
         if (info.getIdleSeconds() > 0)
-            addEntry(R.string.user_idle, mContext.getResources().getQuantityString(R.plurals.time_seconds, info.getIdleSeconds(), info.getIdleSeconds()));
+            addEntry(R.string.user_idle, formatTime(info.getIdleSeconds()));
         if (info.getLoggedInAsAccount() != null)
             addEntry(R.string.user_account, info.getLoggedInAsAccount());
         if (info.isOperator())
             addEntry(R.string.user_server_op, mContext.getString(R.string.user_server_op_desc));
         if (info.isConnectionSecure())
             addEntry(R.string.user_secure, mContext.getString(R.string.user_secure_desc));
+    }
+
+    private String formatTime(int seconds) {
+        if (seconds >= TimeUnit.DAYS.toSeconds(2L)) {
+            int days = (int) TimeUnit.SECONDS.toDays(seconds);
+            return mContext.getResources().getQuantityString(R.plurals.time_days, days, days);
+        }
+        if (seconds >= TimeUnit.HOURS.toSeconds(2L)) {
+            int days = (int) TimeUnit.SECONDS.toHours(seconds);
+            return mContext.getResources().getQuantityString(R.plurals.time_hours, days, days);
+        }
+        if (seconds >= TimeUnit.MINUTES.toSeconds(2L)) {
+            int days = (int) TimeUnit.SECONDS.toMinutes(seconds);
+            return mContext.getResources().getQuantityString(R.plurals.time_minutes, days, days);
+        }
+        return mContext.getResources().getQuantityString(R.plurals.time_seconds, seconds, seconds);
     }
 
     public void setUser(String nick, String user, String realName, boolean away) {
