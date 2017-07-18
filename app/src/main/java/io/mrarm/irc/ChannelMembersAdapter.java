@@ -53,6 +53,11 @@ public class ChannelMembersAdapter extends RecyclerView.Adapter<ChannelMembersAd
         public MemberHolder(View v) {
             super(v);
             mText = (TextView) v.findViewById(R.id.chat_member);
+            v.setOnClickListener((View view) -> {
+                UserBottomSheetDialog dialog = new UserBottomSheetDialog(view.getContext());
+                dialog.setUser((String) mText.getTag(), null);
+                dialog.show();
+            });
         }
 
         public void bind(NickWithPrefix nickWithPrefix) {
@@ -80,6 +85,7 @@ public class ChannelMembersAdapter extends RecyclerView.Adapter<ChannelMembersAd
                 text.setText(prefix + nickWithPrefix.getNick());
             else
                 text.setText(nickWithPrefix.getNick());
+            text.setTag(nickWithPrefix.getNick());
         }
 
     }
