@@ -22,6 +22,7 @@ public class UserBottomSheetDialog {
 
     private Context mContext;
     private BottomSheetDialog mDialog;
+    private RecyclerView mRecyclerView;
     private ItemAdapter mAdapter;
 
     private String mNick;
@@ -36,26 +37,27 @@ public class UserBottomSheetDialog {
     public void requestData(String nick, ChatApi connection) {
         setUser(nick, null, null);
         connection.sendWhois(nick, (WhoisInfo info) -> {
-            setUser(info.getNick(), info.getUser(), info.getRealName());
-            addEntry(R.string.user_hostname, info.getHost());
-            if (info.getServer() != null)
-                addEntry(R.string.user_server, mContext.getString(R.string.user_server_format, info.getServer(), info.getServerInfo()));
-            if (info.getChannels() != null) {
-                StringBuilder b = new StringBuilder();
-                for (WhoisInfo.ChannelWithNickPrefixes channel : info.getChannels()) {
-                    if (b.length() > 0)
-                        b.append(mContext.getString(R.string.text_comma));
-                    if (channel.getPrefixes() != null)
-                        b.append(channel.getPrefixes());
-                    b.append(channel.getChannel());
+            mRecyclerView.post(() -> {
+                setUser(info.getNick(), info.getUser(), info.getRealName());
+                addEntry(R.string.user_hostname, info.getHost());
+                if (info.getServer() != null)
+                    addEntry(R.string.user_server, mContext.getString(R.string.user_server_format, info.getServer(), info.getServerInfo()));
+                if (info.getChannels() != null) {
+                    StringBuilder b = new StringBuilder();
+                    for (WhoisInfo.ChannelWithNickPrefixes channel : info.getChannels()) {
+                        if (b.length() > 0)
+                            b.append(mContext.getString(R.string.text_comma));
+                        if (channel.getPrefixes() != null)
+                            b.append(channel.getPrefixes());
+                        b.append(channel.getChannel());
+                    }
+                    addEntry(R.string.user_channels, b.toString());
                 }
-                addEntry(R.string.user_channels, b.toString());
-            }
-            if (info.getIdleSeconds() > 0)
-                addEntry(R.string.user_idle, mContext.getResources().getQuantityString(R.plurals.time_seconds, info.getIdleSeconds(), info.getIdleSeconds()));
-            if (info.isOperator())
-                addEntry(R.string.user_server_op, mContext.getString(R.string.user_server_op_desc));
-            mAdapter.notifyDataSetChanged();
+                if (info.getIdleSeconds() > 0)
+                    addEntry(R.string.user_idle, mContext.getResources().getQuantityString(R.plurals.time_seconds, info.getIdleSeconds(), info.getIdleSeconds()));
+                if (info.isOperator())
+                    addEntry(R.string.user_server_op, mContext.getString(R.string.user_server_op_desc));
+            });
         }, null);
     }
 
@@ -78,18 +80,18 @@ public class UserBottomSheetDialog {
     }
 
     private void create() {
-        RecyclerView recyclerView = new RecyclerView(mContext);
-        recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
-        recyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
+        mRecyclerView = new RecyclerView(mContext);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
         mAdapter = new ItemAdapter();
-        recyclerView.setAdapter(mAdapter);
+        mRecyclerView.setAdapter(mAdapter);
 
         mDialog = new StatusBarColorBottomSheetDialog(mContext);
-        mDialog.setContentView(recyclerView);
+        mDialog.setContentView(mRecyclerView);
         mDialog.getWindow().getDecorView().addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                recyclerView.setMinimumHeight(bottom-top);
+                mRecyclerView.setMinimumHeight(bottom-top);
             }
         });
     }
