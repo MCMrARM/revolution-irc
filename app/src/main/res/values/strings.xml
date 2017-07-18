@@ -385,6 +385,9 @@
     <string name="user_idle">Idle time</string>
     <string name="user_server_op">Server operator status</string>
     <string name="user_server_op_desc">This user is an IRC server operator.</string>
+    <string name="user_secure">Connection security status</string>
+    <string name="user_secure_desc">This user is using a secure connection.</string>
+    <string name="user_account">Account</string>
 
     <!-- Color names -->
 

@@ -55,8 +55,12 @@ public class UserBottomSheetDialog {
                 }
                 if (info.getIdleSeconds() > 0)
                     addEntry(R.string.user_idle, mContext.getResources().getQuantityString(R.plurals.time_seconds, info.getIdleSeconds(), info.getIdleSeconds()));
+                if (info.getLoggedInAsAccount() != null)
+                    addEntry(R.string.user_account, info.getLoggedInAsAccount());
                 if (info.isOperator())
                     addEntry(R.string.user_server_op, mContext.getString(R.string.user_server_op_desc));
+                if (info.isConnectionSecure())
+                    addEntry(R.string.user_secure, mContext.getString(R.string.user_secure_desc));
             });
         }, null);
     }
