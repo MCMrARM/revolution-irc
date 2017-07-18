@@ -29,6 +29,7 @@ public class UserBottomSheetDialog {
     private RecyclerView mRecyclerView;
     private ItemAdapter mAdapter;
 
+    private ServerConnectionInfo mConnection;
     private String mNick;
     private String mUser;
     private String mRealName;
@@ -39,6 +40,10 @@ public class UserBottomSheetDialog {
 
     public UserBottomSheetDialog(Context context) {
         mContext = context;
+    }
+
+    public void setConnection(ServerConnectionInfo connection) {
+        mConnection = connection;
     }
 
     public void requestData(String nick, ChatApi connection) {
@@ -141,6 +146,18 @@ public class UserBottomSheetDialog {
 
         mAdapter = new ItemAdapter();
         mRecyclerView.setAdapter(mAdapter);
+
+        view.findViewById(R.id.message_button).setOnClickListener((View v) -> {
+            List<String> l = new ArrayList<>();
+            l.add(mNick);
+            mConnection.getApiInstance().joinChannels(l, (Void vo) -> {
+                view.post(() -> {
+                    if (mContext instanceof MainActivity)
+                        ((MainActivity) mContext).openServer(mConnection, mNick);
+                    mDialog.cancel();
+                });
+            }, null);
+        });
 
         mDialog = new StatusBarColorBottomSheetDialog(mContext);
         mDialog.setContentView(view);

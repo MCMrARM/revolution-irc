@@ -57,6 +57,7 @@ public class ChannelMembersAdapter extends RecyclerView.Adapter<ChannelMembersAd
             mText = (TextView) v.findViewById(R.id.chat_member);
             v.setOnClickListener((View view) -> {
                 UserBottomSheetDialog dialog = new UserBottomSheetDialog(view.getContext());
+                dialog.setConnection(connection);
                 dialog.requestData((String) mText.getTag(), connection.getApiInstance());
                 dialog.show();
             });
