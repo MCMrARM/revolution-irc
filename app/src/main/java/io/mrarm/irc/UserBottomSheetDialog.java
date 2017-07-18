@@ -1,7 +1,6 @@
 package io.mrarm.irc;
 
 import android.content.Context;
-import android.support.design.widget.BottomSheetDialog;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,6 +15,7 @@ import java.util.List;
 
 import io.mrarm.chatlib.ChatApi;
 import io.mrarm.chatlib.dto.WhoisInfo;
+import io.mrarm.irc.util.AdvancedDividerItemDecoration;
 import io.mrarm.irc.util.StatusBarColorBottomSheetDialog;
 
 public class UserBottomSheetDialog {
@@ -96,7 +96,7 @@ public class UserBottomSheetDialog {
     private void create() {
         mRecyclerView = new RecyclerView(mContext);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
+        mRecyclerView.addItemDecoration(new MyItemDecorator(mContext));
         mAdapter = new ItemAdapter();
         mRecyclerView.setAdapter(mAdapter);
 
@@ -205,6 +205,19 @@ public class UserBottomSheetDialog {
                 mTitle.setText(entry.first);
                 mValue.setText(entry.second);
             }
+        }
+
+    }
+
+    private static final class MyItemDecorator extends AdvancedDividerItemDecoration {
+
+        public MyItemDecorator(Context context) {
+            super(context);
+        }
+
+        @Override
+        public boolean hasDivider(RecyclerView parent, View view) {
+            return parent.getChildAdapterPosition(view) != 0;
         }
 
     }
