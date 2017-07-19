@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
@@ -73,9 +74,13 @@ public class IRCColorUtils {
     }
 
     public static CharSequence getFormattedString(Context context, String string) {
-        ColoredTextBuilder builder = new ColoredTextBuilder();
-        appendFormattedString(context, builder, string);
-        return builder.getSpannable();
+        try {
+            ColoredTextBuilder builder = new ColoredTextBuilder();
+            appendFormattedString(context, builder, string);
+            return builder.getSpannable();
+        } catch (Exception e) {
+            return new SpannableString(string);
+        }
     }
 
     public static void appendFormattedString(Context context, ColoredTextBuilder builder,

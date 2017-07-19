@@ -57,6 +57,7 @@
     <string name="action_reorder">Reorder</string>
     <string name="action_undo">Undo</string>
     <string name="action_copy">Copy</string>
+    <string name="action_clone">Clone</string>
     <string name="action_continue">Continue</string>
     <string name="action_finish">Finish</string>
     <string name="action_join_channel">Join channel</string>

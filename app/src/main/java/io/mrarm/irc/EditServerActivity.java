@@ -31,6 +31,7 @@ public class EditServerActivity extends AppCompatActivity {
     private static String TAG = "EditServerActivity";
 
     public static String ARG_SERVER_UUID = "server_uuid";
+    public static String ARG_COPY = "copy";
 
     private ServerConfigData mEditServer;
     private EditText mServerName;
@@ -41,6 +42,7 @@ public class EditServerActivity extends AppCompatActivity {
     private EditText mServerAuthUser;
     private TextInputLayout mServerAuthUserCtr;
     private EditText mServerAuthPass;
+    private String mOldServerAuthPass;
     private StaticLabelTextInputLayout mServerAuthPassCtr;
     private View mServerAuthPassMainCtr;
     private View mServerAuthPassReset;
@@ -52,12 +54,18 @@ public class EditServerActivity extends AppCompatActivity {
     private View mServerUserExpandIcon;
     private View mServerUserExpandContent;
 
-    public static Intent getLaunchIntent(Context context, ServerConfigData data) {
+    public static Intent getLaunchIntent(Context context, ServerConfigData data, boolean copy) {
         Intent intent = new Intent(context, EditServerActivity.class);
         Bundle args = new Bundle();
         args.putString(ARG_SERVER_UUID, data.uuid.toString());
+        if (copy)
+            args.putBoolean(ARG_COPY, true);
         intent.putExtras(args);
         return intent;
+    }
+
+    public static Intent getLaunchIntent(Context context, ServerConfigData data) {
+        return getLaunchIntent(context, data, false);
     }
 
     private TextWatcher mResetPasswordWatcher = new TextWatcher() {
@@ -157,6 +165,7 @@ public class EditServerActivity extends AppCompatActivity {
                 mServerAuthPass.setHint(R.string.server_password_unchanged);
                 mServerAuthPass.addTextChangedListener(mResetPasswordWatcher);
                 mServerAuthPassCtr.setPasswordVisibilityToggleEnabled(false);
+                mOldServerAuthPass = mEditServer.authPass;
             }
             if (mEditServer.authMode != null) {
                 switch (mEditServer.authMode) {
@@ -183,6 +192,10 @@ public class EditServerActivity extends AppCompatActivity {
                 mServerUserExpandContent.setVisibility(View.VISIBLE);
                 ExpandIconStateHelper.setExpanded(mServerUserExpandIcon, true);
             }
+            if (getIntent().getBooleanExtra(ARG_COPY, false)) {
+                mEditServer = null;
+                getSupportActionBar().setTitle(R.string.add_server);
+            }
         } else {
             getSupportActionBar().setTitle(R.string.add_server);
             findViewById(R.id.server_ssl_certs).setVisibility(View.GONE);
@@ -193,6 +206,7 @@ public class EditServerActivity extends AppCompatActivity {
         if (mEditServer == null) {
             mEditServer = new ServerConfigData();
             mEditServer.uuid = UUID.randomUUID();
+            mEditServer.authPass = mOldServerAuthPass;
         }
         mEditServer.name = mServerName.getText().toString();
         mEditServer.address = mServerAddress.getText().toString();

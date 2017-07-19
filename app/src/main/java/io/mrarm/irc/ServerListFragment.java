@@ -72,6 +72,7 @@ public class ServerListFragment extends Fragment {
             builder.setItems(new CharSequence[] {
                     getString(R.string.action_connect),
                     getString(R.string.action_edit),
+                    getString(R.string.action_clone),
                     getString(R.string.action_delete)
             }, (DialogInterface dialog, int which) -> {
                 if (which == 0) { // connect
@@ -79,7 +80,9 @@ public class ServerListFragment extends Fragment {
                     IRCService.start(getContext());
                 } else if (which == 1) { // edit
                     startActivity(EditServerActivity.getLaunchIntent(getContext(), data));
-                } else if (which == 2) { // delete
+                } else if (which == 2) { // clone
+                    startActivity(EditServerActivity.getLaunchIntent(getContext(), data, true));
+                } else if (which == 3) { // delete
                     AlertDialog.Builder builder2 = new AlertDialog.Builder(getContext());
                     builder2.setTitle(R.string.action_delete_confirm_title);
                     builder2.setMessage(getString(R.string.action_delete_confirm_body, data.name));
