@@ -242,6 +242,14 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             mConnection.getApiInstance().unsubscribeStatusMessages(ChatMessagesFragment.this, null, null);
     }
 
+    public String getChannelName() {
+        return mChannelName;
+    }
+
+    public boolean isServerStatus() {
+        return mStatusAdapter != null;
+    }
+
     private void scrollToBottom() {
         int i = Math.max(mLayoutManager.findLastVisibleItemPosition(), mLayoutManager.getPendingScrollPosition());
         int count = mAdapter == null ? mStatusAdapter.getItemCount() : mAdapter.getItemCount();

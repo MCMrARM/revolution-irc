@@ -165,10 +165,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void openServer(ServerConnectionInfo server, String channel, boolean fromServerList) {
-        getSupportFragmentManager().beginTransaction()
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                .replace(R.id.content_frame, ChatFragment.newInstance(server, channel))
-                .commit();
+        if (getCurrentFragment() instanceof ChatFragment &&
+                ((ChatFragment) getCurrentFragment()).getConnectionInfo() == server) {
+            ((ChatFragment) getCurrentFragment()).setCurrentChannel(channel);
+            ((ChatFragment) getCurrentFragment()).closeDrawer();
+        } else {
+            getSupportFragmentManager().beginTransaction()
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                    .replace(R.id.content_frame, ChatFragment.newInstance(server, channel))
+                    .commit();
+        }
         mDrawerHelper.setSelectedChannel(server, channel);
         if (fromServerList)
             mBackReturnToServerList = true;

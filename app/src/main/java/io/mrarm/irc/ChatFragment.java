@@ -9,6 +9,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MarginLayoutParamsCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -33,7 +34,10 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import io.mrarm.chatlib.dto.NickWithPrefix;
@@ -388,19 +392,35 @@ public class ChatFragment extends Fragment implements
         });
     }
 
+    public void closeDrawer() {
+        mDrawerLayout.closeDrawer(GravityCompat.END, false);
+    }
+
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         private ServerConnectionInfo connectionInfo;
         private List<String> channels;
+        private Map<String, Long> channelIds = new HashMap<>();
+        private long nextChannelId = 1;
 
         public SectionsPagerAdapter(FragmentManager fm, ServerConnectionInfo connectionInfo) {
             super(fm);
             this.connectionInfo = connectionInfo;
-            channels = connectionInfo.getChannels();
+            updateChannelList();
         }
 
         public void updateChannelList() {
             channels = connectionInfo.getChannels();
+            Iterator<Map.Entry<String, Long>> it = channelIds.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<String, Long> entry = it.next();
+                if (!channels.contains(entry.getKey()))
+                    it.remove();
+            }
+            for (String channel : channels) {
+                if (!channelIds.containsKey(channel))
+                    channelIds.put(channel, nextChannelId++);
+            }
             notifyDataSetChanged();
         }
 
@@ -410,6 +430,27 @@ public class ChatFragment extends Fragment implements
                 return ChatMessagesFragment.newStatusInstance(connectionInfo);
             return ChatMessagesFragment.newInstance(connectionInfo,
                     connectionInfo.getChannels().get(position - 1));
+        }
+
+        @Override
+        public int getItemPosition(Object object) {
+            if (object instanceof ChatMessagesFragment) {
+                ChatMessagesFragment fragment = (ChatMessagesFragment) object;
+                if (fragment.isServerStatus())
+                    return POSITION_UNCHANGED;
+                int iof = channels.indexOf(fragment.getChannelName());
+                if (iof == -1)
+                    return POSITION_NONE;
+                return iof + 1;
+            }
+            return super.getItemPosition(object);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            if (position == 0)
+                return 0;
+            return channelIds.get(getChannel(position));
         }
 
         @Override
