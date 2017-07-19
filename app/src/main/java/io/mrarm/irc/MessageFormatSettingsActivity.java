@@ -47,6 +47,9 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
     private FormattableEditText mMessageFormatAction;
     private View mMessageFormatActionPresetButton;
     private TextView mMessageFormatActionExample;
+    private FormattableEditText mMessageFormatNotice;
+    private View mMessageFormatNoticePresetButton;
+    private TextView mMessageFormatNoticeExample;
     private FormattableEditText mMessageFormatEvent;
     private View mMessageFormatEventPresetButton;
     private TextView mMessageFormatEventExample;
@@ -55,6 +58,7 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
     private MessageSenderInfo mTestSender;
     private MessageInfo mSampleMessage;
     private MessageInfo mSampleActionMessage;
+    private MessageInfo mSampleNoticeMessage;
     private MessageInfo mSampleEventMessage;
 
     @Override
@@ -72,6 +76,8 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
                 mMessageBuilder.setMessageFormat(prepareFormat(text.getText()));
             else if (text == mMessageFormatAction)
                 mMessageBuilder.setActionMessageFormat(prepareFormat(text.getText()));
+            else if (text == mMessageFormatNotice)
+                mMessageBuilder.setNoticeMessageFormat(prepareFormat(text.getText()));
             else if (text == mMessageFormatEvent)
                 mMessageBuilder.setEventMessageFormat(prepareFormat(text.getText()));
             refreshExamples();
@@ -140,7 +146,7 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
         mMessageFormatNormal.setFormatBar(mTextFormatBar);
         mMessageFormatNormal.setOnFocusChangeListener(focusListener);
         mMessageFormatNormal.addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
-            mMessageBuilder.setMessageFormat(prepareFormat((Spannable) s));
+            mMessageBuilder.setMessageFormat(prepareFormat(s));
             refreshExamples();
         }));
 
@@ -159,7 +165,7 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
         mMessageFormatAction.setFormatBar(mTextFormatBar);
         mMessageFormatAction.setOnFocusChangeListener(focusListener);
         mMessageFormatAction.addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
-            mMessageBuilder.setActionMessageFormat(prepareFormat((Spannable) s));
+            mMessageBuilder.setActionMessageFormat(prepareFormat(s));
             refreshExamples();
         }));
 
@@ -173,12 +179,31 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
 
         mMessageFormatActionExample = (TextView) findViewById(R.id.message_format_action_example);
 
+        mMessageFormatNotice = (FormattableEditText) findViewById(R.id.message_format_notice);
+        mMessageFormatNotice.setText(mMessageBuilder.getNoticeMessageFormat());
+        mMessageFormatNotice.setFormatBar(mTextFormatBar);
+        mMessageFormatNotice.setOnFocusChangeListener(focusListener);
+        mMessageFormatNotice.addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
+            mMessageBuilder.setNoticeMessageFormat(prepareFormat(s));
+            refreshExamples();
+        }));
+
+        mMessageFormatNoticePresetButton = findViewById(R.id.message_format_notice_preset);
+        mMessageFormatNoticePresetButton.setOnClickListener((View v) -> {
+            selectPreset(mMessageFormatNotice, new CharSequence[] {
+                    buildNoticePresetMessageFormat(this, 0),
+                    buildNoticePresetMessageFormat(this, 1)
+            });
+        });
+
+        mMessageFormatNoticeExample = (TextView) findViewById(R.id.message_format_notice_example);
+
         mMessageFormatEvent = (FormattableEditText) findViewById(R.id.message_format_event);
         mMessageFormatEvent.setText(mMessageBuilder.getEventMessageFormat());
         mMessageFormatEvent.setFormatBar(mTextFormatBar);
         mMessageFormatEvent.setOnFocusChangeListener(focusListener);
         mMessageFormatEvent.addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
-            mMessageBuilder.setEventMessageFormat(prepareFormat((Spannable) s));
+            mMessageBuilder.setEventMessageFormat(prepareFormat(s));
             refreshExamples();
         }));
 
@@ -256,6 +281,29 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
         return null;
     }
 
+    public static SpannableString buildNoticePresetMessageFormat(Context context, int preset) {
+        if (preset == 0) {
+            SpannableString spannable = new SpannableString("   :  ");
+            spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_TIMESTAMP), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
+            spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_SENDER), 2, 6, MessageBuilder.FORMAT_SPAN_FLAGS);
+            spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_TIME), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
+            spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_SENDER), 2, 3, MessageBuilder.FORMAT_SPAN_FLAGS);
+            spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_MESSAGE), 5, 6, MessageBuilder.FORMAT_SPAN_FLAGS);
+            spannable.setSpan(new StyleSpan(Typeface.BOLD), 2, 6, MessageBuilder.FORMAT_SPAN_FLAGS);
+            return spannable;
+        }
+        if (preset == 1) {
+            SpannableString spannable = new SpannableString("  - -  ");
+            spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_TIMESTAMP), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
+            spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_SENDER), 2, 5, MessageBuilder.FORMAT_SPAN_FLAGS);
+            spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_TIME), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
+            spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_SENDER), 3, 4, MessageBuilder.FORMAT_SPAN_FLAGS);
+            spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_MESSAGE),  6, 7, MessageBuilder.FORMAT_SPAN_FLAGS);
+            return spannable;
+        }
+        return null;
+    }
+
     public static SpannableString buildEventPresetMessageFormat(Context context, int preset) {
         if (preset == 0 || preset == 1) {
             SpannableString spannable = new SpannableString("  *  ");
@@ -295,11 +343,13 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
             Date date = getSampleMessageTime();
             mSampleMessage = new MessageInfo(mTestSender, date, getString(R.string.message_example_message), MessageInfo.MessageType.NORMAL);
             mSampleActionMessage = new MessageInfo(mTestSender, date, getString(R.string.message_example_message), MessageInfo.MessageType.ME);
+            mSampleNoticeMessage = new MessageInfo(mTestSender, date, getString(R.string.message_example_message), MessageInfo.MessageType.NOTICE);
             mSampleEventMessage = new MessageInfo(mTestSender, date, null, MessageInfo.MessageType.JOIN);
         }
 
         mMessageFormatNormalExample.setText(mMessageBuilder.buildMessage(mSampleMessage));
         mMessageFormatActionExample.setText(mMessageBuilder.buildMessage(mSampleActionMessage));
+        mMessageFormatNoticeExample.setText(mMessageBuilder.buildMessage(mSampleNoticeMessage));
         mMessageFormatEventExample.setText(mMessageBuilder.buildMessage(mSampleEventMessage));
     }
 
@@ -308,6 +358,7 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
         global.setMessageTimeFormat(mMessageBuilder.getMessageTimeFormat().toPattern());
         global.setMessageFormat(mMessageBuilder.getMessageFormat());
         global.setActionMessageFormat(mMessageBuilder.getActionMessageFormat());
+        global.setNoticeMessageFormat(mMessageBuilder.getNoticeMessageFormat());
         global.setEventMessageFormat(mMessageBuilder.getEventMessageFormat());
         global.saveFormats();
     }

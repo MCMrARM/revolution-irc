@@ -88,6 +88,27 @@
             <android.support.design.widget.TextInputLayout style="@style/MessageFormatSettingsTextInputLayout">
 
                 <io.mrarm.irc.view.FormattableEditText
+                    android:id="@+id/message_format_notice"
+                    style="@style/EditTextWithExpandIcon"
+                    android:hint="@string/message_format_notice" />
+
+                <ImageButton
+                    android:id="@+id/message_format_notice_preset"
+                    style="@style/EditTextExpandIconButton"
+                    android:contentDescription="@string/value_preset"
+                    app:srcCompat="@drawable/ic_expand" />
+
+            </android.support.design.widget.TextInputLayout>
+
+            <TextView
+                android:id="@+id/message_format_notice_example"
+                style="@style/MessageFormatSettingsExampleText" />
+
+            <View style="@style/MessageFormatSettingsDivider" />
+
+            <android.support.design.widget.TextInputLayout style="@style/MessageFormatSettingsTextInputLayout">
+
+                <io.mrarm.irc.view.FormattableEditText
                     android:id="@+id/message_format_event"
                     style="@style/EditTextWithExpandIcon"
                     android:hint="@string/message_format_event" />

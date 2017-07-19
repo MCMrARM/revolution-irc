@@ -100,3 +100,4 @@
 :iamnowsomeoneelse!~another@test/user1 PRIVMSG #irc-client :This is a test message
 :iamnowsomeoneelse!~another@test/user1 PRIVMSG #irc-client :This is a test message
 :iamnowsomeoneelse!~another@test/user1 PRIVMSG #irc-client :This is a test message
+:iamnowsomeoneelse!~another@test/user1 NOTICE #irc-client :This is a test message

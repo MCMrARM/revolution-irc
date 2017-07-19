@@ -51,6 +51,7 @@ public class MessageBuilder {
     private SimpleDateFormat mMessageTimeFormat;
     private CharSequence mMessageFormat;
     private CharSequence mActionMessageFormat;
+    private CharSequence mNoticeMessageFormat;
     private CharSequence mEventMessageFormat;
 
     public static SpannableString buildDefaultMessageFormat(Context context) {
@@ -59,6 +60,10 @@ public class MessageBuilder {
 
     public static SpannableString buildDefaultActionMessageFormat(Context context) {
         return MessageFormatSettingsActivity.buildActionPresetMessageFormat(context, 0);
+    }
+
+    public static SpannableString buildDefaultNoticeMessageFormat(Context context) {
+        return MessageFormatSettingsActivity.buildNoticePresetMessageFormat(context, 0);
     }
 
     public static SpannableString buildDefaultEventMessageFormat(Context context) {
@@ -137,6 +142,9 @@ public class MessageBuilder {
         mActionMessageFormat = getMessageFormat(mgr, SettingsHelper.PREF_MESSAGE_FORMAT_ACTION);
         if (mActionMessageFormat == null)
             mActionMessageFormat = buildDefaultActionMessageFormat(context);
+        mNoticeMessageFormat = getMessageFormat(mgr, SettingsHelper.PREF_MESSAGE_FORMAT_NOTICE);
+        if (mNoticeMessageFormat == null)
+            mNoticeMessageFormat = buildDefaultNoticeMessageFormat(context);
         mEventMessageFormat = getMessageFormat(mgr, SettingsHelper.PREF_MESSAGE_FORMAT_EVENT);
         if (mEventMessageFormat == null)
             mEventMessageFormat = buildDefaultEventMessageFormat(context);
@@ -147,6 +155,7 @@ public class MessageBuilder {
         mgr.putString(SettingsHelper.PREF_MESSAGE_TIME_FORMAT, mMessageTimeFormat.toPattern());
         mgr.putString(SettingsHelper.PREF_MESSAGE_FORMAT, SettingsHelper.getGson().toJson(spannableToJson(mMessageFormat)));
         mgr.putString(SettingsHelper.PREF_MESSAGE_FORMAT_ACTION, SettingsHelper.getGson().toJson(spannableToJson(mActionMessageFormat)));
+        mgr.putString(SettingsHelper.PREF_MESSAGE_FORMAT_NOTICE, SettingsHelper.getGson().toJson(spannableToJson(mNoticeMessageFormat)));
         mgr.putString(SettingsHelper.PREF_MESSAGE_FORMAT_EVENT, SettingsHelper.getGson().toJson(spannableToJson(mEventMessageFormat)));
         mgr.apply();
     }
@@ -187,6 +196,14 @@ public class MessageBuilder {
         mActionMessageFormat = format;
     }
 
+    public CharSequence getNoticeMessageFormat() {
+        return mNoticeMessageFormat;
+    }
+
+    public void setNoticeMessageFormat(CharSequence format) {
+        mNoticeMessageFormat = format;
+    }
+
     public CharSequence getEventMessageFormat() {
         return mEventMessageFormat;
     }
@@ -222,6 +239,9 @@ public class MessageBuilder {
             case NORMAL:
                 return processFormat(mMessageFormat, message.getDate(), senderNick,
                         addLinks(IRCColorUtils.getFormattedString(mContext, message.getMessage())));
+            case NOTICE:
+                return processFormat(mNoticeMessageFormat, message.getDate(), senderNick,
+                        addLinks(IRCColorUtils.getFormattedString(mContext, message.getMessage())));
             case ME:
                 return processFormat(mActionMessageFormat, message.getDate(), senderNick,
                         addLinks(IRCColorUtils.getFormattedString(mContext, message.getMessage())));
@@ -243,7 +263,7 @@ public class MessageBuilder {
             case DISCONNECT_WARNING:
                 return buildDisconnectWarning(message.getDate());
         }
-        return "Test";
+        return "";
     }
 
     public CharSequence buildStatusMessage(StatusMessageInfo message, CharSequence text) {

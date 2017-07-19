@@ -37,6 +37,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     public static final String PREF_CHAT_APPBAR_COMPACT_MODE = "chat_appbar_compact_mode";
     public static final String PREF_MESSAGE_FORMAT = "message_format";
     public static final String PREF_MESSAGE_FORMAT_ACTION = "message_format_action";
+    public static final String PREF_MESSAGE_FORMAT_NOTICE = "message_format_notice";
     public static final String PREF_MESSAGE_FORMAT_EVENT = "message_format_event";
     public static final String PREF_MESSAGE_TIME_FORMAT = "message_time_format";
     public static final String PREF_NICK_AUTOCOMPLETE_SHOW_BUTTON = "nick_autocomplete_show_button";
