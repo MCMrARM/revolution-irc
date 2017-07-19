@@ -186,7 +186,7 @@ public class NotificationRule {
         }
 
         public static AppliesToEntry directEvents() {
-            AppliesToEntry ret = channelEvents();
+            AppliesToEntry ret = any();
             ret.matchChannelMessages = false;
             ret.matchChannelNotices = false;
             return ret;

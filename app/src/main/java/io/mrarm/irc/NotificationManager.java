@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import io.mrarm.chatlib.ChatApi;
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.irc.util.ColoredTextBuilder;
@@ -147,6 +148,12 @@ public class NotificationManager {
     }
 
     public NotificationRule findRule(String channel, MessageInfo message) {
+        ChatApi api = mConnection.getApiInstance();
+        if (api instanceof ServerConnectionApi && channel != null && channel.length() > 0 &&
+                !((ServerConnectionApi) api).getServerConnectionData().getSupportList()
+                        .getSupportedChannelTypes().contains(channel.charAt(0)))
+            channel = null;
+
         for (NotificationRule rule : sDefaultTopRules) {
             if (rule.appliesTo(this, channel, message) && rule.settings.enabled)
                 return rule;
