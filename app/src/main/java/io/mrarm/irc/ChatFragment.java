@@ -354,6 +354,10 @@ public class ChatFragment extends Fragment implements
         mConnectionInfo.getApiInstance().sendMessage(channel, text, null, null);
     }
 
+    public boolean hasSendMessageTextSelection() {
+        return (mSendText != null && mSendText.getSelectionEnd() - mSendText.getSelectionStart() > 0);
+    }
+
     @Override
     public void onDestroyView() {
         mConnectionInfo.removeOnChannelListChangeListener(this);

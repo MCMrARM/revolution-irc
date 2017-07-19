@@ -220,8 +220,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+        boolean hasChanges = false;
         if (getCurrentFragment() instanceof ChatFragment) {
-            boolean connected = ((ChatFragment) getCurrentFragment()).getConnectionInfo().isConnected();
+            ChatFragment fragment = ((ChatFragment) getCurrentFragment());
+            boolean connected = fragment.getConnectionInfo().isConnected();
             boolean wasConnected = !menu.findItem(R.id.action_reconnect).isVisible();
             if (connected != wasConnected) {
                 if (connected) {
@@ -233,10 +235,15 @@ public class MainActivity extends AppCompatActivity {
                     menu.findItem(R.id.action_disconnect).setVisible(false);
                     menu.findItem(R.id.action_disconnect_and_close).setVisible(false);
                 }
-                return true;
+                hasChanges = true;
+            }
+            if (fragment.hasSendMessageTextSelection() !=
+                    menu.findItem(R.id.action_format).isVisible()) {
+                menu.findItem(R.id.action_format).setVisible(fragment.hasSendMessageTextSelection());
+                hasChanges = true;
             }
         }
-        return super.onPrepareOptionsMenu(menu);
+        return super.onPrepareOptionsMenu(menu) | hasChanges;
     }
 
     @Override
@@ -279,6 +286,8 @@ public class MainActivity extends AppCompatActivity {
             openManageServers();
         } else if (id == R.id.action_reconnect) {
             ((ChatFragment) getCurrentFragment()).getConnectionInfo().connect();
+        } else if (id == R.id.action_format) {
+            ((ChatFragment) getCurrentFragment()).setFormatBarVisible(true);
         }
         return super.onOptionsItemSelected(item);
     }
