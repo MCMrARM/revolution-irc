@@ -36,12 +36,13 @@ public class ServerConfigManager {
         return mInstance;
     }
 
-    private File mServersPath;
-    private File mServerLogsPath;
+    private final File mServersPath;
+    private final File mServerLogsPath;
 
-    private List<ServerConfigData> mServers = new ArrayList<>();
-    private Map<UUID, ServerConfigData> mServersMap = new HashMap<>();
-    private List<ConnectionsListener> mListeners = new ArrayList<>();
+    private final List<ServerConfigData> mServers = new ArrayList<>();
+    private final Map<UUID, ServerConfigData> mServersMap = new HashMap<>();
+    private final List<ConnectionsListener> mListeners = new ArrayList<>();
+    private final Object mIOLock = new Object();
 
     public ServerConfigManager(Context context) {
         mServersPath = new File(context.getFilesDir(), SERVERS_PATH);
@@ -51,6 +52,7 @@ public class ServerConfigManager {
         loadServers();
     }
 
+    // NOTE: This is not synchronized; don't call it outside of the constructor
     private void loadServers() {
         File[] files = mServersPath.listFiles();
         if (files == null)
@@ -70,46 +72,63 @@ public class ServerConfigManager {
     }
 
     public List<ServerConfigData> getServers() {
-        return mServers;
+        synchronized (this) {
+            return mServers;
+        }
     }
 
     public ServerConfigData findServer(UUID uuid) {
-        return mServersMap.get(uuid);
+        synchronized (this) {
+            return mServersMap.get(uuid);
+        }
     }
 
     public void saveServer(ServerConfigData data) throws IOException {
         boolean existed = false;
-        if (mServersMap.containsKey(data.uuid)) {
-            existed = true;
-            mServers.remove(mServersMap.get(data.uuid));
+        synchronized (this) {
+            if (mServersMap.containsKey(data.uuid)) {
+                existed = true;
+                mServers.remove(mServersMap.get(data.uuid));
+            }
+            mServers.add(data);
+            mServersMap.put(data.uuid, data);
         }
-        mServers.add(data);
-        mServersMap.put(data.uuid, data);
-        BufferedWriter writer = new BufferedWriter(new FileWriter(new File(mServersPath, SERVER_FILE_PREFIX + data.uuid.toString() + SERVER_FILE_SUFFIX)));
-        SettingsHelper.getGson().toJson(data, writer);
-        writer.close();
-
-        if (existed) {
-            for (ConnectionsListener listener : mListeners)
-                listener.onConnectionUpdated(data);
-        } else {
-            for (ConnectionsListener listener : mListeners)
-                listener.onConnectionAdded(data);
+        synchronized (mIOLock) {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(new File(mServersPath, SERVER_FILE_PREFIX + data.uuid.toString() + SERVER_FILE_SUFFIX)));
+            SettingsHelper.getGson().toJson(data, writer);
+            writer.close();
+        }
+        synchronized (mListeners) {
+            if (existed) {
+                for (ConnectionsListener listener : mListeners)
+                    listener.onConnectionUpdated(data);
+            } else {
+                for (ConnectionsListener listener : mListeners)
+                    listener.onConnectionAdded(data);
+            }
         }
     }
 
     public void deleteServer(ServerConfigData data) {
-        mServers.remove(data);
-        mServersMap.remove(data.uuid);
-        File file = new File(mServersPath, SERVER_FILE_PREFIX + data.uuid.toString() + SERVER_FILE_SUFFIX);
-        file.delete();
-        for (ConnectionsListener listener : mListeners)
-            listener.onConnectionRemoved(data);
+        synchronized (this) {
+            mServers.remove(data);
+            mServersMap.remove(data.uuid);
+        }
+        synchronized (mIOLock) {
+            File file = new File(mServersPath, SERVER_FILE_PREFIX + data.uuid.toString() + SERVER_FILE_SUFFIX);
+            file.delete();
+        }
+        synchronized (mListeners) {
+            for (ConnectionsListener listener : mListeners)
+                listener.onConnectionRemoved(data);
+        }
     }
 
     public void deleteAllServers() {
-        while (mServers.size() > 0)
-            deleteServer(mServers.get(mServers.size() - 1));
+        synchronized (this) {
+            while (mServers.size() > 0)
+                deleteServer(mServers.get(mServers.size() - 1));
+        }
     }
 
     public File getServerSSLCertsFile(UUID uuid) {
@@ -121,11 +140,15 @@ public class ServerConfigManager {
     }
 
     public void addListener(ConnectionsListener listener) {
-        mListeners.add(listener);
+        synchronized (mListeners) {
+            mListeners.add(listener);
+        }
     }
 
     public void removeListener(ConnectionsListener listener) {
-        mListeners.remove(listener);
+        synchronized (mListeners) {
+            mListeners.remove(listener);
+        }
     }
 
     public interface ConnectionsListener {

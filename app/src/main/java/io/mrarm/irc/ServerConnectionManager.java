@@ -17,12 +17,12 @@ public class ServerConnectionManager {
 
     private static ServerConnectionManager instance;
 
-    private Context mContext;
-    private HashMap<UUID, ServerConnectionInfo> mConnectionsMap = new HashMap<>();
-    private ArrayList<ServerConnectionInfo> mConnections = new ArrayList<>();
-    private List<ConnectionsListener> mListeners = new ArrayList<>();
-    private List<ServerConnectionInfo.ChannelListChangeListener> mChannelsListeners = new ArrayList<>();
-    private List<ServerConnectionInfo.InfoChangeListener> mInfoListeners = new ArrayList<>();
+    private final Context mContext;
+    private final HashMap<UUID, ServerConnectionInfo> mConnectionsMap = new HashMap<>();
+    private final ArrayList<ServerConnectionInfo> mConnections = new ArrayList<>();
+    private final List<ConnectionsListener> mListeners = new ArrayList<>();
+    private final List<ServerConnectionInfo.ChannelListChangeListener> mChannelsListeners = new ArrayList<>();
+    private final List<ServerConnectionInfo.InfoChangeListener> mInfoListeners = new ArrayList<>();
 
     public static ServerConnectionManager getInstance(Context context) {
         if (instance == null && context != null)
@@ -47,7 +47,9 @@ public class ServerConnectionManager {
 
     private void saveAutoconnectList() {
         List<UUID> uuids = new ArrayList<>();
-        uuids.addAll(mConnectionsMap.keySet());
+        synchronized (this) {
+            uuids.addAll(mConnectionsMap.keySet());
+        }
         SettingsHelper settings = SettingsHelper.getInstance(mContext);
         settings.setAutoConnectServerList(uuids);
     }
@@ -57,14 +59,18 @@ public class ServerConnectionManager {
     }
 
     public List<ServerConnectionInfo> getConnections() {
-        return mConnections;
+        synchronized (this) {
+            return new ArrayList<>(mConnections);
+        }
     }
 
     public void addConnection(ServerConnectionInfo connection, boolean saveAutoconnect) {
-        mConnectionsMap.put(connection.getUUID(), connection);
-        mConnections.add(connection);
-        if (saveAutoconnect)
-            saveAutoconnectList();
+        synchronized (this) {
+            mConnectionsMap.put(connection.getUUID(), connection);
+            mConnections.add(connection);
+            if (saveAutoconnect)
+                saveAutoconnectList();
+        }
         for (ConnectionsListener listener : mListeners)
             listener.onConnectionAdded(connection);
     }
@@ -121,12 +127,14 @@ public class ServerConnectionManager {
     }
 
     public void removeConnection(ServerConnectionInfo connection, boolean saveAutoconnect) {
-        mConnections.remove(connection);
-        mConnectionsMap.remove(connection.getUUID());
+        synchronized (this) {
+            mConnections.remove(connection);
+            mConnectionsMap.remove(connection.getUUID());
+            if (saveAutoconnect)
+                saveAutoconnectList();
+        }
         for (ConnectionsListener listener : mListeners)
             listener.onConnectionRemoved(connection);
-        if (saveAutoconnect)
-            saveAutoconnectList();
     }
 
     public void removeConnection(ServerConnectionInfo connection) {
@@ -134,17 +142,23 @@ public class ServerConnectionManager {
     }
 
     public void removeAllConnections() {
-        while (mConnections.size() > 0)
-            removeConnection(mConnections.get(mConnections.size() - 1), false);
-        saveAutoconnectList();
+        synchronized (this) {
+            while (mConnections.size() > 0)
+                removeConnection(mConnections.get(mConnections.size() - 1), false);
+            saveAutoconnectList();
+        }
     }
 
     public ServerConnectionInfo getConnection(UUID uuid) {
-        return mConnectionsMap.get(uuid);
+        synchronized (this) {
+            return mConnectionsMap.get(uuid);
+        }
     }
 
     public boolean hasConnection(UUID uuid) {
-        return mConnectionsMap.containsKey(uuid);
+        synchronized (this) {
+            return mConnectionsMap.containsKey(uuid);
+        }
     }
 
     int getReconnectDelay(int attemptNumber) {
@@ -164,37 +178,53 @@ public class ServerConnectionManager {
     }
 
     public void addListener(ConnectionsListener listener) {
-        mListeners.add(listener);
+        synchronized (mListeners) {
+            mListeners.add(listener);
+        }
     }
 
     public void removeListener(ConnectionsListener listener) {
-        mListeners.remove(listener);
+        synchronized (mListeners) {
+            mListeners.remove(listener);
+        }
     }
 
     public void addGlobalConnectionInfoListener(ServerConnectionInfo.InfoChangeListener listener) {
-        mInfoListeners.add(listener);
+        synchronized (mInfoListeners) {
+            mInfoListeners.add(listener);
+        }
     }
 
     public void removeGlobalConnectionInfoListener(ServerConnectionInfo.InfoChangeListener listener) {
-        mInfoListeners.remove(listener);
+        synchronized (mInfoListeners) {
+            mInfoListeners.remove(listener);
+        }
     }
 
     public void addGlobalChannelListListener(ServerConnectionInfo.ChannelListChangeListener listener) {
-        mChannelsListeners.add(listener);
+        synchronized (mChannelsListeners) {
+            mChannelsListeners.add(listener);
+        }
     }
 
     public void removeGlobalChannelListListener(ServerConnectionInfo.ChannelListChangeListener listener) {
-        mChannelsListeners.remove(listener);
+        synchronized (mChannelsListeners) {
+            mChannelsListeners.remove(listener);
+        }
     }
 
     void notifyConnectionInfoChanged(ServerConnectionInfo connection) {
-        for (ServerConnectionInfo.InfoChangeListener listener : mInfoListeners)
-            listener.onConnectionInfoChanged(connection);
+        synchronized (mInfoListeners) {
+            for (ServerConnectionInfo.InfoChangeListener listener : mInfoListeners)
+                listener.onConnectionInfoChanged(connection);
+        }
     }
 
     void notifyChannelListChanged(ServerConnectionInfo connection, List<String> newChannels) {
-        for (ServerConnectionInfo.ChannelListChangeListener listener : mChannelsListeners)
-            listener.onChannelListChanged(connection, newChannels);
+        synchronized (mChannelsListeners) {
+            for (ServerConnectionInfo.ChannelListChangeListener listener : mChannelsListeners)
+                listener.onChannelListChanged(connection, newChannels);
+        }
     }
 
     public void notifyConnectivityChanged() {
@@ -202,8 +232,10 @@ public class ServerConnectionManager {
         if (helper.isReconnectEnabled() && helper.shouldReconnectOnConnectivityChange()) {
             if (helper.isReconnectWifiRequired() && !isWifiConnected(mContext))
                 return;
-            for (ServerConnectionInfo server : mConnectionsMap.values())
-                server.connect(); // this will be ignored if we are already corrected
+            synchronized (this) {
+                for (ServerConnectionInfo server : mConnectionsMap.values())
+                    server.connect(); // this will be ignored if we are already corrected
+            }
         }
     }
 

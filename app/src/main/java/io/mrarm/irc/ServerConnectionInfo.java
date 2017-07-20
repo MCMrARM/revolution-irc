@@ -17,7 +17,6 @@ import io.mrarm.chatlib.irc.cap.SASLOptions;
 import io.mrarm.irc.util.FilteredStorageApi;
 import io.mrarm.irc.util.SettingsHelper;
 
-// TODO: this runs stuff on another thread but does not synchronize contents
 public class ServerConnectionInfo {
 
     private static Handler mReconnectHandler = new Handler();
@@ -35,8 +34,8 @@ public class ServerConnectionInfo {
     private boolean mConnecting = false;
     private boolean mUserDisconnectRequest = false;
     private NotificationManager mNotificationManager;
-    private List<InfoChangeListener> mInfoListeners = new ArrayList<>();
-    private List<ChannelListChangeListener> mChannelsListeners = new ArrayList<>();
+    private final List<InfoChangeListener> mInfoListeners = new ArrayList<>();
+    private final List<ChannelListChangeListener> mChannelsListeners = new ArrayList<>();
     private int mCurrentReconnectAttempt = -1;
 
     public ServerConnectionInfo(ServerConnectionManager manager, UUID uuid, String name,
@@ -59,25 +58,27 @@ public class ServerConnectionInfo {
         setApi(api);
     }
 
-    void setApi(ChatApi api) {
-        mApi = api;
-        api.getJoinedChannelList((List<String> channels) -> {
-            setChannels(channels);
-        }, null);
-        api.subscribeChannelList(new ChannelListListener() {
-            @Override
-            public void onChannelListChanged(List<String> list) {
-                setChannels(list);
-            }
+    private void setApi(ChatApi api) {
+        synchronized (mApi) {
+            mApi = api;
+            api.getJoinedChannelList((List<String> channels) -> {
+                setChannels(channels);
+            }, null);
+            api.subscribeChannelList(new ChannelListListener() {
+                @Override
+                public void onChannelListChanged(List<String> list) {
+                    setChannels(list);
+                }
 
-            @Override
-            public void onChannelJoined(String s) {
-            }
+                @Override
+                public void onChannelJoined(String s) {
+                }
 
-            @Override
-            public void onChannelLeft(String s) {
-            }
-        }, null, null);
+                @Override
+                public void onChannelLeft(String s) {
+                }
+            }, null, null);
+        }
     }
 
     public ServerConnectionManager getConnectionManager() {
@@ -85,9 +86,11 @@ public class ServerConnectionInfo {
     }
 
     public void connect() {
-        if (mConnected || mConnecting)
-            return;
-        mConnecting = true;
+        synchronized (this) {
+            if (mConnected || mConnecting)
+                return;
+            mConnecting = true;
+        }
         Log.i("ServerConnectionInfo", "Connecting...");
 
         IRCConnection connection = null;
@@ -112,9 +115,11 @@ public class ServerConnectionInfo {
         IRCConnection fConnection = connection;
 
         connection.connect(mConnectionRequest, (Void v) -> {
-            mConnecting = false;
-            setConnected(true);
-            mCurrentReconnectAttempt = 0;
+            synchronized (this) {
+                mConnecting = false;
+                setConnected(true);
+                mCurrentReconnectAttempt = 0;
+            }
             fConnection.joinChannels(mAutojoinChannels, null, null);
         }, (Exception e) -> {
             notifyDisconnected();
@@ -126,16 +131,20 @@ public class ServerConnectionInfo {
     }
 
     public void disconnect() {
-        mUserDisconnectRequest = true;
-        String message = SettingsHelper.getInstance(mManager.getContext()).getDefaultQuitMessage();
-        mApi.quit(message, null, null);
+        synchronized (this) {
+            mUserDisconnectRequest = true;
+            String message = SettingsHelper.getInstance(mManager.getContext()).getDefaultQuitMessage();
+            mApi.quit(message, null, null);
+        }
     }
 
     private void notifyDisconnected() {
-        setConnected(false);
-        if (mUserDisconnectRequest)
-            return;
-        mConnecting = false;
+        synchronized (this) {
+            setConnected(false);
+            if (mUserDisconnectRequest)
+                return;
+            mConnecting = false;
+        }
         int reconnectDelay = mManager.getReconnectDelay(mCurrentReconnectAttempt++);
         if (reconnectDelay == -1)
             return;
@@ -159,33 +168,49 @@ public class ServerConnectionInfo {
     }
 
     public ChatApi getApiInstance() {
-        return mApi;
+        synchronized (this) {
+            return mApi;
+        }
     }
 
-    public boolean isConnected() { return mConnected; }
+    public boolean isConnected() {
+        synchronized (this) {
+            return mConnected;
+        }
+    }
 
     public void setConnected(boolean connected) {
-        mConnected = connected;
+        synchronized (this) {
+            mConnected = connected;
+        }
         notifyInfoChanged();
     }
 
     public List<String> getChannels() {
-        return mChannels;
+        synchronized (this) {
+            return mChannels;
+        }
     }
 
     public void setChannels(List<String> channels) {
-        mChannels = channels;
-        for (ChannelListChangeListener listener : mChannelsListeners)
-            listener.onChannelListChanged(this, channels);
-        mManager.notifyChannelListChanged(this, channels);
+        synchronized (this) {
+            mChannels = channels;
+            for (ChannelListChangeListener listener : mChannelsListeners)
+                listener.onChannelListChanged(this, channels);
+            mManager.notifyChannelListChanged(this, channels);
+        }
     }
 
     public boolean isExpandedInDrawer() {
-        return mExpandedInDrawer;
+        synchronized (this) {
+            return mExpandedInDrawer;
+        }
     }
 
     public void setExpandedInDrawer(boolean expanded) {
-        mExpandedInDrawer = expanded;
+        synchronized (this) {
+            mExpandedInDrawer = expanded;
+        }
     }
 
     public NotificationManager getNotificationManager() {
@@ -193,25 +218,35 @@ public class ServerConnectionInfo {
     }
 
     public void addOnChannelInfoChangeListener(InfoChangeListener listener) {
-        mInfoListeners.add(listener);
+        synchronized (mInfoListeners) {
+            mInfoListeners.add(listener);
+        }
     }
 
     public void removeOnChannelInfoChangeListener(InfoChangeListener listener) {
-        mInfoListeners.remove(listener);
+        synchronized (mInfoListeners) {
+            mInfoListeners.remove(listener);
+        }
     }
 
     public void addOnChannelListChangeListener(ChannelListChangeListener listener) {
-        mChannelsListeners.add(listener);
+        synchronized (mChannelsListeners) {
+            mChannelsListeners.add(listener);
+        }
     }
 
     public void removeOnChannelListChangeListener(ChannelListChangeListener listener) {
-        mChannelsListeners.remove(listener);
+        synchronized (mChannelsListeners) {
+            mChannelsListeners.remove(listener);
+        }
     }
 
     private void notifyInfoChanged() {
-        for (InfoChangeListener listener : mInfoListeners)
-            listener.onConnectionInfoChanged(this);
-        mManager.notifyConnectionInfoChanged(this);
+        synchronized (mInfoListeners) {
+            for (InfoChangeListener listener : mInfoListeners)
+                listener.onConnectionInfoChanged(this);
+            mManager.notifyConnectionInfoChanged(this);
+        }
     }
 
     public interface InfoChangeListener {
