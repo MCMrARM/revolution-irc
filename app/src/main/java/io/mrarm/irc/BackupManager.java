@@ -28,6 +28,7 @@ import java.io.StringWriter;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import io.mrarm.irc.preference.ListWithCustomPreference;
 import io.mrarm.irc.util.SettingsHelper;
@@ -38,6 +39,8 @@ public class BackupManager {
     private static final String BACKUP_PREF_VALUES_PREFIX = "pref_values/";
     private static final String BACKUP_SERVER_PREFIX = "servers/server-";
     private static final String BACKUP_SERVER_SUFFIX = ".json";
+    private static final String BACKUP_SERVER_CERTS_PREFIX = "servers/server-certs-";
+    private static final String BACKUP_SERVER_CERTS_SUFFIX = ".jks";
     private static final String BACKUP_NOTIFICATION_RULES_PATH = "notification_rules.json";
     private static final String BACKUP_COMMAND_ALIASES_PATH = "command_aliases.json";
 
@@ -62,16 +65,22 @@ public class BackupManager {
 
             for (File f : SettingsHelper.getInstance(context).getCustomFiles()) {
                 params.setFileNameInZip(BACKUP_PREF_VALUES_PREFIX + f.getName());
-                zipFile.addFile(file, params);
+                zipFile.addFile(f, params);
             }
 
             StringWriter writer;
 
-            for (ServerConfigData data : ServerConfigManager.getInstance(context).getServers()) {
+            ServerConfigManager configManager = ServerConfigManager.getInstance(context);
+            for (ServerConfigData data : configManager.getServers()) {
                 writer = new StringWriter();
                 SettingsHelper.getGson().toJson(data, writer);
                 params.setFileNameInZip(BACKUP_SERVER_PREFIX + data.uuid + BACKUP_SERVER_SUFFIX);
                 zipFile.addStream(new ByteArrayInputStream(writer.toString().getBytes()), params);
+                File sslCertsFile = configManager.getServerSSLCertsFile(data.uuid);
+                if (sslCertsFile.exists()) {
+                    params.setFileNameInZip(BACKUP_SERVER_CERTS_PREFIX + data.uuid + BACKUP_SERVER_CERTS_SUFFIX);
+                    zipFile.addFile(sslCertsFile, params);
+                }
             }
 
             writer = new StringWriter();
@@ -139,6 +148,15 @@ public class BackupManager {
                             ServerConfigData.class);
                     reader.close();
                     ServerConfigManager.getInstance(context).saveServer(data);
+                }
+                if (fileHeader.getFileName().startsWith(BACKUP_SERVER_CERTS_PREFIX) &&
+                        fileHeader.getFileName().endsWith(BACKUP_SERVER_CERTS_SUFFIX)) {
+                    String uuid = fileHeader.getFileName();
+                    uuid = uuid.substring(BACKUP_SERVER_CERTS_PREFIX.length(), uuid.length() -
+                            BACKUP_SERVER_CERTS_SUFFIX.length());
+                    File sslFile = ServerConfigManager.getInstance(context).getServerSSLCertsFile(
+                            UUID.fromString(uuid));
+                    zipFile.extractFile(fileHeader, sslFile.getParent(), null, sslFile.getName());
                 }
                 if (fileHeader.getFileName().startsWith(BACKUP_PREF_VALUES_PREFIX)) {
                     String name = fileHeader.getFileName();
