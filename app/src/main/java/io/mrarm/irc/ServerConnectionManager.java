@@ -107,7 +107,7 @@ public class ServerConnectionManager {
         }
 
         if (data.ssl) {
-            ServerSSLHelper sslHelper = new ServerSSLHelper(null);
+            ServerSSLHelper sslHelper = new ServerSSLHelper(ServerConfigManager.getInstance(mContext).getServerSSLCertsFile(data.uuid));
             request.enableSSL(sslHelper.createSocketFactory(), sslHelper.createHostnameVerifier());
         }
         ServerConnectionInfo connectionInfo = new ServerConnectionInfo(this, data.uuid, data.name, request, saslOptions, data.autojoinChannels);

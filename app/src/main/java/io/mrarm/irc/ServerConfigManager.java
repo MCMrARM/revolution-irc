@@ -26,6 +26,8 @@ public class ServerConfigManager {
     private static final String SERVERS_PATH = "servers";
     private static final String SERVER_FILE_PREFIX = "server-";
     private static final String SERVER_FILE_SUFFIX = ".json";
+    private static final String SERVER_CERTS_FILE_PREFIX = "server-certs-";
+    private static final String SERVER_CERTS_FILE_SUFFIX = ".jks";
     private static final String SERVER_LOGS_PATH = "chat-logs";
 
     public static ServerConfigManager getInstance(Context context) {
@@ -108,6 +110,10 @@ public class ServerConfigManager {
     public void deleteAllServers() {
         while (mServers.size() > 0)
             deleteServer(mServers.get(mServers.size() - 1));
+    }
+
+    public File getServerSSLCertsFile(UUID uuid) {
+        return new File(mServersPath, SERVER_CERTS_FILE_PREFIX + uuid.toString() + SERVER_CERTS_FILE_SUFFIX);
     }
 
     public File getServerChatLogDir(UUID uuid) {
