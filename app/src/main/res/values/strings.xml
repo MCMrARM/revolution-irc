@@ -174,8 +174,10 @@
     <string name="pref_title_default_nick">Default nick</string>
     <string name="pref_title_default_user">Default user</string>
     <string name="pref_title_default_realname">Default real name</string>
+    <string name="pref_title_default_quit_message">Disconnect (quit) message</string>
     <string name="pref_title_default_part_message">Channel leave message</string>
 
+    <string name="pref_value_default_quit_message">Quit</string>
     <string name="pref_value_default_part_message">Leaving</string>
 
     <!-- Interface settings -->

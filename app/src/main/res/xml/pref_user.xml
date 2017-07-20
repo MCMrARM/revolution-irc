@@ -30,6 +30,16 @@
     <EditTextPreference
         android:capitalize="words"
         android:inputType="textCapWords"
+        android:key="default_quit_message"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/pref_title_default_quit_message"
+        android:defaultValue="@string/pref_value_default_quit_message" />
+
+    <EditTextPreference
+        android:capitalize="words"
+        android:inputType="textCapWords"
         android:key="default_part_message"
         android:maxLines="1"
         android:selectAllOnFocus="true"

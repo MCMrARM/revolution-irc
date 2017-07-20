@@ -237,6 +237,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                             preference.setSummary(mDefaultNickPreference.getSummary());
                         return true;
                     });
+
+            bindPreferenceSummaryToValue(findPreference("default_quit_message"));
             bindPreferenceSummaryToValue(findPreference("default_part_message"));
         }
     }

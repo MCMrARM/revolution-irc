@@ -25,6 +25,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     public static final String PREF_DEFAULT_NICK = "default_nick";
     public static final String PREF_DEFAULT_USER = "default_user";
     public static final String PREF_DEFAULT_REALNAME = "default_realname";
+    public static final String PREF_DEFAULT_QUIT_MESSAGE = "default_quit_message";
     public static final String PREF_DEFAULT_PART_MESSAGE = "default_part_message";
     public static final String PREF_RECONNECT_ENABLED = "reconnect_enabled";
     public static final String PREF_RECONNECT_CONNCHG = "reconnect_connchg";
@@ -126,6 +127,11 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
 
     public String getDefaultRealname() {
         return mPreferences.getString(PREF_DEFAULT_REALNAME, null);
+    }
+
+    public String getDefaultQuitMessage() {
+        return mPreferences.getString(PREF_DEFAULT_QUIT_MESSAGE,
+                mContext.getString(R.string.pref_value_default_quit_message));
     }
 
     public String getDefaultPartMessage() {

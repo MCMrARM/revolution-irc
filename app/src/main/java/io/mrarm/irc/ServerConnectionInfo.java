@@ -127,8 +127,8 @@ public class ServerConnectionInfo {
 
     public void disconnect() {
         mUserDisconnectRequest = true;
-        if (mApi instanceof IRCConnection)
-            ((IRCConnection) mApi).disconnect(null, null);
+        String message = SettingsHelper.getInstance(mManager.getContext()).getDefaultQuitMessage();
+        mApi.quit(message, null, null);
     }
 
     private void notifyDisconnected() {
