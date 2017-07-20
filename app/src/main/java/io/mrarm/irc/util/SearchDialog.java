@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 
 import java.util.List;
@@ -49,6 +50,8 @@ public abstract class SearchDialog extends AppCompatDialog implements SearchView
         // mRecyclerView.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
 
         mSearchView.setOnQueryTextListener(this);
+        mSearchView.setImeOptions((mSearchView.getImeOptions() & ~EditorInfo.IME_MASK_ACTION) |
+                EditorInfo.IME_ACTION_GO);
     }
 
     @Override
