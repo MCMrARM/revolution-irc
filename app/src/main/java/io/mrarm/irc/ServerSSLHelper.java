@@ -2,6 +2,7 @@ package io.mrarm.irc;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Typeface;
 import android.text.SpannableString;
@@ -16,6 +17,10 @@ import android.widget.TextView;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.ref.WeakReference;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -27,7 +32,9 @@ import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -50,26 +57,84 @@ public class ServerSSLHelper {
 
     private static final String TAG = "ServerSSLHelper";
 
-    public static final String CONFIG_NAME = "SSLCustomCerts";
+    private static final Map<String, WeakReference<ServerSSLHelper>> mInstances = new HashMap<>();
+
+    public static ServerSSLHelper get(File file) {
+        synchronized (mInstances) {
+            WeakReference<ServerSSLHelper> instance = mInstances.get(file.getAbsolutePath());
+            if (instance != null) {
+                ServerSSLHelper helper = instance.get();
+                if (helper != null)
+                    return helper;
+            }
+            ServerSSLHelper ret = new ServerSSLHelper(file);
+            mInstances.put(file.getAbsolutePath(), new WeakReference<>(ret));
+            return ret;
+        }
+    }
+
+    public static ServerSSLHelper get(Context context, UUID serverUUID) {
+        return get(ServerConfigManager.getInstance(context).getServerSSLCertsFile(serverUUID));
+    }
 
     private File mKeyStoreFile;
     private KeyStore mKeyStore;
+    private X509TrustManager mKeyStoreTrustManager;
     private List<X509Certificate> mTempTrustedCertificates;
 
-    public ServerSSLHelper(File keyStoreFile) {
+    private ServerSSLHelper(File keyStoreFile) {
         mKeyStoreFile = keyStoreFile;
-        if (keyStoreFile != null && keyStoreFile.exists())
-            loadKeyStore();
+        if (keyStoreFile != null && keyStoreFile.exists()) {
+            try {
+                loadKeyStore(new FileInputStream(mKeyStoreFile));
+            } catch (Exception e) {
+                Log.w("ServerSSLHelper", "Failed to load keystore");
+                mKeyStore = null;
+            }
+        }
     }
 
-    private void loadKeyStore() {
-        try {
-            mKeyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            mKeyStore.load(new FileInputStream(mKeyStoreFile), null);
-        } catch (Exception e) {
-            Log.w("ServerSSLHelper", "Failed to load keystore");
-            mKeyStore = null;
+    @Override
+    protected void finalize() throws Throwable {
+        synchronized (mInstances) {
+            String path = mKeyStoreFile.getAbsolutePath();
+            if (mInstances.containsKey(path)) {
+                if (mInstances.get(path).get() == this)
+                    mInstances.remove(path);
+            }
         }
+        super.finalize();
+    }
+
+    public void loadKeyStore(InputStream stream) throws KeyStoreException, IOException,
+            CertificateException, NoSuchAlgorithmException {
+        synchronized (this) {
+            mKeyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            mKeyStore.load(stream, null);
+        }
+    }
+
+    private void createKeyStoreIfNull() throws KeyStoreException, IOException, CertificateException,
+            NoSuchAlgorithmException {
+        synchronized (this) {
+            if (mKeyStore == null) {
+                mKeyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+                mKeyStore.load(null, null);
+            }
+        }
+    }
+
+    public void saveKeyStore(OutputStream stream) throws KeyStoreException, IOException,
+            CertificateException, NoSuchAlgorithmException {
+        synchronized (this) {
+            createKeyStoreIfNull();
+            mKeyStore.store(stream, null);
+        }
+    }
+
+    public void saveKeyStore() throws KeyStoreException, IOException, CertificateException,
+            NoSuchAlgorithmException {
+        saveKeyStore(new FileOutputStream(mKeyStoreFile));
     }
 
     private Future<Boolean> askUser(X509Certificate certificate, int stringId, Object... stringArgs) {
@@ -99,30 +164,27 @@ public class ServerSSLHelper {
     }
 
     public void addCertificateException(X509Certificate certificate, boolean temporary) {
-        if (temporary) {
-            if (mTempTrustedCertificates == null)
-                mTempTrustedCertificates = new ArrayList<>();
-            mTempTrustedCertificates.add(certificate);
-            return;
-        }
-        try {
-            if (mKeyStore == null) {
-                mKeyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-                mKeyStore.load(null, null);
+        synchronized (this) {
+            if (temporary) {
+                if (mTempTrustedCertificates == null)
+                    mTempTrustedCertificates = new ArrayList<>();
+                mTempTrustedCertificates.add(certificate);
+                return;
             }
-            mKeyStore.setCertificateEntry("cert-" + UUID.randomUUID(), certificate);
-            if (mKeyStoreFile != null)
-                mKeyStore.store(new FileOutputStream(mKeyStoreFile), null);
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to add certificate exception");
-            e.printStackTrace();
+            try {
+                createKeyStoreIfNull();
+                mKeyStore.setCertificateEntry("cert-" + UUID.randomUUID(), certificate);
+                if (mKeyStoreFile != null)
+                    saveKeyStore();
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to add certificate exception");
+                e.printStackTrace();
+            }
         }
     }
 
     public TrustManager createTrustManager() {
         final X509TrustManager defaultTrustManager = getKeyStoreTrustManager(null);
-        final X509TrustManager myTrustManager = mKeyStore != null ?
-                getKeyStoreTrustManager(mKeyStore) : null;
         return new X509TrustManager() {
             @Override
             public void checkClientTrusted(X509Certificate[] chain, String authType)
@@ -136,20 +198,24 @@ public class ServerSSLHelper {
                 try {
                     defaultTrustManager.checkServerTrusted(chain, authType);
                 } catch (Exception e) {
-                    try {
-                        myTrustManager.checkServerTrusted(chain, authType);
-                    } catch (Exception e2) {
-                        if (mTempTrustedCertificates != null && mTempTrustedCertificates.contains(chain[0])) {
-                            Log.i(TAG, "A temporarily trusted certificate is being used - trusting the server");
-                            return;
-                        }
-                        Log.i(TAG, "Unrecognized certificate");
+                    synchronized (ServerSSLHelper.this) {
                         try {
-                            X509Certificate cert = chain[0];
-                            if (!askUser(cert, R.string.certificate_bad_cert).get())
-                                throw new CertificateException("User rejected the certificate");
-                        } catch (InterruptedException | ExecutionException e3) {
-                            throw new CertificateException("Asking user about the certificate failed");
+                            if (mKeyStoreTrustManager == null && mKeyStore != null)
+                                mKeyStoreTrustManager = getKeyStoreTrustManager(mKeyStore);
+                            mKeyStoreTrustManager.checkServerTrusted(chain, authType);
+                        } catch (Exception e2) {
+                            if (mTempTrustedCertificates != null && mTempTrustedCertificates.contains(chain[0])) {
+                                Log.i(TAG, "A temporarily trusted certificate is being used - trusting the server");
+                                return;
+                            }
+                            Log.i(TAG, "Unrecognized certificate");
+                            try {
+                                X509Certificate cert = chain[0];
+                                if (!askUser(cert, R.string.certificate_bad_cert).get())
+                                    throw new CertificateException("User rejected the certificate");
+                            } catch (InterruptedException | ExecutionException e3) {
+                                throw new CertificateException("Asking user about the certificate failed");
+                            }
                         }
                     }
                 }
@@ -175,13 +241,15 @@ public class ServerSSLHelper {
                 return false;
             }
             try {
-                if (mTempTrustedCertificates != null && mTempTrustedCertificates.contains(cert)) {
-                    Log.i(TAG, "Accepting hostname as a temporarily trusted certificate is being used");
-                    return true;
-                }
-                if (mKeyStore != null && mKeyStore.getCertificateAlias(cert) != null) {
-                    Log.i(TAG, "Accepting hostname as a custom cert is being used");
-                    return true;
+                synchronized (this) {
+                    if (mTempTrustedCertificates != null && mTempTrustedCertificates.contains(cert)) {
+                        Log.i(TAG, "Accepting hostname as a temporarily trusted certificate is being used");
+                        return true;
+                    }
+                    if (mKeyStore != null && mKeyStore.getCertificateAlias(cert) != null) {
+                        Log.i(TAG, "Accepting hostname as a custom cert is being used");
+                        return true;
+                    }
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Failed to find the certificate in the custom key store");
@@ -242,7 +310,7 @@ public class ServerSSLHelper {
     public SocketFactory createSocketFactory() {
         try {
             SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, new TrustManager[]{ createTrustManager() }, null);
+            sslContext.init(null, new TrustManager[]{createTrustManager()}, null);
             return sslContext.getSocketFactory();
         } catch (NoSuchAlgorithmException | KeyManagementException e) {
             throw new RuntimeException("Failed to create a SSL socket factory");

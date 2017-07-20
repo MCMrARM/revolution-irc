@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
+import java.security.GeneralSecurityException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -78,8 +79,10 @@ public class BackupManager {
                 zipFile.addStream(new ByteArrayInputStream(writer.toString().getBytes()), params);
                 File sslCertsFile = configManager.getServerSSLCertsFile(data.uuid);
                 if (sslCertsFile.exists()) {
-                    params.setFileNameInZip(BACKUP_SERVER_CERTS_PREFIX + data.uuid + BACKUP_SERVER_CERTS_SUFFIX);
-                    zipFile.addFile(sslCertsFile, params);
+                    synchronized (ServerSSLHelper.get(sslCertsFile)) { // lock the helper to prevent any writes to the file
+                        params.setFileNameInZip(BACKUP_SERVER_CERTS_PREFIX + data.uuid + BACKUP_SERVER_CERTS_SUFFIX);
+                        zipFile.addFile(sslCertsFile, params);
+                    }
                 }
             }
 
@@ -154,9 +157,13 @@ public class BackupManager {
                     String uuid = fileHeader.getFileName();
                     uuid = uuid.substring(BACKUP_SERVER_CERTS_PREFIX.length(), uuid.length() -
                             BACKUP_SERVER_CERTS_SUFFIX.length());
-                    File sslFile = ServerConfigManager.getInstance(context).getServerSSLCertsFile(
-                            UUID.fromString(uuid));
-                    zipFile.extractFile(fileHeader, sslFile.getParent(), null, sslFile.getName());
+                    ServerSSLHelper helper = ServerSSLHelper.get(context, UUID.fromString(uuid));
+                    try {
+                        helper.loadKeyStore(zipFile.getInputStream(fileHeader));
+                        helper.saveKeyStore();
+                    } catch (GeneralSecurityException exception) {
+                        throw new IOException(exception);
+                    }
                 }
                 if (fileHeader.getFileName().startsWith(BACKUP_PREF_VALUES_PREFIX)) {
                     String name = fileHeader.getFileName();
