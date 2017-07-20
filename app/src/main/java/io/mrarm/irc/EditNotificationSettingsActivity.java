@@ -538,8 +538,9 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
                 summaryText.append(s != null ? s.name : "null");
                 summaryText.append(mDesc.getContext().getString(R.string.text_comma));
                 if (entry.mEntry.channels != null && entry.mEntry.channels.size() > 0) {
-                    if (entry.mEntry.channels.size() > 1) {
-                        summaryText.append(mDesc.getContext().getString(R.string.notification_rule_summary_multi_channels, entry.mEntry.channels.size()));
+                    int count = entry.mEntry.channels.size();
+                    if (count > 1) {
+                        summaryText.append(mDesc.getResources().getQuantityString(R.plurals.notification_rule_summary_multi_channels, count, count));
                     } else {
                         summaryText.append(entry.mEntry.channels.get(0));
                     }
@@ -551,8 +552,9 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
             }
             summaryText.append(mDesc.getContext().getString(R.string.text_comma));
             if (entry.mEntry.nicks != null && entry.mEntry.nicks.size() > 0) {
-                if (entry.mEntry.nicks.size() > 1) {
-                    summaryText.append(mDesc.getContext().getString(R.string.notification_rule_summary_multi_nicks, entry.mEntry.nicks.size()));
+                int count = entry.mEntry.nicks.size();
+                if (count > 1) {
+                    summaryText.append(mDesc.getResources().getQuantityString(R.plurals.notification_rule_summary_multi_nicks, count, count));
                 } else {
                     summaryText.append(entry.mEntry.nicks.get(0));
                 }

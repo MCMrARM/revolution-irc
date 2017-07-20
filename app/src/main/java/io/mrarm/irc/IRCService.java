@@ -69,9 +69,10 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
             return START_STICKY;
         if (action.equals(ACTION_START_FOREGROUND)) {
             Intent mainIntent = new Intent(this, MainActivity.class);
+            int connectionCount = ServerConnectionManager.getInstance(this).getConnections().size();
             Notification notification = new NotificationCompat.Builder(this)
                     .setContentTitle(getString(R.string.service_title))
-                    .setContentText(getString(R.string.service_status, ServerConnectionManager.getInstance(this).getConnections().size()))
+                    .setContentText(getResources().getQuantityString(R.plurals.service_status, connectionCount, connectionCount))
                     .setSmallIcon(R.drawable.ic_server_connected)
                     .setPriority(NotificationCompat.PRIORITY_MIN)
                     .setContentIntent(PendingIntent.getActivity(this, 0, mainIntent, 0))
@@ -114,6 +115,7 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
                 .setColor(getResources().getColor(R.color.colorNotificationMention));
         boolean first = true;
         boolean isLong = false;
+        int notificationCount = 0;
         StringBuilder longBuilder = new StringBuilder();
         for (ServerConnectionInfo info : ServerConnectionManager.getInstance(this).getConnections()) {
             for (NotificationManager.ChannelNotificationData notificationData : info.getNotificationManager().getChannelNotificationDataList()) {
@@ -130,12 +132,13 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
                         isLong = true;
                     }
                     longBuilder.append(notificationData.getChannel());
+                    notificationCount++;
                 }
             }
         }
         if (isLong) {
             notification
-                    .setContentTitle(getString(R.string.notify_multiple_messages))
+                    .setContentTitle(getResources().getQuantityString(R.plurals.notify_multiple_messages, notificationCount, notificationCount))
                     .setContentText(longBuilder.toString())
                     .setContentIntent(PendingIntent.getActivity(this, CHAT_SUMMARY_NOTIFICATION_ID, new Intent(this, MainActivity.class), PendingIntent.FLAG_CANCEL_CURRENT));
         }

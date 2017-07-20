@@ -84,7 +84,7 @@ public class ServerSSLHelper {
             ((TextView) view.findViewById(R.id.error_certificate)).setText(buildCertOverviewString(certificate));
             ((TextView) view.findViewById(R.id.error_header)).setText(String.format(activity.getString(stringId), stringArgs));
             builder.setView(view);
-            builder.setPositiveButton(R.string.certificate_error_cancel, (DialogInterface dialog, int which) -> {
+            builder.setPositiveButton(R.string.action_cancel, (DialogInterface dialog, int which) -> {
                 ret.set(false);
             });
             builder.setNegativeButton(R.string.certificate_error_ignore, (DialogInterface dialog, int which) -> {

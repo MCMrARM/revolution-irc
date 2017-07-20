@@ -342,7 +342,8 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             if (connectionInfo.isConnected()) {
                 DrawableCompat.setTint(d, adapter.mColorConnected);
                 mIcon.setImageResource(R.drawable.ic_server_connected);
-                mDesc.setText(mDesc.getContext().getString(R.string.server_list_connected, connectionInfo.getChannels().size()));
+                int channels = connectionInfo.getChannels().size();
+                mDesc.setText(mDesc.getResources().getQuantityString(R.plurals.server_list_connected, channels, channels));
             } else {
                 DrawableCompat.setTint(d, adapter.mColorConnecting);
                 mIcon.setImageResource(R.drawable.ic_refresh);

@@ -38,7 +38,7 @@
 
     <!-- Actions -->
 
-    <string name="action_ok">Ok</string>
+    <string name="action_ok">OK</string>
     <string name="action_done">Done</string>
     <string name="action_delete">Delete</string>
     <string name="action_edit">Edit</string>
@@ -66,7 +66,7 @@
     <string name="action_close_direct">Close conversation</string>
 
     <string name="action_delete_confirm_title">Are you sure?</string>
-    <string name="action_delete_confirm_body">Are you sure you want to delete %1$s? This cannot be undone.</string>
+    <string name="action_delete_confirm_body">Are you sure you want to delete %s? This cannot be undone.</string>
 
     <!-- Format -->
 
@@ -80,15 +80,24 @@
     <!-- Service -->
 
     <string name="service_title">Connected to IRC</string>
-    <string name="service_status">Connected to %1$d networks.</string>
-    <string name="notify_multiple_messages">%1$d unread messages</string>
+    <plurals name="service_status">
+        <item quantity="one">Connected to %d network.</item>
+        <item quantity="other">Connected to %d networks.</item>
+    </plurals>
+    <plurals name="notify_multiple_messages">
+        <item quantity="one">%d unread message</item>
+        <item quantity="other">%d unread messages</item>
+    </plurals>
 
     <!-- Server list -->
 
     <string name="server_list_header_active">Active</string>
     <string name="server_list_header_inactive">Inactive</string>
-    <string name="server_list_connected">Connected, %1$d channels</string>
-    <string name="server_list_connecting">Connecting...</string>
+    <plurals name="server_list_connected">
+        <item quantity="one">Connected, %d channel</item>
+        <item quantity="other">Connected, %d channels</item>
+    </plurals>
+    <string name="server_list_connecting">Connecting…</string>
 
     <!-- Add server -->
 
@@ -117,7 +126,6 @@
 
     <string name="certificate_error">Failed to verify certificate</string>
     <string name="certificate_error_ignore">Accept and continue</string>
-    <string name="certificate_error_cancel">Cancel</string>
     <string name="certificate_bad_cert">The following certificate is not recognized by the system:</string>
     <string name="certificate_bad_hostname">The hostname provided in the certificate (%1$s) by the host does not match the hostname we are connecting to (%2$s).</string>
     <string name="certificate_error_footer">You shouldn\'t accept this certificate if you aren\'t sure what this means.</string>
@@ -282,9 +290,13 @@
     <string name="notification_rule_nicks">Nicks</string>
     <string name="notification_rule_summary_any_server">Any server</string>
     <string name="notification_rule_summary_any_channel">any channel</string>
-    <string name="notification_rule_summary_multi_channels">%1$d channels</string>
+    <plurals name="notification_rule_summary_multi_channels">
+        <item quantity="other">%d channels</item>
+    </plurals>
     <string name="notification_rule_summary_any_nick">any nick</string>
-    <string name="notification_rule_summary_multi_nicks">%1$d nicks</string>
+    <plurals name="notification_rule_summary_multi_nicks">
+        <item quantity="other">%d nicks</item>
+    </plurals>
 
     <string name="notification_header_options">Options</string>
     <string name="notification_show">Show notification</string>
