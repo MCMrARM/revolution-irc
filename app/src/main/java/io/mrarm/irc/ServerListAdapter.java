@@ -80,7 +80,7 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             if (hadHeader)
                 notifyItemInserted(ServerConnectionManager.getInstance(mContext).getConnections().indexOf(connection) + 1 + getActiveHeaderIndex());
             else
-                notifyItemRangeChanged(getActiveHeaderIndex(), 2);
+                notifyItemRangeInserted(getActiveHeaderIndex(), 3);
             if (oldInactiveIndex != -1 && getInactiveHeaderIndex() != -1)
                 notifyItemRemoved(getInactiveHeaderIndex() + 1 + oldInactiveIndex);
             else if (oldInactiveIndex != -1)
