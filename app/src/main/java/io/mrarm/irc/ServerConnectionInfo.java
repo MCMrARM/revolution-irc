@@ -59,7 +59,7 @@ public class ServerConnectionInfo {
     }
 
     private void setApi(ChatApi api) {
-        synchronized (mApi) {
+        synchronized (this) {
             mApi = api;
             api.getJoinedChannelList((List<String> channels) -> {
                 setChannels(channels);
