@@ -25,6 +25,7 @@ import java.io.InputStreamReader;
 import java.util.UUID;
 
 import io.mrarm.chatlib.ChatApi;
+import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.chatlib.test.TestApiImpl;
 import io.mrarm.irc.drawer.DrawerHelper;
 import io.mrarm.irc.util.NightModeRecreateHelper;
@@ -223,6 +224,7 @@ public class MainActivity extends AppCompatActivity {
         boolean hasChanges = false;
         if (getCurrentFragment() instanceof ChatFragment) {
             ChatFragment fragment = ((ChatFragment) getCurrentFragment());
+            ServerConnectionApi api = ((ServerConnectionApi) fragment.getConnectionInfo().getApiInstance());
             boolean connected = fragment.getConnectionInfo().isConnected();
             boolean wasConnected = !menu.findItem(R.id.action_reconnect).isVisible();
             if (connected != wasConnected) {
@@ -241,6 +243,23 @@ public class MainActivity extends AppCompatActivity {
                     menu.findItem(R.id.action_format).isVisible()) {
                 menu.findItem(R.id.action_format).setVisible(fragment.hasSendMessageTextSelection());
                 hasChanges = true;
+            }
+            MenuItem partItem = menu.findItem(R.id.action_part_channel);
+            if (fragment.getCurrentChannel() == null) {
+                if (partItem.isVisible())
+                    hasChanges = true;
+                partItem.setVisible(false);
+            } else if (fragment.getCurrentChannel().length() > 0 && !api.getServerConnectionData()
+                    .getSupportList().getSupportedChannelTypes().contains(fragment.getCurrentChannel().charAt(0))) {
+                if (partItem.isVisible() || !partItem.getTitle().equals(getString(R.string.action_close_direct)))
+                    hasChanges = true;
+                partItem.setVisible(true);
+                partItem.setTitle(R.string.action_close_direct);
+            } else {
+                if (partItem.isVisible() || !partItem.getTitle().equals(getString(R.string.action_part_channel)))
+                    hasChanges = true;
+                partItem.setVisible(true);
+                partItem.setTitle(R.string.action_part_channel);
             }
         }
         return super.onPrepareOptionsMenu(menu) | hasChanges;
