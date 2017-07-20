@@ -7,6 +7,10 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
 
+    <color name="searchDialogDim">#99000000</color>
+    <color name="searchColorPrimary">#FFFFFF</color>
+    <color name="searchColorPrimaryDark">#EEEEEE</color>
+
     <color name="userAwayColorPrimary">#FF5722</color>
     <color name="userAwayColorPrimaryDark">#E64A19</color>
 
