@@ -74,8 +74,10 @@ public class ServerConnectionManager {
             if (saveAutoconnect)
                 saveAutoconnectList();
         }
-        for (ConnectionsListener listener : mListeners)
-            listener.onConnectionAdded(connection);
+        synchronized (mListeners) {
+            for (ConnectionsListener listener : mListeners)
+                listener.onConnectionAdded(connection);
+        }
     }
 
     public void addConnection(ServerConnectionInfo connection) {
@@ -136,8 +138,10 @@ public class ServerConnectionManager {
             if (saveAutoconnect)
                 saveAutoconnectList();
         }
-        for (ConnectionsListener listener : mListeners)
-            listener.onConnectionRemoved(connection);
+        synchronized (mListeners) {
+            for (ConnectionsListener listener : mListeners)
+                listener.onConnectionRemoved(connection);
+        }
     }
 
     public void removeConnection(ServerConnectionInfo connection) {

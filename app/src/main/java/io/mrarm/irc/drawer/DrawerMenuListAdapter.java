@@ -22,6 +22,7 @@ import java.util.TreeMap;
 
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
+import io.mrarm.irc.ServerConnectionManager;
 import io.mrarm.irc.util.ExpandIconStateHelper;
 
 public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -32,6 +33,7 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private static final int TYPE_DIVIDER = 3;
     private static final int TYPE_MENU_ITEM = 4;
 
+    private Context mContext;
     private List<ServerConnectionInfo> mServers;
     private ArrayList<DrawerMenuItem> mMenuItems = new ArrayList<>();
     private TreeMap<Integer, ServerConnectionInfo> mItemIndexToServerMap = new TreeMap<>();
@@ -45,8 +47,8 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private int mDefaultForegroundColor;
     private int mSelectedForegroundColor;
 
-    public DrawerMenuListAdapter(Context context, List<ServerConnectionInfo> servers) {
-        mServers = servers;
+    public DrawerMenuListAdapter(Context context) {
+        mContext = context;
         notifyServerListChanged();
 
         TypedArray ta = context.obtainStyledAttributes(new int[] { R.attr.selectableItemBackground, R.attr.colorControlHighlight, R.attr.colorAccent, android.R.attr.textColorPrimary });
@@ -125,6 +127,7 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     public void notifyServerListChanged() {
+        mServers = ServerConnectionManager.getInstance(mContext).getConnections();
         updateItemIndexToServerMap();
         notifyDataSetChanged();
     }
