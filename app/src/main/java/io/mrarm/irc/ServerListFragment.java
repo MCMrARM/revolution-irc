@@ -53,11 +53,19 @@ public class ServerListFragment extends Fragment {
             builder.setTitle(info.getName());
             builder.setItems(new CharSequence[] {
                     getString(R.string.action_open),
+                    getString(R.string.action_edit),
+                    getString(R.string.action_clone),
                     getString(R.string.action_disconnect_and_close)
             }, (DialogInterface dialog, int which) -> {
                 if (which == 0) { // open
                     ((MainActivity) getActivity()).openServer(info, null);
-                } else if (which == 1) { // disconnect
+                } else if (which == 1) { // edit
+                    ServerConfigData data = ServerConfigManager.getInstance(getContext()).findServer(info.getUUID());
+                    startActivity(EditServerActivity.getLaunchIntent(getContext(), data));
+                } else if (which == 2) { // clone
+                    ServerConfigData data = ServerConfigManager.getInstance(getContext()).findServer(info.getUUID());
+                    startActivity(EditServerActivity.getLaunchIntent(getContext(), data, true));
+                } else if (which == 3) { // disconnect
                     info.disconnect();
                     ServerConnectionManager.getInstance(getContext()).removeConnection(info);
                     IRCService.start(getContext());

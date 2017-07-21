@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 import io.mrarm.irc.config.ServerConfigData;
@@ -218,10 +219,18 @@ public class EditServerActivity extends AppCompatActivity {
     }
 
     private void save() {
+        boolean addConnection = false;
         if (mEditServer == null) {
             mEditServer = new ServerConfigData();
             mEditServer.uuid = UUID.randomUUID();
             mEditServer.authPass = mOldServerAuthPass;
+        } else {
+            ServerConnectionInfo conn = ServerConnectionManager.getInstance(this).getConnection(mEditServer.uuid);
+            if (conn != null) {
+                conn.disconnect();
+                ServerConnectionManager.getInstance(this).removeConnection(conn);
+                addConnection = true;
+            }
         }
         mEditServer.name = mServerName.getText().toString();
         mEditServer.address = mServerAddress.getText().toString();
@@ -254,6 +263,10 @@ public class EditServerActivity extends AppCompatActivity {
             e.printStackTrace();
 
             Toast.makeText(this, R.string.server_save_error, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (addConnection) {
+            ServerConnectionManager.getInstance(this).createConnection(mEditServer);
         }
     }
 
@@ -261,7 +274,8 @@ public class EditServerActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if (mEditServer != null) {
-            int count = ServerSSLHelper.get(this, mEditServer.uuid).getCertificateAliases().size();
+            List<String> aliases = ServerSSLHelper.get(this, mEditServer.uuid).getCertificateAliases();
+            int count = aliases != null ? aliases.size() : 0;
             mServerSSLCertsLbl.setText(getResources().getQuantityString(R.plurals.server_manage_custom_certs_text, count, count));
         }
     }
