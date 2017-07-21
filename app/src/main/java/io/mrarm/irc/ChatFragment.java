@@ -223,6 +223,11 @@ public class ChatFragment extends Fragment implements
                 }
             });
         });
+        mTabLayout.addOnLayoutChangeListener((View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) -> {
+            if (left == oldLeft && top == oldTop && right == oldRight && bottom == oldBottom)
+                return;
+            mTabLayout.setScrollPosition(mTabLayout.getSelectedTabPosition(), 0.f, false);
+        });
 
         SettingsHelper s = SettingsHelper.getInstance(getContext());
         s.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_APPBAR_COMPACT_MODE, this);
