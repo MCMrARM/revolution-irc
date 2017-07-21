@@ -9,6 +9,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import io.mrarm.chatlib.dto.NickWithPrefix;
+import io.mrarm.irc.dialog.UserBottomSheetDialog;
 
 public class ChannelMembersAdapter extends RecyclerView.Adapter<ChannelMembersAdapter.MemberHolder> {
 

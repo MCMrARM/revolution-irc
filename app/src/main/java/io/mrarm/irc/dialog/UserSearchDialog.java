@@ -1,4 +1,4 @@
-package io.mrarm.irc;
+package io.mrarm.irc.dialog;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -6,7 +6,9 @@ import android.support.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.mrarm.irc.util.SearchDialog;
+import io.mrarm.irc.MainActivity;
+import io.mrarm.irc.R;
+import io.mrarm.irc.ServerConnectionInfo;
 
 public class UserSearchDialog extends SearchDialog {
 

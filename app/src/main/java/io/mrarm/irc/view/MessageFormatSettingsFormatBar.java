@@ -6,11 +6,10 @@ import android.support.annotation.Nullable;
 import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
 
-import io.mrarm.irc.ColorPickerDialog;
+import io.mrarm.irc.dialog.ColorPickerDialog;
 import io.mrarm.irc.R;
 import io.mrarm.irc.util.IRCColorUtils;
 import io.mrarm.irc.util.MessageBuilder;
-import io.mrarm.irc.view.TextFormatBar;
 
 public class MessageFormatSettingsFormatBar extends TextFormatBar {
 

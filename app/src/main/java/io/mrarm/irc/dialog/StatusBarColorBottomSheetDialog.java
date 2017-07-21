@@ -1,4 +1,4 @@
-package io.mrarm.irc.util;
+package io.mrarm.irc.dialog;
 
 import android.app.Activity;
 import android.content.Context;

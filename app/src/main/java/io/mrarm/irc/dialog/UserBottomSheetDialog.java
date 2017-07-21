@@ -1,4 +1,4 @@
-package io.mrarm.irc;
+package io.mrarm.irc.dialog;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -19,8 +19,10 @@ import java.util.concurrent.TimeUnit;
 
 import io.mrarm.chatlib.ChatApi;
 import io.mrarm.chatlib.dto.WhoisInfo;
+import io.mrarm.irc.MainActivity;
+import io.mrarm.irc.R;
+import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.util.AdvancedDividerItemDecoration;
-import io.mrarm.irc.util.StatusBarColorBottomSheetDialog;
 
 public class UserBottomSheetDialog {
 

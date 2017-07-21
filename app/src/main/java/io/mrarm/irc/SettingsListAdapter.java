@@ -18,6 +18,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.mrarm.irc.dialog.ColorPickerDialog;
 import io.mrarm.irc.util.AdvancedDividerItemDecoration;
 import io.mrarm.irc.util.EntryRecyclerViewAdapter;
 import io.mrarm.irc.util.SimpleCounter;

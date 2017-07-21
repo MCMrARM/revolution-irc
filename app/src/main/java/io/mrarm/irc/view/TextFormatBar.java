@@ -23,7 +23,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import io.mrarm.irc.ColorPickerDialog;
+import io.mrarm.irc.dialog.ColorPickerDialog;
 import io.mrarm.irc.R;
 import io.mrarm.irc.util.SpannableStringHelper;
 
