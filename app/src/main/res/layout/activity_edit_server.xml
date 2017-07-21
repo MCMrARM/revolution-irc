@@ -130,7 +130,6 @@
                 android:layout_marginStart="64dp"
                 android:gravity="center_vertical"
                 android:layout_centerVertical="true"
-                android:text="@string/server_manage_custom_certs_placeholder"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
                 android:layout_toLeftOf="@+id/server_ssl_cert_manage"

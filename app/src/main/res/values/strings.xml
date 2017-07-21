@@ -107,7 +107,10 @@
     <string name="server_address">Server address</string>
     <string name="server_port">Port</string>
     <string name="server_ssl">Use SSL</string>
-    <string name="server_manage_custom_certs_placeholder">0 custom certificates saved</string>
+    <plurals name="server_manage_custom_certs_text">
+        <item quantity="one">%d custom certificates saved</item>
+        <item quantity="other">%d custom certificates saved</item>
+    </plurals>
     <string name="server_manage_custom_certs">Manage custom certificates</string>
     <string name="server_password_unchanged">Unchanged</string>
     <string name="server_authentication_mode">Authentication mode</string>
@@ -121,6 +124,12 @@
         <item>Server password</item>
         <item>Username with password (SASL)</item>
     </string-array>
+
+    <!-- Certificate manager -->
+
+    <string name="title_activity_certificate_manager">Certificate list</string>
+
+    <string name="certificate_manager_empty">There are no custom certificates saved.</string>
 
     <!-- Certificate error dialog -->
 

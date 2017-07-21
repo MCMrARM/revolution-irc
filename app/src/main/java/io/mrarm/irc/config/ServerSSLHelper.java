@@ -32,6 +32,8 @@ import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -184,6 +186,43 @@ public class ServerSSLHelper {
         }
     }
 
+    public void removeCertificate(String alias) {
+        synchronized (this) {
+            if (mKeyStore == null)
+                return;
+            try {
+                mKeyStore.deleteEntry(alias);
+                if (mKeyStoreFile != null)
+                    saveKeyStore();
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to remove certificate");
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public List<String> getCertificateAliases() {
+        synchronized (this) {
+            if (mKeyStore == null)
+                return null;
+            try {
+                return Collections.list(mKeyStore.aliases());
+            } catch (KeyStoreException e) {
+                return null;
+            }
+        }
+    }
+
+    public X509Certificate getCertificate(String alias) {
+        synchronized (this) {
+            try {
+                return (X509Certificate) mKeyStore.getCertificate(alias);
+            } catch (KeyStoreException e) {
+                return null;
+            }
+        }
+    }
+
     public TrustManager createTrustManager() {
         final X509TrustManager defaultTrustManager = getKeyStoreTrustManager(null);
         return new X509TrustManager() {
@@ -265,7 +304,7 @@ public class ServerSSLHelper {
         };
     }
 
-    private static SpannableString buildCertOverviewString(X509Certificate cert) {
+    public static SpannableString buildCertOverviewString(X509Certificate cert) {
         String sha1Fingerprint;
         try {
             StringBuilder builder = new StringBuilder();
@@ -280,9 +319,11 @@ public class ServerSSLHelper {
 
         ColoredTextBuilder builder = new ColoredTextBuilder();
         builder.append("Subject: ", new StyleSpan(Typeface.BOLD));
+        builder.append(cert.getSubjectX500Principal().getName().replace(",", ",\u200B"));
+        builder.append("\nApplies to: ", new StyleSpan(Typeface.BOLD));
         builder.append(buildCertAppliesToString(cert));
-        builder.append("\nIssuer:  ", new StyleSpan(Typeface.BOLD));
-        builder.append(cert.getIssuerDN().toString());
+        builder.append("\nIssuer: ", new StyleSpan(Typeface.BOLD));
+        builder.append(cert.getIssuerDN().toString().replace(",", ",\u200B"));
         builder.append("\nSHA1 fingerprint:\n", new StyleSpan(Typeface.BOLD));
         builder.append(sha1Fingerprint);
         return SpannableString.valueOf(builder.getSpannable());

@@ -16,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -23,6 +24,7 @@ import java.util.UUID;
 
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
+import io.mrarm.irc.config.ServerSSLHelper;
 import io.mrarm.irc.util.ExpandIconStateHelper;
 import io.mrarm.irc.util.SpinnerNoPaddingArrayAdapter;
 import io.mrarm.irc.view.StaticLabelTextInputLayout;
@@ -40,6 +42,8 @@ public class EditServerActivity extends AppCompatActivity {
     private EditText mServerAddress;
     private EditText mServerPort;
     private CheckBox mServerSSL;
+    private View mServerSSLCertsButton;
+    private TextView mServerSSLCertsLbl;
     private Spinner mServerAuthMode;
     private EditText mServerAuthUser;
     private TextInputLayout mServerAuthUserCtr;
@@ -106,6 +110,8 @@ public class EditServerActivity extends AppCompatActivity {
         mServerAddress = (EditText) findViewById(R.id.server_address_name);
         mServerPort = (EditText) findViewById(R.id.server_address_port);
         mServerSSL = (CheckBox) findViewById(R.id.server_ssl_checkbox);
+        mServerSSLCertsButton = findViewById(R.id.server_ssl_certs);
+        mServerSSLCertsLbl = (TextView) findViewById(R.id.server_ssl_cert_lbl);
         mServerAuthMode = (Spinner) findViewById(R.id.server_auth_mode);
         mServerAuthUser = (EditText) findViewById(R.id.server_username);
         mServerAuthUserCtr = (TextInputLayout) findViewById(R.id.server_username_ctr);
@@ -123,6 +129,12 @@ public class EditServerActivity extends AppCompatActivity {
         mServerUserExpandIcon.setOnClickListener((View view) -> {
             mServerUserExpandContent.setVisibility(mServerUserExpandContent.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
             ExpandIconStateHelper.animateSetExpanded(mServerUserExpandIcon, mServerUserExpandContent.getVisibility() == View.VISIBLE);
+        });
+
+        mServerSSLCertsButton.setOnClickListener((View v) -> {
+            Intent intent = new Intent(EditServerActivity.this, CertificateManagerActivity.class);
+            intent.putExtra(CertificateManagerActivity.ARG_SERVER_UUID, mEditServer.uuid.toString());
+            startActivity(intent);
         });
 
         SpinnerNoPaddingArrayAdapter<CharSequence> spinnerAdapter = new SpinnerNoPaddingArrayAdapter<>(this, android.R.layout.simple_spinner_item, getResources().getTextArray(R.array.server_auth_modes));
@@ -197,10 +209,11 @@ public class EditServerActivity extends AppCompatActivity {
             if (getIntent().getBooleanExtra(ARG_COPY, false)) {
                 mEditServer = null;
                 getSupportActionBar().setTitle(R.string.add_server);
+                mServerSSLCertsButton.setVisibility(View.GONE);
             }
         } else {
             getSupportActionBar().setTitle(R.string.add_server);
-            findViewById(R.id.server_ssl_certs).setVisibility(View.GONE);
+            mServerSSLCertsButton.setVisibility(View.GONE);
         }
     }
 
@@ -241,6 +254,15 @@ public class EditServerActivity extends AppCompatActivity {
             e.printStackTrace();
 
             Toast.makeText(this, R.string.server_save_error, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mEditServer != null) {
+            int count = ServerSSLHelper.get(this, mEditServer.uuid).getCertificateAliases().size();
+            mServerSSLCertsLbl.setText(getResources().getQuantityString(R.plurals.server_manage_custom_certs_text, count, count));
         }
     }
 
