@@ -29,6 +29,7 @@ import io.mrarm.chatlib.dto.NickChangeMessageInfo;
 import io.mrarm.chatlib.dto.StatusMessageInfo;
 import io.mrarm.irc.MessageFormatSettingsActivity;
 import io.mrarm.irc.R;
+import io.mrarm.irc.config.SettingsHelper;
 
 public class MessageBuilder {
 

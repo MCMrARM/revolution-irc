@@ -1,4 +1,4 @@
-package io.mrarm.irc;
+package io.mrarm.irc.config;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -13,7 +13,6 @@ import com.google.gson.JsonPrimitive;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.FileHeader;
-import net.lingala.zip4j.model.UnzipParameters;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
 
@@ -31,8 +30,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import io.mrarm.irc.ServerConnectionManager;
 import io.mrarm.irc.preference.ListWithCustomPreference;
-import io.mrarm.irc.util.SettingsHelper;
 
 public class BackupManager {
 

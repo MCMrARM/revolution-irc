@@ -10,7 +10,7 @@ import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.message.WrapperMessageStorageApi;
 import io.mrarm.chatlib.message.WritableMessageStorageApi;
 import io.mrarm.chatlib.util.InstantFuture;
-import io.mrarm.irc.ServerConfigData;
+import io.mrarm.irc.config.ServerConfigData;
 
 public class FilteredStorageApi extends WrapperMessageStorageApi
         implements WritableMessageStorageApi {

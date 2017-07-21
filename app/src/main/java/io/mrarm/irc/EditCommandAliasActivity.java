@@ -12,6 +12,8 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import io.mrarm.irc.config.CommandAliasManager;
+
 public class EditCommandAliasActivity extends AppCompatActivity {
 
     public static final String ARG_ALIAS_NAME = "alias_name";

@@ -10,8 +10,11 @@ import java.util.UUID;
 
 import io.mrarm.chatlib.irc.IRCConnectionRequest;
 import io.mrarm.chatlib.irc.cap.SASLOptions;
+import io.mrarm.irc.config.ServerConfigData;
+import io.mrarm.irc.config.ServerConfigManager;
+import io.mrarm.irc.config.ServerSSLHelper;
 import io.mrarm.irc.preference.ReconnectIntervalPreference;
-import io.mrarm.irc.util.SettingsHelper;
+import io.mrarm.irc.config.SettingsHelper;
 
 public class ServerConnectionManager {
 

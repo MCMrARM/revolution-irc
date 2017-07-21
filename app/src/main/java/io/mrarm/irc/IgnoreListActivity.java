@@ -11,6 +11,9 @@ import android.view.View;
 
 import java.util.UUID;
 
+import io.mrarm.irc.config.ServerConfigData;
+import io.mrarm.irc.config.ServerConfigManager;
+
 public class IgnoreListActivity extends AppCompatActivity {
 
     public static final String ARG_SERVER_UUID = "server_uuid";

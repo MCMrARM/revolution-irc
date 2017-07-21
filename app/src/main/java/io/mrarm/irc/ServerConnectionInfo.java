@@ -14,8 +14,10 @@ import io.mrarm.chatlib.irc.IRCConnection;
 import io.mrarm.chatlib.irc.IRCConnectionRequest;
 import io.mrarm.chatlib.irc.cap.SASLCapability;
 import io.mrarm.chatlib.irc.cap.SASLOptions;
+import io.mrarm.irc.config.NotificationManager;
+import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.util.FilteredStorageApi;
-import io.mrarm.irc.util.SettingsHelper;
+import io.mrarm.irc.config.SettingsHelper;
 
 public class ServerConnectionInfo {
 

@@ -11,7 +11,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import io.mrarm.irc.R;
-import io.mrarm.irc.util.SettingsHelper;
+import io.mrarm.irc.config.SettingsHelper;
 
 public class FontSizePickerPreference extends DialogPreference {
 

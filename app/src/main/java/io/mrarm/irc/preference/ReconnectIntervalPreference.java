@@ -31,7 +31,7 @@ import java.util.Collections;
 import java.util.List;
 
 import io.mrarm.irc.R;
-import io.mrarm.irc.util.SettingsHelper;
+import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.util.SimpleTextWatcher;
 
 public class ReconnectIntervalPreference extends Preference {

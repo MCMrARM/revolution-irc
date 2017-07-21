@@ -1,4 +1,4 @@
-package io.mrarm.irc;
+package io.mrarm.irc.config;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ public class NotificationRule {
     private boolean regexCaseInsensitive;
     private List<AppliesToEntry> appliesTo = new ArrayList<>();
     public NotificationSettings settings = new NotificationSettings();
-    transient boolean notEditable = false;
+    public transient boolean notEditable = false;
 
     private transient Pattern mCompiledPattern;
 

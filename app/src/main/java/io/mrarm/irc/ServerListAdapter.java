@@ -1,7 +1,6 @@
 package io.mrarm.irc;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.RecyclerView;
@@ -13,6 +12,9 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.mrarm.irc.config.ServerConfigData;
+import io.mrarm.irc.config.ServerConfigManager;
 
 public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         implements ServerConnectionManager.ConnectionsListener,

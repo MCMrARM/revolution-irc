@@ -1,4 +1,4 @@
-package io.mrarm.irc;
+package io.mrarm.irc.config;
 
 import android.content.Context;
 
@@ -17,7 +17,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.mrarm.chatlib.irc.IRCConnection;
-import io.mrarm.irc.util.SettingsHelper;
 import io.mrarm.irc.util.SimpleTextVariableList;
 
 public class CommandAliasManager {

@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import io.mrarm.irc.config.NotificationManager;
+import io.mrarm.irc.config.NotificationRule;
 import io.mrarm.irc.util.AdvancedDividerItemDecoration;
 
 public class NotificationRulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -172,10 +174,10 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<RecyclerView.
                     return;
                 Intent intent = new Intent(view.getContext(),
                         EditNotificationSettingsActivity.class);
-                int index = findDefaultRuleIndex(mRule, NotificationManager.sDefaultTopRules);
+                int index = findDefaultRuleIndex(mRule, NotificationManager.getDefaultTopRules());
                 if (index == -1)
-                    index = findDefaultRuleIndex(mRule, NotificationManager.sDefaultBottomRules) +
-                            NotificationManager.sDefaultTopRules.size();
+                    index = findDefaultRuleIndex(mRule, NotificationManager.getDefaultBottomRules())
+                            + NotificationManager.getDefaultTopRules().size();
                 intent.putExtra(EditNotificationSettingsActivity.ARG_DEFAULT_RULE_INDEX, index);
                 view.getContext().startActivity(intent);
             });

@@ -27,12 +27,13 @@ import java.util.List;
 
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.dto.MessageSenderInfo;
+import io.mrarm.irc.config.NotificationManager;
 import io.mrarm.irc.preference.FontSizePickerPreference;
 import io.mrarm.irc.preference.ListWithCustomPreference;
 import io.mrarm.irc.util.MessageBuilder;
 import io.mrarm.irc.util.NightModeRecreateHelper;
 import io.mrarm.irc.preference.ReconnectIntervalPreference;
-import io.mrarm.irc.util.SettingsHelper;
+import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.util.SimpleCounter;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {

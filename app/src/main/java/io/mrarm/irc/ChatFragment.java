@@ -42,9 +42,10 @@ import java.util.UUID;
 
 import io.mrarm.chatlib.dto.NickWithPrefix;
 import io.mrarm.chatlib.irc.IRCConnection;
+import io.mrarm.irc.config.CommandAliasManager;
 import io.mrarm.irc.util.IRCColorUtils;
 import io.mrarm.irc.util.ImageViewTintUtils;
-import io.mrarm.irc.util.SettingsHelper;
+import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.util.SimpleTextVariableList;
 import io.mrarm.irc.view.NickAutoCompleteEditText;
 import io.mrarm.irc.view.TextFormatBar;

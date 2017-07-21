@@ -30,7 +30,7 @@ import io.mrarm.chatlib.test.TestApiImpl;
 import io.mrarm.irc.dialog.UserSearchDialog;
 import io.mrarm.irc.drawer.DrawerHelper;
 import io.mrarm.irc.util.NightModeRecreateHelper;
-import io.mrarm.irc.util.SettingsHelper;
+import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.util.WarningDisplayContext;
 import io.mrarm.irc.view.ChipsEditText;
 

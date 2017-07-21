@@ -13,6 +13,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import io.mrarm.irc.config.ServerConfigData;
+import io.mrarm.irc.config.ServerConfigManager;
+
 public class EditIgnoreEntryActivity extends AppCompatActivity {
 
     public static final String ARG_SERVER_UUID = "server_uuid";

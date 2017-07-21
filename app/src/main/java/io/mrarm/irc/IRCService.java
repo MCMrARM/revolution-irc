@@ -13,7 +13,6 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.NotificationCompat;
-import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -21,7 +20,8 @@ import android.widget.RemoteViews;
 import java.util.List;
 
 import io.mrarm.chatlib.dto.MessageInfo;
-import io.mrarm.irc.util.IRCColorUtils;
+import io.mrarm.irc.config.NotificationManager;
+import io.mrarm.irc.config.NotificationRule;
 
 public class IRCService extends Service implements ServerConnectionManager.ConnectionsListener {
 

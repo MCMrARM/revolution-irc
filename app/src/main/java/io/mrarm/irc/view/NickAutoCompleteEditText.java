@@ -6,7 +6,7 @@ import android.text.Editable;
 import android.util.AttributeSet;
 import android.widget.MultiAutoCompleteTextView;
 
-import io.mrarm.irc.util.SettingsHelper;
+import io.mrarm.irc.config.SettingsHelper;
 
 public class NickAutoCompleteEditText extends FormattableMultiAutoCompleteEditText
         implements SharedPreferences.OnSharedPreferenceChangeListener {

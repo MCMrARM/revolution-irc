@@ -1,4 +1,4 @@
-package io.mrarm.irc;
+package io.mrarm.irc.config;
 
 import android.content.Context;
 import android.text.style.ForegroundColorSpan;
@@ -22,9 +22,10 @@ import java.util.regex.Pattern;
 import io.mrarm.chatlib.ChatApi;
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
+import io.mrarm.irc.R;
+import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.util.ColoredTextBuilder;
 import io.mrarm.irc.util.IRCColorUtils;
-import io.mrarm.irc.util.SettingsHelper;
 
 public class NotificationManager {
 
@@ -133,6 +134,14 @@ public class NotificationManager {
                 sUserRules = new ArrayList<>();
         }
         return sUserRules;
+    }
+
+    public static List<NotificationRule> getDefaultTopRules() {
+        return sDefaultTopRules;
+    }
+
+    public static List<NotificationRule> getDefaultBottomRules() {
+        return sDefaultBottomRules;
     }
 
     private static NotificationRule.AppliesToEntry createZNCPlaybackAppliesToEntry() {

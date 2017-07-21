@@ -21,7 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import io.mrarm.irc.BackupManager;
+import io.mrarm.irc.config.BackupManager;
 import io.mrarm.irc.R;
 
 public class BackupProgressActivity extends SetupProgressActivity {

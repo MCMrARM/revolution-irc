@@ -1,4 +1,4 @@
-package io.mrarm.irc;
+package io.mrarm.irc.config;
 
 import android.content.Context;
 import android.util.Log;
@@ -14,8 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import io.mrarm.irc.util.SettingsHelper;
 
 public class ServerConfigManager {
 

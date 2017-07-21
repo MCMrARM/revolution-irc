@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import io.mrarm.irc.config.CommandAliasManager;
 import io.mrarm.irc.util.AdvancedDividerItemDecoration;
 
 public class CommandAliasesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {

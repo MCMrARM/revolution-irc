@@ -1,4 +1,4 @@
-package io.mrarm.irc;
+package io.mrarm.irc.config;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -49,6 +49,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
+import io.mrarm.irc.R;
 import io.mrarm.irc.util.ColoredTextBuilder;
 import io.mrarm.irc.util.SettableFuture;
 import io.mrarm.irc.util.WarningDisplayContext;

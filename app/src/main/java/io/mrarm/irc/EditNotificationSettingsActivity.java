@@ -22,6 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import io.mrarm.irc.config.NotificationManager;
+import io.mrarm.irc.config.NotificationRule;
+import io.mrarm.irc.config.ServerConfigData;
+import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.util.EntryRecyclerViewAdapter;
 import io.mrarm.irc.util.SimpleCounter;
 import io.mrarm.irc.view.ChipsEditText;
@@ -56,10 +60,10 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         } else if (getIntent().hasExtra(ARG_DEFAULT_RULE_INDEX)) {
             NotificationManager.loadUserRuleSettings(this);
             int ruleIndex = getIntent().getIntExtra(ARG_DEFAULT_RULE_INDEX, -1);
-            if (ruleIndex >= NotificationManager.sDefaultTopRules.size())
-                mEditingRule = NotificationManager.sDefaultBottomRules.get(ruleIndex - NotificationManager.sDefaultTopRules.size());
+            if (ruleIndex >= NotificationManager.getDefaultTopRules().size())
+                mEditingRule = NotificationManager.getDefaultBottomRules().get(ruleIndex - NotificationManager.getDefaultTopRules().size());
             else
-                mEditingRule = NotificationManager.sDefaultTopRules.get(ruleIndex);
+                mEditingRule = NotificationManager.getDefaultTopRules().get(ruleIndex);
             mEditingDefaultRule = true;
         }
 

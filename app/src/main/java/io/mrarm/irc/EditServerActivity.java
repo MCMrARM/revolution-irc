@@ -21,6 +21,8 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.util.UUID;
 
+import io.mrarm.irc.config.ServerConfigData;
+import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.util.ExpandIconStateHelper;
 import io.mrarm.irc.util.SpinnerNoPaddingArrayAdapter;
 import io.mrarm.irc.view.StaticLabelTextInputLayout;

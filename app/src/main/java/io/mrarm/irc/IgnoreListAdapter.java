@@ -16,6 +16,8 @@ import android.widget.Toast;
 
 import java.io.IOException;
 
+import io.mrarm.irc.config.ServerConfigData;
+import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.util.ColoredTextBuilder;
 
 public class IgnoreListAdapter extends RecyclerView.Adapter<IgnoreListAdapter.ItemHolder> {

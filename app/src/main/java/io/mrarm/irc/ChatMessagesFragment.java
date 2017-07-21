@@ -37,7 +37,7 @@ import io.mrarm.chatlib.message.MessageListener;
 import io.mrarm.irc.util.LongPressSelectTouchListener;
 import io.mrarm.irc.util.MessageBuilder;
 import io.mrarm.irc.util.ScrollPosLinearLayoutManager;
-import io.mrarm.irc.util.SettingsHelper;
+import io.mrarm.irc.config.SettingsHelper;
 
 
 public class ChatMessagesFragment extends Fragment implements StatusMessageListener,
