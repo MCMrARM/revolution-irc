@@ -27,6 +27,7 @@ import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.config.ServerSSLHelper;
 import io.mrarm.irc.util.ExpandIconStateHelper;
+import io.mrarm.irc.util.SimpleTextWatcher;
 import io.mrarm.irc.util.SpinnerNoPaddingArrayAdapter;
 import io.mrarm.irc.view.StaticLabelTextInputLayout;
 import io.mrarm.irc.view.ChipsEditText;
@@ -40,8 +41,11 @@ public class EditServerActivity extends AppCompatActivity {
 
     private ServerConfigData mEditServer;
     private EditText mServerName;
+    private TextInputLayout mServerNameCtr;
     private EditText mServerAddress;
+    private TextInputLayout mServerAddressCtr;
     private EditText mServerPort;
+    private TextInputLayout mServerPortCtr;
     private CheckBox mServerSSL;
     private View mServerSSLCertsButton;
     private TextView mServerSSLCertsLbl;
@@ -108,8 +112,11 @@ public class EditServerActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mServerName = (EditText) findViewById(R.id.server_name);
+        mServerNameCtr = (TextInputLayout) findViewById(R.id.server_name_ctr);
         mServerAddress = (EditText) findViewById(R.id.server_address_name);
+        mServerAddressCtr = (TextInputLayout) findViewById(R.id.server_address_name_ctr);
         mServerPort = (EditText) findViewById(R.id.server_address_port);
+        mServerPortCtr = (TextInputLayout) findViewById(R.id.server_address_port_ctr);
         mServerSSL = (CheckBox) findViewById(R.id.server_ssl_checkbox);
         mServerSSLCertsButton = findViewById(R.id.server_ssl_certs);
         mServerSSLCertsLbl = (TextView) findViewById(R.id.server_ssl_cert_lbl);
@@ -131,6 +138,10 @@ public class EditServerActivity extends AppCompatActivity {
             mServerUserExpandContent.setVisibility(mServerUserExpandContent.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
             ExpandIconStateHelper.animateSetExpanded(mServerUserExpandIcon, mServerUserExpandContent.getVisibility() == View.VISIBLE);
         });
+
+        mServerName.addTextChangedListener(new SimpleTextWatcher((Editable s) -> mServerNameCtr.setErrorEnabled(false)));
+        mServerAddress.addTextChangedListener(new SimpleTextWatcher((Editable s) -> mServerAddressCtr.setErrorEnabled(false)));
+        mServerPort.addTextChangedListener(new SimpleTextWatcher((Editable s) -> mServerPortCtr.setErrorEnabled(false)));
 
         mServerSSLCertsButton.setOnClickListener((View v) -> {
             Intent intent = new Intent(EditServerActivity.this, CertificateManagerActivity.class);
@@ -218,7 +229,43 @@ public class EditServerActivity extends AppCompatActivity {
         }
     }
 
-    private void save() {
+    private boolean validate() {
+        boolean succeeded = true;
+
+        String newServerName = mServerName.getText().toString();
+        if (mServerName.getText().length() == 0) {
+            mServerNameCtr.setError(getString(R.string.server_error_name_empty));
+            mServerName.requestFocus();
+            succeeded = false;
+        }
+        for (ServerConfigData data : ServerConfigManager.getInstance(this).getServers()) {
+            if (data != mEditServer && data.name.equals(newServerName)) {
+                mServerNameCtr.setError(getString(R.string.server_error_name_collision));
+                mServerName.requestFocus();
+                succeeded = false;
+            }
+        }
+        if (mServerAddress.getText().length() == 0) {
+            mServerAddressCtr.setError(getString(R.string.server_error_invalid_address));
+            if (succeeded)
+                mServerAddress.requestFocus();
+            succeeded = false;
+        }
+        try {
+            Integer.parseInt(mServerPort.getText().toString());
+        } catch (NumberFormatException e) {
+            mServerPortCtr.setError(getString(R.string.server_error_invalid_port));
+            if (succeeded)
+                mServerPort.requestFocus();
+            succeeded = false;
+        }
+
+        return succeeded;
+    }
+
+    private boolean save() {
+        if (!validate())
+            return false;
         boolean addConnection = false;
         if (mEditServer == null) {
             mEditServer = new ServerConfigData();
@@ -263,11 +310,12 @@ public class EditServerActivity extends AppCompatActivity {
             e.printStackTrace();
 
             Toast.makeText(this, R.string.server_save_error, Toast.LENGTH_SHORT).show();
-            return;
+            return false;
         }
         if (addConnection) {
             ServerConnectionManager.getInstance(this).createConnection(mEditServer);
         }
+        return true;
     }
 
     @Override
@@ -293,7 +341,8 @@ public class EditServerActivity extends AppCompatActivity {
             if (id == R.id.action_done) {
                 mServerNick.clearFocus();
                 mServerChannels.clearFocus();
-                save();
+                if (!save())
+                    return true;
             }
 
             InputMethodManager manager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);

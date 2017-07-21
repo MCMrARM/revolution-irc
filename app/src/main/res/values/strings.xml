@@ -104,6 +104,10 @@
     <string name="add_server">Add a new server</string>
     <string name="edit_server">Edit a server</string>
     <string name="server_save_error">Failed to save server information</string>
+    <string name="server_error_name_collision">A server with this name already exists</string>
+    <string name="server_error_name_empty">Server name cannot be empty</string>
+    <string name="server_error_invalid_address">Invalid address</string>
+    <string name="server_error_invalid_port">Invalid port</string>
     <string name="server_address">Server address</string>
     <string name="server_port">Port</string>
     <string name="server_ssl">Use SSL</string>
