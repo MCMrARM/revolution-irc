@@ -28,6 +28,7 @@ import java.util.List;
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.dto.MessageSenderInfo;
 import io.mrarm.irc.config.NotificationManager;
+import io.mrarm.irc.preference.ChipsEditTextPreference;
 import io.mrarm.irc.preference.FontSizePickerPreference;
 import io.mrarm.irc.preference.ListWithCustomPreference;
 import io.mrarm.irc.util.MessageBuilder;
@@ -108,6 +109,13 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 PreferenceManager
                         .getDefaultSharedPreferences(preference.getContext())
                         .getInt(preference.getKey(), -1));
+    }
+
+    private static void bindChipsEditTextPreferenceSummaryToValue(
+            Preference preference, Preference.OnPreferenceChangeListener listener) {
+        preference.setOnPreferenceChangeListener(listener);
+
+        listener.onPreferenceChange(preference, ((ChipsEditTextPreference) preference).getValue());
     }
 
     @Override
@@ -193,7 +201,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     }
 
     public static class UserPreferenceFragment extends MyPreferenceFragment {
-        private EditTextPreference mDefaultNickPreference;
+        private ChipsEditTextPreference mDefaultNickPreference;
         private EditTextPreference mDefaultUserPreference;
         private EditTextPreference mDefaultRealNamePreference;
 
@@ -202,22 +210,28 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_user);
 
-            mDefaultNickPreference = (EditTextPreference) findPreference("default_nick");
+            mDefaultNickPreference = (ChipsEditTextPreference) findPreference("default_nicks");
             mDefaultUserPreference = (EditTextPreference) findPreference("default_user");
             mDefaultRealNamePreference = (EditTextPreference) findPreference("default_realname");
 
-            bindPreferenceSummaryToValue(mDefaultNickPreference,
+            bindChipsEditTextPreferenceSummaryToValue(mDefaultNickPreference,
                     (Preference preference, Object newValue) -> {
-                        String stringValue = newValue.toString();
-                        if (stringValue.length() > 0)
-                            preference.setSummary(stringValue);
-                        else
+                        List arrayValue = (List) newValue;
+                        if (arrayValue != null && arrayValue.size() > 0) {
+                            StringBuilder b = new StringBuilder();
+                            for (Object o : arrayValue) {
+                                if (b.length() > 0)
+                                    b.append(getString(R.string.text_comma));
+                                b.append(o.toString());
+                            }
+                            preference.setSummary(b.toString());
+                        } else
                             preference.setSummary(R.string.value_not_set);
 
                         if (mDefaultUserPreference.getText() == null || mDefaultUserPreference.getText().length() == 0)
-                            mDefaultUserPreference.setSummary(mDefaultNickPreference.getSummary());
+                            mDefaultUserPreference.setSummary(getPrimaryNick(arrayValue));
                         if (mDefaultRealNamePreference.getText() == null || mDefaultRealNamePreference.getText().length() == 0)
-                            mDefaultRealNamePreference.setSummary(mDefaultNickPreference.getSummary());
+                            mDefaultRealNamePreference.setSummary(getPrimaryNick(arrayValue));
                         return true;
                     });
             bindPreferenceSummaryToValue(mDefaultUserPreference,
@@ -226,7 +240,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                         if (stringValue.length() > 0)
                             preference.setSummary(stringValue);
                         else
-                            preference.setSummary(mDefaultNickPreference.getSummary());
+                            preference.setSummary(getPrimaryNick(mDefaultNickPreference.getValue()));
                         return true;
                     });
             bindPreferenceSummaryToValue(mDefaultRealNamePreference,
@@ -235,12 +249,18 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                         if (stringValue.length() > 0)
                             preference.setSummary(stringValue);
                         else
-                            preference.setSummary(mDefaultNickPreference.getSummary());
+                            preference.setSummary(getPrimaryNick(mDefaultNickPreference.getValue()));
                         return true;
                     });
 
             bindPreferenceSummaryToValue(findPreference("default_quit_message"));
             bindPreferenceSummaryToValue(findPreference("default_part_message"));
+        }
+
+        private CharSequence getPrimaryNick(List<String> r) {
+            if (r == null || r.size() == 0)
+                return getString(R.string.value_not_set);
+            return r.get(0);
         }
     }
 

@@ -22,7 +22,7 @@ import io.mrarm.irc.preference.ReconnectIntervalPreference;
 
 public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    public static final String PREF_DEFAULT_NICK = "default_nick";
+    public static final String PREF_DEFAULT_NICKS = "default_nicks";
     public static final String PREF_DEFAULT_USER = "default_user";
     public static final String PREF_DEFAULT_REALNAME = "default_realname";
     public static final String PREF_DEFAULT_QUIT_MESSAGE = "default_quit_message";
@@ -117,8 +117,16 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
             mListeners.get(key).remove(listener);
     }
 
-    public String getDefaultNick() {
-        return mPreferences.getString(PREF_DEFAULT_NICK, null);
+    public String[] getDefaultNicks() {
+        String s = mPreferences.getString(PREF_DEFAULT_NICKS, null);
+        if (s == null)
+            return null;
+        return s.split("\n");
+    }
+
+    public String getDefaultPrimaryNick() {
+        String[] nicks = getDefaultNicks();
+        return nicks != null && nicks.length > 0 ? nicks[0] : null;
     }
 
     public String getDefaultUser() {

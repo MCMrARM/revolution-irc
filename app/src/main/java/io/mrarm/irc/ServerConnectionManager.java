@@ -93,20 +93,22 @@ public class ServerConnectionManager {
         if (data.nicks != null && data.nicks.size() > 0) {
             for (String nick : data.nicks)
                 request.addNick(nick);
-        } else
-            request.addNick(settings.getDefaultNick());
+        } else {
+            for (String nick : settings.getDefaultNicks())
+                request.addNick(nick);
+        }
         if (data.user != null)
             request.setUser(data.user);
         else if (settings.getDefaultUser() != null && settings.getDefaultUser().length() > 0)
             request.setUser(settings.getDefaultUser());
         else
-            request.setUser(settings.getDefaultNick());
+            request.setUser(settings.getDefaultPrimaryNick());
         if (data.realname != null)
             request.setRealName(data.realname);
         else if (settings.getDefaultRealname() != null && settings.getDefaultRealname().length() > 0)
             request.setRealName(settings.getDefaultRealname());
         else
-            request.setRealName(settings.getDefaultNick());
+            request.setRealName(settings.getDefaultPrimaryNick());
 
         SASLOptions saslOptions = null;
         if (data.authMode != null) {

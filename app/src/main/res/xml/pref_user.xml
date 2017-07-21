@@ -1,12 +1,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <EditTextPreference
-        android:capitalize="words"
-        android:inputType="textCapWords"
-        android:key="default_nick"
-        android:maxLines="1"
-        android:selectAllOnFocus="true"
-        android:singleLine="true"
+    <io.mrarm.irc.preference.ChipsEditTextPreference
+        android:key="default_nicks"
         android:title="@string/pref_title_default_nick" />
 
     <EditTextPreference
