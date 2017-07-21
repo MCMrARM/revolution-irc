@@ -65,7 +65,7 @@
         android:layout_below="@+id/server_ctr"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/notification_rule_channels"
+        android:hint="@string/user_channels"
         app:doNotExpand="true">
 
         <io.mrarm.irc.view.ChipsEditText
@@ -85,7 +85,7 @@
         android:layout_below="@+id/channels_ctr"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/notification_rule_nicks"
+        android:hint="@string/server_nicks"
         app:doNotExpand="true">
 
         <io.mrarm.irc.view.ChipsEditText

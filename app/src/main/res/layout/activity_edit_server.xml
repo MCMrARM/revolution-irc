@@ -226,7 +226,7 @@
 
             <io.mrarm.irc.view.LabelLayout
                 style="@style/EditServerTextInput.ExtraAction"
-                android:hint="@string/server_nick">
+                android:hint="@string/server_nicks">
 
                 <io.mrarm.irc.view.ChipsEditText
                     android:id="@+id/server_nick"

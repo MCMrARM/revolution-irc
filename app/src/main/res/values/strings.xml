@@ -119,7 +119,7 @@
     <string name="server_password_unchanged">Unchanged</string>
     <string name="server_authentication_mode">Authentication mode</string>
     <string name="server_channels">Auto-join channel list</string>
-    <string name="server_nick">Nick</string>
+    <string name="server_nicks">Nicknames</string>
     <string name="server_user">User</string>
     <string name="server_realname">Real name</string>
 
@@ -299,8 +299,6 @@
 
     <string name="notification_header_applies_to">Applies to</string>
     <string name="notification_rule_server">Server</string>
-    <string name="notification_rule_channels">Channels</string>
-    <string name="notification_rule_nicks">Nicks</string>
     <string name="notification_rule_summary_any_server">Any server</string>
     <string name="notification_rule_summary_any_channel">any channel</string>
     <plurals name="notification_rule_summary_multi_channels">
@@ -409,6 +407,7 @@
     <!-- User info -->
 
     <string name="user_title_away">%s (away)</string>
+    <string name="user_nick">Nick</string>
     <string name="user_hostname">Hostname</string>
     <string name="user_server">Server</string>
     <string name="user_server_format">%s (%s)</string>
