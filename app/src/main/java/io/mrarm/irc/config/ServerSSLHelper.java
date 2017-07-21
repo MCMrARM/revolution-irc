@@ -238,24 +238,26 @@ public class ServerSSLHelper {
                 try {
                     defaultTrustManager.checkServerTrusted(chain, authType);
                 } catch (Exception e) {
-                    synchronized (ServerSSLHelper.this) {
-                        try {
+                    try {
+                        synchronized (ServerSSLHelper.this) {
                             if (mKeyStoreTrustManager == null && mKeyStore != null)
                                 mKeyStoreTrustManager = getKeyStoreTrustManager(mKeyStore);
                             mKeyStoreTrustManager.checkServerTrusted(chain, authType);
-                        } catch (Exception e2) {
+                        }
+                    } catch (Exception e2) {
+                        synchronized (ServerSSLHelper.this) {
                             if (mTempTrustedCertificates != null && mTempTrustedCertificates.contains(chain[0])) {
                                 Log.i(TAG, "A temporarily trusted certificate is being used - trusting the server");
                                 return;
                             }
-                            Log.i(TAG, "Unrecognized certificate");
-                            try {
-                                X509Certificate cert = chain[0];
-                                if (!askUser(cert, R.string.certificate_bad_cert).get())
-                                    throw new CertificateException("User rejected the certificate");
-                            } catch (InterruptedException | ExecutionException e3) {
-                                throw new CertificateException("Asking user about the certificate failed");
-                            }
+                        }
+                        Log.i(TAG, "Unrecognized certificate");
+                        try {
+                            X509Certificate cert = chain[0];
+                            if (!askUser(cert, R.string.certificate_bad_cert).get())
+                                throw new CertificateException("User rejected the certificate");
+                        } catch (InterruptedException | ExecutionException e3) {
+                            throw new CertificateException("Asking user about the certificate failed");
                         }
                     }
                 }
@@ -281,7 +283,7 @@ public class ServerSSLHelper {
                 return false;
             }
             try {
-                synchronized (this) {
+                synchronized (ServerSSLHelper.this) {
                     if (mTempTrustedCertificates != null && mTempTrustedCertificates.contains(cert)) {
                         Log.i(TAG, "Accepting hostname as a temporarily trusted certificate is being used");
                         return true;
