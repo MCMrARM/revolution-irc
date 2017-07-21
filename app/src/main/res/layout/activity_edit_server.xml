@@ -56,7 +56,7 @@
                     android:id="@+id/server_address_port"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textUri"
+                    android:inputType="text|numberSigned"
                     android:hint="@string/server_port"/>
 
             </android.support.design.widget.TextInputLayout>
@@ -75,6 +75,7 @@
                     android:id="@+id/server_address_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:inputType="textUri"
                     android:hint="@string/server_address"/>
 
             </android.support.design.widget.TextInputLayout>
