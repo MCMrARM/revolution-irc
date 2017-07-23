@@ -121,6 +121,10 @@ public class ChannelNotificationManager {
         NotificationManagerCompat.from(context).notify(mNotificationId, notification.build());
     }
 
+    void cancelNotification(Context context) {
+        NotificationManagerCompat.from(context).cancel(mNotificationId);
+    }
+
     private RemoteViews createCollapsedMessagesView(Context context, CharSequence header) {
         NotificationMessage lastMessage = mMessages.get(mMessages.size() - 1);
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.notification_layout_collapsed);

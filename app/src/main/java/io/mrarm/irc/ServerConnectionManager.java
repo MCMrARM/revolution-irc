@@ -134,6 +134,7 @@ public class ServerConnectionManager {
     }
 
     public void removeConnection(ServerConnectionInfo connection, boolean saveAutoconnect) {
+        NotificationManager.getInstance().clearAllNotifications(mContext, connection);
         synchronized (this) {
             mConnections.remove(connection);
             mConnectionsMap.remove(connection.getUUID());

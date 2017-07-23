@@ -47,11 +47,12 @@ public class NotificationManager {
         }
     }
 
-    public void onNotificationDismissed(Context context, ServerConnectionInfo connection,
-                                        String channel) {
-        ChannelNotificationManager channelManager = connection.getNotificationData()
-                .getChannelManager(channel, true);
-        channelManager.onNotificationDismissed();
+    public void clearAllNotifications(Context context, ServerConnectionInfo connection) {
+        ConnectionData connectionData = connection.getNotificationData();
+        for (ChannelNotificationManager mgr : connectionData.getChannelManagerList())
+            mgr.cancelNotification(context);
+        connectionData.getChannelManagerList().clear();
+        updateSummaryNotification(context);
     }
 
     private NotificationRule findNotificationRule(ServerConnectionInfo connection, String channel,
@@ -76,6 +77,13 @@ public class NotificationManager {
                 return rule;
         }
         return null;
+    }
+
+    public void onNotificationDismissed(Context context, ServerConnectionInfo connection,
+                                        String channel) {
+        ChannelNotificationManager channelManager = connection.getNotificationData()
+                .getChannelManager(channel, true);
+        channelManager.onNotificationDismissed();
     }
 
 
