@@ -1,17 +1,19 @@
 package io.mrarm.irc;
 
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.NotificationCompat;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.irc.config.NotificationRule;
@@ -21,6 +23,7 @@ import io.mrarm.irc.util.IRCColorUtils;
 public class ChannelNotificationManager {
 
     public static final int CHAT_NOTIFICATION_ID_START = 10000;
+    public static final int CHAT_DISMISS_INTENT_ID_START = 10000000;
 
     private static int mNextChatNotificationId = CHAT_NOTIFICATION_ID_START;
 
@@ -55,16 +58,34 @@ public class ChannelNotificationManager {
         return true;
     }
 
+    public void setOpened(Context context, boolean opened) {
+        mOpened = opened;
+        if (mOpened) {
+            mMessages.clear();
+
+            // cancel the notification
+            NotificationManagerCompat.from(context).cancel(mNotificationId);
+            NotificationManager.getInstance().updateSummaryNotification(context);
+        }
+    }
+
     void showNotification(Context context, NotificationRule rule) {
         String title = getChannel() + " (" + mConnection.getName() + ")"; // TODO: Move to strings.xml
         RemoteViews notificationsView = createCollapsedMessagesView(context, title);
         RemoteViews notificationsViewBig = createMessagesView(context, title);
         NotificationMessage lastMessage = mMessages.get(mMessages.size() - 1);
         NotificationCompat.Builder notification = new NotificationCompat.Builder(context);
+        PendingIntent intent = PendingIntent.getActivity(context, mNotificationId,
+                MainActivity.getLaunchIntent(context, mConnection, mChannel),
+                PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent dismissIntent = PendingIntent.getBroadcast(context,
+                CHAT_DISMISS_INTENT_ID_START + mNotificationId,
+                NotificationDismissReceiver.getIntent(context, mConnection, mChannel),
+                PendingIntent.FLAG_CANCEL_CURRENT);
         notification
                 .setContentTitle(title)
                 .setContentText(lastMessage.getNotificationText(context))
-                .setContentIntent(PendingIntent.getActivity(context, mNotificationId, MainActivity.getLaunchIntent(context, mConnection, mChannel), PendingIntent.FLAG_CANCEL_CURRENT))
+                .setContentIntent(intent)
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setSmallIcon(R.drawable.ic_message)
@@ -72,7 +93,8 @@ public class ChannelNotificationManager {
                 .setCustomBigContentView(notificationsViewBig)
                 .setGroup(NotificationManager.NOTIFICATION_GROUP_CHAT)
                 .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
-                .setColor(context.getResources().getColor(R.color.colorNotificationMention));
+                .setColor(context.getResources().getColor(R.color.colorNotificationMention))
+                .setDeleteIntent(dismissIntent);
         int defaults = 0;
         if (rule.settings.soundEnabled) {
             if (rule.settings.soundUri != null)
@@ -123,14 +145,8 @@ public class ChannelNotificationManager {
         return views;
     }
 
-    public void setOpened(Context context, boolean opened) {
-        mOpened = opened;
-        if (mOpened) {
-            mMessages.clear();
-            // clear the notification
-            //NotificationManagerCompat.from(context). (mNotificationId);
-            Log.d("Test", "Cleared notification: "+mNotificationId);
-        }
+    void onNotificationDismissed() {
+        mMessages.clear();
     }
 
 
@@ -162,6 +178,32 @@ public class ChannelNotificationManager {
             if (mBuilt == null)
                 return buildNotificationText(context);
             return mBuilt;
+        }
+
+    }
+
+
+    public static class NotificationDismissReceiver extends BroadcastReceiver {
+
+        private static final String ARG_SERVER_UUID = "server_uuid";
+        private static final String ARG_CHANNEL = "channel";
+
+        public static Intent getIntent(Context context, ServerConnectionInfo server,
+                                       String channel) {
+            Intent ret = new Intent(context, NotificationDismissReceiver.class);
+            ret.putExtra(ARG_SERVER_UUID, server.getUUID().toString());
+            ret.putExtra(ARG_CHANNEL, channel);
+            return ret;
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            UUID uuid = UUID.fromString(intent.getStringExtra(ARG_SERVER_UUID));
+            ServerConnectionInfo conn = ServerConnectionManager.getInstance(context).getConnection(uuid);
+            if (conn == null)
+                return;
+            String channel = intent.getStringExtra(ARG_CHANNEL);
+            NotificationManager.getInstance().onNotificationDismissed(context, conn, channel);
         }
 
     }

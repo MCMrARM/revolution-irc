@@ -68,6 +68,9 @@
             android:theme="@style/AppTheme.Setup" />
 
         <service android:name=".IRCService" />
+        <receiver
+            android:name=".ChannelNotificationManager$NotificationDismissReceiver"
+            android:exported="false" />
     </application>
 
 </manifest>

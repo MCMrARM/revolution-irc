@@ -47,6 +47,13 @@ public class NotificationManager {
         }
     }
 
+    public void onNotificationDismissed(Context context, ServerConnectionInfo connection,
+                                        String channel) {
+        ChannelNotificationManager channelManager = connection.getNotificationData()
+                .getChannelManager(channel, true);
+        channelManager.onNotificationDismissed();
+    }
+
     private NotificationRule findNotificationRule(ServerConnectionInfo connection, String channel,
                                                   MessageInfo message) {
         ChatApi api = connection.getApiInstance();
