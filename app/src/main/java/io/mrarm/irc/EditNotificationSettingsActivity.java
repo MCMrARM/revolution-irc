@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import io.mrarm.irc.config.NotificationManager;
+import io.mrarm.irc.config.NotificationRuleManager;
 import io.mrarm.irc.config.NotificationRule;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
@@ -56,14 +56,14 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         if (getIntent().hasExtra(ARG_USER_RULE_INDEX)) {
-            mEditingRule = NotificationManager.getUserRules(this).get(getIntent().getIntExtra(ARG_USER_RULE_INDEX, -1));
+            mEditingRule = NotificationRuleManager.getUserRules(this).get(getIntent().getIntExtra(ARG_USER_RULE_INDEX, -1));
         } else if (getIntent().hasExtra(ARG_DEFAULT_RULE_INDEX)) {
-            NotificationManager.loadUserRuleSettings(this);
+            NotificationRuleManager.loadUserRuleSettings(this);
             int ruleIndex = getIntent().getIntExtra(ARG_DEFAULT_RULE_INDEX, -1);
-            if (ruleIndex >= NotificationManager.getDefaultTopRules().size())
-                mEditingRule = NotificationManager.getDefaultBottomRules().get(ruleIndex - NotificationManager.getDefaultTopRules().size());
+            if (ruleIndex >= NotificationRuleManager.getDefaultTopRules().size())
+                mEditingRule = NotificationRuleManager.getDefaultBottomRules().get(ruleIndex - NotificationRuleManager.getDefaultTopRules().size());
             else
-                mEditingRule = NotificationManager.getDefaultTopRules().get(ruleIndex);
+                mEditingRule = NotificationRuleManager.getDefaultTopRules().get(ruleIndex);
             mEditingDefaultRule = true;
         }
 
@@ -257,9 +257,9 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         } else {
             mEditingRule = new NotificationRule();
             save(mEditingRule);
-            NotificationManager.getUserRules(this).add(mEditingRule);
+            NotificationRuleManager.getUserRules(this).add(mEditingRule);
         }
-        NotificationManager.saveUserRuleSettings(this);
+        NotificationRuleManager.saveUserRuleSettings(this);
     }
 
     @Override

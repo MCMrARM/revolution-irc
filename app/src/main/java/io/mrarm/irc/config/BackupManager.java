@@ -86,7 +86,7 @@ public class BackupManager {
             }
 
             writer = new StringWriter();
-            NotificationManager.saveUserRuleSettings(context, writer);
+            NotificationRuleManager.saveUserRuleSettings(context, writer);
             params.setFileNameInZip(BACKUP_NOTIFICATION_RULES_PATH);
             zipFile.addStream(new ByteArrayInputStream(writer.toString().getBytes()), params);
 
@@ -177,9 +177,9 @@ public class BackupManager {
 
             reader = new BufferedReader(new InputStreamReader(zipFile.getInputStream(
                     zipFile.getFileHeader(BACKUP_NOTIFICATION_RULES_PATH))));
-            NotificationManager.loadUserRuleSettings(reader);
+            NotificationRuleManager.loadUserRuleSettings(reader);
             reader.close();
-            NotificationManager.saveUserRuleSettings(context);
+            NotificationRuleManager.saveUserRuleSettings(context);
 
             reader = new BufferedReader(new InputStreamReader(zipFile.getInputStream(
                     zipFile.getFileHeader(BACKUP_COMMAND_ALIASES_PATH))));

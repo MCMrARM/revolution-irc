@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import io.mrarm.irc.config.NotificationManager;
+import io.mrarm.irc.config.NotificationRuleManager;
 import io.mrarm.irc.config.NotificationRule;
 import io.mrarm.irc.util.AdvancedDividerItemDecoration;
 
@@ -47,14 +47,14 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<RecyclerView.
     private int mDragItemBgColor;
 
     public NotificationRulesAdapter(Context context) {
-        mRules = NotificationManager.getUserRules(context);
+        mRules = NotificationRuleManager.getUserRules(context);
 
         mDefaultRules = new ArrayList<>();
-        mDefaultRules.add(NotificationManager.sNickMentionRule);
-        mDefaultRules.add(NotificationManager.sDirectMessageRule);
-        mDefaultRules.add(NotificationManager.sDirectNoticeRule);
-        mDefaultRules.add(NotificationManager.sChannelNoticeRule);
-        mDefaultRules.add(NotificationManager.sZNCPlaybackRule);
+        mDefaultRules.add(NotificationRuleManager.sNickMentionRule);
+        mDefaultRules.add(NotificationRuleManager.sDirectMessageRule);
+        mDefaultRules.add(NotificationRuleManager.sDirectNoticeRule);
+        mDefaultRules.add(NotificationRuleManager.sChannelNoticeRule);
+        mDefaultRules.add(NotificationRuleManager.sZNCPlaybackRule);
 
         TypedArray ta = context.getTheme().obtainStyledAttributes(R.style.AppTheme,
                 new int[] { android.R.attr.colorBackground, R.attr.colorBackgroundFloating });
@@ -174,10 +174,10 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<RecyclerView.
                     return;
                 Intent intent = new Intent(view.getContext(),
                         EditNotificationSettingsActivity.class);
-                int index = findDefaultRuleIndex(mRule, NotificationManager.getDefaultTopRules());
+                int index = findDefaultRuleIndex(mRule, NotificationRuleManager.getDefaultTopRules());
                 if (index == -1)
-                    index = findDefaultRuleIndex(mRule, NotificationManager.getDefaultBottomRules())
-                            + NotificationManager.getDefaultTopRules().size();
+                    index = findDefaultRuleIndex(mRule, NotificationRuleManager.getDefaultBottomRules())
+                            + NotificationRuleManager.getDefaultTopRules().size();
                 intent.putExtra(EditNotificationSettingsActivity.ARG_DEFAULT_RULE_INDEX, index);
                 view.getContext().startActivity(intent);
             });

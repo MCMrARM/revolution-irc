@@ -8,20 +8,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
-import android.net.Uri;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
-import android.view.View;
-import android.widget.RemoteViews;
-
-import java.util.List;
 
 import io.mrarm.chatlib.dto.MessageInfo;
-import io.mrarm.irc.config.NotificationManager;
-import io.mrarm.irc.config.NotificationRule;
 import io.mrarm.irc.util.WarningHelper;
 
 public class IRCService extends Service implements ServerConnectionManager.ConnectionsListener {
@@ -29,10 +21,7 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
     private static final String TAG = "IRCService";
 
     public static final int IDLE_NOTIFICATION_ID = 100;
-    public static final int CHAT_SUMMARY_NOTIFICATION_ID = 101;
     public static final String ACTION_START_FOREGROUND = "start_foreground";
-
-    private static final String NOTIFICATION_GROUP_CHAT = "chat";
 
     private ConnectivityChangeReceiver mConnectivityReceiver = new ConnectivityChangeReceiver();
 
@@ -85,126 +74,8 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
         return START_STICKY;
     }
 
-    private RemoteViews createCollapsedMessagesView(String header, CharSequence message) {
-        RemoteViews views = new RemoteViews(getPackageName(), R.layout.notification_layout_collapsed);
-        views.setTextViewText(R.id.message_channel, header);
-        views.setTextViewText(R.id.message_text, message);
-        return views;
-    }
-
-    private RemoteViews createMessagesView(String header, List<NotificationManager.NotificationMessage> messages) {
-        RemoteViews views = new RemoteViews(getPackageName(), R.layout.notification_layout);
-        int[] messageIds = new int[] { R.id.message_0, R.id.message_1, R.id.message_2, R.id.message_3, R.id.message_4, R.id.message_5 };
-        views.setTextViewText(R.id.message_channel, header);
-        for (int i = messageIds.length - 1; i >= 0; i--) {
-            int ii = messages.size() - messageIds.length + i;
-            if (ii < 0) {
-                views.setViewVisibility(messageIds[i], View.GONE);
-                continue;
-            }
-            views.setViewVisibility(messageIds[i], View.VISIBLE);
-            views.setTextViewText(messageIds[i], messages.get(ii).getNotificationText(this));
-        }
-        return views;
-    }
-
-    private void updateSummaryNotification() {
-        NotificationCompat.Builder notification = new NotificationCompat.Builder(this);
-        notification
-                .setAutoCancel(true)
-                .setSmallIcon(R.drawable.ic_message)
-                .setGroup(NOTIFICATION_GROUP_CHAT)
-                .setGroupSummary(true)
-                .setColor(getResources().getColor(R.color.colorNotificationMention));
-        boolean first = true;
-        boolean isLong = false;
-        int notificationCount = 0;
-        StringBuilder longBuilder = new StringBuilder();
-        for (ServerConnectionInfo info : ServerConnectionManager.getInstance(this).getConnections()) {
-            for (NotificationManager.ChannelNotificationData notificationData : info.getNotificationManager().getChannelNotificationDataList()) {
-                if (notificationData.getNotificationMessages().size() > 0) {
-                    if (first) {
-                        first = false;
-                        List<NotificationManager.NotificationMessage> list = notificationData.getNotificationMessages();
-                        notification
-                                .setContentTitle(notificationData.getChannel())
-                                .setContentText(list.get(list.size() - 1).getNotificationText(this))
-                                .setContentIntent(PendingIntent.getActivity(this, CHAT_SUMMARY_NOTIFICATION_ID, MainActivity.getLaunchIntent(this, info, notificationData.getChannel()), PendingIntent.FLAG_CANCEL_CURRENT));
-                    } else {
-                        longBuilder.append(", ");
-                        isLong = true;
-                    }
-                    longBuilder.append(notificationData.getChannel());
-                    notificationCount++;
-                }
-            }
-        }
-        if (isLong) {
-            notification
-                    .setContentTitle(getResources().getQuantityString(R.plurals.notify_multiple_messages, notificationCount, notificationCount))
-                    .setContentText(longBuilder.toString())
-                    .setContentIntent(PendingIntent.getActivity(this, CHAT_SUMMARY_NOTIFICATION_ID, new Intent(this, MainActivity.class), PendingIntent.FLAG_CANCEL_CURRENT));
-        }
-        NotificationManagerCompat.from(this).notify(CHAT_SUMMARY_NOTIFICATION_ID, notification.build());
-    }
-
     private void onMessage(ServerConnectionInfo connection, String channel, MessageInfo info) {
-        if (info.getMessage() == null || info.getSender().getNick().equals(
-                connection.getNotificationManager().getUserNick()))
-            return;
-        Log.d("IRCService", "onMessage: " + info.getMessage());
-        NotificationRule rule = connection.getNotificationManager().findRule(channel, info);
-        if (rule != null && !rule.settings.noNotification) {
-            NotificationManager.ChannelNotificationData notificationData = connection.getNotificationManager().getChannelNotificationData(channel, true);
-            NotificationManager.NotificationMessage messageData = notificationData.addNotificationMessage(info);
-            if (messageData == null)
-                return;
-
-            int notificationId = notificationData.getNotificationId();
-            String title = channel + " (" + connection.getName() + ")";
-
-            updateSummaryNotification();
-
-            RemoteViews notificationsView = createCollapsedMessagesView(title, messageData.getNotificationText(this));
-            RemoteViews notificationsViewBig = createMessagesView(title, notificationData.getNotificationMessages());
-            NotificationCompat.Builder notification = new NotificationCompat.Builder(this);
-            notification
-                    .setContentTitle(title)
-                    .setContentText(messageData.getNotificationText(this))
-                    .setContentIntent(PendingIntent.getActivity(this, notificationId, MainActivity.getLaunchIntent(this, connection, channel), PendingIntent.FLAG_CANCEL_CURRENT))
-                    .setAutoCancel(true)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setSmallIcon(R.drawable.ic_message)
-                    .setCustomContentView(notificationsView)
-                    .setCustomBigContentView(notificationsViewBig)
-                    .setGroup(NOTIFICATION_GROUP_CHAT)
-                    .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
-                    .setColor(getResources().getColor(R.color.colorNotificationMention));
-            int defaults = 0;
-            if (rule.settings.soundEnabled) {
-                if (rule.settings.soundUri != null)
-                    notification.setSound(Uri.parse(rule.settings.soundUri));
-                else
-                    defaults |= NotificationCompat.DEFAULT_SOUND;
-            }
-            if (rule.settings.vibrationEnabled) {
-                if (rule.settings.vibrationDuration != 0)
-                    notification.setVibrate(new long[] { rule.settings.vibrationDuration });
-                else
-                    defaults |= NotificationCompat.DEFAULT_VIBRATE;
-            }
-            if (rule.settings.lightEnabled) {
-                if (rule.settings.light != 0)
-                    notification.setLights(rule.settings.light, 500, 2000); // TODO: Make those on/off values customizable?
-                else
-                    defaults |= NotificationCompat.DEFAULT_LIGHTS;
-            }
-            if (!rule.settings.soundEnabled && !rule.settings.vibrationEnabled) {
-                notification.setVibrate(new long[] { 0 }); // a hack to get a headsup to show
-            }
-            notification.setDefaults(defaults);
-            NotificationManagerCompat.from(this).notify(notificationId, notification.build());
-        }
+        NotificationManager.getInstance().processMessage(this, connection, channel, info);
     }
 
     @Override

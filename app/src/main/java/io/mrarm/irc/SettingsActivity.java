@@ -27,7 +27,7 @@ import java.util.List;
 
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.dto.MessageSenderInfo;
-import io.mrarm.irc.config.NotificationManager;
+import io.mrarm.irc.config.NotificationRuleManager;
 import io.mrarm.irc.preference.ChipsEditTextPreference;
 import io.mrarm.irc.preference.FontSizePickerPreference;
 import io.mrarm.irc.preference.ListWithCustomPreference;
@@ -369,7 +369,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         @Override
         public void onDestroyView() {
             if (mAdapter != null && mAdapter.hasUnsavedChanges()) {
-                NotificationManager.saveUserRuleSettings(getActivity());
+                NotificationRuleManager.saveUserRuleSettings(getActivity());
             }
             mAdapter = null;
             super.onDestroyView();

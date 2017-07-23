@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.mrarm.chatlib.dto.MessageInfo;
+import io.mrarm.irc.NotificationManager;
 
 public class NotificationRule {
 
@@ -92,36 +93,36 @@ public class NotificationRule {
             mCompiledPattern = Pattern.compile(regex, regexCaseInsensitive ? Pattern.CASE_INSENSITIVE : 0);
     }
 
-    public Pattern createSpecificRegex(NotificationManager manager) {
+    public Pattern createSpecificRegex(NotificationManager.ConnectionData conn) {
         Matcher matcher = CommandAliasManager.mMatchVariablesRegex.matcher(regex);
         StringBuffer buf = new StringBuffer();
         while (matcher.find()) {
             String type = matcher.group(1);
             String replaceWith = "";
             if (type.equals("nick"))
-                replaceWith = manager.getUserNick();
+                replaceWith = conn.getConnection().getUserNick();
             matcher.appendReplacement(buf, Matcher.quoteReplacement(Pattern.quote(replaceWith)));
         }
         matcher.appendTail(buf);
         return Pattern.compile(buf.toString(), regexCaseInsensitive ? Pattern.CASE_INSENSITIVE : 0);
     }
 
-    public Pattern getCompiledPattern(NotificationManager manager) {
+    public Pattern getCompiledPattern(NotificationManager.ConnectionData conn) {
         if (mCompiledPattern != null)
             return mCompiledPattern;
         if (regex == null)
             return null;
-        if (!manager.mCompiledPatterns.containsKey(this))
-            manager.mCompiledPatterns.put(this, createSpecificRegex(manager));
-        return manager.mCompiledPatterns.get(this);
+        if (!conn.getCompiledPatterns().containsKey(this))
+            conn.getCompiledPatterns().put(this, createSpecificRegex(conn));
+        return conn.getCompiledPatterns().get(this);
     }
 
-    public boolean appliesTo(NotificationManager manager, String channel, MessageInfo message) {
-        if (regex != null && !getCompiledPattern(manager).matcher(message.getMessage()).find())
+    public boolean appliesTo(NotificationManager.ConnectionData conn, String channel, MessageInfo message) {
+        if (regex != null && !getCompiledPattern(conn).matcher(message.getMessage()).find())
             return false;
         boolean isNotice = message.getType() == MessageInfo.MessageType.NOTICE;
         for (AppliesToEntry entry : appliesTo) {
-            if (entry.server != null && entry.server != manager.getServerUUID())
+            if (entry.server != null && entry.server != conn.getServerUUID())
                 continue;
             if (channel == null) {
                 if ((isNotice && !entry.matchDirectNotices) ||

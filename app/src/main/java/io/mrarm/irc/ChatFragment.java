@@ -353,7 +353,7 @@ public class ChatFragment extends Fragment implements
         if (text.charAt(0) == '/') {
             SimpleTextVariableList vars = new SimpleTextVariableList();
             vars.set(CommandAliasManager.VAR_CHANNEL, channel);
-            vars.set(CommandAliasManager.VAR_MYNICK, mConnectionInfo.getNotificationManager().getUserNick());
+            vars.set(CommandAliasManager.VAR_MYNICK, mConnectionInfo.getUserNick());
             CommandAliasManager.getInstance(getContext()).processCommand((IRCConnection) mConnectionInfo.getApiInstance(), text.substring(1), vars);
             return;
         }

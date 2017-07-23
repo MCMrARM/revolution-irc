@@ -78,7 +78,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             ((ChatFragment) getParentFragment()).setCurrentChannelMembers(mMembers);
         }
         if (mConnection != null && mChannelName != null) {
-            mConnection.getNotificationManager().getChannelNotificationData(mChannelName, true).setOpened(isVisibleToUser);
+            mConnection.getNotificationData().getChannelManager(mChannelName, true).setOpened(getContext(), isVisibleToUser);
         }
     }
 
@@ -204,14 +204,14 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     public void onResume() {
         super.onResume();
         if (getUserVisibleHint())
-            mConnection.getNotificationManager().getChannelNotificationData(mChannelName, true).setOpened(true);
+            mConnection.getNotificationData().getChannelManager(mChannelName, true).setOpened(getContext(), true);
     }
 
     @Override
     public void onPause() {
         super.onPause();
         if (getUserVisibleHint())
-            mConnection.getNotificationManager().getChannelNotificationData(mChannelName, true).setOpened(false);
+            mConnection.getNotificationData().getChannelManager(mChannelName, true).setOpened(getContext(), false);
     }
 
     @Override

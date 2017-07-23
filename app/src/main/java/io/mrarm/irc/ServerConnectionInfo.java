@@ -12,9 +12,10 @@ import io.mrarm.chatlib.ChatApi;
 import io.mrarm.chatlib.android.storage.SQLiteMessageStorageApi;
 import io.mrarm.chatlib.irc.IRCConnection;
 import io.mrarm.chatlib.irc.IRCConnectionRequest;
+import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.chatlib.irc.cap.SASLCapability;
 import io.mrarm.chatlib.irc.cap.SASLOptions;
-import io.mrarm.irc.config.NotificationManager;
+import io.mrarm.irc.config.NotificationRuleManager;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.util.FilteredStorageApi;
 import io.mrarm.irc.config.SettingsHelper;
@@ -35,7 +36,7 @@ public class ServerConnectionInfo {
     private boolean mConnected = false;
     private boolean mConnecting = false;
     private boolean mUserDisconnectRequest = false;
-    private NotificationManager mNotificationManager;
+    private NotificationManager.ConnectionData mNotificationData;
     private final List<InfoChangeListener> mInfoListeners = new ArrayList<>();
     private final List<ChannelListChangeListener> mChannelsListeners = new ArrayList<>();
     private int mCurrentReconnectAttempt = -1;
@@ -49,14 +50,14 @@ public class ServerConnectionInfo {
         mConnectionRequest = connectionRequest;
         mAutojoinChannels = autojoinChannels;
         mSASLOptions = saslOptions;
-        mNotificationManager = new NotificationManager(this);
+        mNotificationData = new NotificationManager.ConnectionData(this);
     }
 
     public ServerConnectionInfo(ServerConnectionManager manager, UUID uuid, String name, ChatApi api) {
         mManager = manager;
         mUUID = uuid;
         mName = name;
-        mNotificationManager = new NotificationManager(this);
+        mNotificationData = new NotificationManager.ConnectionData(this);
         setApi(api);
     }
 
@@ -229,8 +230,12 @@ public class ServerConnectionInfo {
         }
     }
 
-    public NotificationManager getNotificationManager() {
-        return mNotificationManager;
+    public NotificationManager.ConnectionData getNotificationData() {
+        return mNotificationData;
+    }
+
+    public String getUserNick() {
+        return ((ServerConnectionApi) getApiInstance()).getServerConnectionData().getUserNick();
     }
 
     public void addOnChannelInfoChangeListener(InfoChangeListener listener) {
