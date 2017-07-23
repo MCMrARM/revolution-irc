@@ -23,9 +23,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
+import io.mrarm.irc.config.ServerCertificateManager;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
-import io.mrarm.irc.config.ServerSSLHelper;
 import io.mrarm.irc.util.ExpandIconStateHelper;
 import io.mrarm.irc.util.SimpleTextWatcher;
 import io.mrarm.irc.util.SpinnerNoPaddingArrayAdapter;
@@ -322,7 +322,7 @@ public class EditServerActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if (mEditServer != null) {
-            List<String> aliases = ServerSSLHelper.get(this, mEditServer.uuid).getCertificateAliases();
+            List<String> aliases = ServerCertificateManager.get(this, mEditServer.uuid).getCertificateAliases();
             int count = aliases != null ? aliases.size() : 0;
             mServerSSLCertsLbl.setText(getResources().getQuantityString(R.plurals.server_manage_custom_certs_text, count, count));
         }

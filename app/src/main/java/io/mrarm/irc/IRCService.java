@@ -22,6 +22,7 @@ import java.util.List;
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.irc.config.NotificationManager;
 import io.mrarm.irc.config.NotificationRule;
+import io.mrarm.irc.util.WarningHelper;
 
 public class IRCService extends Service implements ServerConnectionManager.ConnectionsListener {
 
@@ -44,6 +45,8 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
     @Override
     public void onCreate() {
         super.onCreate();
+
+        WarningHelper.setAppContext(getApplicationContext());
 
         for (ServerConnectionInfo connection : ServerConnectionManager.getInstance(this).getConnections())
             onConnectionAdded(connection);

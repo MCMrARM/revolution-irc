@@ -14,13 +14,13 @@ import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.UUID;
 
-import io.mrarm.irc.config.ServerSSLHelper;
+import io.mrarm.irc.config.ServerCertificateManager;
 
 public class CertificateManagerActivity extends AppCompatActivity {
 
     public static final String ARG_SERVER_UUID = "server_uuid";
 
-    private ServerSSLHelper mHelper;
+    private ServerCertificateManager mHelper;
     private List<String> mAliases;
     private CertificateListAdapter mAdapter;
 
@@ -31,7 +31,7 @@ public class CertificateManagerActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         String serverUUID = getIntent().getStringExtra(ARG_SERVER_UUID);
-        mHelper = ServerSSLHelper.get(this, UUID.fromString(serverUUID));
+        mHelper = ServerCertificateManager.get(this, UUID.fromString(serverUUID));
         mAliases = mHelper.getCertificateAliases();
 
         if (mAliases == null || mAliases.size() == 0) {
@@ -93,7 +93,7 @@ public class CertificateManagerActivity extends AppCompatActivity {
 
         public void bind(String alias) {
             X509Certificate cert = mHelper.getCertificate(alias);
-            mCertificateText.setText(ServerSSLHelper.buildCertOverviewString(cert));
+            mCertificateText.setText(ServerCertificateManager.buildCertOverviewString(cert));
         }
 
     }

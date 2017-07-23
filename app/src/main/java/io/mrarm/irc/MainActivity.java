@@ -31,13 +31,13 @@ import io.mrarm.irc.dialog.UserSearchDialog;
 import io.mrarm.irc.drawer.DrawerHelper;
 import io.mrarm.irc.util.NightModeRecreateHelper;
 import io.mrarm.irc.config.SettingsHelper;
-import io.mrarm.irc.util.WarningDisplayContext;
+import io.mrarm.irc.util.WarningHelper;
 import io.mrarm.irc.view.ChipsEditText;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String ARG_SERVER_UUID = "server_uuid";
-    private static final String ARG_CHANNEL_NAME = "channel";
+    public static final String ARG_SERVER_UUID = "server_uuid";
+    public static final String ARG_CHANNEL_NAME = "channel";
 
     private NightModeRecreateHelper mNightModeHelper = new NightModeRecreateHelper(this);
     private DrawerLayout mDrawerLayout;
@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        WarningHelper.setAppContext(getApplicationContext());
         IRCService.start(this);
 
         if (SettingsHelper.getInstance(this).isNightModeEnabled())
@@ -128,13 +129,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        WarningDisplayContext.setActivity(this);
+        WarningHelper.setActivity(this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        WarningDisplayContext.setActivity(null);
+        WarningHelper.setActivity(null);
     }
 
     @Override

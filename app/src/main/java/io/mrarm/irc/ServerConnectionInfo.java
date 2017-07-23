@@ -124,6 +124,14 @@ public class ServerConnectionInfo {
             }
             fConnection.joinChannels(mAutojoinChannels, null, null);
         }, (Exception e) -> {
+            if (e instanceof UserOverrideTrustManager.UserRejectedCertificateException ||
+                    (e.getCause() != null && e.getCause() instanceof
+                            UserOverrideTrustManager.UserRejectedCertificateException)) {
+                Log.d("ServerConnectionInfo", "User rejected the certificate");
+                synchronized (this) {
+                    mUserDisconnectRequest = true;
+                }
+            }
             notifyDisconnected();
         });
 

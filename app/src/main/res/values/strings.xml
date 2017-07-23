@@ -89,6 +89,8 @@
         <item quantity="other">%d unread messages</item>
     </plurals>
 
+    <string name="notification_action_required">User action required</string>
+
     <!-- Server list -->
 
     <string name="server_list_header_active">Active</string>
@@ -137,7 +139,7 @@
 
     <!-- Certificate error dialog -->
 
-    <string name="certificate_error">Failed to verify certificate</string>
+    <string name="certificate_error">Failed to verify %s\'s certificate</string>
     <string name="certificate_error_ignore">Accept and continue</string>
     <string name="certificate_bad_cert">The following certificate is not recognized by the system:</string>
     <string name="certificate_bad_hostname">The hostname provided in the certificate (%1$s) by the host does not match the hostname we are connecting to (%2$s).</string>

@@ -78,7 +78,7 @@ public class BackupManager {
                 zipFile.addStream(new ByteArrayInputStream(writer.toString().getBytes()), params);
                 File sslCertsFile = configManager.getServerSSLCertsFile(data.uuid);
                 if (sslCertsFile.exists()) {
-                    synchronized (ServerSSLHelper.get(sslCertsFile)) { // lock the helper to prevent any writes to the file
+                    synchronized (ServerCertificateManager.get(sslCertsFile)) { // lock the helper to prevent any writes to the file
                         params.setFileNameInZip(BACKUP_SERVER_CERTS_PREFIX + data.uuid + BACKUP_SERVER_CERTS_SUFFIX);
                         zipFile.addFile(sslCertsFile, params);
                     }
@@ -156,7 +156,7 @@ public class BackupManager {
                     String uuid = fileHeader.getFileName();
                     uuid = uuid.substring(BACKUP_SERVER_CERTS_PREFIX.length(), uuid.length() -
                             BACKUP_SERVER_CERTS_SUFFIX.length());
-                    ServerSSLHelper helper = ServerSSLHelper.get(context, UUID.fromString(uuid));
+                    ServerCertificateManager helper = ServerCertificateManager.get(context, UUID.fromString(uuid));
                     try {
                         helper.loadKeyStore(zipFile.getInputStream(fileHeader));
                         helper.saveKeyStore();
