@@ -12,6 +12,7 @@
 
     <color name="serverListConnected">#689F38</color>
     <color name="serverListConnecting">#FFB300</color>
+    <color name="serverListDisconnected">#F4511E</color>
     <color name="serverListInactive">#0288D1</color>
 
     <color name="messageTimestamp">#9E9E9E</color>

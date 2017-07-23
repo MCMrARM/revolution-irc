@@ -151,9 +151,9 @@ public class ServerConnectionInfo {
     private void notifyDisconnected() {
         synchronized (this) {
             setConnected(false);
+            mConnecting = false;
             if (mUserDisconnectRequest)
                 return;
-            mConnecting = false;
         }
         int reconnectDelay = mManager.getReconnectDelay(mCurrentReconnectAttempt++);
         if (reconnectDelay == -1)
@@ -194,6 +194,12 @@ public class ServerConnectionInfo {
             mConnected = connected;
         }
         notifyInfoChanged();
+    }
+
+    public boolean isConnecting() {
+        synchronized (this) {
+            return mConnecting;
+        }
     }
 
     public List<String> getChannels() {

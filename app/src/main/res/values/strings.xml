@@ -100,6 +100,7 @@
         <item quantity="other">Connected, %d channels</item>
     </plurals>
     <string name="server_list_connecting">Connecting…</string>
+    <string name="server_list_disconnected">Disconnected</string>
 
     <!-- Add server -->
 

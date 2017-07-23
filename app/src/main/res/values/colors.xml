@@ -24,6 +24,7 @@
 
     <color name="serverListConnected">#8BC34A</color>
     <color name="serverListConnecting">#FFC107</color>
+    <color name="serverListDisconnected">#FF5722</color>
     <color name="serverListInactive">#03A9F4</color>
 
     <color name="ircBlack">#000</color>

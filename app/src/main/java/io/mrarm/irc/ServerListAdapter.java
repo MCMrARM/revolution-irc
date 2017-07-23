@@ -39,6 +39,7 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     private int mColorConnected;
     private int mColorConnecting;
+    private int mColorDisconnected;
     private int mColorInactive;
 
     private int mActiveConnectionCount = 0;
@@ -48,6 +49,7 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         mContext = context;
         mColorConnected = context.getResources().getColor(R.color.serverListConnected);
         mColorConnecting = context.getResources().getColor(R.color.serverListConnecting);
+        mColorDisconnected = context.getResources().getColor(R.color.serverListDisconnected);
         mColorInactive = context.getResources().getColor(R.color.serverListInactive);
         updateConnections();
     }
@@ -346,10 +348,14 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 mIcon.setImageResource(R.drawable.ic_server_connected);
                 int channels = connectionInfo.getChannels().size();
                 mDesc.setText(mDesc.getResources().getQuantityString(R.plurals.server_list_connected, channels, channels));
-            } else {
+            } else if (connectionInfo.isConnecting()) {
                 DrawableCompat.setTint(d, adapter.mColorConnecting);
                 mIcon.setImageResource(R.drawable.ic_refresh);
                 mDesc.setText(R.string.server_list_connecting);
+            } else {
+                DrawableCompat.setTint(d, adapter.mColorDisconnected);
+                mIcon.setImageResource(R.drawable.ic_close);
+                mDesc.setText(R.string.server_list_disconnected);
             }
             mIconBg.setBackgroundDrawable(d);
             mName.setText(connectionInfo.getName());
