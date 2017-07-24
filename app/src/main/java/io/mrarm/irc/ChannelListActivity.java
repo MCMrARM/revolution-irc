@@ -1,5 +1,6 @@
 package io.mrarm.irc;
 
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -32,8 +33,9 @@ public class ChannelListActivity extends AppCompatActivity {
     private ListAdapter mListAdapter;
     private List<ChannelList.Entry> mEntries = new ArrayList<>();
     private String mFilterQuery;
-    private List<ChannelList.Entry> mFilteredEntries = new ArrayList<>();
+    private List<ChannelList.Entry> mFilteredEntries = null;
     private final List<ChannelList.Entry> mAppendEntries = new ArrayList<>();
+    private FilterAsyncTask mFilterAsyncTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +74,14 @@ public class ChannelListActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextChange(String newText) {
                 mFilterQuery = newText.toLowerCase();
-                updateFilter();
+                if (mFilterQuery.isEmpty()) {
+                    mFilterQuery = null;
+                    mFilteredEntries = null;
+                    mListAdapter.notifyDataSetChanged();
+                } else if (mFilterAsyncTask == null) {
+                    mFilterAsyncTask = new FilterAsyncTask(mFilterQuery);
+                    mFilterAsyncTask.execute();
+                }
                 return true;
             }
         });
@@ -80,7 +89,10 @@ public class ChannelListActivity extends AppCompatActivity {
         connectionInfo.getApiInstance().listChannels((ChannelList list) -> {
             runOnUiThread(() -> {
                 mEntries = list.getEntries();
-                updateFilter();
+                if (mFilterAsyncTask == null && mFilterQuery != null) {
+                    mFilterAsyncTask = new FilterAsyncTask(mFilterQuery);
+                    mFilterAsyncTask.execute();
+                }
             });
         }, (ChannelList.Entry entry) -> {
             synchronized (mAppendEntries) {
@@ -94,28 +106,19 @@ public class ChannelListActivity extends AppCompatActivity {
     private Runnable mAppendRunnable = () -> {
         synchronized (mAppendEntries) {
             mEntries.addAll(mAppendEntries);
-            for (ChannelList.Entry entry : mAppendEntries) {
-                if (filterEntry(entry))
-                    mFilteredEntries.add(entry);
-            }
             mAppendEntries.clear();
-            mListAdapter.notifyDataSetChanged();
+
+            if (mFilterQuery == null) {
+                mListAdapter.notifyDataSetChanged();
+            } else if (mFilterAsyncTask == null) {
+                mFilterAsyncTask = new FilterAsyncTask(mFilterQuery);
+                mFilterAsyncTask.execute();
+            }
         }
     };
 
-    private boolean filterEntry(ChannelList.Entry entry) {
-        return mFilterQuery == null || entry.getChannel().toLowerCase().contains(mFilterQuery);
-    }
-
-    private void updateFilter() {
-        mFilteredEntries.clear();
-        if (mFilterQuery != null) {
-            for (ChannelList.Entry entry : mEntries) {
-                if (filterEntry(entry))
-                    mFilteredEntries.add(entry);
-            }
-        }
-        mListAdapter.notifyDataSetChanged();
+    private boolean filterEntry(ChannelList.Entry entry, String query) {
+        return mFilterQuery == null || entry.getChannel().toLowerCase().contains(query);
     }
 
     @Override
@@ -168,7 +171,9 @@ public class ChannelListActivity extends AppCompatActivity {
         }
         if (!searchMode) {
             mFilterQuery = null;
-            updateFilter();
+            mFilteredEntries = null;
+            mSearchView.setQuery(null, false);
+            mListAdapter.notifyDataSetChanged();
         }
     }
 
@@ -183,13 +188,13 @@ public class ChannelListActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(ListEntry holder, int position) {
-            holder.bind(mFilterQuery == null ? mEntries.get(position)
+            holder.bind(mFilteredEntries == null ? mEntries.get(position)
                     : mFilteredEntries.get(position));
         }
 
         @Override
         public int getItemCount() {
-            return mFilterQuery == null ? mEntries.size() : mFilteredEntries.size();
+            return mFilteredEntries == null ? mEntries.size() : mFilteredEntries.size();
         }
 
     }
@@ -212,6 +217,37 @@ public class ChannelListActivity extends AppCompatActivity {
             mTopic.setText(entry.getTopic().trim());
         }
 
+    }
+
+    private class FilterAsyncTask extends AsyncTask<Void, Void, List<ChannelList.Entry>> {
+
+        private String mQueryString;
+
+        public FilterAsyncTask(String queryString) {
+            mQueryString = queryString;
+        }
+
+        @Override
+        protected List<ChannelList.Entry> doInBackground(Void... voids) {
+            List<ChannelList.Entry> ret = new ArrayList<>();
+            for (ChannelList.Entry entry : mEntries) {
+                if (filterEntry(entry, mQueryString))
+                    ret.add(entry);
+            }
+            return ret;
+        }
+
+        @Override
+        protected void onPostExecute(List<ChannelList.Entry> aVoid) {
+            mFilteredEntries = aVoid;
+            mListAdapter.notifyDataSetChanged();
+            if (!mQueryString.equals(mFilterQuery)) {
+                mFilterAsyncTask = new FilterAsyncTask(mFilterQuery);
+                mFilterAsyncTask.execute();
+            } else {
+                mFilterAsyncTask = null;
+            }
+        }
     }
 
 }
