@@ -282,6 +282,12 @@ public class MainActivity extends AppCompatActivity {
                         ChatApi api = ((ChatFragment) getCurrentFragment()).getConnectionInfo().getApiInstance();
                         api.joinChannels(editText.getItems(), null, null);
                     })
+                    .setNeutralButton(R.string.title_activity_channel_list, (DialogInterface d, int which) -> {
+                        ServerConnectionInfo info = ((ChatFragment) getCurrentFragment()).getConnectionInfo();
+                        Intent intent = new Intent(this, ChannelListActivity.class);
+                        intent.putExtra(ChannelListActivity.ARG_SERVER_UUID, info.getUUID().toString());
+                        startActivity(intent);
+                    })
                     .create();
             dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
             dialog.show();

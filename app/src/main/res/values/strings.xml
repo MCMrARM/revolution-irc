@@ -147,6 +147,15 @@
     <string name="certificate_error_footer">You shouldn\'t accept this certificate if you aren\'t sure what this means.</string>
     <string name="certificate_error_remember">Remember exception</string>
 
+    <!-- Channel list -->
+
+    <string name="title_activity_channel_list">Channel list</string>
+
+    <plurals name="channel_list_title_with_member_count">
+        <item quantity="one">%s (%d member)</item>
+        <item quantity="other">%s (%d members)</item>
+    </plurals>
+
     <!-- Settings -->
 
     <string name="title_activity_settings">Settings</string>

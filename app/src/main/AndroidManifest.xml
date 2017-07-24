@@ -40,6 +40,10 @@
             android:name=".EditIgnoreEntryActivity"
             android:label="@string/title_activity_edit_ignore_entry" />
         <activity
+            android:name=".ChannelListActivity"
+            android:label="@string/title_activity_channel_list"
+            android:theme="@style/AppTheme.NoActionBar.OpaqueStatusBar" />
+        <activity
             android:name=".CertificateManagerActivity"
             android:label="@string/title_activity_certificate_manager" />
         <activity
@@ -52,22 +56,23 @@
         <activity
             android:name=".setup.BackupActivity"
             android:label="@string/title_activity_backup"
-            android:theme="@style/AppTheme.Setup" />
+            android:theme="@style/AppTheme.NoActionBar.OpaqueStatusBar" />
         <activity
             android:name=".setup.BackupPasswordActivity"
             android:label="@string/title_activity_backup_password"
-            android:theme="@style/AppTheme.Setup"
+            android:theme="@style/AppTheme.NoActionBar.OpaqueStatusBar"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".setup.BackupProgressActivity"
             android:label="@string/title_activity_backup_progress"
-            android:theme="@style/AppTheme.Setup" />
+            android:theme="@style/AppTheme.NoActionBar.OpaqueStatusBar" />
         <activity
             android:name=".setup.BackupCompleteActivity"
             android:label="@string/title_activity_backup"
-            android:theme="@style/AppTheme.Setup" />
+            android:theme="@style/AppTheme.NoActionBar.OpaqueStatusBar" />
 
         <service android:name=".IRCService" />
+
         <receiver
             android:name=".ChannelNotificationManager$NotificationDismissReceiver"
             android:exported="false" />
