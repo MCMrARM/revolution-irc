@@ -142,7 +142,7 @@ public class ChannelListActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (mSearchView.getVisibility() == View.VISIBLE) {
+        if (mSearchAppBar.getVisibility() == View.VISIBLE) {
             setSearchMode(false);
             return;
         }
