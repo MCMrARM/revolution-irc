@@ -60,6 +60,7 @@
     <string name="action_clone">Clone</string>
     <string name="action_continue">Continue</string>
     <string name="action_finish">Finish</string>
+    <string name="action_search">Search</string>
     <string name="action_join_channel">Join channel</string>
     <string name="action_message_user">Message user</string>
     <string name="action_part_channel">Leave channel</string>
