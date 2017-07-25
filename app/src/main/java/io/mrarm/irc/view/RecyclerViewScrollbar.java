@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
 import io.mrarm.irc.R;
@@ -18,6 +19,7 @@ public class RecyclerViewScrollbar extends View {
     private RecyclerView mRecyclerView;
     private int mRecyclerViewId;
     private int mItemCount = 0;
+    private float mScrollPos = 0.f;
     private float mBottomItemsHeight = -1.f;
 
     public RecyclerViewScrollbar(Context context) {
@@ -49,12 +51,14 @@ public class RecyclerViewScrollbar extends View {
                 public void onChanged() {
                     mItemCount = mRecyclerView.getAdapter().getItemCount();
                     mBottomItemsHeight = -1;
+                    updateScrollPos();
                     invalidate();
                 }
             });
             mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
                 public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                    updateScrollPos();
                     invalidate();
                 }
             });
@@ -72,6 +76,42 @@ public class RecyclerViewScrollbar extends View {
                 w = Math.min(w, MeasureSpec.getSize(widthMeasureSpec));
             setMeasuredDimension(w, getMeasuredHeight());
         }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN && event.getActionIndex() == 0) {
+            int y = (int) event.getY() - getPaddingTop() - getScrollbarTop();
+            if (y < -getPaddingTop() || y > getScrollbarHeight() + getPaddingBottom()) // use padding to expand hitbox by the amount
+                return false;
+            setPressed(true);
+            return true;
+        } else if (event.getAction() == MotionEvent.ACTION_UP && event.getActionIndex() == 0) {
+            setPressed(false);
+            return true;
+        } else if (event.getAction() == MotionEvent.ACTION_MOVE && isPressed()) {
+            float pos = (event.getY() - getPaddingTop()) / getScrollbarHeight();
+            ((LinearLayoutManager) mRecyclerView.getLayoutManager()).scrollToPositionWithOffset((int) pos, 0);
+        }
+        return false;
+    }
+
+    @Override
+    protected void drawableStateChanged() {
+        super.drawableStateChanged();
+        if (mScrollbarDrawable.setState(getDrawableState()))
+            invalidate();
+    }
+
+    private void updateScrollPos() {
+        if (mRecyclerView == null)
+            return;
+        int itemPos = ((LinearLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+        mScrollPos = itemPos;
+        if (itemPos == -1)
+            return;
+        RecyclerView.ViewHolder holder = mRecyclerView.findViewHolderForAdapterPosition(itemPos);
+        mScrollPos -= (float) holder.itemView.getTop() / holder.itemView.getHeight();
     }
 
     private float getBottomViewCount() {
@@ -95,28 +135,29 @@ public class RecyclerViewScrollbar extends View {
         return 0.f;
     }
 
+    private float getScrollbarHeight() {
+        float scrollbarHeight = getHeight() - getPaddingTop() - getPaddingBottom();
+        scrollbarHeight /= (mItemCount - mBottomItemsHeight);
+        return scrollbarHeight;
+    }
+
+    private int getScrollbarTop() {
+        return (int) (mScrollPos * getScrollbarHeight());
+    }
+
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
-        float scroll = 0.f;
-        if (mRecyclerView != null) {
-            int itemPos = ((LinearLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
-            scroll += itemPos;
-            if (itemPos == -1)
-                return;
-            RecyclerView.ViewHolder holder = mRecyclerView.findViewHolderForAdapterPosition(itemPos);
-            scroll -= (float) holder.itemView.getTop() / holder.itemView.getHeight();
-        }
         if (mItemCount == 0)
             return;
         if (mBottomItemsHeight == -1)
             mBottomItemsHeight = getBottomViewCount();
-        float scrollbarHeight = getHeight() - getPaddingTop() - getPaddingBottom();
-        scrollbarHeight /= (mItemCount - mBottomItemsHeight);
-        scroll *= scrollbarHeight;
-        mScrollbarDrawable.setBounds(getPaddingLeft(), getPaddingTop() + (int) scroll,
+        int scrollbarHeight = (int) getScrollbarHeight();
+        int scrollbarTop = getScrollbarTop();
+        mScrollbarDrawable.setBounds(getPaddingLeft(),
+                getPaddingTop() + scrollbarTop,
                 getWidth() - getPaddingRight(),
-                getPaddingTop() + (int) scroll + (int) scrollbarHeight);
+                getPaddingTop() + scrollbarTop + scrollbarHeight);
         mScrollbarDrawable.draw(canvas);
     }
 }
