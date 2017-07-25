@@ -29,6 +29,7 @@ public class RecyclerViewScrollbar extends View {
     private Drawable mLetterDrawable;
     private int mLetterTextSize;
     private int mLetterTextColor;
+    private int mMinScrollbarHeight;
 
     private Paint mLetterTextPaint;
     private Rect mTempRect = new Rect();
@@ -51,6 +52,7 @@ public class RecyclerViewScrollbar extends View {
         mLetterDrawable = ta.getDrawable(R.styleable.RecyclerViewScrollbar_letterDrawable);
         mLetterTextColor = ta.getColor(R.styleable.RecyclerViewScrollbar_letterTextColor, 0);
         mLetterTextSize = ta.getDimensionPixelSize(R.styleable.RecyclerViewScrollbar_letterTextSize, 0);
+        mMinScrollbarHeight = ta.getDimensionPixelOffset(R.styleable.RecyclerViewScrollbar_minScrollbarHeight, 0);
         ta.recycle();
         mLetterTextPaint = new Paint();
         mLetterTextPaint.setColor(mLetterTextColor);
@@ -109,7 +111,9 @@ public class RecyclerViewScrollbar extends View {
             setPressed(false);
             return true;
         } else if (event.getAction() == MotionEvent.ACTION_MOVE && isPressed()) {
-            float pos = (event.getY() - getPaddingTop() - mScrollDragOffset) / getScrollbarHeight();
+            float pos = (event.getY() - getPaddingTop() - mScrollDragOffset);
+            pos /= (getHeight() - getPaddingTop() - getPaddingBottom() - getScrollbarHeight());
+            pos *= mItemCount - mBottomItemsHeight - 1;
             pos = Math.min(Math.max(pos, 0.f), mItemCount - mBottomItemsHeight - 1);
             ((LinearLayoutManager) mRecyclerView.getLayoutManager()).scrollToPositionWithOffset((int) pos, 0);
             mScrollPos = pos;
@@ -158,14 +162,15 @@ public class RecyclerViewScrollbar extends View {
         return 0.f;
     }
 
-    private float getScrollbarHeight() {
+    private int getScrollbarHeight() {
         float scrollbarHeight = getHeight() - getPaddingTop() - getPaddingBottom();
         scrollbarHeight /= (mItemCount - mBottomItemsHeight);
-        return scrollbarHeight;
+        return Math.max((int) scrollbarHeight, mMinScrollbarHeight);
     }
 
     private int getScrollbarTop() {
-        return (int) (mScrollPos * getScrollbarHeight());
+        return (int) (mScrollPos / (mItemCount - mBottomItemsHeight - 1) *
+                (getHeight() - getPaddingTop() - getPaddingBottom() - getScrollbarHeight()));
     }
 
     @Override
@@ -175,7 +180,7 @@ public class RecyclerViewScrollbar extends View {
             return;
         if (mBottomItemsHeight == -1)
             mBottomItemsHeight = getBottomViewCount();
-        int scrollbarHeight = (int) getScrollbarHeight();
+        int scrollbarHeight = getScrollbarHeight();
         int scrollbarTop = getScrollbarTop();
         mScrollbarDrawable.setBounds(getPaddingLeft(),
                 getPaddingTop() + scrollbarTop,

@@ -20,6 +20,7 @@
     <declare-styleable name="RecyclerViewScrollbar">
         <attr name="recyclerView" format="reference" />
         <attr name="scrollbarDrawable" format="reference" />
+        <attr name="minScrollbarHeight" format="dimension" />
         <attr name="letterDrawable" format="reference" />
         <attr name="letterTextSize" format="dimension" />
         <attr name="letterTextColor" format="color" />

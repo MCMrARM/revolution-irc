@@ -138,6 +138,7 @@
     <style name="RecyclerViewScrollbar">
         <item name="android:padding">8dp</item>
         <item name="scrollbarDrawable">@drawable/recyclerview_scrollbar</item>
+        <item name="minScrollbarHeight">24dp</item>
         <item name="letterDrawable">@drawable/recyclerview_scrollbar_letter</item>
         <item name="letterTextSize">32dp</item>
         <item name="letterTextColor">#fff</item>
