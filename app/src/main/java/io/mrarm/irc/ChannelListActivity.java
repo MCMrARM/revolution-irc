@@ -224,7 +224,6 @@ public class ChannelListActivity extends AppCompatActivity {
             mName = (TextView) itemView.findViewById(R.id.name);
             mTopic = (TextView) itemView.findViewById(R.id.topic);
             itemView.setOnClickListener((View view) -> {
-                /*
                 List<String> channels = new ArrayList<>();
                 channels.add((String) mName.getTag());
                 mConnection.getApiInstance().joinChannels(channels, (Void v) -> {
@@ -232,7 +231,7 @@ public class ChannelListActivity extends AppCompatActivity {
                         startActivity(MainActivity.getLaunchIntent(ChannelListActivity.this,
                                 mConnection, channels.get(0)));
                     });
-                }, null);*/
+                }, null);
             });
         }
 
