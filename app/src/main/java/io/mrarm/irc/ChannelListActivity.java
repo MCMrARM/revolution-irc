@@ -17,7 +17,9 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,16 +29,26 @@ public class ChannelListActivity extends AppCompatActivity {
 
     public static final String ARG_SERVER_UUID = "server_uuid";
 
+    public static final int SORT_UNSORTED = 0;
+    public static final int SORT_NAME = 1;
+    public static final int SORT_MEMBER_COUNT = 2;
+
     private ServerConnectionInfo mConnection;
     private View mMainAppBar;
     private View mSearchAppBar;
     private SearchView mSearchView;
     private ListAdapter mListAdapter;
-    private List<ChannelList.Entry> mEntries = new ArrayList<>();
+
     private String mFilterQuery;
-    private List<ChannelList.Entry> mFilteredEntries = null;
+    private int mSortMode = SORT_NAME;
+
+    private UpdateListAsyncTask mUpdateListAsyncTask;
+
+    private List<ChannelList.Entry> mEntries = new ArrayList<>();
+    private List<ChannelList.Entry> mFilteredEntries = new ArrayList<>();
+
     private final List<ChannelList.Entry> mAppendEntries = new ArrayList<>();
-    private FilterAsyncTask mFilterAsyncTask;
+    private List<ChannelList.Entry> mAssignEntries = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,51 +86,35 @@ public class ChannelListActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextChange(String newText) {
                 mFilterQuery = newText.toLowerCase();
-                if (mFilterQuery.isEmpty()) {
-                    mFilterQuery = null;
-                    mFilteredEntries = null;
-                    mListAdapter.notifyDataSetChanged();
-                } else if (mFilterAsyncTask == null) {
-                    mFilterAsyncTask = new FilterAsyncTask(mFilterQuery);
-                    mFilterAsyncTask.execute();
-                }
+                requestListUpdate();
                 return true;
             }
         });
 
         mConnection.getApiInstance().listChannels((ChannelList list) -> {
-            runOnUiThread(() -> {
-                mEntries = list.getEntries();
-                if (mFilterAsyncTask == null && mFilterQuery != null) {
-                    mFilterAsyncTask = new FilterAsyncTask(mFilterQuery);
-                    mFilterAsyncTask.execute();
-                }
-            });
+            synchronized (mAppendEntries) {
+                mAppendEntries.clear();
+                mAssignEntries = list.getEntries();
+            }
+            runOnUiThread(this::requestListUpdate);
         }, (ChannelList.Entry entry) -> {
             synchronized (mAppendEntries) {
                 mAppendEntries.add(entry);
-                if (mAppendEntries.size() == 1)
-                    runOnUiThread(mAppendRunnable);
             }
+            runOnUiThread(this::requestListUpdate);
         }, null);
     }
 
-    private Runnable mAppendRunnable = () -> {
-        synchronized (mAppendEntries) {
-            mEntries.addAll(mAppendEntries);
-            mAppendEntries.clear();
+    private static boolean filterEntry(ChannelList.Entry entry, String query) {
+        return query == null || query.length() == 0 ||
+                entry.getChannel().toLowerCase().contains(query);
+    }
 
-            if (mFilterQuery == null) {
-                mListAdapter.notifyDataSetChanged();
-            } else if (mFilterAsyncTask == null) {
-                mFilterAsyncTask = new FilterAsyncTask(mFilterQuery);
-                mFilterAsyncTask.execute();
-            }
+    private void requestListUpdate() {
+        if (mUpdateListAsyncTask == null) {
+            mUpdateListAsyncTask = new UpdateListAsyncTask(this);
+            mUpdateListAsyncTask.execute();
         }
-    };
-
-    private boolean filterEntry(ChannelList.Entry entry, String query) {
-        return mFilterQuery == null || entry.getChannel().toLowerCase().contains(query);
     }
 
     @Override
@@ -138,6 +134,15 @@ public class ChannelListActivity extends AppCompatActivity {
         } else if (id == R.id.action_search) {
             setSearchMode(true);
             mSearchView.setIconified(false); // This will cause the search view to be focused and show the keyboard
+            return true;
+        } else if (id == R.id.action_sort_none || id == R.id.action_sort_name || id == R.id.action_sort_member_count) {
+            if (id == R.id.action_sort_name)
+                mSortMode = SORT_NAME;
+            else if (id == R.id.action_sort_member_count)
+                mSortMode = SORT_MEMBER_COUNT;
+            else
+                mSortMode = SORT_UNSORTED;
+            requestListUpdate();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -231,33 +236,61 @@ public class ChannelListActivity extends AppCompatActivity {
 
     }
 
-    private class FilterAsyncTask extends AsyncTask<Void, Void, List<ChannelList.Entry>> {
+    private static class UpdateListAsyncTask extends AsyncTask<Void, Void, List<ChannelList.Entry>> {
 
-        private String mQueryString;
+        private WeakReference<ChannelListActivity> mActivity;
+        private String mStartFilterQuery;
+        private int mStartSortMode;
 
-        public FilterAsyncTask(String queryString) {
-            mQueryString = queryString;
+        public UpdateListAsyncTask(ChannelListActivity activity) {
+            mActivity = new WeakReference<>(activity);
+            mStartFilterQuery = activity.mFilterQuery;
+            mStartSortMode = activity.mSortMode;
         }
 
         @Override
         protected List<ChannelList.Entry> doInBackground(Void... voids) {
+            ChannelListActivity activity = mActivity.get();
+            if (activity == null)
+                return null;
+            synchronized (activity.mAppendEntries) {
+                activity.mEntries.addAll(activity.mAppendEntries);
+                activity.mAppendEntries.clear();
+                if (activity.mAssignEntries != null) {
+                    activity.mEntries = activity.mAssignEntries;
+                    activity.mAssignEntries = null;
+                }
+            }
             List<ChannelList.Entry> ret = new ArrayList<>();
-            for (ChannelList.Entry entry : mEntries) {
-                if (filterEntry(entry, mQueryString))
+            for (ChannelList.Entry entry : activity.mEntries) {
+                if (filterEntry(entry, mStartFilterQuery))
                     ret.add(entry);
+            }
+            if (mStartSortMode == SORT_NAME) {
+                Collections.sort(ret, (ChannelList.Entry l, ChannelList.Entry r) ->
+                        l.getChannel().compareTo(r.getChannel()));
+            } else if (mStartSortMode == SORT_MEMBER_COUNT) {
+                Collections.sort(ret, (ChannelList.Entry l, ChannelList.Entry r) ->
+                        Integer.compare(r.getMemberCount(), l.getMemberCount()));
             }
             return ret;
         }
 
         @Override
-        protected void onPostExecute(List<ChannelList.Entry> aVoid) {
-            mFilteredEntries = aVoid;
-            mListAdapter.notifyDataSetChanged();
-            if (!mQueryString.equals(mFilterQuery)) {
-                mFilterAsyncTask = new FilterAsyncTask(mFilterQuery);
-                mFilterAsyncTask.execute();
-            } else {
-                mFilterAsyncTask = null;
+        protected void onPostExecute(List<ChannelList.Entry> ret) {
+            ChannelListActivity activity = mActivity.get();
+            if (activity == null || ret == null)
+                return;
+            activity.mFilteredEntries = ret;
+            activity.mListAdapter.notifyDataSetChanged();
+            activity.mUpdateListAsyncTask = null;
+            if ((mStartFilterQuery != null && !mStartFilterQuery.equals(activity.mFilterQuery)) ||
+                    mStartSortMode != activity.mSortMode) {
+                activity.requestListUpdate();
+            }
+            synchronized (activity.mAppendEntries) {
+                if (activity.mAppendEntries.size() > 0)
+                    activity.requestListUpdate();
             }
         }
     }

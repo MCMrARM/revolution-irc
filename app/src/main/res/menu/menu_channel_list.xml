@@ -2,6 +2,30 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/action_sort"
+        android:icon="@drawable/ic_sort_white"
+        android:title="@string/action_sort"
+        app:showAsAction="always">
+
+        <menu>
+
+            <item
+                android:id="@+id/action_sort_none"
+                android:title="@string/action_sort_none" />
+
+            <item
+                android:id="@+id/action_sort_name"
+                android:title="@string/action_sort_name" />
+
+            <item
+                android:id="@+id/action_sort_member_count"
+                android:title="@string/action_sort_member_count" />
+
+        </menu>
+
+    </item>
+
+    <item
         android:id="@+id/action_search"
         android:icon="@drawable/ic_search_white"
         android:title="@string/action_search"

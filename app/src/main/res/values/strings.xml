@@ -61,6 +61,9 @@
     <string name="action_continue">Continue</string>
     <string name="action_finish">Finish</string>
     <string name="action_search">Search</string>
+    <string name="action_sort">Sort</string>
+    <string name="action_sort_none">Do not sort</string>
+    <string name="action_sort_name">Sort by name</string>
     <string name="action_join_channel">Join channel</string>
     <string name="action_message_user">Message user</string>
     <string name="action_part_channel">Leave channel</string>
@@ -151,6 +154,7 @@
     <!-- Channel list -->
 
     <string name="title_activity_channel_list">Channel list</string>
+    <string name="action_sort_member_count">Sort by member count</string>
 
     <plurals name="channel_list_title_with_member_count">
         <item quantity="one">%s (%d member)</item>
