@@ -6,6 +6,7 @@
         <item name="colorAccent">@color/colorAccent</item>
 
         <item name="textFormatBarStyle">@style/TextFormatBar</item>
+        <item name="recyclerViewScrollbarStyle">@style/RecyclerViewScrollbar</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -132,6 +133,10 @@
         <item name="android:padding">8dp</item>
         <item name="android:layout_marginRight">2dp</item>
         <item name="android:background">@drawable/format_item_background</item>
+    </style>
+
+    <style name="RecyclerViewScrollbar">
+        <item name="android:padding">8dp</item>
     </style>
 
 </resources>

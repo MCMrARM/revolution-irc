@@ -2,6 +2,7 @@
 <resources>
 
     <attr name="textFormatBarStyle" type="reference" />
+    <attr name="recyclerViewScrollbarStyle" type="reference" />
 
     <declare-styleable name="LabelLayout">
         <attr name="doNotExpand" format="boolean" />
@@ -14,6 +15,10 @@
             <enum name="file" value="2" />
             <enum name="font" value="3" />
         </attr>
+    </declare-styleable>
+
+    <declare-styleable name="RecyclerViewScrollbar">
+        <attr name="recyclerView" format="reference" />
     </declare-styleable>
 
 </resources>

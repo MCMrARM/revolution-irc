@@ -46,7 +46,11 @@ public class ServerListFragment extends Fragment {
         mAdapter = new ServerListAdapter(getActivity());
         recyclerView.setAdapter(mAdapter);
         mAdapter.setActiveServerClickListener((ServerConnectionInfo info) -> {
-            ((MainActivity) getActivity()).openServer(info, null, true);
+            Intent intent = new Intent(getContext(), ChannelListActivity.class);
+            intent.putExtra(ChannelListActivity.ARG_SERVER_UUID, info.getUUID().toString());
+            startActivity(intent);
+
+            //((MainActivity) getActivity()).openServer(info, null, true);
         });
         mAdapter.setActiveServerLongClickListener((ServerConnectionInfo info) -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
