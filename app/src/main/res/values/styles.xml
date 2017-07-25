@@ -140,8 +140,12 @@
         <item name="scrollbarDrawable">@drawable/recyclerview_scrollbar</item>
         <item name="minScrollbarHeight">24dp</item>
         <item name="letterDrawable">@drawable/recyclerview_scrollbar_letter</item>
-        <item name="letterTextSize">32dp</item>
-        <item name="letterTextColor">#fff</item>
+        <item name="letterTextAppearance">@style/ScrollbarLetterTextAppearance</item>
+    </style>
+
+    <style name="ScrollbarLetterTextAppearance">
+        <item name="android:textSize">32dp</item>
+        <item name="android:textColor">#fff</item>
     </style>
 
 </resources>

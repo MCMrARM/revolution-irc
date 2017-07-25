@@ -52,20 +52,22 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/list"
+    <io.mrarm.irc.view.RecyclerViewScrollbarLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/search_appbar"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <io.mrarm.irc.view.RecyclerViewScrollbar
-        android:id="@+id/scrollbar"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_below="@id/search_appbar"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        app:recyclerView="@id/list" />
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <io.mrarm.irc.view.RecyclerViewScrollbar
+            android:id="@+id/scrollbar"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+
+    </io.mrarm.irc.view.RecyclerViewScrollbarLayout>
 
 </RelativeLayout>

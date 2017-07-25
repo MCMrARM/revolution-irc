@@ -8,11 +8,17 @@ import android.graphics.Rect;
 import android.graphics.Region;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.TextViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import io.mrarm.irc.R;
 
@@ -27,13 +33,8 @@ public class RecyclerViewScrollbar extends View {
 
     private Drawable mScrollbarDrawable;
     private Drawable mLetterDrawable;
-    private int mLetterTextSize;
-    private int mLetterTextColor;
+    private TextView mLetterView;
     private int mMinScrollbarHeight;
-
-    private Paint mLetterTextPaint;
-    private Rect mTempRect = new Rect();
-    private Rect mTempPaddingRect = new Rect();
 
     public RecyclerViewScrollbar(Context context) {
         this(context, null);
@@ -50,38 +51,27 @@ public class RecyclerViewScrollbar extends View {
         mRecyclerViewId = ta.getResourceId(R.styleable.RecyclerViewScrollbar_recyclerView, 0);
         mScrollbarDrawable = ta.getDrawable(R.styleable.RecyclerViewScrollbar_scrollbarDrawable);
         mLetterDrawable = ta.getDrawable(R.styleable.RecyclerViewScrollbar_letterDrawable);
-        mLetterTextColor = ta.getColor(R.styleable.RecyclerViewScrollbar_letterTextColor, 0);
-        mLetterTextSize = ta.getDimensionPixelSize(R.styleable.RecyclerViewScrollbar_letterTextSize, 0);
+        int letterTextResId = ta.getResourceId(R.styleable.RecyclerViewScrollbar_letterTextAppearance, 0);
         mMinScrollbarHeight = ta.getDimensionPixelOffset(R.styleable.RecyclerViewScrollbar_minScrollbarHeight, 0);
         ta.recycle();
-        mLetterTextPaint = new Paint();
-        mLetterTextPaint.setColor(mLetterTextColor);
-        mLetterTextPaint.setTextSize(mLetterTextSize);
+
+        mLetterView = new TextView(getContext());
+        mLetterView.setBackgroundDrawable(mLetterDrawable);
+        TextViewCompat.setTextAppearance(mLetterView, letterTextResId);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.gravity = GravityCompat.END;
+        mLetterView.setLayoutParams(params);
+        mLetterView.setGravity(Gravity.CENTER);
     }
 
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         if (mRecyclerViewId != 0) {
-            mRecyclerView = (RecyclerView) getRootView().findViewById(mRecyclerViewId);
-            mRecyclerView.getAdapter().registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-                @Override
-                public void onChanged() {
-                    mItemCount = mRecyclerView.getAdapter().getItemCount();
-                    mBottomItemsHeight = -1;
-                    updateScrollPos();
-                    invalidate();
-                }
-            });
-            mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-                @Override
-                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                    if (isPressed())
-                        return;
-                    updateScrollPos();
-                    invalidate();
-                }
-            });
+            setRecyclerView(getRootView().findViewById(mRecyclerViewId));
+        } else {
+            setRecyclerView(mRecyclerView);
         }
     }
 
@@ -95,6 +85,10 @@ public class RecyclerViewScrollbar extends View {
             if (widthMeasureMode == MeasureSpec.AT_MOST)
                 w = Math.min(w, MeasureSpec.getSize(widthMeasureSpec));
             setMeasuredDimension(w, getMeasuredHeight());
+
+            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) mLetterView.getLayoutParams();
+            params.rightMargin = w;
+            mLetterView.setLayoutParams(params);
         }
     }
 
@@ -106,9 +100,15 @@ public class RecyclerViewScrollbar extends View {
                 return false;
             mScrollDragOffset = y;
             setPressed(true);
+            mLetterView.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
+            updateDragLetterView();
+            if (mLetterView.getParent() == null)
+                ((RecyclerViewScrollbarLayout) getParent()).addView(mLetterView);
             return true;
         } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
             setPressed(false);
+            if (mLetterView.getParent() != null)
+                ((RecyclerViewScrollbarLayout) getParent()).removeView(mLetterView);
             return true;
         } else if (event.getAction() == MotionEvent.ACTION_MOVE && isPressed()) {
             float pos = (event.getY() - getPaddingTop() - mScrollDragOffset);
@@ -118,6 +118,7 @@ public class RecyclerViewScrollbar extends View {
             ((LinearLayoutManager) mRecyclerView.getLayoutManager()).scrollToPositionWithOffset((int) pos, 0);
             mScrollPos = pos;
             invalidate();
+            updateDragLetterView();
             return true;
         }
         return false;
@@ -130,6 +131,53 @@ public class RecyclerViewScrollbar extends View {
             invalidate();
     }
 
+    public void setRecyclerView(RecyclerView recyclerView) {
+        if (mRecyclerView != null) {
+            mRecyclerView.removeOnScrollListener(mScrollListener);
+            mRecyclerView.removeOnLayoutChangeListener(mLayoutChangeListener);
+        }
+
+        mRecyclerView = recyclerView;
+
+        recyclerView.addOnScrollListener(mScrollListener);
+        recyclerView.addOnLayoutChangeListener(mLayoutChangeListener);
+        registerAdapterDataObserver();
+    }
+
+    private final RecyclerView.OnScrollListener mScrollListener = new RecyclerView.OnScrollListener() {
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            if (isPressed())
+                return;
+            updateScrollPos();
+            invalidate();
+        }
+    };
+
+    private final OnLayoutChangeListener mLayoutChangeListener =
+            (View view, int l, int t, int r, int b, int ol, int ot, int or, int ob) -> {
+                if (l == ol && t == ot && r == or && b == ob)
+                    return;
+                mItemCount = mRecyclerView.getAdapter().getItemCount();
+                mBottomItemsHeight = -1;
+                updateScrollPos();
+                invalidate();
+            };
+
+    public void registerAdapterDataObserver() {
+        if (mRecyclerView == null || mRecyclerView.getAdapter() == null)
+            return;
+        mRecyclerView.getAdapter().registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onChanged() {
+                mItemCount = mRecyclerView.getAdapter().getItemCount();
+                mBottomItemsHeight = -1;
+                updateScrollPos();
+                invalidate();
+            }
+        });
+    }
+
     private void updateScrollPos() {
         if (mRecyclerView == null)
             return;
@@ -139,6 +187,22 @@ public class RecyclerViewScrollbar extends View {
             return;
         RecyclerView.ViewHolder holder = mRecyclerView.findViewHolderForAdapterPosition(itemPos);
         mScrollPos -= (float) holder.itemView.getTop() / holder.itemView.getHeight();
+    }
+
+    private void updateDragLetterView() {
+        if (isPressed() && mRecyclerView.getAdapter() instanceof LetterAdapter) {
+            String lText = ((LetterAdapter) mRecyclerView.getAdapter()).getLetterFor((int) mScrollPos);
+            if (lText != null) {
+                mLetterView.setVisibility(View.VISIBLE);
+                mLetterView.setText(lText);
+                FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) mLetterView.getLayoutParams();
+                params.topMargin = Math.max(getTop() + getScrollbarTop() + getScrollbarHeight()
+                        - mLetterView.getMeasuredHeight(), 0) + getPaddingTop();
+                mLetterView.setLayoutParams(params);
+            } else {
+                mLetterView.setVisibility(View.GONE);
+            }
+        }
     }
 
     private float getBottomViewCount() {
@@ -187,27 +251,6 @@ public class RecyclerViewScrollbar extends View {
                 getWidth() - getPaddingRight(),
                 getPaddingTop() + scrollbarTop + scrollbarHeight);
         mScrollbarDrawable.draw(canvas);
-        if (isPressed() && mRecyclerView.getAdapter() instanceof LetterAdapter) {
-            String lText = ((LetterAdapter) mRecyclerView.getAdapter()).getLetterFor((int) mScrollPos);
-            if (lText == null)
-                return;
-            mLetterDrawable.getPadding(mTempPaddingRect);
-            int lTextWidth = (int) mLetterTextPaint.measureText(lText);
-            int lWidth = mTempPaddingRect.left + mTempPaddingRect.right + lTextWidth;
-            int lHeight = mTempPaddingRect.top + mTempPaddingRect.bottom + (int) (mLetterTextPaint.descent() - mLetterTextPaint.ascent());
-            lWidth = Math.max(lWidth, mLetterDrawable.getMinimumWidth());
-            lHeight = Math.max(lHeight, mLetterDrawable.getMinimumHeight());
-            int lTop = Math.max(scrollbarTop + scrollbarHeight - lHeight, 0) + getPaddingTop();
-            mTempRect.set(- lWidth, lTop, 0, lTop + lHeight);
-            canvas.clipRect(mTempRect, Region.Op.REPLACE);
-            mLetterDrawable.setBounds(mTempRect);
-            mLetterDrawable.draw(canvas);
-            mTempRect.set(mTempRect.left + mTempPaddingRect.left,
-                    mTempRect.top + mTempPaddingRect.top,
-                    mTempRect.right - mTempPaddingRect.right,
-                    mTempRect.bottom - mTempPaddingRect.bottom);
-            canvas.drawText(lText, mTempRect.centerX() - lTextWidth / 2, mTempRect.centerY() - (mLetterTextPaint.descent() + mLetterTextPaint.ascent()) / 2, mLetterTextPaint);
-        }
     }
 
     public interface LetterAdapter {

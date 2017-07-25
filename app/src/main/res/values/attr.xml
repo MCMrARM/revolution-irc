@@ -22,8 +22,7 @@
         <attr name="scrollbarDrawable" format="reference" />
         <attr name="minScrollbarHeight" format="dimension" />
         <attr name="letterDrawable" format="reference" />
-        <attr name="letterTextSize" format="dimension" />
-        <attr name="letterTextColor" format="color" />
+        <attr name="letterTextAppearance" format="reference" />
     </declare-styleable>
 
 </resources>
