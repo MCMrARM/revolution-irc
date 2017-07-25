@@ -23,6 +23,7 @@ public class RecyclerViewScrollbar extends View {
     private int mItemCount = 0;
     private float mScrollPos = 0.f;
     private float mBottomItemsHeight = -1.f;
+    private int mScrollDragOffset = 0;
 
     private Drawable mScrollbarDrawable;
     private Drawable mLetterDrawable;
@@ -73,6 +74,8 @@ public class RecyclerViewScrollbar extends View {
             mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
                 public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                    if (isPressed())
+                        return;
                     updateScrollPos();
                     invalidate();
                 }
@@ -95,18 +98,23 @@ public class RecyclerViewScrollbar extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_DOWN && event.getActionIndex() == 0) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
             int y = (int) event.getY() - getPaddingTop() - getScrollbarTop();
             if (y < -getPaddingTop() || y > getScrollbarHeight() + getPaddingBottom()) // use padding to expand hitbox by the amount
                 return false;
+            mScrollDragOffset = y;
             setPressed(true);
             return true;
-        } else if (event.getAction() == MotionEvent.ACTION_UP && event.getActionIndex() == 0) {
+        } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
             setPressed(false);
             return true;
         } else if (event.getAction() == MotionEvent.ACTION_MOVE && isPressed()) {
-            float pos = (event.getY() - getPaddingTop()) / getScrollbarHeight();
+            float pos = (event.getY() - getPaddingTop() - mScrollDragOffset) / getScrollbarHeight();
+            pos = Math.min(Math.max(pos, 0.f), mItemCount - mBottomItemsHeight - 1);
             ((LinearLayoutManager) mRecyclerView.getLayoutManager()).scrollToPositionWithOffset((int) pos, 0);
+            mScrollPos = pos;
+            invalidate();
+            return true;
         }
         return false;
     }
@@ -184,7 +192,7 @@ public class RecyclerViewScrollbar extends View {
             int lHeight = mTempPaddingRect.top + mTempPaddingRect.bottom + (int) (mLetterTextPaint.descent() - mLetterTextPaint.ascent());
             lWidth = Math.max(lWidth, mLetterDrawable.getMinimumWidth());
             lHeight = Math.max(lHeight, mLetterDrawable.getMinimumHeight());
-            int lTop = Math.max(scrollbarTop + scrollbarHeight - lHeight, 0);
+            int lTop = Math.max(scrollbarTop + scrollbarHeight - lHeight, getPaddingTop());
             mTempRect.set(- lWidth, lTop, 0, lTop + lHeight);
             canvas.clipRect(mTempRect, Region.Op.REPLACE);
             mLetterDrawable.setBounds(mTempRect);
