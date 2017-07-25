@@ -1,4 +1,4 @@
-package io.mrarm.irc;
+package io.mrarm.irc.chat;
 
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import io.mrarm.chatlib.dto.MessageInfo;
+import io.mrarm.irc.R;
 import io.mrarm.irc.util.LongPressSelectTouchListener;
 import io.mrarm.irc.util.MessageBuilder;
 

@@ -1,4 +1,4 @@
-package io.mrarm.irc;
+package io.mrarm.irc.chat;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -34,6 +34,10 @@ import io.mrarm.chatlib.dto.StatusMessageInfo;
 import io.mrarm.chatlib.dto.StatusMessageList;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.chatlib.message.MessageListener;
+import io.mrarm.irc.MainActivity;
+import io.mrarm.irc.R;
+import io.mrarm.irc.ServerConnectionInfo;
+import io.mrarm.irc.ServerConnectionManager;
 import io.mrarm.irc.util.LongPressSelectTouchListener;
 import io.mrarm.irc.util.MessageBuilder;
 import io.mrarm.irc.util.ScrollPosLinearLayoutManager;

@@ -27,6 +27,7 @@ import java.util.UUID;
 import io.mrarm.chatlib.ChatApi;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.chatlib.test.TestApiImpl;
+import io.mrarm.irc.chat.ChatFragment;
 import io.mrarm.irc.dialog.UserSearchDialog;
 import io.mrarm.irc.drawer.DrawerHelper;
 import io.mrarm.irc.util.NightModeRecreateHelper;

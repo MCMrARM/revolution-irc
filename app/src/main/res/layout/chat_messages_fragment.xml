@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="io.mrarm.irc.ChatMessagesFragment"
+    tools:context="io.mrarm.irc.chat.ChatMessagesFragment"
     android:paddingTop="4dp" android:paddingBottom="4dp"
     android:clipToPadding="false">
 </android.support.v7.widget.RecyclerView>

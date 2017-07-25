@@ -1,4 +1,4 @@
-package io.mrarm.irc;
+package io.mrarm.irc.chat;
 
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -42,6 +42,10 @@ import java.util.UUID;
 
 import io.mrarm.chatlib.dto.NickWithPrefix;
 import io.mrarm.chatlib.irc.IRCConnection;
+import io.mrarm.irc.MainActivity;
+import io.mrarm.irc.R;
+import io.mrarm.irc.ServerConnectionInfo;
+import io.mrarm.irc.ServerConnectionManager;
 import io.mrarm.irc.config.CommandAliasManager;
 import io.mrarm.irc.util.IRCColorUtils;
 import io.mrarm.irc.util.ImageViewTintUtils;

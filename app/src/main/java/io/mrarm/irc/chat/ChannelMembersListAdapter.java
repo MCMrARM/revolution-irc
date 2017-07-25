@@ -1,6 +1,5 @@
-package io.mrarm.irc;
+package io.mrarm.irc.chat;
 
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.mrarm.chatlib.dto.NickWithPrefix;
+import io.mrarm.irc.R;
 
 public class ChannelMembersListAdapter extends BaseAdapter implements Filterable {
 

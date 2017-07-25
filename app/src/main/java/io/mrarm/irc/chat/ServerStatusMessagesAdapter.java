@@ -1,4 +1,4 @@
-package io.mrarm.irc;
+package io.mrarm.irc.chat;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -20,6 +20,7 @@ import java.util.Set;
 import io.mrarm.chatlib.dto.HostInfoMessageInfo;
 import io.mrarm.chatlib.dto.StatusMessageInfo;
 import io.mrarm.chatlib.dto.StatusMessageList;
+import io.mrarm.irc.R;
 import io.mrarm.irc.util.ColoredTextBuilder;
 import io.mrarm.irc.util.IRCColorUtils;
 import io.mrarm.irc.util.MessageBuilder;
