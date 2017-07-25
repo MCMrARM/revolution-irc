@@ -192,7 +192,7 @@ public class RecyclerViewScrollbar extends View {
             int lHeight = mTempPaddingRect.top + mTempPaddingRect.bottom + (int) (mLetterTextPaint.descent() - mLetterTextPaint.ascent());
             lWidth = Math.max(lWidth, mLetterDrawable.getMinimumWidth());
             lHeight = Math.max(lHeight, mLetterDrawable.getMinimumHeight());
-            int lTop = Math.max(scrollbarTop + scrollbarHeight - lHeight, getPaddingTop());
+            int lTop = Math.max(scrollbarTop + scrollbarHeight - lHeight, 0) + getPaddingTop();
             mTempRect.set(- lWidth, lTop, 0, lTop + lHeight);
             canvas.clipRect(mTempRect, Region.Op.REPLACE);
             mLetterDrawable.setBounds(mTempRect);
