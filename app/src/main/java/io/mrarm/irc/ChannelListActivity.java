@@ -27,6 +27,7 @@ public class ChannelListActivity extends AppCompatActivity {
 
     public static final String ARG_SERVER_UUID = "server_uuid";
 
+    private ServerConnectionInfo mConnection;
     private View mMainAppBar;
     private View mSearchAppBar;
     private SearchView mSearchView;
@@ -56,8 +57,7 @@ public class ChannelListActivity extends AppCompatActivity {
         mSearchView = (SearchView) findViewById(R.id.search_view);
 
         UUID serverUUID = UUID.fromString(getIntent().getStringExtra(ARG_SERVER_UUID));
-        ServerConnectionInfo connectionInfo = ServerConnectionManager.getInstance(this)
-                .getConnection(serverUUID);
+        mConnection = ServerConnectionManager.getInstance(this).getConnection(serverUUID);
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.list);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -86,7 +86,7 @@ public class ChannelListActivity extends AppCompatActivity {
             }
         });
 
-        connectionInfo.getApiInstance().listChannels((ChannelList list) -> {
+        mConnection.getApiInstance().listChannels((ChannelList list) -> {
             runOnUiThread(() -> {
                 mEntries = list.getEntries();
                 if (mFilterAsyncTask == null && mFilterQuery != null) {
@@ -199,7 +199,7 @@ public class ChannelListActivity extends AppCompatActivity {
 
     }
 
-    public static class ListEntry extends RecyclerView.ViewHolder {
+    public class ListEntry extends RecyclerView.ViewHolder {
 
         private TextView mName;
         private TextView mTopic;
@@ -208,13 +208,25 @@ public class ChannelListActivity extends AppCompatActivity {
             super(itemView);
             mName = (TextView) itemView.findViewById(R.id.name);
             mTopic = (TextView) itemView.findViewById(R.id.topic);
+            itemView.setOnClickListener((View view) -> {
+                List<String> channels = new ArrayList<>();
+                channels.add((String) mName.getTag());
+                mConnection.getApiInstance().joinChannels(channels, (Void v) -> {
+                    runOnUiThread(() -> {
+                        startActivity(MainActivity.getLaunchIntent(ChannelListActivity.this,
+                                mConnection, channels.get(0)));
+                    });
+                }, null);
+            });
         }
 
         public void bind(ChannelList.Entry entry) {
             mName.setText(mName.getResources().getQuantityString(
                     R.plurals.channel_list_title_with_member_count, entry.getMemberCount(),
                     entry.getChannel(), entry.getMemberCount()));
+            mName.setTag(entry.getChannel());
             mTopic.setText(entry.getTopic().trim());
+            mTopic.setVisibility(mTopic.getText().length() > 0 ? View.VISIBLE : View.GONE);
         }
 
     }
