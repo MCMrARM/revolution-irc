@@ -3,6 +3,9 @@ package io.mrarm.irc.view;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.Region;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,12 +18,20 @@ import io.mrarm.irc.R;
 
 public class RecyclerViewScrollbar extends View {
 
-    private Drawable mScrollbarDrawable;
     private RecyclerView mRecyclerView;
     private int mRecyclerViewId;
     private int mItemCount = 0;
     private float mScrollPos = 0.f;
     private float mBottomItemsHeight = -1.f;
+
+    private Drawable mScrollbarDrawable;
+    private Drawable mLetterDrawable;
+    private int mLetterTextSize;
+    private int mLetterTextColor;
+
+    private Paint mLetterTextPaint;
+    private Rect mTempRect = new Rect();
+    private Rect mTempPaddingRect = new Rect();
 
     public RecyclerViewScrollbar(Context context) {
         this(context, null);
@@ -32,13 +43,17 @@ public class RecyclerViewScrollbar extends View {
 
     public RecyclerViewScrollbar(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        mScrollbarDrawable = context.getResources().getDrawable(R.drawable.recyclerview_scrollbar)
-                .getConstantState().newDrawable();
 
-        TypedArray ta = context.getTheme().obtainStyledAttributes(attrs,
-                new int[] { R.attr.recyclerView }, defStyleAttr, 0);
-        mRecyclerViewId = ta.getResourceId(0, 0);
+        TypedArray ta = context.getTheme().obtainStyledAttributes(attrs, R.styleable.RecyclerViewScrollbar, defStyleAttr, 0);
+        mRecyclerViewId = ta.getResourceId(R.styleable.RecyclerViewScrollbar_recyclerView, 0);
+        mScrollbarDrawable = ta.getDrawable(R.styleable.RecyclerViewScrollbar_scrollbarDrawable);
+        mLetterDrawable = ta.getDrawable(R.styleable.RecyclerViewScrollbar_letterDrawable);
+        mLetterTextColor = ta.getColor(R.styleable.RecyclerViewScrollbar_letterTextColor, 0);
+        mLetterTextSize = ta.getDimensionPixelSize(R.styleable.RecyclerViewScrollbar_letterTextSize, 0);
         ta.recycle();
+        mLetterTextPaint = new Paint();
+        mLetterTextPaint.setColor(mLetterTextColor);
+        mLetterTextPaint.setTextSize(mLetterTextSize);
     }
 
     @Override
@@ -159,5 +174,33 @@ public class RecyclerViewScrollbar extends View {
                 getWidth() - getPaddingRight(),
                 getPaddingTop() + scrollbarTop + scrollbarHeight);
         mScrollbarDrawable.draw(canvas);
+        if (isPressed() && mRecyclerView.getAdapter() instanceof LetterAdapter) {
+            String lText = ((LetterAdapter) mRecyclerView.getAdapter()).getLetterFor((int) mScrollPos);
+            if (lText == null)
+                return;
+            mLetterDrawable.getPadding(mTempPaddingRect);
+            int lTextWidth = (int) mLetterTextPaint.measureText(lText);
+            int lWidth = mTempPaddingRect.left + mTempPaddingRect.right + lTextWidth;
+            int lHeight = mTempPaddingRect.top + mTempPaddingRect.bottom + (int) (mLetterTextPaint.descent() - mLetterTextPaint.ascent());
+            lWidth = Math.max(lWidth, mLetterDrawable.getMinimumWidth());
+            lHeight = Math.max(lHeight, mLetterDrawable.getMinimumHeight());
+            int lTop = Math.max(scrollbarTop + scrollbarHeight - lHeight, 0);
+            mTempRect.set(- lWidth, lTop, 0, lTop + lHeight);
+            canvas.clipRect(mTempRect, Region.Op.REPLACE);
+            mLetterDrawable.setBounds(mTempRect);
+            mLetterDrawable.draw(canvas);
+            mTempRect.set(mTempRect.left + mTempPaddingRect.left,
+                    mTempRect.top + mTempPaddingRect.top,
+                    mTempRect.right - mTempPaddingRect.right,
+                    mTempRect.bottom - mTempPaddingRect.bottom);
+            canvas.drawText(lText, mTempRect.centerX() - lTextWidth / 2, mTempRect.centerY() - (mLetterTextPaint.descent() + mLetterTextPaint.ascent()) / 2, mLetterTextPaint);
+        }
     }
+
+    public interface LetterAdapter {
+
+        String getLetterFor(int postition);
+
+    }
+
 }

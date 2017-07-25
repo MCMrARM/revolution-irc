@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.UUID;
 
 import io.mrarm.chatlib.dto.ChannelList;
+import io.mrarm.irc.view.RecyclerViewScrollbar;
 
 public class ChannelListActivity extends AppCompatActivity {
 
@@ -182,7 +183,8 @@ public class ChannelListActivity extends AppCompatActivity {
         }
     }
 
-    public class ListAdapter extends RecyclerView.Adapter<ListEntry> {
+    public class ListAdapter extends RecyclerView.Adapter<ListEntry>
+            implements RecyclerViewScrollbar.LetterAdapter {
 
         @Override
         public ListEntry onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -195,6 +197,14 @@ public class ChannelListActivity extends AppCompatActivity {
         public void onBindViewHolder(ListEntry holder, int position) {
             holder.bind(mFilteredEntries == null ? mEntries.get(position)
                     : mFilteredEntries.get(position));
+        }
+
+        @Override
+        public String getLetterFor(int position) {
+            if (mSortMode != SORT_NAME)
+                return null;
+            String channel = mFilteredEntries.get(position).getChannel();
+            return channel.length() >= 2 ? channel.substring(1, 2).toUpperCase() : "?";
         }
 
         @Override
