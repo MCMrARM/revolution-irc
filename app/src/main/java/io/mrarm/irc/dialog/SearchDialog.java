@@ -11,18 +11,15 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.TextView;
 
-import java.util.List;
-
 import io.mrarm.irc.R;
+import io.mrarm.irc.util.ClickableRecyclerViewAdapter;
 import io.mrarm.irc.util.SimpleTextWatcher;
 
 public abstract class SearchDialog extends AppCompatDialog {
@@ -32,8 +29,6 @@ public abstract class SearchDialog extends AppCompatDialog {
     private RecyclerView mRecyclerView;
     private AutoCloseDialogEditText mSearchText;
     private View mSearchTextClear;
-    private SuggestionsAdapter mAdapter;
-    private List<CharSequence> mSuggestions;
 
     public SearchDialog(@NonNull Context context) {
         super(context);
@@ -58,9 +53,8 @@ public abstract class SearchDialog extends AppCompatDialog {
         mSearchTextClear.setVisibility(View.GONE);
 
         mRecyclerView = findViewById(R.id.list);
-        mAdapter = new SuggestionsAdapter(mRecyclerView);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
-        mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.setVisibility(View.GONE);
         // mRecyclerView.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
 
         mSearchText.addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
@@ -133,18 +127,22 @@ public abstract class SearchDialog extends AppCompatDialog {
         mSearchText.setHint(hint);
     }
 
-    public void setSuggestions(List<CharSequence> suggestions) {
-        mSuggestions = suggestions;
-        if (suggestions != null && suggestions.size() > 0)
-            mRecyclerView.setVisibility(View.VISIBLE);
-        else
-            mRecyclerView.setVisibility(View.GONE);
-        mAdapter.notifyDataSetChanged();
+    public void setSuggestionsAdapter(RecyclerView.Adapter adapter) {
+        if (mRecyclerView.getAdapter() != null)
+            mRecyclerView.getAdapter().unregisterAdapterDataObserver(mDataObserver);
+        mRecyclerView.setAdapter(adapter);
+        adapter.registerAdapterDataObserver(mDataObserver);
     }
 
-    public List<CharSequence> getSuggestions() {
-        return mSuggestions;
-    }
+    private final RecyclerView.AdapterDataObserver mDataObserver = new RecyclerView.AdapterDataObserver() {
+        @Override
+        public void onChanged() {
+            if (mRecyclerView.getAdapter().getItemCount() > 0)
+                mRecyclerView.setVisibility(View.VISIBLE);
+            else
+                mRecyclerView.setVisibility(View.GONE);
+        }
+    };
 
     public abstract void onQueryTextChange(String newQuery);
 
@@ -152,51 +150,26 @@ public abstract class SearchDialog extends AppCompatDialog {
         //
     }
 
-    public void onSuggestionClicked(int index, CharSequence suggestion) {
-        onQueryTextSubmit(suggestion.toString());
-    }
 
+    public static class SimpleSuggestionsAdapter extends
+            ClickableRecyclerViewAdapter<SimpleSuggestionsAdapter.SuggestionHolder, CharSequence> {
 
-    public class SuggestionsAdapter extends RecyclerView.Adapter<SuggestionHolder> {
-
-        public SuggestionsAdapter(RecyclerView recyclerView) {
-            mRecyclerView = recyclerView;
-            mRecyclerView.setVisibility(View.GONE);
+        public SimpleSuggestionsAdapter() {
+            setViewHolderFactory(SuggestionHolder::new, R.layout.dialog_search_item);
         }
 
-        @Override
-        public SuggestionHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.dialog_search_item, parent, false);
-            return new SuggestionHolder(v);
-        }
+        public class SuggestionHolder extends ClickableRecyclerViewAdapter.ViewHolder<CharSequence> {
+            private TextView mText;
 
-        @Override
-        public void onBindViewHolder(SuggestionHolder holder, int position) {
-            holder.bind(mSuggestions.get(position));
-        }
+            public SuggestionHolder(View itemView) {
+                super(itemView);
+                mText = itemView.findViewById(R.id.text);
+            }
 
-        @Override
-        public int getItemCount() {
-            return mSuggestions == null ? 0 : mSuggestions.size();
-        }
-
-    }
-
-    public class SuggestionHolder extends RecyclerView.ViewHolder {
-
-        private TextView mText;
-
-        public SuggestionHolder(View itemView) {
-            super(itemView);
-            mText = (TextView) itemView.findViewById(R.id.text);
-            itemView.setOnClickListener((View v) -> {
-                onSuggestionClicked(getAdapterPosition(), mText.getText());
-            });
-        }
-
-        public void bind(CharSequence text) {
-            mText.setText(text);
+            @Override
+            public void bind(CharSequence item) {
+                mText.setText(item);
+            }
         }
 
     }

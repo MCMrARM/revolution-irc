@@ -13,11 +13,17 @@ import io.mrarm.irc.ServerConnectionInfo;
 public class UserSearchDialog extends SearchDialog {
 
     private ServerConnectionInfo mConnection;
+    private SimpleSuggestionsAdapter mAdapter;
 
     public UserSearchDialog(@NonNull Context context, ServerConnectionInfo connection) {
         super(context);
         mConnection = connection;
         setQueryHint(context.getString(R.string.action_message_user));
+        mAdapter = new SimpleSuggestionsAdapter();
+        mAdapter.setItemClickListener((int index, CharSequence value) -> {
+            onQueryTextSubmit(value.toString());
+        });
+        setSuggestionsAdapter(mAdapter);
     }
 
     @Override
@@ -35,7 +41,7 @@ public class UserSearchDialog extends SearchDialog {
     @Override
     public void onQueryTextChange(String newText) {
         if (newText.length() < 2) {
-            setSuggestions(null);
+            mAdapter.setItems(null);
             return;
         }
         mConnection.getApiInstance().getUserInfoApi().findUsers(newText, (List<String> users) -> {
@@ -43,7 +49,7 @@ public class UserSearchDialog extends SearchDialog {
             for (String sug : users) {
                 suggestions.add(sug);
             }
-            setSuggestions(suggestions);
+            mAdapter.setItems(suggestions);
         }, null);
     }
 

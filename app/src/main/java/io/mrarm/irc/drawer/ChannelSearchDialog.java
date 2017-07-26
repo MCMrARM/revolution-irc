@@ -3,12 +3,15 @@ package io.mrarm.irc.drawer;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.annotation.NonNull;
-import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
+import android.util.Pair;
+import android.view.View;
+import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import io.mrarm.irc.MainActivity;
@@ -16,19 +19,26 @@ import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
 import io.mrarm.irc.dialog.SearchDialog;
+import io.mrarm.irc.util.ClickableRecyclerViewAdapter;
 
 public class ChannelSearchDialog extends SearchDialog {
 
-    private int mSecondaryTextColor;
-    private int mHightlightTextColor;
+    private SuggestionsAdapter mAdapter;
 
     public ChannelSearchDialog(@NonNull Context context) {
         super(context);
-        TypedArray ta = context.obtainStyledAttributes(new int[] { R.attr.colorBackgroundFloating, android.R.attr.textColorSecondary });
+        TypedArray ta = context.obtainStyledAttributes(new int[]{R.attr.colorBackgroundFloating, android.R.attr.textColorSecondary});
         setBackgroundColor(ta.getColor(0, 0));
-        mSecondaryTextColor = ta.getColor(1, 0);
+        int secondaryTextColor = ta.getColor(1, 0);
         ta.recycle();
-        mHightlightTextColor = context.getResources().getColor(R.color.searchColorHighlight);
+        int highlightTextColor = context.getResources().getColor(R.color.searchColorHighlight);
+
+        mAdapter = new SuggestionsAdapter(secondaryTextColor, highlightTextColor);
+        mAdapter.setItemClickListener((int index, Pair<ServerConnectionInfo, String> value) ->{
+            ((MainActivity) getOwnerActivity()).openServer(value.first, value.second);
+            dismiss();
+        });
+        setSuggestionsAdapter(mAdapter);
         onQueryTextChange("");
     }
 
@@ -37,37 +47,59 @@ public class ChannelSearchDialog extends SearchDialog {
     }
 
     @Override
-    public void onSuggestionClicked(int index, CharSequence suggestion) {
-        String query = getCurrentQuery();
-        for (ServerConnectionInfo info : ServerConnectionManager.getInstance(getContext())
-                .getConnections()) {
-            for (String channel : info.getChannels()) {
-                int iof = channel.indexOf(query);
-                if (iof != -1 && index-- == 0) {
-                    ((MainActivity) getOwnerActivity()).openServer(info, channel);
-                    dismiss();
-                    return;
-                }
-            }
-        }
-    }
-
-    @Override
     public void onQueryTextChange(String newText) {
-        List<CharSequence> ret = new ArrayList<>();
+        List<Pair<ServerConnectionInfo, String>> ret = new ArrayList<>();
         for (ServerConnectionInfo info : ServerConnectionManager.getInstance(getContext())
                 .getConnections()) {
             for (String channel : info.getChannels()) {
                 int iof = channel.indexOf(newText);
-                if (iof != -1) {
-                    SpannableString str = new SpannableString(channel + "  " + info.getName());
-                    str.setSpan(new ForegroundColorSpan(mHightlightTextColor), iof, iof + newText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    str.setSpan(new ForegroundColorSpan(mSecondaryTextColor), channel.length() + 2, channel.length() + 2 + info.getName().length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    ret.add(str);
-                }
+                if (iof != -1)
+                    ret.add(new Pair<>(info, channel));
             }
         }
-        setSuggestions(ret);
+        Collections.sort(ret, (Pair<ServerConnectionInfo, String> l,
+                               Pair<ServerConnectionInfo, String> r) ->
+                Integer.compare(l.second.indexOf(newText), r.second.indexOf(newText)));
+        mAdapter.setItems(newText, ret);
+    }
+
+    public static class SuggestionsAdapter extends ClickableRecyclerViewAdapter<SuggestionsAdapter.SuggestionHolder, Pair<ServerConnectionInfo, String>> {
+
+        private String mHighlightQuery;
+        private int mSecondaryTextColor;
+        private int mHighlightTextColor;
+
+        public SuggestionsAdapter(int secondaryTextColor, int highlightTextColor) {
+            setViewHolderFactory(SuggestionHolder::new, R.layout.dialog_search_item);
+            mSecondaryTextColor = secondaryTextColor;
+            mHighlightTextColor = highlightTextColor;
+        }
+
+        public void setItems(String query, List<Pair<ServerConnectionInfo, String>> items) {
+            mHighlightQuery = query;
+            setItems(items);
+        }
+
+        public class SuggestionHolder extends ClickableRecyclerViewAdapter.ViewHolder<Pair<ServerConnectionInfo, String>> {
+            private TextView mText;
+
+            public SuggestionHolder(View itemView) {
+                super(itemView);
+                mText = itemView.findViewById(R.id.text);
+            }
+
+            @Override
+            public void bind(Pair<ServerConnectionInfo, String> item) {
+                String name = item.first.getName();
+                String channel = item.second;
+                int iof = channel.indexOf(mHighlightQuery);
+                SpannableString str = new SpannableString(channel + "  " + name);
+                str.setSpan(new ForegroundColorSpan(mHighlightTextColor), iof, iof + mHighlightQuery.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                str.setSpan(new ForegroundColorSpan(mSecondaryTextColor), channel.length() + 2, channel.length() + 2 + name.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                mText.setText(str);
+            }
+        }
+
     }
 
 }
