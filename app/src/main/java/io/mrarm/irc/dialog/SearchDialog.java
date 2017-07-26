@@ -25,6 +25,7 @@ import io.mrarm.irc.R;
 public abstract class SearchDialog extends AppCompatDialog implements SearchView.OnQueryTextListener {
 
     private int mStatusBarColor;
+    private View mRootView;
     private RecyclerView mRecyclerView;
     private SearchView mSearchView;
     private SuggestionsAdapter mAdapter;
@@ -33,9 +34,12 @@ public abstract class SearchDialog extends AppCompatDialog implements SearchView
     public SearchDialog(@NonNull Context context) {
         super(context);
         setContentView(R.layout.dialog_search);
+
         mStatusBarColor = context.getResources().getColor(R.color.searchColorPrimaryDark);
         if (context instanceof Activity)
             setOwnerActivity((Activity) context);
+
+        mRootView = findViewById(R.id.root);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener((View v) -> {
@@ -90,11 +94,19 @@ public abstract class SearchDialog extends AppCompatDialog implements SearchView
     }
 
     @Override
-    public void cancel() {
-        super.cancel();
+    public void dismiss() {
+        super.dismiss();
         if (getOwnerActivity() != null && Build.VERSION.SDK_INT >= 21) {
             getOwnerActivity().getWindow().setStatusBarColor(0);
         }
+    }
+
+    public void setBackgroundColor(int color) {
+        mRootView.setBackgroundColor(color);
+    }
+
+    public String getCurrentQuery() {
+        return mSearchView.getQuery().toString();
     }
 
     public void setQueryHint(CharSequence hint) {
@@ -108,6 +120,10 @@ public abstract class SearchDialog extends AppCompatDialog implements SearchView
         else
             mRecyclerView.setVisibility(View.GONE);
         mAdapter.notifyDataSetChanged();
+    }
+
+    public List<CharSequence> getSuggestions() {
+        return mSuggestions;
     }
 
     public void onSuggestionClicked(int index, CharSequence suggestion) {

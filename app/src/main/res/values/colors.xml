@@ -10,6 +10,7 @@
     <color name="searchDialogDim">#99000000</color>
     <color name="searchColorPrimary">#FFFFFF</color>
     <color name="searchColorPrimaryDark">#EEEEEE</color>
+    <color name="searchColorHighlight">#F50057</color>
 
     <color name="userAwayColorPrimary">#FF5722</color>
     <color name="userAwayColorPrimaryDark">#E64A19</color>
