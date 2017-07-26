@@ -4,15 +4,15 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.support.design.widget.NavigationView;
+import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
-import android.view.View;
 import android.view.WindowInsets;
 
 import io.mrarm.irc.R;
 
 public class DrawerNavigationView extends NavigationView {
 
-    private View mNavList;
+    private RecyclerView mNavList;
 
     public DrawerNavigationView(Context context) {
         this(context, null);
@@ -35,6 +35,7 @@ public class DrawerNavigationView extends NavigationView {
                 0,
                 insets.getSystemWindowInsetRight(),
                 insets.getSystemWindowInsetBottom());
+        ((DrawerMenuListAdapter) mNavList.getAdapter()).setHeaderPaddingTop(insets.getSystemWindowInsetTop());
         return super.dispatchApplyWindowInsets(insets);
     }
 

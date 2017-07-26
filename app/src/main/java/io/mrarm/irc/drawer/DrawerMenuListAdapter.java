@@ -36,6 +36,7 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private Context mContext;
     private List<ServerConnectionInfo> mServers;
     private ArrayList<DrawerMenuItem> mMenuItems = new ArrayList<>();
+    private ArrayList<DrawerMenuItem> mTopMenuItems = new ArrayList<>();
     private TreeMap<Integer, ServerConnectionInfo> mItemIndexToServerMap = new TreeMap<>();
     private int mCurrentItemCount;
     private ChannelClickListener mChannelClickListener;
@@ -46,6 +47,7 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private Drawable mChannelSelectedBackground;
     private int mDefaultForegroundColor;
     private int mSelectedForegroundColor;
+    private int mHeaderPaddingTop = 0;
 
     public DrawerMenuListAdapter(Context context) {
         mContext = context;
@@ -62,21 +64,28 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     public void addMenuItem(DrawerMenuItem item) {
-        this.mMenuItems.add(item);
+        mMenuItems.add(item);
     }
 
-    public List<DrawerMenuItem> getMenuItems() {
-        return mMenuItems;
+    public void addTopMenuItem(DrawerMenuItem item) {
+        mTopMenuItems.add(item);
+    }
+
+    public void setHeaderPaddingTop(int paddingTop) {
+        if (mHeaderPaddingTop == paddingTop)
+            return;
+        mHeaderPaddingTop = paddingTop;
+        notifyItemChanged(0);
     }
 
     public void setChannelClickListener(ChannelClickListener listener) {
-        this.mChannelClickListener = listener;
+        mChannelClickListener = listener;
     }
 
     public void setSelectedChannel(ServerConnectionInfo server, String channel) {
         if (mSelectedMenuItem != null)
             setSelectedMenuItem(null);
-        int currentIndex = 1;
+        int currentIndex = getServerListStart();
         int oldServerIndex = -1;
         int newServerIndex = -1;
         for (ServerConnectionInfo info : mServers) {
@@ -109,13 +118,13 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         mSelectedMenuItem = item != null ? new WeakReference<>(item) : null;
         int newSelectedMenuItem = mMenuItems.indexOf(item);
         if (oldSelectedMenuItem != -1)
-            notifyItemChanged(mCurrentItemCount + oldSelectedMenuItem);
+            notifyItemChanged(getBottomMenuItemsStart() + oldSelectedMenuItem);
         if (newSelectedMenuItem != -1)
-            notifyItemChanged(mCurrentItemCount + newSelectedMenuItem);
+            notifyItemChanged(getBottomMenuItemsStart() + newSelectedMenuItem);
     }
 
     private void updateItemIndexToServerMap() {
-        int currentIndex = 1;
+        int currentIndex = 0;
         mItemIndexToServerMap.clear();
         for (ServerConnectionInfo info : mServers) {
             mItemIndexToServerMap.put(currentIndex, info);
@@ -137,6 +146,20 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             if (p.getValue() == changedInfo)
                 notifyItemChanged(p.getKey());
         }
+    }
+
+
+
+    private int getTopMenuItemsStart() {
+        return 1;
+    }
+
+    private int getServerListStart() {
+        return getTopMenuItemsStart() + mTopMenuItems.size() + 1;
+    }
+
+    private int getBottomMenuItemsStart() {
+        return getServerListStart() + mCurrentItemCount;
     }
 
     @Override
@@ -170,27 +193,45 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         int viewType = holder.getItemViewType();
         if (viewType == TYPE_SERVER_HEADER || viewType == TYPE_CHANNEL) {
             Map.Entry<Integer, ServerConnectionInfo> entry =
-                    mItemIndexToServerMap.floorEntry(position);
+                    mItemIndexToServerMap.floorEntry(position - getServerListStart());
             if (viewType == TYPE_SERVER_HEADER)
                 ((ServerHeaderHolder) holder).bind(entry.getValue());
             else
-                ((ChannelHolder) holder).bind(entry.getValue(), position - entry.getKey() - 1);
+                ((ChannelHolder) holder).bind(entry.getValue(),
+                        position - getServerListStart() - entry.getKey() - 1);
         } else if (viewType == TYPE_MENU_ITEM) {
-            ((MenuItemHolder) holder).bind(this, mMenuItems.get(position - mCurrentItemCount));
+            DrawerMenuItem item;
+            if (position >= getBottomMenuItemsStart())
+                item = mMenuItems.get(position - getBottomMenuItemsStart());
+            else
+                item = mTopMenuItems.get(position - getTopMenuItemsStart());
+            ((MenuItemHolder) holder).bind(this, item);
+        } else if (viewType == TYPE_DRAWER_HEADER) {
+            holder.itemView.setPadding(0, mHeaderPaddingTop, 0, 0);
+        } else if (viewType == TYPE_DIVIDER) {
+            ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) holder.itemView.getLayoutParams();
+            if (position == getTopMenuItemsStart() + mTopMenuItems.size())
+                p.topMargin = mContext.getResources().getDimensionPixelSize(R.dimen.drawer_search_margin);
+            else
+                p.topMargin = mContext.getResources().getDimensionPixelSize(R.dimen.drawer_divider_margin);
+            holder.itemView.setLayoutParams(p);
         }
     }
 
     @Override
     public int getItemCount() {
-        return mCurrentItemCount + mMenuItems.size();
+        return getBottomMenuItemsStart() + mMenuItems.size();
     }
 
     @Override
     public int getItemViewType(int position) {
         if (position == 0)
             return TYPE_DRAWER_HEADER;
-        if (position >= mCurrentItemCount)
+        if (position == getTopMenuItemsStart() + mTopMenuItems.size())
+            return TYPE_DIVIDER;
+        if (position < getServerListStart() || position >= getBottomMenuItemsStart())
             return TYPE_MENU_ITEM;
+        position -= getServerListStart();
         Map.Entry<Integer, ServerConnectionInfo> entry = mItemIndexToServerMap.floorEntry(position);
         if (entry == null || entry.getKey() == position)
             return TYPE_SERVER_HEADER;
@@ -239,10 +280,10 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     mAdapter.mItemIndexToServerMap.entrySet()) {
                 if (entry.getValue() == mServerInfo && mServerInfo.getChannels() != null) {
                     if (mServerInfo.isExpandedInDrawer())
-                        mAdapter.notifyItemRangeInserted(entry.getKey() + 1,
+                        mAdapter.notifyItemRangeInserted(mAdapter.getServerListStart() + entry.getKey() + 1,
                                 mServerInfo.getChannels().size());
                     else
-                        mAdapter.notifyItemRangeRemoved(entry.getKey() + 1,
+                        mAdapter.notifyItemRangeRemoved(mAdapter.getServerListStart() + entry.getKey() + 1,
                                 mServerInfo.getChannels().size());
                     break;
                 }

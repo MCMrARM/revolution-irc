@@ -25,6 +25,7 @@ public class DrawerHelper implements ServerConnectionManager.ConnectionsListener
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
     private DrawerMenuListAdapter mAdapter;
+    private DrawerMenuItem mSearchItem;
     private DrawerMenuItem mManageServersItem;
     private DrawerMenuItem mSettingsItem;
 
@@ -38,6 +39,11 @@ public class DrawerHelper implements ServerConnectionManager.ConnectionsListener
 
         mAdapter = new DrawerMenuListAdapter(activity);
 
+        mSearchItem = new DrawerMenuItem(r.getString(R.string.action_search), R.drawable.ic_search_white);
+        mSearchItem.setOnClickListener((View view) -> {
+            //
+        });
+        mAdapter.addTopMenuItem(mSearchItem);
         mManageServersItem = new DrawerMenuItem(r.getString(R.string.action_servers), R.drawable.ic_edit);
         mAdapter.addMenuItem(mManageServersItem);
         mSettingsItem = new DrawerMenuItem(r.getString(R.string.action_settings), R.drawable.ic_settings);

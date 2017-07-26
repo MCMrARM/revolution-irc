@@ -24,6 +24,9 @@
 
     <dimen name="touch_press_select_autoscroll_amount">500dp</dimen>
 
+    <dimen name="drawer_divider_margin">8dp</dimen>
+    <dimen name="drawer_search_margin">2dp</dimen>
+
     <dimen name="setup_header_padding">32dp</dimen>
     <dimen name="setup_header_padding_m4">28dp</dimen>
 </resources>
