@@ -37,7 +37,7 @@ public class NotificationManager {
                 connection.getUserNick()))
             return;
 
-        ChannelNotificationManager channelManager = connection.getNotificationData().getChannelManager(channel, true);
+        ChannelNotificationManager channelManager = connection.getNotificationManager().getChannelManager(channel, true);
         channelManager.addUnreadMessage();
         NotificationRule rule = findNotificationRule(connection, channel, info);
         if (rule == null || rule.settings.noNotification)
@@ -49,7 +49,7 @@ public class NotificationManager {
     }
 
     public void clearAllNotifications(Context context, ServerConnectionInfo connection) {
-        ConnectionData connectionData = connection.getNotificationData();
+        ConnectionManager connectionData = connection.getNotificationManager();
         for (ChannelNotificationManager mgr : connectionData.getChannelManagerList())
             mgr.cancelNotification(context);
         connectionData.getChannelManagerList().clear();
@@ -64,7 +64,7 @@ public class NotificationManager {
                         .getSupportedChannelTypes().contains(channel.charAt(0)))
             channel = null;
 
-        ConnectionData connData = connection.getNotificationData();
+        ConnectionManager connData = connection.getNotificationManager();
         for (NotificationRule rule : NotificationRuleManager.getDefaultTopRules()) {
             if (rule.appliesTo(connData, channel, message) && rule.settings.enabled)
                 return rule;
@@ -82,7 +82,7 @@ public class NotificationManager {
 
     public void onNotificationDismissed(Context context, ServerConnectionInfo connection,
                                         String channel) {
-        ChannelNotificationManager channelManager = connection.getNotificationData()
+        ChannelNotificationManager channelManager = connection.getNotificationManager()
                 .getChannelManager(channel, true);
         channelManager.onNotificationDismissed();
     }
@@ -94,7 +94,7 @@ public class NotificationManager {
         int notificationCount = 0;
         StringBuilder longBuilder = new StringBuilder();
         for (ServerConnectionInfo info : ServerConnectionManager.getInstance(context).getConnections()) {
-            for (ChannelNotificationManager channelManager : info.getNotificationData().getChannelManagerList()) {
+            for (ChannelNotificationManager channelManager : info.getNotificationManager().getChannelManagerList()) {
                 if (channelManager.getNotificationMessages().size() == 0)
                     continue;
                 if (first == null) {
@@ -139,13 +139,13 @@ public class NotificationManager {
         NotificationManagerCompat.from(context).notify(CHAT_SUMMARY_NOTIFICATION_ID, notification.build());
     }
 
-    public static class ConnectionData {
+    public static class ConnectionManager {
 
-        private ServerConnectionInfo mConnection;
-        private Map<NotificationRule, Pattern> mCompiledPatterns = new HashMap<>();
-        private Map<String, ChannelNotificationManager> mChannels = new HashMap<>();
+        private final ServerConnectionInfo mConnection;
+        private final Map<NotificationRule, Pattern> mCompiledPatterns = new HashMap<>();
+        private final Map<String, ChannelNotificationManager> mChannels = new HashMap<>();
 
-        public ConnectionData(ServerConnectionInfo connection) {
+        public ConnectionManager(ServerConnectionInfo connection) {
             mConnection = connection;
         }
 

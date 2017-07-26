@@ -15,7 +15,6 @@ import io.mrarm.chatlib.irc.IRCConnectionRequest;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.chatlib.irc.cap.SASLCapability;
 import io.mrarm.chatlib.irc.cap.SASLOptions;
-import io.mrarm.irc.config.NotificationRuleManager;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.util.FilteredStorageApi;
 import io.mrarm.irc.config.SettingsHelper;
@@ -36,7 +35,7 @@ public class ServerConnectionInfo {
     private boolean mConnected = false;
     private boolean mConnecting = false;
     private boolean mUserDisconnectRequest = false;
-    private NotificationManager.ConnectionData mNotificationData;
+    private NotificationManager.ConnectionManager mNotificationData;
     private final List<InfoChangeListener> mInfoListeners = new ArrayList<>();
     private final List<ChannelListChangeListener> mChannelsListeners = new ArrayList<>();
     private int mCurrentReconnectAttempt = -1;
@@ -50,14 +49,14 @@ public class ServerConnectionInfo {
         mConnectionRequest = connectionRequest;
         mAutojoinChannels = autojoinChannels;
         mSASLOptions = saslOptions;
-        mNotificationData = new NotificationManager.ConnectionData(this);
+        mNotificationData = new NotificationManager.ConnectionManager(this);
     }
 
     public ServerConnectionInfo(ServerConnectionManager manager, UUID uuid, String name, ChatApi api) {
         mManager = manager;
         mUUID = uuid;
         mName = name;
-        mNotificationData = new NotificationManager.ConnectionData(this);
+        mNotificationData = new NotificationManager.ConnectionManager(this);
         setApi(api);
     }
 
@@ -230,7 +229,7 @@ public class ServerConnectionInfo {
         }
     }
 
-    public NotificationManager.ConnectionData getNotificationData() {
+    public NotificationManager.ConnectionManager getNotificationManager() {
         return mNotificationData;
     }
 

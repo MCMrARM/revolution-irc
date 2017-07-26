@@ -8,8 +8,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MarginLayoutParamsCompat;
 import android.support.v4.view.ViewPager;
@@ -35,10 +33,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import io.mrarm.chatlib.dto.NickWithPrefix;
@@ -275,7 +270,7 @@ public class ChatFragment extends Fragment implements
     private void updateTabLayoutTab(TabLayout.Tab tab, String channel) {
         boolean highlight = false;
         if (channel != null) {
-            ChannelNotificationManager data = mConnectionInfo.getNotificationData().getChannelManager(channel, false);
+            ChannelNotificationManager data = mConnectionInfo.getNotificationManager().getChannelManager(channel, false);
             if (data != null)
                 highlight = data.hasUnreadMessages();
         }

@@ -93,7 +93,7 @@ public class NotificationRule {
             mCompiledPattern = Pattern.compile(regex, regexCaseInsensitive ? Pattern.CASE_INSENSITIVE : 0);
     }
 
-    public Pattern createSpecificRegex(NotificationManager.ConnectionData conn) {
+    public Pattern createSpecificRegex(NotificationManager.ConnectionManager conn) {
         Matcher matcher = CommandAliasManager.mMatchVariablesRegex.matcher(regex);
         StringBuffer buf = new StringBuffer();
         while (matcher.find()) {
@@ -107,7 +107,7 @@ public class NotificationRule {
         return Pattern.compile(buf.toString(), regexCaseInsensitive ? Pattern.CASE_INSENSITIVE : 0);
     }
 
-    public Pattern getCompiledPattern(NotificationManager.ConnectionData conn) {
+    public Pattern getCompiledPattern(NotificationManager.ConnectionManager conn) {
         if (mCompiledPattern != null)
             return mCompiledPattern;
         if (regex == null)
@@ -117,7 +117,7 @@ public class NotificationRule {
         return conn.getCompiledPatterns().get(this);
     }
 
-    public boolean appliesTo(NotificationManager.ConnectionData conn, String channel, MessageInfo message) {
+    public boolean appliesTo(NotificationManager.ConnectionManager conn, String channel, MessageInfo message) {
         if (regex != null && !getCompiledPattern(conn).matcher(message.getMessage()).find())
             return false;
         boolean isNotice = message.getType() == MessageInfo.MessageType.NOTICE;
