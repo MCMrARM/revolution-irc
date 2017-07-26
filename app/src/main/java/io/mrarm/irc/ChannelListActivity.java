@@ -228,6 +228,7 @@ public class ChannelListActivity extends AppCompatActivity {
                 channels.add((String) mName.getTag());
                 mConnection.getApiInstance().joinChannels(channels, (Void v) -> {
                     runOnUiThread(() -> {
+                        finish();
                         startActivity(MainActivity.getLaunchIntent(ChannelListActivity.this,
                                 mConnection, channels.get(0)));
                     });
