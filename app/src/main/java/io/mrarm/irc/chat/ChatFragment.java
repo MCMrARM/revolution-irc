@@ -66,7 +66,7 @@ public class ChatFragment extends Fragment implements
     private AppBarLayout mAppBar;
     private Toolbar mToolbar;
     private TabLayout mTabLayout;
-    private SectionsPagerAdapter mSectionsPagerAdapter;
+    private ChatPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
     private DrawerLayout mDrawerLayout;
     private ChannelMembersAdapter mChannelMembersAdapter;
@@ -108,7 +108,7 @@ public class ChatFragment extends Fragment implements
 
         ((MainActivity) getActivity()).addActionBarDrawerToggle(mToolbar);
 
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getChildFragmentManager(), mConnectionInfo);
+        mSectionsPagerAdapter = new ChatPagerAdapter(getContext(), getChildFragmentManager(), mConnectionInfo);
 
         mViewPager = (ViewPager) rootView.findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
@@ -408,85 +408,6 @@ public class ChatFragment extends Fragment implements
 
     public void closeDrawer() {
         mDrawerLayout.closeDrawer(GravityCompat.END, false);
-    }
-
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
-
-        private ServerConnectionInfo connectionInfo;
-        private List<String> channels;
-        private Map<String, Long> channelIds = new HashMap<>();
-        private long nextChannelId = 1;
-
-        public SectionsPagerAdapter(FragmentManager fm, ServerConnectionInfo connectionInfo) {
-            super(fm);
-            this.connectionInfo = connectionInfo;
-            updateChannelList();
-        }
-
-        public void updateChannelList() {
-            channels = connectionInfo.getChannels();
-            Iterator<Map.Entry<String, Long>> it = channelIds.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry<String, Long> entry = it.next();
-                if (!channels.contains(entry.getKey()))
-                    it.remove();
-            }
-            for (String channel : channels) {
-                if (!channelIds.containsKey(channel))
-                    channelIds.put(channel, nextChannelId++);
-            }
-            notifyDataSetChanged();
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            if (position == 0)
-                return ChatMessagesFragment.newStatusInstance(connectionInfo);
-            return ChatMessagesFragment.newInstance(connectionInfo,
-                    connectionInfo.getChannels().get(position - 1));
-        }
-
-        @Override
-        public int getItemPosition(Object object) {
-            if (object instanceof ChatMessagesFragment) {
-                ChatMessagesFragment fragment = (ChatMessagesFragment) object;
-                if (fragment.isServerStatus())
-                    return POSITION_UNCHANGED;
-                int iof = channels.indexOf(fragment.getChannelName());
-                if (iof == -1)
-                    return POSITION_NONE;
-                return iof + 1;
-            }
-            return super.getItemPosition(object);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            if (position == 0)
-                return 0;
-            return channelIds.get(getChannel(position));
-        }
-
-        @Override
-        public int getCount() {
-            if (channels == null)
-                return 1;
-            return channels.size() + 1;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            if (position == 0)
-                return getString(R.string.tab_server);
-            return channels.get(position - 1);
-        }
-
-        public String getChannel(int position) {
-            if (position == 0)
-                return null;
-            return channels.get(position - 1);
-        }
-
     }
 
     private class FormatItemActionMode implements ActionMode.Callback {
