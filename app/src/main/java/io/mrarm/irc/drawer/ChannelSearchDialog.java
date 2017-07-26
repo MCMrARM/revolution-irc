@@ -33,8 +33,7 @@ public class ChannelSearchDialog extends SearchDialog {
     }
 
     @Override
-    public boolean onQueryTextSubmit(String query) {
-        return false;
+    public void onQueryTextSubmit(String query) {
     }
 
     @Override
@@ -54,7 +53,7 @@ public class ChannelSearchDialog extends SearchDialog {
     }
 
     @Override
-    public boolean onQueryTextChange(String newText) {
+    public void onQueryTextChange(String newText) {
         List<CharSequence> ret = new ArrayList<>();
         for (ServerConnectionInfo info : ServerConnectionManager.getInstance(getContext())
                 .getConnections()) {
@@ -69,7 +68,6 @@ public class ChannelSearchDialog extends SearchDialog {
             }
         }
         setSuggestions(ret);
-        return true;
     }
 
 }

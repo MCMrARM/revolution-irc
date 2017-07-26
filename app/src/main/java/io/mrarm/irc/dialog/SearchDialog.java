@@ -8,26 +8,30 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import java.util.List;
 
 import io.mrarm.irc.R;
+import io.mrarm.irc.util.SimpleTextWatcher;
 
-public abstract class SearchDialog extends AppCompatDialog implements SearchView.OnQueryTextListener {
+public abstract class SearchDialog extends AppCompatDialog {
 
     private int mStatusBarColor;
     private View mRootView;
     private RecyclerView mRecyclerView;
-    private SearchView mSearchView;
+    private EditText mSearchText;
+    private View mSearchTextClear;
     private SuggestionsAdapter mAdapter;
     private List<CharSequence> mSuggestions;
 
@@ -41,21 +45,33 @@ public abstract class SearchDialog extends AppCompatDialog implements SearchView
 
         mRootView = findViewById(R.id.root);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener((View v) -> {
             cancel();
         });
-        mSearchView = (SearchView) findViewById(R.id.search_view);
+        mSearchText = findViewById(R.id.search_text);
+        mSearchTextClear = findViewById(R.id.search_text_clear);
+        mSearchTextClear.setOnClickListener((View v) -> {
+            mSearchText.getText().clear();
+        });
+        mSearchTextClear.setVisibility(View.GONE);
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.list);
+        mRecyclerView = findViewById(R.id.list);
         mAdapter = new SuggestionsAdapter(mRecyclerView);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
         mRecyclerView.setAdapter(mAdapter);
         // mRecyclerView.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
 
-        mSearchView.setOnQueryTextListener(this);
-        mSearchView.setImeOptions((mSearchView.getImeOptions() & ~EditorInfo.IME_MASK_ACTION) |
-                EditorInfo.IME_ACTION_GO);
+        mSearchText.addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
+            onQueryTextChange(s.toString());
+            mSearchTextClear.setVisibility(s.length() > 0 ? View.VISIBLE : View.GONE);
+        }));
+        mSearchText.setOnEditorActionListener((TextView textView, int i, KeyEvent keyEvent) -> {
+            InputMethodManager manager = (InputMethodManager) getContext().getSystemService(
+                    Context.INPUT_METHOD_SERVICE);
+            manager.hideSoftInputFromWindow(mSearchText.getApplicationWindowToken(), 0);
+            return true;
+        });
     }
 
     @Override
@@ -90,7 +106,7 @@ public abstract class SearchDialog extends AppCompatDialog implements SearchView
         if (getOwnerActivity() != null && Build.VERSION.SDK_INT >= 21) {
             getOwnerActivity().getWindow().setStatusBarColor(mStatusBarColor);
         }
-        mSearchView.requestFocus();
+        mSearchText.requestFocus();
     }
 
     @Override
@@ -106,11 +122,11 @@ public abstract class SearchDialog extends AppCompatDialog implements SearchView
     }
 
     public String getCurrentQuery() {
-        return mSearchView.getQuery().toString();
+        return mSearchText.getText().toString();
     }
 
     public void setQueryHint(CharSequence hint) {
-        mSearchView.setQueryHint(hint);
+        mSearchText.setHint(hint);
     }
 
     public void setSuggestions(List<CharSequence> suggestions) {
@@ -124,6 +140,12 @@ public abstract class SearchDialog extends AppCompatDialog implements SearchView
 
     public List<CharSequence> getSuggestions() {
         return mSuggestions;
+    }
+
+    public abstract void onQueryTextChange(String newQuery);
+
+    public void onQueryTextSubmit(String query) {
+        //
     }
 
     public void onSuggestionClicked(int index, CharSequence suggestion) {

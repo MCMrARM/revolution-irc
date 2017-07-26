@@ -61,6 +61,7 @@
     <string name="action_continue">Continue</string>
     <string name="action_finish">Finish</string>
     <string name="action_search">Search</string>
+    <string name="action_search_ellipsis">Search…</string>
     <string name="action_sort">Sort</string>
     <string name="action_sort_none">Do not sort</string>
     <string name="action_sort_name">Sort by name</string>

@@ -21,7 +21,7 @@ public class UserSearchDialog extends SearchDialog {
     }
 
     @Override
-    public boolean onQueryTextSubmit(String query) {
+    public void onQueryTextSubmit(String query) {
         List<String> channels = new ArrayList<>();
         channels.add(query);
         mConnection.getApiInstance().joinChannels(channels, (Void v) -> {
@@ -30,14 +30,13 @@ public class UserSearchDialog extends SearchDialog {
             });
         }, null);
         cancel();
-        return true;
     }
 
     @Override
-    public boolean onQueryTextChange(String newText) {
+    public void onQueryTextChange(String newText) {
         if (newText.length() < 2) {
             setSuggestions(null);
-            return true;
+            return;
         }
         mConnection.getApiInstance().getUserInfoApi().findUsers(newText, (List<String> users) -> {
             List<CharSequence> suggestions = new ArrayList<>();
@@ -46,7 +45,6 @@ public class UserSearchDialog extends SearchDialog {
             }
             setSuggestions(suggestions);
         }, null);
-        return true;
     }
 
 }

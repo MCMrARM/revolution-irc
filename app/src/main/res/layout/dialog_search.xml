@@ -18,14 +18,27 @@
         app:popupTheme="@style/AppTheme.PopupOverlay"
         android:elevation="2dp">
 
-        <android.support.v7.widget.SearchView
-            android:id="@+id/search_view"
+        <ImageButton
+            android:id="@+id/search_text_clear"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            app:srcCompat="@drawable/ic_close"
+            android:padding="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/action_close" />
+
+        <EditText
+            android:id="@+id/search_text"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:iconifiedByDefault="false"
-            app:queryBackground="@android:color/transparent"
-            app:searchHintIcon="@null"
-            app:searchIcon="@null" />
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:background="@android:color/transparent"
+            android:hint="@string/action_search_ellipsis"
+            android:maxLines="1"
+            android:inputType="text"
+            android:imeOptions="flagNoExtractUi|actionGo"
+            android:layout_marginLeft="16dp" />
 
     </android.support.v7.widget.Toolbar>
 
