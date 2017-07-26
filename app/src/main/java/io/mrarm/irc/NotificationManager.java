@@ -37,10 +37,11 @@ public class NotificationManager {
                 connection.getUserNick()))
             return;
 
+        ChannelNotificationManager channelManager = connection.getNotificationData().getChannelManager(channel, true);
+        channelManager.addUnreadMessage();
         NotificationRule rule = findNotificationRule(connection, channel, info);
         if (rule == null || rule.settings.noNotification)
             return;
-        ChannelNotificationManager channelManager = connection.getNotificationData().getChannelManager(channel, true);
         if (channelManager.addNotificationMessage(info)) {
             updateSummaryNotification(context);
             channelManager.showNotification(context, rule);

@@ -1,6 +1,7 @@
 package io.mrarm.irc.chat;
 
 import android.content.SharedPreferences;
+import android.database.DataSetObserver;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -42,6 +43,7 @@ import java.util.UUID;
 
 import io.mrarm.chatlib.dto.NickWithPrefix;
 import io.mrarm.chatlib.irc.IRCConnection;
+import io.mrarm.irc.ChannelNotificationManager;
 import io.mrarm.irc.MainActivity;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
@@ -133,7 +135,15 @@ public class ChatFragment extends Fragment implements
         mConnectionInfo.addOnChannelListChangeListener(this);
 
         mTabLayout = (TabLayout) rootView.findViewById(R.id.tabs);
-        mTabLayout.setupWithViewPager(mViewPager);
+        mTabLayout.setupWithViewPager(mViewPager, false);
+
+        mSectionsPagerAdapter.registerDataSetObserver(new DataSetObserver() {
+            @Override
+            public void onChanged() {
+                updateTabLayoutTabs();
+            }
+        });
+        updateTabLayoutTabs();
 
         mDrawerLayout = (DrawerLayout) rootView.findViewById(R.id.drawer_layout);
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
@@ -242,6 +252,34 @@ public class ChatFragment extends Fragment implements
         setDoubleTapCompleteEnabled(s.isNickAutocompleteDoubleTapEnabled());
 
         return rootView;
+    }
+
+    private void updateTabLayoutTabs() {
+        mTabLayout.removeAllTabs();
+        final int c = mSectionsPagerAdapter.getCount();
+        for (int i = 0; i < c; i++) {
+            TabLayout.Tab tab = mTabLayout.newTab();
+            tab.setText(mSectionsPagerAdapter.getPageTitle(i));
+            tab.setCustomView(R.layout.chat_tab);
+            TextView textView = tab.getCustomView().findViewById(android.R.id.text1);
+            textView.setTextColor(mTabLayout.getTabTextColors());
+            updateTabLayoutTab(tab, mSectionsPagerAdapter.getChannel(i));
+            mTabLayout.addTab(tab, false);
+        }
+
+        final int currentItem = mViewPager.getCurrentItem();
+        if (currentItem != mTabLayout.getSelectedTabPosition() && currentItem < mTabLayout.getTabCount())
+            mTabLayout.getTabAt(currentItem).select();
+    }
+
+    private void updateTabLayoutTab(TabLayout.Tab tab, String channel) {
+        boolean highlight = false;
+        if (channel != null) {
+            ChannelNotificationManager data = mConnectionInfo.getNotificationData().getChannelManager(channel, false);
+            if (data != null)
+                highlight = data.hasUnreadMessages();
+        }
+        tab.getCustomView().findViewById(R.id.notification_icon).setVisibility(highlight ? View.VISIBLE : View.GONE);
     }
 
     @Override

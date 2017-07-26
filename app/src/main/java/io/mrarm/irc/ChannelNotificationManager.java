@@ -32,6 +32,7 @@ public class ChannelNotificationManager {
     private final int mNotificationId = mNextChatNotificationId++;
     private List<NotificationMessage> mMessages = new ArrayList<>();
     private boolean mOpened = false;
+    private int mUnreadMessageCount;
 
     public ChannelNotificationManager(ServerConnectionInfo connection, String channel) {
         mConnection = connection;
@@ -51,21 +52,39 @@ public class ChannelNotificationManager {
     }
 
     public boolean addNotificationMessage(MessageInfo messageInfo) {
-        if (mOpened)
-            return false;
-        NotificationMessage ret = new NotificationMessage(messageInfo);
-        mMessages.add(ret);
+        synchronized (this) {
+            if (mOpened)
+                return false;
+            NotificationMessage ret = new NotificationMessage(messageInfo);
+            mMessages.add(ret);
+        }
         return true;
     }
 
-    public void setOpened(Context context, boolean opened) {
-        mOpened = opened;
-        if (mOpened) {
-            mMessages.clear();
+    public void addUnreadMessage() {
+        synchronized (this) {
+            if (mOpened)
+                return;
+            mUnreadMessageCount++;
+        }
+    }
 
-            // cancel the notification
-            NotificationManagerCompat.from(context).cancel(mNotificationId);
-            NotificationManager.getInstance().updateSummaryNotification(context);
+    public boolean hasUnreadMessages() {
+        synchronized (this) {
+            return mUnreadMessageCount > 0;
+        }
+    }
+
+    public void setOpened(Context context, boolean opened) {
+        synchronized (this) {
+            mOpened = opened;
+            if (mOpened) {
+                mMessages.clear();
+
+                // cancel the notification
+                NotificationManagerCompat.from(context).cancel(mNotificationId);
+                NotificationManager.getInstance().updateSummaryNotification(context);
+            }
         }
     }
 
@@ -73,7 +92,10 @@ public class ChannelNotificationManager {
         String title = getChannel() + " (" + mConnection.getName() + ")"; // TODO: Move to strings.xml
         RemoteViews notificationsView = createCollapsedMessagesView(context, title);
         RemoteViews notificationsViewBig = createMessagesView(context, title);
-        NotificationMessage lastMessage = mMessages.get(mMessages.size() - 1);
+        NotificationMessage lastMessage;
+        synchronized (this) {
+            lastMessage = mMessages.get(mMessages.size() - 1);
+        }
         NotificationCompat.Builder notification = new NotificationCompat.Builder(context);
         PendingIntent intent = PendingIntent.getActivity(context, mNotificationId,
                 MainActivity.getLaunchIntent(context, mConnection, mChannel),
@@ -126,7 +148,10 @@ public class ChannelNotificationManager {
     }
 
     private RemoteViews createCollapsedMessagesView(Context context, CharSequence header) {
-        NotificationMessage lastMessage = mMessages.get(mMessages.size() - 1);
+        NotificationMessage lastMessage;
+        synchronized (this) {
+            lastMessage = mMessages.get(mMessages.size() - 1);
+        }
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.notification_layout_collapsed);
         views.setTextViewText(R.id.message_channel, header);
         views.setTextViewText(R.id.message_text, lastMessage.getNotificationText(context));
@@ -137,20 +162,24 @@ public class ChannelNotificationManager {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.notification_layout);
         int[] messageIds = new int[] { R.id.message_0, R.id.message_1, R.id.message_2, R.id.message_3, R.id.message_4, R.id.message_5 };
         views.setTextViewText(R.id.message_channel, header);
-        for (int i = messageIds.length - 1; i >= 0; i--) {
-            int ii = mMessages.size() - messageIds.length + i;
-            if (ii < 0) {
-                views.setViewVisibility(messageIds[i], View.GONE);
-                continue;
+        synchronized (this) {
+            for (int i = messageIds.length - 1; i >= 0; i--) {
+                int ii = mMessages.size() - messageIds.length + i;
+                if (ii < 0) {
+                    views.setViewVisibility(messageIds[i], View.GONE);
+                    continue;
+                }
+                views.setViewVisibility(messageIds[i], View.VISIBLE);
+                views.setTextViewText(messageIds[i], mMessages.get(ii).getNotificationText(context));
             }
-            views.setViewVisibility(messageIds[i], View.VISIBLE);
-            views.setTextViewText(messageIds[i], mMessages.get(ii).getNotificationText(context));
         }
         return views;
     }
 
     void onNotificationDismissed() {
-        mMessages.clear();
+        synchronized (this) {
+            mMessages.clear();
+        }
     }
 
 

@@ -3,6 +3,7 @@ package io.mrarm.irc;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -106,12 +107,35 @@ public class MainActivity extends AppCompatActivity {
             openManageServers();
         });
 
+        if (savedInstanceState != null && savedInstanceState.getString(ARG_SERVER_UUID) != null)
+            return;
+
         String serverUUID = getIntent().getStringExtra(ARG_SERVER_UUID);
         if (serverUUID != null) {
             ServerConnectionInfo server = ServerConnectionManager.getInstance(this).getConnection(UUID.fromString(serverUUID));
             openServer(server, getIntent().getStringExtra(ARG_CHANNEL_NAME));
         } else {
             openManageServers();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (getCurrentFragment() instanceof ChatFragment) {
+            ChatFragment chat = ((ChatFragment) getCurrentFragment());
+            outState.putString(ARG_SERVER_UUID, chat.getConnectionInfo().getUUID().toString());
+            outState.putString(ARG_CHANNEL_NAME, chat.getCurrentChannel());
+        }
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        String serverUUID = savedInstanceState.getString(ARG_SERVER_UUID);
+        if (serverUUID != null) {
+            ServerConnectionInfo server = ServerConnectionManager.getInstance(this).getConnection(UUID.fromString(serverUUID));
+            openServer(server, savedInstanceState.getString(ARG_CHANNEL_NAME));
         }
     }
 
