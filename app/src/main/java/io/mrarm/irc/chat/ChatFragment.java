@@ -40,6 +40,7 @@ import io.mrarm.chatlib.dto.NickWithPrefix;
 import io.mrarm.chatlib.irc.IRCConnection;
 import io.mrarm.irc.ChannelNotificationManager;
 import io.mrarm.irc.MainActivity;
+import io.mrarm.irc.NotificationManager;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
@@ -53,6 +54,7 @@ import io.mrarm.irc.view.TextFormatBar;
 
 public class ChatFragment extends Fragment implements
         ServerConnectionInfo.ChannelListChangeListener,
+        NotificationManager.UnreadMessageCountCallback,
         SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String ARG_SERVER_UUID = "server_uuid";
@@ -138,6 +140,7 @@ public class ChatFragment extends Fragment implements
                 updateTabLayoutTabs();
             }
         });
+        mConnectionInfo.getNotificationManager().addUnreadMessageCountCallback(this);
         updateTabLayoutTabs();
 
         mDrawerLayout = (DrawerLayout) rootView.findViewById(R.id.drawer_layout);
@@ -255,10 +258,11 @@ public class ChatFragment extends Fragment implements
         for (int i = 0; i < c; i++) {
             TabLayout.Tab tab = mTabLayout.newTab();
             tab.setText(mSectionsPagerAdapter.getPageTitle(i));
+            tab.setTag(mSectionsPagerAdapter.getChannel(i));
             tab.setCustomView(R.layout.chat_tab);
             TextView textView = tab.getCustomView().findViewById(android.R.id.text1);
             textView.setTextColor(mTabLayout.getTabTextColors());
-            updateTabLayoutTab(tab, mSectionsPagerAdapter.getChannel(i));
+            updateTabLayoutTab(tab);
             mTabLayout.addTab(tab, false);
         }
 
@@ -267,7 +271,8 @@ public class ChatFragment extends Fragment implements
             mTabLayout.getTabAt(currentItem).select();
     }
 
-    private void updateTabLayoutTab(TabLayout.Tab tab, String channel) {
+    private void updateTabLayoutTab(TabLayout.Tab tab) {
+        String channel = (String) tab.getTag();
         boolean highlight = false;
         if (channel != null) {
             ChannelNotificationManager data = mConnectionInfo.getNotificationManager().getChannelManager(channel, false);
@@ -404,6 +409,7 @@ public class ChatFragment extends Fragment implements
     @Override
     public void onDestroyView() {
         mConnectionInfo.removeOnChannelListChangeListener(this);
+        mConnectionInfo.getNotificationManager().removeUnreadMessageCountCallback(this);
         SettingsHelper s = SettingsHelper.getInstance(getContext());
         s.removePreferenceChangeListener(SettingsHelper.PREF_CHAT_APPBAR_COMPACT_MODE, this);
         s.removePreferenceChangeListener(SettingsHelper.PREF_NICK_AUTOCOMPLETE_SHOW_BUTTON, this);
@@ -416,7 +422,8 @@ public class ChatFragment extends Fragment implements
     }
 
     public void setCurrentChannel(String channel) {
-        mViewPager.setCurrentItem(mConnectionInfo.getChannels().indexOf(channel) + 1);
+        mViewPager.setCurrentItem(
+                mSectionsPagerAdapter.findChannel(channel) + 1);
     }
 
     public void setCurrentChannelMembers(List<NickWithPrefix> members) {
@@ -437,6 +444,16 @@ public class ChatFragment extends Fragment implements
         getActivity().runOnUiThread(() -> {
             mSectionsPagerAdapter.updateChannelList();
         });
+    }
+
+    @Override
+    public void onUnreadMessageCountChanged(ServerConnectionInfo info, String channel, int messageCount) {
+        if (messageCount == 0 || messageCount == 1) {
+            getActivity().runOnUiThread(() -> {
+                int tabNumber = mSectionsPagerAdapter.findChannel(channel);
+                updateTabLayoutTab(mTabLayout.getTabAt(tabNumber));
+            });
+        }
     }
 
     public void closeDrawer() {

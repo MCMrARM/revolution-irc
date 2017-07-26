@@ -66,6 +66,7 @@ public class ChannelNotificationManager {
             if (mOpened)
                 return;
             mUnreadMessageCount++;
+            mConnection.getNotificationManager().callUnreadMessageCountCallbacks(mChannel, mUnreadMessageCount);
         }
     }
 
@@ -80,6 +81,8 @@ public class ChannelNotificationManager {
             mOpened = opened;
             if (mOpened) {
                 mMessages.clear();
+                mUnreadMessageCount = 0;
+                mConnection.getNotificationManager().callUnreadMessageCountCallbacks(mChannel, 0);
 
                 // cancel the notification
                 NotificationManagerCompat.from(context).cancel(mNotificationId);

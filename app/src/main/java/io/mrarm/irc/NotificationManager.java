@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.NotificationCompat;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -144,6 +145,7 @@ public class NotificationManager {
         private final ServerConnectionInfo mConnection;
         private final Map<NotificationRule, Pattern> mCompiledPatterns = new HashMap<>();
         private final Map<String, ChannelNotificationManager> mChannels = new HashMap<>();
+        private final List<UnreadMessageCountCallback> mUnreadCallbacks = new ArrayList<>();
 
         public ConnectionManager(ServerConnectionInfo connection) {
             mConnection = connection;
@@ -173,6 +175,32 @@ public class NotificationManager {
         public UUID getServerUUID() {
             return mConnection.getUUID();
         }
+
+        public void addUnreadMessageCountCallback(UnreadMessageCountCallback callback) {
+            synchronized (mUnreadCallbacks) {
+                mUnreadCallbacks.add(callback);
+            }
+        }
+
+        public void removeUnreadMessageCountCallback(UnreadMessageCountCallback callback) {
+            synchronized (mUnreadCallbacks) {
+                mUnreadCallbacks.remove(callback);
+            }
+        }
+
+        public void callUnreadMessageCountCallbacks(String channel, int messageCount) {
+            synchronized (mUnreadCallbacks) {
+                for (UnreadMessageCountCallback cb : mUnreadCallbacks) {
+                    cb.onUnreadMessageCountChanged(mConnection, channel, messageCount);
+                }
+            }
+        }
+
+    }
+
+    public interface UnreadMessageCountCallback {
+
+        void onUnreadMessageCountChanged(ServerConnectionInfo info, String channel, int messageCount);
 
     }
 

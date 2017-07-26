@@ -91,4 +91,9 @@ public class ChatPagerAdapter extends FragmentPagerAdapter {
             return null;
         return channels.get(position - 1);
     }
+
+    public int findChannel(String channel) {
+        return channels.indexOf(channel) + 1;
+    }
+
 }
