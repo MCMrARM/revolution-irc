@@ -30,7 +30,7 @@ public abstract class SearchDialog extends AppCompatDialog {
     private int mStatusBarColor;
     private View mRootView;
     private RecyclerView mRecyclerView;
-    private EditText mSearchText;
+    private AutoCloseDialogEditText mSearchText;
     private View mSearchTextClear;
     private SuggestionsAdapter mAdapter;
     private List<CharSequence> mSuggestions;
@@ -50,6 +50,7 @@ public abstract class SearchDialog extends AppCompatDialog {
             cancel();
         });
         mSearchText = findViewById(R.id.search_text);
+        mSearchText.setDialog(this);
         mSearchTextClear = findViewById(R.id.search_text_clear);
         mSearchTextClear.setOnClickListener((View v) -> {
             mSearchText.getText().clear();
@@ -111,6 +112,9 @@ public abstract class SearchDialog extends AppCompatDialog {
 
     @Override
     public void dismiss() {
+        InputMethodManager manager = (InputMethodManager) getContext().getSystemService(
+                Context.INPUT_METHOD_SERVICE);
+        manager.hideSoftInputFromWindow(mSearchText.getApplicationWindowToken(), 0);
         super.dismiss();
         if (getOwnerActivity() != null && Build.VERSION.SDK_INT >= 21) {
             getOwnerActivity().getWindow().setStatusBarColor(0);

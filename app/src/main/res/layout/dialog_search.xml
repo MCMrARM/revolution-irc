@@ -28,7 +28,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/action_close" />
 
-        <EditText
+        <io.mrarm.irc.dialog.AutoCloseDialogEditText
             android:id="@+id/search_text"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -38,7 +38,8 @@
             android:maxLines="1"
             android:inputType="text"
             android:imeOptions="flagNoExtractUi|actionGo"
-            android:layout_marginLeft="16dp" />
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp" />
 
     </android.support.v7.widget.Toolbar>
 
