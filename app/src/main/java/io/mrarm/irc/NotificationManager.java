@@ -32,6 +32,8 @@ public class NotificationManager {
         return sInstance;
     }
 
+    private final List<UnreadMessageCountCallback> mGlobalUnreadCallbacks = new ArrayList<>();
+
     public void processMessage(Context context, ServerConnectionInfo connection, String channel,
                                MessageInfo info) {
         if (info.getMessage() == null || info.getSender().getNick().equals(
@@ -140,6 +142,29 @@ public class NotificationManager {
         NotificationManagerCompat.from(context).notify(CHAT_SUMMARY_NOTIFICATION_ID, notification.build());
     }
 
+
+    public void addGlobalUnreadMessageCountCallback(UnreadMessageCountCallback callback) {
+        synchronized (mGlobalUnreadCallbacks) {
+            mGlobalUnreadCallbacks.add(callback);
+        }
+    }
+
+    public void removeGlobalUnreadMessageCountCallback(UnreadMessageCountCallback callback) {
+        synchronized (mGlobalUnreadCallbacks) {
+            mGlobalUnreadCallbacks.remove(callback);
+        }
+    }
+
+    public void callUnreadMessageCountCallbacks(ServerConnectionInfo connection, String channel,
+                                                int messageCount) {
+        synchronized (mGlobalUnreadCallbacks) {
+            for (UnreadMessageCountCallback cb : mGlobalUnreadCallbacks) {
+                cb.onUnreadMessageCountChanged(connection, channel, messageCount);
+            }
+        }
+        connection.getNotificationManager().callUnreadMessageCountCallbacks(channel, messageCount);
+    }
+
     public static class ConnectionManager {
 
         private final ServerConnectionInfo mConnection;
@@ -188,7 +213,7 @@ public class NotificationManager {
             }
         }
 
-        public void callUnreadMessageCountCallbacks(String channel, int messageCount) {
+        private void callUnreadMessageCountCallbacks(String channel, int messageCount) {
             synchronized (mUnreadCallbacks) {
                 for (UnreadMessageCountCallback cb : mUnreadCallbacks) {
                     cb.onUnreadMessageCountChanged(mConnection, channel, messageCount);

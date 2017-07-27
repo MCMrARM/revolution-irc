@@ -15,12 +15,15 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.mrarm.irc.NotificationManager;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
 import io.mrarm.irc.SettingsActivity;
 
-public class DrawerHelper implements ServerConnectionManager.ConnectionsListener, ServerConnectionInfo.InfoChangeListener, ServerConnectionInfo.ChannelListChangeListener {
+public class DrawerHelper implements ServerConnectionManager.ConnectionsListener,
+        ServerConnectionInfo.InfoChangeListener, ServerConnectionInfo.ChannelListChangeListener,
+        NotificationManager.UnreadMessageCountCallback {
 
     private Activity mActivity;
     private DrawerLayout mDrawerLayout;
@@ -64,12 +67,14 @@ public class DrawerHelper implements ServerConnectionManager.ConnectionsListener
         ServerConnectionManager.getInstance(mActivity).addListener(this);
         ServerConnectionManager.getInstance(mActivity).addGlobalConnectionInfoListener(this);
         ServerConnectionManager.getInstance(mActivity).addGlobalChannelListListener(this);
+        NotificationManager.getInstance().addGlobalUnreadMessageCountCallback(this);
     }
 
     public void unregisterListeners() {
         ServerConnectionManager.getInstance(mActivity).removeListener(this);
         ServerConnectionManager.getInstance(mActivity).removeGlobalConnectionInfoListener(this);
         ServerConnectionManager.getInstance(mActivity).removeGlobalChannelListListener(this);
+        NotificationManager.getInstance().removeGlobalUnreadMessageCountCallback(this);
     }
 
     public void setChannelClickListener(DrawerMenuListAdapter.ChannelClickListener listener) {
@@ -109,4 +114,13 @@ public class DrawerHelper implements ServerConnectionManager.ConnectionsListener
     public void onChannelListChanged(ServerConnectionInfo connection, List<String> newChannels) {
         mActivity.runOnUiThread(mAdapter::notifyServerListChanged);
     }
+
+    @Override
+    public void onUnreadMessageCountChanged(ServerConnectionInfo info, String channel,
+                                            int messageCount) {
+        mActivity.runOnUiThread(() -> {
+            mAdapter.notifyChannelUnreadCountChanged(info, channel);
+        });
+    }
+
 }

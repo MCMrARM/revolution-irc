@@ -66,14 +66,19 @@ public class ChannelNotificationManager {
             if (mOpened)
                 return;
             mUnreadMessageCount++;
-            mConnection.getNotificationManager().callUnreadMessageCountCallbacks(mChannel, mUnreadMessageCount);
+            NotificationManager.getInstance().callUnreadMessageCountCallbacks(mConnection, mChannel,
+                    mUnreadMessageCount);
+        }
+    }
+
+    public int getUnreadMessageCount() {
+        synchronized (this) {
+            return mUnreadMessageCount;
         }
     }
 
     public boolean hasUnreadMessages() {
-        synchronized (this) {
-            return mUnreadMessageCount > 0;
-        }
+        return getUnreadMessageCount() > 0;
     }
 
     public void setOpened(Context context, boolean opened) {
@@ -82,7 +87,8 @@ public class ChannelNotificationManager {
             if (mOpened) {
                 mMessages.clear();
                 mUnreadMessageCount = 0;
-                mConnection.getNotificationManager().callUnreadMessageCountCallbacks(mChannel, 0);
+                NotificationManager.getInstance().callUnreadMessageCountCallbacks(mConnection,
+                        mChannel, 0);
 
                 // cancel the notification
                 NotificationManagerCompat.from(context).cancel(mNotificationId);

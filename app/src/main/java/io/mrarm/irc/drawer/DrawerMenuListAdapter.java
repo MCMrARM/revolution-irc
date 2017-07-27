@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import io.mrarm.irc.ChannelNotificationManager;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
@@ -48,6 +49,7 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private int mDefaultForegroundColor;
     private int mSelectedForegroundColor;
     private int mHeaderPaddingTop = 0;
+    private int mCounterWidestLetter = -1;
 
     public DrawerMenuListAdapter(Context context) {
         mContext = context;
@@ -144,7 +146,18 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public void notifyServerInfoChanged(ServerConnectionInfo changedInfo) {
         for (Map.Entry<Integer, ServerConnectionInfo> p : mItemIndexToServerMap.entrySet()) {
             if (p.getValue() == changedInfo)
-                notifyItemChanged(p.getKey());
+                notifyItemChanged(getServerListStart() + p.getKey());
+        }
+    }
+
+    public void notifyChannelUnreadCountChanged(ServerConnectionInfo connection, String channel) {
+        int channelIndex = connection.getChannels().indexOf(channel);
+        if (channelIndex == -1)
+            return;
+        for (Map.Entry<Integer, ServerConnectionInfo> p : mItemIndexToServerMap.entrySet()) {
+            if (p.getValue() == connection) {
+                notifyItemChanged(getServerListStart() + p.getKey() + 1 + channelIndex);
+            }
         }
     }
 
@@ -250,19 +263,16 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     }
 
-    public static class ServerHeaderHolder extends RecyclerView.ViewHolder
-            implements View.OnClickListener {
+    public class ServerHeaderHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        private DrawerMenuListAdapter mAdapter;
         private ServerConnectionInfo mServerInfo;
         private TextView mServerName;
         private ImageView mExpandIcon;
 
         public ServerHeaderHolder(DrawerMenuListAdapter adapter, View v) {
             super(v);
-            mAdapter = adapter;
-            mServerName = (TextView) v.findViewById(R.id.server_name);
-            mExpandIcon = (ImageView) v.findViewById(R.id.server_expand_icon);
+            mServerName = v.findViewById(R.id.server_name);
+            mExpandIcon = v.findViewById(R.id.server_expand_icon);
             v.findViewById(R.id.server_entry).setOnClickListener(this);
         }
 
@@ -275,15 +285,15 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         @Override
         public void onClick(View v) {
             mServerInfo.setExpandedInDrawer(!mServerInfo.isExpandedInDrawer());
-            mAdapter.updateItemIndexToServerMap();
+            updateItemIndexToServerMap();
             for (Map.Entry<Integer, ServerConnectionInfo> entry :
-                    mAdapter.mItemIndexToServerMap.entrySet()) {
+                    mItemIndexToServerMap.entrySet()) {
                 if (entry.getValue() == mServerInfo && mServerInfo.getChannels() != null) {
                     if (mServerInfo.isExpandedInDrawer())
-                        mAdapter.notifyItemRangeInserted(mAdapter.getServerListStart() + entry.getKey() + 1,
+                        notifyItemRangeInserted(getServerListStart() + entry.getKey() + 1,
                                 mServerInfo.getChannels().size());
                     else
-                        mAdapter.notifyItemRangeRemoved(mAdapter.getServerListStart() + entry.getKey() + 1,
+                        notifyItemRangeRemoved(getServerListStart() + entry.getKey() + 1,
                                 mServerInfo.getChannels().size());
                     break;
                 }
@@ -294,21 +304,26 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     }
 
-    public static class ChannelHolder extends RecyclerView.ViewHolder
-            implements View.OnClickListener {
+    public class ChannelHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private DrawerMenuListAdapter mAdapter;
         private View mView;
         private TextView mName;
+        private TextView mUnreadCounter;
         private ServerConnectionInfo mConnection;
         private String mChannel;
 
         public ChannelHolder(DrawerMenuListAdapter adapter, View v) {
             super(v);
             this.mAdapter = adapter;
-            mView = v.findViewById(R.id.channel_entry);
-            mName = (TextView) v.findViewById(R.id.channel_name);
+            mView = v.findViewById(R.id.entry);
+            mName = v.findViewById(R.id.text);
+            mUnreadCounter = v.findViewById(R.id.unread_counter);
             mView.setOnClickListener(this);
+            if (mCounterWidestLetter == -1) {
+                for (int i = 0; i < 9; i++)
+                    mCounterWidestLetter = Math.max(mCounterWidestLetter, (int) mUnreadCounter.getPaint().measureText(String.valueOf(i)));
+            }
         }
 
         public void bind(ServerConnectionInfo info, int channelIndex) {
@@ -326,6 +341,18 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 mView.setSelected(false);
                 mView.setBackgroundDrawable(mAdapter.mChannelBackground.getConstantState().newDrawable());
                 mName.setTextColor(mAdapter.mDefaultForegroundColor);
+            }
+
+            ChannelNotificationManager notificationManager = info.getNotificationManager().getChannelManager(mChannel, false);
+            int unreadMessageCount = notificationManager == null ? 0 : notificationManager.getUnreadMessageCount();
+            if (unreadMessageCount > 0 && !mView.isSelected()) {
+                mUnreadCounter.setVisibility(View.VISIBLE);
+                mUnreadCounter.setText(String.valueOf(unreadMessageCount));
+                ViewGroup.LayoutParams params = mUnreadCounter.getLayoutParams();
+                params.width = mCounterWidestLetter * mUnreadCounter.getText().length();
+                mUnreadCounter.setLayoutParams(params);
+            } else {
+                mUnreadCounter.setVisibility(View.GONE);
             }
         }
 
@@ -346,8 +373,8 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         public MenuItemHolder(View v) {
             super(v);
             mView = v.findViewById(R.id.item_entry);
-            mName = (TextView) v.findViewById(R.id.item_name);
-            mIcon = (ImageView) v.findViewById(R.id.item_icon);
+            mName = v.findViewById(R.id.item_name);
+            mIcon = v.findViewById(R.id.item_icon);
         }
 
         public void bind(DrawerMenuListAdapter adapter, DrawerMenuItem item) {

@@ -1,17 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="wrap_content" android:background="?attr/selectableItemBackground"
-    android:id="@+id/channel_entry">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:id="@+id/entry">
 
     <TextView
-        android:id="@+id/channel_name"
+        android:id="@+id/unread_counter"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textColor="?android:attr/textColorSecondary"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:layout_marginRight="24dp"
+        android:layout_marginEnd="24dp"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:paddingLeft="72dp"
+        android:maxLines="1"
+        android:ellipsize="end"
         android:paddingTop="16dp"
         android:paddingBottom="16dp"
-        android:paddingRight="16dp" />
+        android:layout_marginLeft="72dp"
+        android:layout_marginStart="72dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_toLeftOf="@id/unread_counter"
+        android:layout_toStartOf="@id/unread_counter" />
 
-</LinearLayout>
+</RelativeLayout>
