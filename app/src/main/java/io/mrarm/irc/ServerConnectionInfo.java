@@ -15,6 +15,7 @@ import io.mrarm.chatlib.irc.IRCConnectionRequest;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.chatlib.irc.cap.SASLCapability;
 import io.mrarm.chatlib.irc.cap.SASLOptions;
+import io.mrarm.chatlib.irc.filters.ZNCPlaybackMessageFilter;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.util.FilteredStorageApi;
 import io.mrarm.irc.config.SettingsHelper;
@@ -106,6 +107,8 @@ public class ServerConnectionInfo {
             if (mSASLOptions != null)
                 connection.getServerConnectionData().getCapabilityManager().registerCapability(
                         new SASLCapability(mSASLOptions));
+            connection.getServerConnectionData().getMessageFilterList().addMessageFilter(
+                    new ZNCPlaybackMessageFilter(connection.getServerConnectionData()));
             connection.addDisconnectListener((IRCConnection conn, Exception reason) -> {
                 notifyDisconnected();
             });
