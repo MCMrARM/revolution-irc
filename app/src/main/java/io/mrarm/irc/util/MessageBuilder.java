@@ -252,6 +252,9 @@ public class MessageBuilder {
             case PART:
                 return processFormat(mEventMessageFormat, message.getDate(), null,
                         SpannableStringHelper.getText(mContext, R.string.message_part, buildColoredNick(senderNick), message.getMessage()));
+            case QUIT:
+                return processFormat(mEventMessageFormat, message.getDate(), null,
+                        SpannableStringHelper.getText(mContext, R.string.message_quit, buildColoredNick(senderNick), message.getMessage()));
             case NICK_CHANGE: {
                 String newNick = ((NickChangeMessageInfo) message).getNewNick();
                 SpannableStringBuilder ssb = (SpannableStringBuilder) SpannableStringHelper.getText(mContext, R.string.message_nick_change, buildColoredNick(senderNick), buildColoredNick(newNick));
