@@ -99,11 +99,15 @@ public class CommandAliasesAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
         protected TextView mText;
         private int mSecondaryColor;
+        protected CommandAliasManager.CommandAlias mAlias;
 
         public ItemHolder(View view, int secondaryColor) {
             super(view);
             mText = view.findViewById(R.id.text);
             mSecondaryColor = secondaryColor;
+            view.setOnClickListener((View v) -> {
+                startEditActivity();
+            });
         }
 
         public void bind(CommandAliasManager.CommandAlias alias) {
@@ -112,6 +116,14 @@ public class CommandAliasesAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             SpannableString str = new SpannableString(alias.name + " " + alias.syntax);
             str.setSpan(new ForegroundColorSpan(mSecondaryColor), alias.name.length(), str.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             mText.setText(str);
+            mAlias = alias;
+        }
+
+        protected void startEditActivity() {
+            Intent intent = new Intent(mText.getContext(), EditCommandAliasActivity.class);
+            intent.putExtra(EditCommandAliasActivity.ARG_ALIAS_NAME, mAlias.name);
+            intent.putExtra(EditCommandAliasActivity.ARG_ALIAS_SYNTAX, mAlias.syntax);
+            mText.getContext().startActivity(intent);
         }
 
     }
@@ -120,9 +132,6 @@ public class CommandAliasesAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
         public UserItemHolder(View view, int secondaryColor, CommandAliasesAdapter adapter) {
             super(view, secondaryColor);
-            view.setOnClickListener((View v) -> {
-                startEditActivity();
-            });
             view.setOnLongClickListener((View v) -> {
                 Context ctx = v.getContext();
                 new AlertDialog.Builder(ctx)
@@ -153,12 +162,6 @@ public class CommandAliasesAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             });
         }
 
-        private void startEditActivity() {
-            Intent intent = new Intent(mText.getContext(), EditCommandAliasActivity.class);
-            intent.putExtra(EditCommandAliasActivity.ARG_ALIAS_NAME, mText.getText().toString());
-            mText.getContext().startActivity(intent);
-        }
-
     }
 
     public static class HeaderHolder extends RecyclerView.ViewHolder {
@@ -167,7 +170,7 @@ public class CommandAliasesAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
         public HeaderHolder(View view) {
             super(view);
-            mText = (TextView) view.findViewById(R.id.title);
+            mText = view.findViewById(R.id.title);
         }
 
         public void bind(int textId) {

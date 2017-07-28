@@ -1,14 +1,19 @@
 package io.mrarm.irc;
 
+import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -21,12 +26,14 @@ public class EditCommandAliasActivity extends AppCompatActivity {
 
     private EditText mName;
     private Spinner mTypeSpinner;
+    private EditText mSyntax;
     private EditText mChannel;
     private View mChannelCtr;
     private EditText mText;
 
     private CommandAliasManager.CommandAlias mEditingAlias;
-    private boolean mCreatingNew = true;
+    private boolean mCreatingNew = false;
+    private boolean mReadOnly = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,16 +44,24 @@ public class EditCommandAliasActivity extends AppCompatActivity {
         String aliasName = getIntent().getStringExtra(ARG_ALIAS_NAME);
         String aliasSyntax = getIntent().getStringExtra(ARG_ALIAS_SYNTAX);
         if (aliasName != null && aliasSyntax != null) {
-            CommandAliasManager.CommandAlias alias = CommandAliasManager.getInstance(this)
-                    .findCommandAlias(aliasName, aliasSyntax);
-            if (alias != null) {
-                mEditingAlias = alias;
-                mCreatingNew = false;
+            for (CommandAliasManager.CommandAlias a : CommandAliasManager.getInstance(this).getUserAliases()) {
+                if (a.name.equalsIgnoreCase(aliasName) && a.syntax.equals(aliasSyntax)) {
+                    mEditingAlias = a;
+                    mCreatingNew = false;
+                }
+            }
+            for (CommandAliasManager.CommandAlias a : CommandAliasManager.getDefaultAliases()) {
+                if (a.name.equalsIgnoreCase(aliasName) && a.syntax.equals(aliasSyntax)) {
+                    mEditingAlias = a;
+                    mReadOnly = true;
+                    mCreatingNew = false;
+                }
             }
         }
 
         mName = findViewById(R.id.name);
         mTypeSpinner = findViewById(R.id.type);
+        mSyntax = findViewById(R.id.syntax);
         mChannel = findViewById(R.id.channel);
         mChannelCtr = findViewById(R.id.channel_ctr);
         mText = findViewById(R.id.text);
@@ -70,21 +85,43 @@ public class EditCommandAliasActivity extends AppCompatActivity {
         mTypeSpinner.setSelection(0);
 
         if (mEditingAlias != null) {
-            mName.setText(mEditingAlias.syntax);
+            mName.setText(mEditingAlias.name);
             mTypeSpinner.setSelection(mEditingAlias.mode);
+            mSyntax.setText(mEditingAlias.syntax);
             mChannel.setText(mEditingAlias.channel);
             mText.setText(mEditingAlias.text);
+
+            if (mReadOnly) {
+                setEditTextDisabled(mName);
+                mTypeSpinner.setEnabled(false);
+                setEditTextDisabled(mSyntax);
+                setEditTextDisabled(mChannel);
+                setEditTextDisabled(mText);
+
+                getSupportActionBar().setTitle(R.string.title_activity_view_command_alias);
+            }
         } else {
             getSupportActionBar().setTitle(R.string.title_activity_add_command_alias);
         }
     }
 
+    private static void setEditTextDisabled(EditText editText) {
+        editText.setInputType(InputType.TYPE_NULL);
+        editText.setTextIsSelectable(true);
+        editText.setKeyListener(null);
+
+        editText.setBackgroundResource(R.drawable.edit_text_readonly);
+        ((ViewGroup) editText.getParent()).setAddStatesFromChildren(false);
+    }
+
     public boolean save() {
+        if (mReadOnly)
+            return false;
         if (mEditingAlias == null)
             mEditingAlias = new CommandAliasManager.CommandAlias();
         mEditingAlias.mode = mTypeSpinner.getSelectedItemPosition();
         String name = mName.getText().toString();
-        String syntax = null; // TODO:
+        String syntax = mSyntax.getText().toString();
         CommandAliasManager.CommandAlias conflict = CommandAliasManager.getInstance(this)
                 .findCommandAlias(name, syntax);
         if (conflict != null && conflict != mEditingAlias) {
@@ -92,7 +129,8 @@ public class EditCommandAliasActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT).show();
             return false;
         }
-        mEditingAlias.syntax = name;
+        mEditingAlias.name = name;
+        mEditingAlias.syntax = syntax;
         if (mEditingAlias.mode == CommandAliasManager.CommandAlias.MODE_MESSAGE)
             mEditingAlias.channel = mChannel.getText().toString();
         mEditingAlias.text = mText.getText().toString();
@@ -105,6 +143,8 @@ public class EditCommandAliasActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        if (mReadOnly)
+            return true;
         getMenuInflater().inflate(R.menu.menu_edit_only_done, menu);
         return true;
     }
