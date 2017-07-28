@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.text.method.QwertyKeyListener;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.Filter;
@@ -66,6 +67,7 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements Sha
         mPopup.setOnItemClickListener((AdapterView<?> adapterView, View view, int i, long l) -> {
             onItemClick(adapterView.getAdapter(), i);
         });
+        mPopup.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
         addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
             updateCompletingCommands();
