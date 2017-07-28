@@ -2,6 +2,7 @@ package io.mrarm.irc.view;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.TypedArray;
 import android.support.v7.widget.ListPopupWindow;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -21,6 +22,7 @@ import io.mrarm.chatlib.dto.ModeList;
 import io.mrarm.chatlib.dto.NickWithPrefix;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.chatlib.irc.ServerConnectionData;
+import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.chat.ChatSuggestionsAdapter;
 import io.mrarm.irc.chat.CommandListSuggestionsAdapter;
@@ -62,8 +64,9 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements Sha
     }
 
     private void init() {
-        mPopup = new ListPopupWindow(getContext());
+        mPopup = new ListPopupWindow(getContext(), null, 0, R.style.SuggestionsPopupWindow);
         mPopup.setAnchorView(this);
+        mPopup.setAnimationStyle(android.R.style.Animation_Dialog);
         mPopup.setOnItemClickListener((AdapterView<?> adapterView, View view, int i, long l) -> {
             onItemClick(adapterView.getAdapter(), i);
         });

@@ -148,4 +148,7 @@
         <item name="android:textColor">#fff</item>
     </style>
 
+    <style name="SuggestionsPopupWindow" parent="Widget.AppCompat.ListPopupWindow">
+    </style>
+
 </resources>
