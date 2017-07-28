@@ -32,4 +32,10 @@
         android:summary="@string/pref_summary_nick_autocomplete_at_suggestions_remove_at"
         android:dependency="nick_autocomplete_at_suggestions" />
 
+    <CheckBoxPreference
+        android:key="channel_autocomplete_suggestions"
+        android:defaultValue="true"
+        android:title="@string/pref_title_channel_autocomplete_suggestions"
+        android:summary="@string/pref_summary_channel_autocomplete_suggestions" />
+
 </PreferenceScreen>

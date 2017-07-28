@@ -38,6 +38,7 @@ import java.util.UUID;
 
 import io.mrarm.chatlib.dto.NickWithPrefix;
 import io.mrarm.chatlib.irc.IRCConnection;
+import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.irc.ChannelNotificationManager;
 import io.mrarm.irc.MainActivity;
 import io.mrarm.irc.NotificationManager;
@@ -49,7 +50,7 @@ import io.mrarm.irc.util.IRCColorUtils;
 import io.mrarm.irc.util.ImageViewTintUtils;
 import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.util.SimpleTextVariableList;
-import io.mrarm.irc.view.NickAutoCompleteEditText;
+import io.mrarm.irc.view.ChatAutoCompleteEditText;
 import io.mrarm.irc.view.TextFormatBar;
 
 public class ChatFragment extends Fragment implements
@@ -69,8 +70,8 @@ public class ChatFragment extends Fragment implements
     private ViewPager mViewPager;
     private DrawerLayout mDrawerLayout;
     private ChannelMembersAdapter mChannelMembersAdapter;
-    private ChannelMembersListAdapter mChannelMembersListAdapter;
-    private NickAutoCompleteEditText mSendText;
+    private ChatSuggestionsAdapter mChannelMembersListAdapter;
+    private ChatAutoCompleteEditText mSendText;
     private View mFormatBarDivider;
     private TextFormatBar mFormatBar;
     private ImageView mSendIcon;
@@ -117,7 +118,8 @@ public class ChatFragment extends Fragment implements
 
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onPageScrolled(int i, float v, int i1) { }
+            public void onPageScrolled(int i, float v, int i1) {
+            }
 
             @Override
             public void onPageSelected(int i) {
@@ -126,7 +128,8 @@ public class ChatFragment extends Fragment implements
             }
 
             @Override
-            public void onPageScrollStateChanged(int i) { }
+            public void onPageScrollStateChanged(int i) {
+            }
         });
 
         mConnectionInfo.addOnChannelListChangeListener(this);
@@ -153,29 +156,30 @@ public class ChatFragment extends Fragment implements
 
         mFormatBar = (TextFormatBar) rootView.findViewById(R.id.format_bar);
         mFormatBarDivider = rootView.findViewById(R.id.format_bar_divider);
-        mSendText = (NickAutoCompleteEditText) rootView.findViewById(R.id.send_text);
+        mSendText = (ChatAutoCompleteEditText) rootView.findViewById(R.id.send_text);
         mSendIcon = (ImageButton) rootView.findViewById(R.id.send_button);
         mTabIcon = (ImageButton) rootView.findViewById(R.id.tab_button);
 
-        if (Build.VERSION.SDK_INT >= 17) {
-            mSendText.setOnDismissListener(() -> {
-                mJustDismissedPopup = true;
-                mSendText.postDelayed(() -> {
-                    mJustDismissedPopup = false;
-                }, 100L);
-            });
-            mTabIcon.setOnTouchListener((View v, MotionEvent event) -> {
-                if (event.getAction() == MotionEvent.ACTION_DOWN)
-                    mClickForceAutocomplete = mJustDismissedPopup;
-                return false;
-            });
-        }
+        mSendText.setOnDismissListener(() -> {
+            mJustDismissedPopup = true;
+            mSendText.postDelayed(() -> {
+                mJustDismissedPopup = false;
+            }, 100L);
+        });
+        mTabIcon.setOnTouchListener((View v, MotionEvent event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN)
+                mClickForceAutocomplete = mJustDismissedPopup;
+            return false;
+        });
 
         mSendText.setFormatBar(mFormatBar);
         mSendText.setCustomSelectionActionModeCallback(new FormatItemActionMode());
 
-        mChannelMembersListAdapter = new ChannelMembersListAdapter(null);
+        mChannelMembersListAdapter = new ChatSuggestionsAdapter(mConnectionInfo, null);
         mSendText.setAdapter(mChannelMembersListAdapter);
+        if (mConnectionInfo.getApiInstance() instanceof ServerConnectionApi)
+            mSendText.setChannelTypes(((ServerConnectionApi) mConnectionInfo.getApiInstance())
+                    .getServerConnectionData().getSupportList().getSupportedChannelTypes());
 
         mFormatBar.setExtraButton(R.drawable.ic_close, getString(R.string.action_close), (View v) -> {
             setFormatBarVisible(false);
@@ -218,7 +222,7 @@ public class ChatFragment extends Fragment implements
         });
 
         mTabIcon.setOnClickListener((View v) -> {
-            doTabNickComplete();
+            mSendText.requestTabComplete();
         });
 
         rootView.addOnLayoutChangeListener((View v, int left, int top, int right, int bottom,
@@ -353,36 +357,13 @@ public class ChatFragment extends Fragment implements
             GestureDetector detector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onDoubleTap(MotionEvent e) {
-                    doTabNickComplete();
+                    mSendText.requestTabComplete();
                     return true;
                 }
             });
             mSendText.setOnTouchListener((View v, MotionEvent event) -> detector.onTouchEvent(event));
         } else {
             mSendText.setOnTouchListener(null);
-        }
-    }
-
-    public void doTabNickComplete() {
-        int end = mSendText.getSelectionStart();
-        int start = mSendText.getTokenizer().findTokenStart(mSendText.getText(), end);
-        if (start < mSendText.length() && mSendText.getText().charAt(start) == '@')
-            start++;
-        String startNick = mSendText.getText().subSequence(start, end).toString();
-        int matches = 0;
-        String match = null;
-        for (NickWithPrefix n : mChannelMembersAdapter.getMembers()) {
-            if (n.getNick().startsWith(startNick) && matches++ == 0)
-                match = n.getNick();
-        }
-        if (match == null)
-            return;
-
-        if (mClickForceAutocomplete || matches == 1) {
-            mSendText.getText().replace(end, end, mSendText.getTokenizer().terminateToken(match.substring(startNick.length())));
-            mSendText.dismissDropDown();
-        } else {
-            mSendText.forceShowDropDown();
         }
     }
 

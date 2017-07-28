@@ -70,7 +70,7 @@
                     android:paddingRight="16dp"
                     android:background="?selectableItemBackgroundBorderless"/>
 
-                <io.mrarm.irc.view.NickAutoCompleteEditText
+                <io.mrarm.irc.view.ChatAutoCompleteEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"

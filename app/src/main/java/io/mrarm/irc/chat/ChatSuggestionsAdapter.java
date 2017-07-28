@@ -13,16 +13,19 @@ import java.util.List;
 
 import io.mrarm.chatlib.dto.NickWithPrefix;
 import io.mrarm.irc.R;
+import io.mrarm.irc.ServerConnectionInfo;
 
-public class ChannelMembersListAdapter extends BaseAdapter implements Filterable {
+public class ChatSuggestionsAdapter extends BaseAdapter implements Filterable {
 
+    private ServerConnectionInfo mConnection;
     private List<NickWithPrefix> mMembers;
-    private List<NickWithPrefix> mFilteredMembers;
+    private List<Object> mFilteredItems;
     private MyFilter mFilter;
 
-    public ChannelMembersListAdapter(List<NickWithPrefix> members) {
+    public ChatSuggestionsAdapter(ServerConnectionInfo connection, List<NickWithPrefix> members) {
+        mConnection = connection;
         mMembers = members;
-        mFilteredMembers = mMembers;
+        mFilteredItems = null;
     }
 
     public void setMembers(List<NickWithPrefix> members) {
@@ -31,12 +34,12 @@ public class ChannelMembersListAdapter extends BaseAdapter implements Filterable
 
     @Override
     public int getCount() {
-        return mFilteredMembers == null ? 0 : mFilteredMembers.size();
+        return mFilteredItems == null ? 0 : mFilteredItems.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return mFilteredMembers.get(position).getNick();
+        return mFilteredItems.get(position);
     }
 
     @Override
@@ -57,8 +60,12 @@ public class ChannelMembersListAdapter extends BaseAdapter implements Filterable
             convertView = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.chat_member, parent, false);
         }
-        ChannelMembersAdapter.MemberHolder.bindText((TextView)
-                convertView.findViewById(R.id.chat_member), mFilteredMembers.get(position));
+        TextView textView = convertView.findViewById(R.id.chat_member);
+        Object item = mFilteredItems.get(position);
+        if (item instanceof NickWithPrefix)
+            ChannelMembersAdapter.MemberHolder.bindText(textView, (NickWithPrefix) item);
+        else
+            textView.setText(item.toString());
         return convertView;
     }
 
@@ -78,10 +85,14 @@ public class ChannelMembersListAdapter extends BaseAdapter implements Filterable
                 String str = constraint.toString().toLowerCase();
                 if (str.charAt(0) == '@')
                     str = str.substring(1);
-                List<NickWithPrefix> list = new ArrayList<>();
+                List<Object> list = new ArrayList<>();
                 for (NickWithPrefix member : mMembers) {
                     if (member.getNick().regionMatches(true, 0, str, 0, str.length()))
                         list.add(member);
+                }
+                for (String channel : mConnection.getChannels()) {
+                    if (channel.regionMatches(true, 0, str, 0, str.length()))
+                        list.add(channel);
                 }
                 ret.values = list;
                 ret.count = list.size();
@@ -92,7 +103,7 @@ public class ChannelMembersListAdapter extends BaseAdapter implements Filterable
         @Override
         @SuppressWarnings("unchecked")
         protected void publishResults(CharSequence constraint, FilterResults results) {
-            mFilteredMembers = (List<NickWithPrefix>) results.values;
+            mFilteredItems = (List<Object>) results.values;
             notifyDataSetChanged();
         }
 

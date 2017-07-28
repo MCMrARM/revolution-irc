@@ -157,7 +157,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 || UserPreferenceFragment.class.getName().equals(fragmentName)
                 || ReconnectPreferenceFragment.class.getName().equals(fragmentName)
                 || InterfacePreferenceFragment.class.getName().equals(fragmentName)
-                || NickAutocompletePreferenceFragment.class.getName().equals(fragmentName)
+                || AutocompletePreferenceFragment.class.getName().equals(fragmentName)
                 || NotificationPreferenceFragment.class.getName().equals(fragmentName)
                 || CommandPreferenceFragment.class.getName().equals(fragmentName);
     }
@@ -325,11 +325,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         }
     }
 
-    public static class NickAutocompletePreferenceFragment extends MyPreferenceFragment {
+    public static class AutocompletePreferenceFragment extends MyPreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_nick_autocomplete);
+            addPreferencesFromResource(R.xml.pref_autocomplete);
         }
     }
 
