@@ -20,6 +20,7 @@ public class ChatSuggestionsAdapter extends BaseAdapter implements Filterable {
     private ServerConnectionInfo mConnection;
     private List<NickWithPrefix> mMembers;
     private List<Object> mFilteredItems;
+    private boolean mChannelsEnabled = false;
     private MyFilter mFilter;
 
     public ChatSuggestionsAdapter(ServerConnectionInfo connection, List<NickWithPrefix> members) {
@@ -30,6 +31,18 @@ public class ChatSuggestionsAdapter extends BaseAdapter implements Filterable {
 
     public void setMembers(List<NickWithPrefix> members) {
         mMembers = members;
+    }
+
+    public void setChannelsEnabled(boolean enabled) {
+        synchronized (this) {
+            mChannelsEnabled = enabled;
+        }
+    }
+
+    public boolean areChannelsEnabled() {
+        synchronized (this) {
+            return mChannelsEnabled;
+        }
     }
 
     @Override
@@ -90,9 +103,11 @@ public class ChatSuggestionsAdapter extends BaseAdapter implements Filterable {
                     if (member.getNick().regionMatches(true, 0, str, 0, str.length()))
                         list.add(member);
                 }
-                for (String channel : mConnection.getChannels()) {
-                    if (channel.regionMatches(true, 0, str, 0, str.length()))
-                        list.add(channel);
+                if (areChannelsEnabled()) {
+                    for (String channel : mConnection.getChannels()) {
+                        if (channel.regionMatches(true, 0, str, 0, str.length()))
+                            list.add(channel);
+                    }
                 }
                 ret.values = list;
                 ret.count = list.size();

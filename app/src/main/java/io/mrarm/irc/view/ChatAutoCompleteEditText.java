@@ -18,10 +18,13 @@ import android.widget.PopupWindow;
 
 import io.mrarm.chatlib.dto.ModeList;
 import io.mrarm.chatlib.dto.NickWithPrefix;
+import io.mrarm.irc.chat.ChatSuggestionsAdapter;
+import io.mrarm.irc.chat.CommandListSuggestionsAdapter;
+import io.mrarm.irc.config.CommandAliasManager;
 import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.util.SimpleTextWatcher;
 
-public class ChatAutoCompleteEditText extends FormattableEditText implements SharedPreferences.OnSharedPreferenceChangeListener, AdapterView.OnItemClickListener {
+public class ChatAutoCompleteEditText extends FormattableEditText implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final int THRESHOLD = 2;
 
@@ -29,11 +32,11 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements Sha
     private boolean mDoAtSuggestions;
     private boolean mAtSuggestionsRemoveAt;
     private boolean mDoChannelSuggestions;
-    private boolean mForceShowSuggestions = false;
 
     private ListPopupWindow mPopup;
-    private ListAdapter mAdapter;
-    private Filter mFilter;
+    private boolean mCurrentCommandAdapter = false;
+    private ChatSuggestionsAdapter mAdapter;
+    private CommandListSuggestionsAdapter mCommandAdapter;
     private ModeList mChannelTypes;
 
     public ChatAutoCompleteEditText(Context context) {
@@ -54,7 +57,9 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements Sha
     private void init() {
         mPopup = new ListPopupWindow(getContext());
         mPopup.setAnchorView(this);
-        mPopup.setOnItemClickListener(this);
+        mPopup.setOnItemClickListener((AdapterView<?> adapterView, View view, int i, long l) -> {
+            onItemClick(adapterView.getAdapter(), i);
+        });
 
         addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
             if (enoughToFilter())
@@ -62,12 +67,29 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements Sha
             else
                 dismissDropDown();
         }));
+
+        onSharedPreferenceChanged(null, null);
     }
 
-    public void setAdapter(ListAdapter adapter) {
+    public void setAdapter(ChatSuggestionsAdapter adapter) {
         mAdapter = adapter;
-        mFilter = ((Filterable) adapter).getFilter();
         mPopup.setAdapter(adapter);
+        mCurrentCommandAdapter = false;
+        mAdapter.setChannelsEnabled(mDoChannelSuggestions);
+    }
+
+    public void setCommandListAdapter(CommandListSuggestionsAdapter adapter) {
+        mCommandAdapter = adapter;
+    }
+
+    private void setCurrentCommandAdapter(boolean command) {
+        if (mCurrentCommandAdapter == command)
+            return;
+        if (command)
+            mPopup.setAdapter(mCommandAdapter);
+        else
+            mPopup.setAdapter(mAdapter);
+        mCurrentCommandAdapter = command;
     }
 
     public void setChannelTypes(ModeList channelTypes) {
@@ -92,17 +114,20 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements Sha
 
     private void performFiltering(boolean completeIfSingle) {
         final String text = getText().toString();
-        mFilter.filter(text, (int i) -> {
+        Filter filter = isCommandToken() ? mCommandAdapter.getFilter() : mAdapter.getFilter();
+        filter.filter(text, (int i) -> {
             if (i == 0)
                 dismissDropDown();
             if (!getText().toString().equals(text) && !enoughToFilter())
                 return;
             if (completeIfSingle && i == 1) {
-                onItemClick(null, null, 0, 0L);
+                onItemClick(filter == mCommandAdapter.getFilter() ? mCommandAdapter : mAdapter, 0);
                 return;
             }
-            if (i > 0)
+            if (i > 0) {
+                setCurrentCommandAdapter(filter == mCommandAdapter.getFilter());
                 showDropDown();
+            }
         });
     }
 
@@ -113,12 +138,16 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements Sha
             return false;
         int start = findTokenStart();
         boolean hasAt = s.length() > start && s.charAt(start) == '@';
-        return mForceShowSuggestions ||
-                (mDoThresholdSuggestions && end - start >= THRESHOLD &&
-                        (mDoAtSuggestions || !hasAt)) ||
+        return (mDoThresholdSuggestions && end - start >= THRESHOLD &&
+                (mDoAtSuggestions || !hasAt)) ||
                 (mDoAtSuggestions && hasAt) ||
                 (mDoChannelSuggestions && mChannelTypes != null && s.length() > start &&
-                        mChannelTypes.contains(s.charAt(start)));
+                        mChannelTypes.contains(s.charAt(start))) ||
+                isCommandToken();
+    }
+
+    private boolean isCommandToken() {
+        return findTokenStart() == 0 && getText().length() > 0 && getText().charAt(0) == '/';
     }
 
     @Override
@@ -149,14 +178,17 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements Sha
         mDoAtSuggestions = s.shouldShowNickAutocompleteAtSuggestions();
         mAtSuggestionsRemoveAt = s.shouldRemoveAtWithNickAutocompleteAtSuggestions();
         mDoChannelSuggestions = s.shouldShowChannelAutocompleteSuggestions();
+        if (mAdapter != null)
+            mAdapter.setChannelsEnabled(mDoChannelSuggestions);
     }
 
-    @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int index, long l) {
-        Object item = mAdapter.getItem(index);
+    public void onItemClick(Adapter adapter, int index) {
+        Object item = adapter.getItem(index);
         CharSequence val;
         if (item instanceof NickWithPrefix) {
             val = terminateNickToken(((NickWithPrefix) item).getNick());
+        } else if (item instanceof CommandAliasManager.CommandAlias) {
+            val = "/" + ((CommandAliasManager.CommandAlias) item).name + " ";
         } else {
             val = item.toString() + " ";
         }
