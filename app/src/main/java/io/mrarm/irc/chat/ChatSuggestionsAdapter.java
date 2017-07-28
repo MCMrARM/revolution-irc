@@ -20,6 +20,7 @@ public class ChatSuggestionsAdapter extends BaseAdapter implements Filterable {
     private ServerConnectionInfo mConnection;
     private List<NickWithPrefix> mMembers;
     private List<Object> mFilteredItems;
+    private boolean mMembersEnabled = false;
     private boolean mChannelsEnabled = false;
     private MyFilter mFilter;
 
@@ -33,9 +34,16 @@ public class ChatSuggestionsAdapter extends BaseAdapter implements Filterable {
         mMembers = members;
     }
 
-    public void setChannelsEnabled(boolean enabled) {
+    public void setEnabledSuggestions(boolean members, boolean channels) {
         synchronized (this) {
-            mChannelsEnabled = enabled;
+            mMembersEnabled = members;
+            mChannelsEnabled = channels;
+        }
+    }
+
+    public boolean areMembersEnabled() {
+        synchronized (this) {
+            return mMembersEnabled;
         }
     }
 
@@ -87,31 +95,25 @@ public class ChatSuggestionsAdapter extends BaseAdapter implements Filterable {
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
             FilterResults ret = new FilterResults();
-            if (mMembers == null) {
-                ret.values = null;
-                ret.count = 0;
-            } else if (constraint == null || constraint.length() == 0 ||
-                    (constraint.length() == 1 && constraint.charAt(0) == '@')) {
-                ret.values = mMembers;
-                ret.count = mMembers.size();
-            } else {
-                String str = constraint.toString().toLowerCase();
-                if (str.charAt(0) == '@')
-                    str = str.substring(1);
-                List<Object> list = new ArrayList<>();
+            String str = constraint.toString().toLowerCase();
+            String mstr = str;
+            if (str.length() > 0 && str.charAt(0) == '@')
+                mstr = str.substring(1);
+            List<Object> list = new ArrayList<>();
+            if (areMembersEnabled() && mMembers != null) {
                 for (NickWithPrefix member : mMembers) {
-                    if (member.getNick().regionMatches(true, 0, str, 0, str.length()))
+                    if (member.getNick().regionMatches(true, 0, mstr, 0, mstr.length()))
                         list.add(member);
                 }
-                if (areChannelsEnabled()) {
-                    for (String channel : mConnection.getChannels()) {
-                        if (channel.regionMatches(true, 0, str, 0, str.length()))
-                            list.add(channel);
-                    }
-                }
-                ret.values = list;
-                ret.count = list.size();
             }
+            if (areChannelsEnabled()) {
+                for (String channel : mConnection.getChannels()) {
+                    if (channel.regionMatches(true, 0, str, 0, str.length()))
+                        list.add(channel);
+                }
+            }
+            ret.values = list;
+            ret.count = list.size();
             return ret;
         }
 

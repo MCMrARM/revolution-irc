@@ -178,6 +178,7 @@ public class ChatFragment extends Fragment implements
         mChannelMembersListAdapter = new ChatSuggestionsAdapter(mConnectionInfo, null);
         mSendText.setAdapter(mChannelMembersListAdapter);
         mSendText.setCommandListAdapter(new CommandListSuggestionsAdapter(getContext()));
+        mSendText.setConnectionContext(mConnectionInfo);
         if (mConnectionInfo.getApiInstance() instanceof ServerConnectionApi)
             mSendText.setChannelTypes(((ServerConnectionApi) mConnectionInfo.getApiInstance())
                     .getServerConnectionData().getSupportList().getSupportedChannelTypes());

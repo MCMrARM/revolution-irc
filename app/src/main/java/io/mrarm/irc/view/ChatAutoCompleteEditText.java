@@ -11,17 +11,21 @@ import android.view.View;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.Filter;
-import android.widget.Filterable;
-import android.widget.ListAdapter;
-import android.widget.MultiAutoCompleteTextView;
 import android.widget.PopupWindow;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import io.mrarm.chatlib.dto.ModeList;
 import io.mrarm.chatlib.dto.NickWithPrefix;
+import io.mrarm.chatlib.irc.ServerConnectionApi;
+import io.mrarm.chatlib.irc.ServerConnectionData;
+import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.chat.ChatSuggestionsAdapter;
 import io.mrarm.irc.chat.CommandListSuggestionsAdapter;
 import io.mrarm.irc.config.CommandAliasManager;
 import io.mrarm.irc.config.SettingsHelper;
+import io.mrarm.irc.util.CommandAliasSyntaxParser;
 import io.mrarm.irc.util.SimpleTextWatcher;
 
 public class ChatAutoCompleteEditText extends FormattableEditText implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -35,9 +39,11 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements Sha
 
     private ListPopupWindow mPopup;
     private boolean mCurrentCommandAdapter = false;
+    private ServerConnectionInfo mConnection;
     private ChatSuggestionsAdapter mAdapter;
     private CommandListSuggestionsAdapter mCommandAdapter;
     private ModeList mChannelTypes;
+    private List<CommandAliasManager.CommandAlias> mCompletingCommands;
 
     public ChatAutoCompleteEditText(Context context) {
         super(context);
@@ -62,6 +68,7 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements Sha
         });
 
         addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
+            updateCompletingCommands();
             if (enoughToFilter())
                 performFiltering(false);
             else
@@ -75,11 +82,15 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements Sha
         mAdapter = adapter;
         mPopup.setAdapter(adapter);
         mCurrentCommandAdapter = false;
-        mAdapter.setChannelsEnabled(mDoChannelSuggestions);
+        mAdapter.setEnabledSuggestions(true, mDoChannelSuggestions);
     }
 
     public void setCommandListAdapter(CommandListSuggestionsAdapter adapter) {
         mCommandAdapter = adapter;
+    }
+
+    public void setConnectionContext(ServerConnectionInfo info) {
+        mConnection = info;
     }
 
     private void setCurrentCommandAdapter(boolean command) {
@@ -97,6 +108,7 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements Sha
     }
 
     public void requestTabComplete() {
+        updateCompletingCommandFlags();
         performFiltering(true);
     }
 
@@ -113,12 +125,14 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements Sha
     }
 
     private void performFiltering(boolean completeIfSingle) {
-        final String text = getText().toString();
-        Filter filter = isCommandToken() ? mCommandAdapter.getFilter() : mAdapter.getFilter();
+        final String text = getCurrentToken();
+        Filter filter = isCommandNameToken() ? mCommandAdapter.getFilter() : mAdapter.getFilter();
         filter.filter(text, (int i) -> {
-            if (i == 0)
+            if (i == 0) {
                 dismissDropDown();
-            if (!getText().toString().equals(text) && !enoughToFilter())
+                return;
+            }
+            if (!getCurrentToken().equals(text) && !enoughToFilter())
                 return;
             if (completeIfSingle && i == 1) {
                 onItemClick(filter == mCommandAdapter.getFilter() ? mCommandAdapter : mAdapter, 0);
@@ -138,16 +152,57 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements Sha
             return false;
         int start = findTokenStart();
         boolean hasAt = s.length() > start && s.charAt(start) == '@';
+        updateCompletingCommandFlags();
         return (mDoThresholdSuggestions && end - start >= THRESHOLD &&
                 (mDoAtSuggestions || !hasAt)) ||
                 (mDoAtSuggestions && hasAt) ||
                 (mDoChannelSuggestions && mChannelTypes != null && s.length() > start &&
                         mChannelTypes.contains(s.charAt(start))) ||
-                isCommandToken();
+                isCommandNameToken() || updateCompletingCommandFlags();
     }
 
-    private boolean isCommandToken() {
+    private boolean isCommandNameToken() {
         return findTokenStart() == 0 && getText().length() > 0 && getText().charAt(0) == '/';
+    }
+
+    private void updateCompletingCommands() {
+        String text = getText().toString();
+        if (text.length() == 0 || text.charAt(0) != '/') {
+            mCompletingCommands = null;
+            return;
+        }
+        int iof = text.indexOf(' ');
+        String currentCommand = iof != -1 ? text.substring(1, iof) : text;
+        if (mCompletingCommands != null && mCompletingCommands.get(0).name.equalsIgnoreCase(currentCommand))
+            return; // up to date
+        mCompletingCommands = new ArrayList<>();
+        for (CommandAliasManager.CommandAlias alias : CommandAliasManager.getDefaultAliases()) {
+            if (alias.name.equalsIgnoreCase(currentCommand))
+                mCompletingCommands.add(alias);
+        }
+        for (CommandAliasManager.CommandAlias alias : CommandAliasManager.getInstance(getContext()).getUserAliases()) {
+            if (alias.name.equalsIgnoreCase(currentCommand))
+                mCompletingCommands.add(alias);
+        }
+        if (mCompletingCommands.size() == 0)
+            mCompletingCommands = null;
+    }
+
+    private boolean updateCompletingCommandFlags() {
+        if (mCompletingCommands == null)
+            return false;
+        int end = getSelectionStart();
+        String[] args = getText().toString().substring(0, end).split(" ", -1);
+        if (args.length <= 1)
+            return false;
+        int flags = 0;
+        for (CommandAliasManager.CommandAlias alias : mCompletingCommands) {
+            ServerConnectionData data = ((ServerConnectionApi) mConnection.getApiInstance()).getServerConnectionData();
+            flags |= alias.getSyntaxParser().getAutocompleteFlags(data, args, 1);
+        }
+        if (flags != 0)
+            mAdapter.setEnabledSuggestions((flags & CommandAliasSyntaxParser.AUTOCOMPLETE_MEMBERS) != 0, (flags & CommandAliasSyntaxParser.AUTOCOMPLETE_CHANNELS) != 0);
+        return flags != 0;
     }
 
     @Override
@@ -179,7 +234,7 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements Sha
         mAtSuggestionsRemoveAt = s.shouldRemoveAtWithNickAutocompleteAtSuggestions();
         mDoChannelSuggestions = s.shouldShowChannelAutocompleteSuggestions();
         if (mAdapter != null)
-            mAdapter.setChannelsEnabled(mDoChannelSuggestions);
+            mAdapter.setEnabledSuggestions(true, mDoChannelSuggestions);
     }
 
     public void onItemClick(Adapter adapter, int index) {
@@ -217,6 +272,12 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements Sha
                 return end;
         }
         return len;
+    }
+
+    private String getCurrentToken() {
+        int start = findTokenStart();
+        int end = getSelectionEnd();
+        return getText().toString().substring(start, end);
     }
 
     public CharSequence terminateNickToken(CharSequence text) {

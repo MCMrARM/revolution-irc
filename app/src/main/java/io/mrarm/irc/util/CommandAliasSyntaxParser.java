@@ -15,6 +15,9 @@ public class CommandAliasSyntaxParser {
     private static final int ELEMENT_USER = 3;
     private static final int ELEMENT_USERS = 4;
 
+    public static final int AUTOCOMPLETE_MEMBERS = 1;
+    public static final int AUTOCOMPLETE_CHANNELS = 2;
+
     private String syntax;
     private List<SyntaxElement> elements = new ArrayList<>();
     private int requiredArgCount = 0;
@@ -103,6 +106,39 @@ public class CommandAliasSyntaxParser {
         }
     }
 
+    public int getAutocompleteFlags(ServerConnectionData connection, String[] args, int argi) {
+        int optargi = args.length - argi - requiredArgCount;
+        int ret = 0;
+        for (SyntaxElement el : elements) {
+            if (el.vaarg) {
+                ret |= el.getAutocompleteFlags();
+                break;
+            }
+            if (el.required && argi >= args.length)
+                continue;
+            if (argi == args.length - 1) { // last
+                ret |= el.getAutocompleteFlags();
+                if (el.required)
+                    break;
+                continue;
+            }
+            if (!el.required && (optargi == 0 || argi >= args.length))
+                continue;
+            boolean matches = el.checkArgumentMatches(connection, args[argi]);
+            if (el.required) {
+                if (!matches)
+                    break;
+                argi++;
+                continue;
+            }
+            if (!matches)
+                continue;
+            optargi--;
+            argi++;
+        }
+        return ret;
+    }
+
     private static class SyntaxElement {
 
         int type = ELEMENT_TEXT;
@@ -116,6 +152,14 @@ public class CommandAliasSyntaxParser {
                         .contains(arg.charAt(0));
             }
             return true;
+        }
+
+        int getAutocompleteFlags() {
+            if (type == ELEMENT_CHANNEL || type == ELEMENT_CHANNELS)
+                return AUTOCOMPLETE_CHANNELS;
+            if (type == ELEMENT_USER || type == ELEMENT_USERS)
+                return AUTOCOMPLETE_MEMBERS;
+            return 0;
         }
 
     }
