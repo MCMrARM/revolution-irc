@@ -347,7 +347,7 @@ public class MessageBuilder {
         }
         if (unsetModes.size() > 0 || removeValueModes.size() > 0) {
             SpannableStringBuilder setBuilder = new SpannableStringBuilder();
-            if (flagModes.size() > 0)
+            if (unsetModes.size() > 0)
                 setBuilder.append(SpannableStringHelper.format(mContext.getResources().getQuantityString(R.plurals.message_mode_channel, unsetModes.size()), setToString(unsetModes)));
             buildValueModeList(setBuilder, removeValueModes);
             if (setBuilder.length() > 0)
