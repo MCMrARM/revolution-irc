@@ -7,6 +7,9 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,14 +26,14 @@ public class CommandAliasesAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     private CommandAliasManager mManager;
     private RecyclerView mRecyclerView;
-    private int mDefaultItemTextColor;
+    private int mSecondaryItemTextColor;
 
     public CommandAliasesAdapter(Context context) {
         mManager = CommandAliasManager.getInstance(context);
 
         TypedArray ta = context.getTheme().obtainStyledAttributes(R.style.AppTheme,
                 new int[] { android.R.attr.textColorSecondary });
-        mDefaultItemTextColor = ta.getColor(0, Color.BLACK);
+        mSecondaryItemTextColor = ta.getColor(0, Color.BLACK);
         ta.recycle();
     }
 
@@ -46,8 +49,8 @@ public class CommandAliasesAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     viewGroup, false));
         View view = inflater.inflate(R.layout.settings_command_alias_item, viewGroup, false);
         if (type == TYPE_USER_ITEM)
-            return new UserItemHolder(view, this);
-        return new DefaultItemHolder(view, mDefaultItemTextColor);
+            return new UserItemHolder(view, mSecondaryItemTextColor, this);
+        return new ItemHolder(view, mSecondaryItemTextColor);
     }
 
     @Override
@@ -95,31 +98,28 @@ public class CommandAliasesAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public static class ItemHolder extends RecyclerView.ViewHolder {
 
         protected TextView mText;
+        private int mSecondaryColor;
 
-        public ItemHolder(View view) {
+        public ItemHolder(View view, int secondaryColor) {
             super(view);
-            mText = (TextView) view.findViewById(R.id.text);
+            mText = view.findViewById(R.id.text);
+            mSecondaryColor = secondaryColor;
         }
 
         public void bind(CommandAliasManager.CommandAlias alias) {
-            mText.setText(alias.name);
-        }
-
-    }
-
-    public static class DefaultItemHolder extends ItemHolder {
-
-        public DefaultItemHolder(View view, int color) {
-            super(view);
-            mText.setTextColor(color);
+            if (alias.syntax == null)
+                return;
+            SpannableString str = new SpannableString(alias.name + " " + alias.syntax);
+            str.setSpan(new ForegroundColorSpan(mSecondaryColor), alias.name.length(), str.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            mText.setText(str);
         }
 
     }
 
     public static class UserItemHolder extends ItemHolder {
 
-        public UserItemHolder(View view, CommandAliasesAdapter adapter) {
-            super(view);
+        public UserItemHolder(View view, int secondaryColor, CommandAliasesAdapter adapter) {
+            super(view, secondaryColor);
             view.setOnClickListener((View v) -> {
                 startEditActivity();
             });
@@ -157,11 +157,6 @@ public class CommandAliasesAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             Intent intent = new Intent(mText.getContext(), EditCommandAliasActivity.class);
             intent.putExtra(EditCommandAliasActivity.ARG_ALIAS_NAME, mText.getText().toString());
             mText.getContext().startActivity(intent);
-        }
-
-        @Override
-        public void bind(CommandAliasManager.CommandAlias alias) {
-            super.bind(alias);
         }
 
     }

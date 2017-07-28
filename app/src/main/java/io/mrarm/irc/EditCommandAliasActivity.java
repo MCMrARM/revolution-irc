@@ -17,6 +17,7 @@ import io.mrarm.irc.config.CommandAliasManager;
 public class EditCommandAliasActivity extends AppCompatActivity {
 
     public static final String ARG_ALIAS_NAME = "alias_name";
+    public static final String ARG_ALIAS_SYNTAX = "alias_syntax";
 
     private EditText mName;
     private Spinner mTypeSpinner;
@@ -34,22 +35,21 @@ public class EditCommandAliasActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         String aliasName = getIntent().getStringExtra(ARG_ALIAS_NAME);
-        if (aliasName != null) {
-            for (CommandAliasManager.CommandAlias alias :
-                    CommandAliasManager.getInstance(this).getUserAliases()) {
-                if (alias.name.equalsIgnoreCase(aliasName)) {
-                    mEditingAlias = alias;
-                    mCreatingNew = false;
-                    break;
-                }
+        String aliasSyntax = getIntent().getStringExtra(ARG_ALIAS_SYNTAX);
+        if (aliasName != null && aliasSyntax != null) {
+            CommandAliasManager.CommandAlias alias = CommandAliasManager.getInstance(this)
+                    .findCommandAlias(aliasName, aliasSyntax);
+            if (alias != null) {
+                mEditingAlias = alias;
+                mCreatingNew = false;
             }
         }
 
-        mName = (EditText) findViewById(R.id.name);
-        mTypeSpinner = (Spinner) findViewById(R.id.type);
-        mChannel = (EditText) findViewById(R.id.channel);
+        mName = findViewById(R.id.name);
+        mTypeSpinner = findViewById(R.id.type);
+        mChannel = findViewById(R.id.channel);
         mChannelCtr = findViewById(R.id.channel_ctr);
-        mText = (EditText) findViewById(R.id.text);
+        mText = findViewById(R.id.text);
 
         ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(this,
                 R.array.edit_command_alias_types, android.R.layout.simple_spinner_item);
@@ -70,7 +70,7 @@ public class EditCommandAliasActivity extends AppCompatActivity {
         mTypeSpinner.setSelection(0);
 
         if (mEditingAlias != null) {
-            mName.setText(mEditingAlias.name);
+            mName.setText(mEditingAlias.syntax);
             mTypeSpinner.setSelection(mEditingAlias.mode);
             mChannel.setText(mEditingAlias.channel);
             mText.setText(mEditingAlias.text);
@@ -84,14 +84,15 @@ public class EditCommandAliasActivity extends AppCompatActivity {
             mEditingAlias = new CommandAliasManager.CommandAlias();
         mEditingAlias.mode = mTypeSpinner.getSelectedItemPosition();
         String name = mName.getText().toString();
+        String syntax = null; // TODO:
         CommandAliasManager.CommandAlias conflict = CommandAliasManager.getInstance(this)
-                .findCommandAlias(name);
+                .findCommandAlias(name, syntax);
         if (conflict != null && conflict != mEditingAlias) {
             Toast.makeText(this, R.string.edit_command_alias_error_name_collision,
                     Toast.LENGTH_SHORT).show();
             return false;
         }
-        mEditingAlias.name = name;
+        mEditingAlias.syntax = name;
         if (mEditingAlias.mode == CommandAliasManager.CommandAlias.MODE_MESSAGE)
             mEditingAlias.channel = mChannel.getText().toString();
         mEditingAlias.text = mText.getText().toString();
