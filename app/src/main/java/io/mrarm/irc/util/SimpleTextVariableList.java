@@ -10,6 +10,15 @@ public class SimpleTextVariableList {
     private Map<String, List<String>> mArrVars = new HashMap<>();
     private Map<String, String> mArrVarJoinStr = new HashMap<>();
 
+    public SimpleTextVariableList() {
+    }
+
+    public SimpleTextVariableList(SimpleTextVariableList copy) {
+        mVars.putAll(copy.mVars);
+        mArrVars.putAll(copy.mArrVars);
+        mArrVarJoinStr.putAll(copy.mArrVarJoinStr);
+    }
+
     public void set(String name, String value) {
         mVars.put(name, value);
     }

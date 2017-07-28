@@ -32,7 +32,7 @@ public class EditCommandAliasActivity extends AppCompatActivity {
     private EditText mText;
 
     private CommandAliasManager.CommandAlias mEditingAlias;
-    private boolean mCreatingNew = false;
+    private boolean mCreatingNew = true;
     private boolean mReadOnly = false;
 
     @Override
@@ -48,13 +48,17 @@ public class EditCommandAliasActivity extends AppCompatActivity {
                 if (a.name.equalsIgnoreCase(aliasName) && a.syntax.equals(aliasSyntax)) {
                     mEditingAlias = a;
                     mCreatingNew = false;
+                    break;
                 }
             }
-            for (CommandAliasManager.CommandAlias a : CommandAliasManager.getDefaultAliases()) {
-                if (a.name.equalsIgnoreCase(aliasName) && a.syntax.equals(aliasSyntax)) {
-                    mEditingAlias = a;
-                    mReadOnly = true;
-                    mCreatingNew = false;
+            if (mEditingAlias == null) {
+                for (CommandAliasManager.CommandAlias a : CommandAliasManager.getDefaultAliases()) {
+                    if (a.name.equalsIgnoreCase(aliasName) && a.syntax.equals(aliasSyntax)) {
+                        mEditingAlias = a;
+                        mReadOnly = true;
+                        mCreatingNew = false;
+                        break;
+                    }
                 }
             }
         }

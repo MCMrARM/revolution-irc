@@ -386,6 +386,7 @@
 
     <string-array name="edit_command_alias_types">
         <item>Message</item>
+        <item>Client command</item>
         <item>Raw</item>
     </string-array>
 

@@ -158,11 +158,20 @@ public class CommandAliasManager {
         return buf.toString();
     }
 
+    private List<CommandAlias> mAliasesStack = new ArrayList<>();
+
     public void processCommand(IRCConnection connection, String command, SimpleTextVariableList vars) {
         String[] args = command.split(" ");
         CommandAlias alias = findCommandAlias(connection, args);
         if (alias == null)
             return;
+        SimpleTextVariableList varsCopy = null;
+        if (alias.mode == CommandAlias.MODE_CLIENT) {
+            if (mAliasesStack.contains(alias))
+                throw new RuntimeException("Commands cannot be recursive");
+            varsCopy = new SimpleTextVariableList(vars);
+        }
+
         String[] argsVar = new String[args.length - 1];
         System.arraycopy(args, 1, argsVar, 0, argsVar.length);
         vars.set(VAR_ARGS, Arrays.asList(argsVar), " ");
@@ -170,6 +179,12 @@ public class CommandAliasManager {
         String processedText = processVariables(alias.text, vars);
         if (alias.mode == CommandAlias.MODE_RAW) {
             connection.sendCommandRaw(processedText, null, null);
+        } else if (alias.mode == CommandAlias.MODE_CLIENT) {
+            if (processedText.startsWith("/"))
+                processedText = processedText.substring(1);
+            mAliasesStack.add(alias);
+            processCommand(connection, processedText, varsCopy);
+            mAliasesStack.remove(mAliasesStack.size() - 1);
         } else if (alias.mode == CommandAlias.MODE_MESSAGE) {
             String processedChannel = processVariables(alias.channel, vars);
             connection.sendMessage(processedChannel, processedText, null, null);
@@ -180,7 +195,8 @@ public class CommandAliasManager {
     public static class CommandAlias {
 
         public static final int MODE_MESSAGE = 0;
-        public static final int MODE_RAW = 1;
+        public static final int MODE_CLIENT = 1;
+        public static final int MODE_RAW = 2;
 
         public String name;
         public String syntax;
