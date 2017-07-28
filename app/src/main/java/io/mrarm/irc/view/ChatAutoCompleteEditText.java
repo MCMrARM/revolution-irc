@@ -110,7 +110,6 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements Sha
     }
 
     public void requestTabComplete() {
-        updateCompletingCommandFlags();
         performFiltering(true);
     }
 
@@ -127,6 +126,8 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements Sha
     }
 
     private void performFiltering(boolean completeIfSingle) {
+        if (!updateCompletingCommandFlags())
+            mAdapter.setEnabledSuggestions(true, mDoChannelSuggestions);
         final String text = getCurrentToken();
         Filter filter = isCommandNameToken() ? mCommandAdapter.getFilter() : mAdapter.getFilter();
         filter.filter(text, (int i) -> {
