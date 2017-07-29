@@ -2,6 +2,7 @@ package io.mrarm.irc.dialog;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -94,7 +95,7 @@ public abstract class SearchDialog extends AppCompatDialog {
     @Override
     public void show() {
         super.show();
-        if (Build.VERSION.SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT >= 23 & isLightColor(mStatusBarColor)) {
             View decorView = getWindow().getDecorView();
             decorView.setSystemUiVisibility(decorView.getSystemUiVisibility() | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         }
@@ -172,6 +173,10 @@ public abstract class SearchDialog extends AppCompatDialog {
             }
         }
 
+    }
+
+    private static boolean isLightColor(int color) {
+        return Color.red(color) > 180 && Color.green(color) > 180 && Color.blue(color) > 180;
     }
 
 }

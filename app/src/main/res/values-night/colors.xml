@@ -7,6 +7,9 @@
     <color name="colorPrimaryDark">#283593</color>
     <color name="colorAccent">#FF4081</color>
 
+    <color name="searchColorPrimary">#212121</color>
+    <color name="searchColorPrimaryDark">#1A1A1A</color>
+
     <color name="userAwayColorPrimary">#E64A19</color>
     <color name="userAwayColorPrimaryDark">#D84315</color>
 
