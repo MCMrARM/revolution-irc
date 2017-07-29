@@ -85,7 +85,7 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
         mAdapter.setClickListener(this);
         mSuggestionsList.setAdapter(adapter);
         mCurrentCommandAdapter = false;
-        mAdapter.setEnabledSuggestions(true, mDoChannelSuggestions);
+        mAdapter.setEnabledSuggestions(true, mDoChannelSuggestions, false);
     }
 
     public void setCommandListAdapter(CommandListSuggestionsAdapter adapter) {
@@ -126,7 +126,7 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
 
     private void performFiltering(boolean completeIfSingle) {
         if (!updateCompletingCommandFlags())
-            mAdapter.setEnabledSuggestions(true, mDoChannelSuggestions);
+            mAdapter.setEnabledSuggestions(true, mDoChannelSuggestions, false);
         final String text = getCurrentToken();
         Filter filter = isCommandNameToken() ? mCommandAdapter.getFilter() : mAdapter.getFilter();
         filter.filter(text, (int i) -> {
@@ -202,11 +202,13 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
             return false;
         int flags = 0;
         for (CommandAliasManager.CommandAlias alias : mCompletingCommands) {
+            if (alias.disableArgAutocomplete)
+                continue;
             ServerConnectionData data = ((ServerConnectionApi) mConnection.getApiInstance()).getServerConnectionData();
             flags |= alias.getSyntaxParser().getAutocompleteFlags(data, args, 1);
         }
         if (flags != 0)
-            mAdapter.setEnabledSuggestions((flags & CommandAliasSyntaxParser.AUTOCOMPLETE_MEMBERS) != 0, (flags & CommandAliasSyntaxParser.AUTOCOMPLETE_CHANNELS) != 0);
+            mAdapter.setEnabledSuggestions((flags & CommandAliasSyntaxParser.AUTOCOMPLETE_MEMBERS) != 0, (flags & CommandAliasSyntaxParser.AUTOCOMPLETE_CHANNELS) != 0, (flags & CommandAliasSyntaxParser.AUTOCOMPLETE_USERS) != 0);
         return flags != 0;
     }
 
@@ -239,7 +241,7 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
         mAtSuggestionsRemoveAt = s.shouldRemoveAtWithNickAutocompleteAtSuggestions();
         mDoChannelSuggestions = s.shouldShowChannelAutocompleteSuggestions();
         if (mAdapter != null)
-            mAdapter.setEnabledSuggestions(true, mDoChannelSuggestions);
+            mAdapter.setEnabledSuggestions(true, mDoChannelSuggestions, false);
     }
 
     @Override

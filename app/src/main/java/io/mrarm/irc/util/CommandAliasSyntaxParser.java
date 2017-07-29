@@ -14,9 +14,14 @@ public class CommandAliasSyntaxParser {
     private static final int ELEMENT_CHANNELS = 2;
     private static final int ELEMENT_USER = 3;
     private static final int ELEMENT_USERS = 4;
+    private static final int ELEMENT_MEMBER = 5;
+    private static final int ELEMENT_MEMBERS = 6;
+    private static final int ELEMENT_TARGET = 7;
+    private static final int ELEMENT_TARGETS = 8;
 
     public static final int AUTOCOMPLETE_MEMBERS = 1;
     public static final int AUTOCOMPLETE_CHANNELS = 2;
+    public static final int AUTOCOMPLETE_USERS = 4;
 
     private String syntax;
     private List<SyntaxElement> elements = new ArrayList<>();
@@ -53,6 +58,14 @@ public class CommandAliasSyntaxParser {
                 element.type = ELEMENT_USER;
             else if (element.varName.equals("users") || element.varName.endsWith("-users"))
                 element.type = ELEMENT_USERS;
+            else if (element.varName.equals("member") || element.varName.endsWith("-member"))
+                element.type = ELEMENT_MEMBER;
+            else if (element.varName.equals("members") || element.varName.endsWith("-members"))
+                element.type = ELEMENT_MEMBERS;
+            else if (element.varName.equals("target") || element.varName.endsWith("-target"))
+                element.type = ELEMENT_TARGET;
+            else if (element.varName.equals("targets") || element.varName.endsWith("-targets"))
+                element.type = ELEMENT_TARGETS;
             elements.add(element);
         }
     }
@@ -157,8 +170,12 @@ public class CommandAliasSyntaxParser {
         int getAutocompleteFlags() {
             if (type == ELEMENT_CHANNEL || type == ELEMENT_CHANNELS)
                 return AUTOCOMPLETE_CHANNELS;
-            if (type == ELEMENT_USER || type == ELEMENT_USERS)
+            if (type == ELEMENT_MEMBER || type == ELEMENT_MEMBERS)
                 return AUTOCOMPLETE_MEMBERS;
+            if (type == ELEMENT_USER || type == ELEMENT_USERS)
+                return AUTOCOMPLETE_USERS;
+            if (type == ELEMENT_TARGET || type == ELEMENT_TARGETS)
+                return AUTOCOMPLETE_CHANNELS | AUTOCOMPLETE_USERS;
             return 0;
         }
 

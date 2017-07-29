@@ -22,6 +22,7 @@ public class ChatSuggestionsAdapter extends RecyclerView.Adapter<ChatSuggestions
     private List<Object> mFilteredItems;
     private boolean mMembersEnabled = false;
     private boolean mChannelsEnabled = false;
+    private boolean mUsersEnabled = false;
     private MyFilter mFilter;
     private OnItemClickListener mClickListener;
 
@@ -39,10 +40,11 @@ public class ChatSuggestionsAdapter extends RecyclerView.Adapter<ChatSuggestions
         mMembers = members;
     }
 
-    public void setEnabledSuggestions(boolean members, boolean channels) {
+    public void setEnabledSuggestions(boolean members, boolean channels, boolean users) {
         synchronized (this) {
             mMembersEnabled = members;
             mChannelsEnabled = channels;
+            mUsersEnabled = users;
         }
     }
 
@@ -55,6 +57,12 @@ public class ChatSuggestionsAdapter extends RecyclerView.Adapter<ChatSuggestions
     public boolean areChannelsEnabled() {
         synchronized (this) {
             return mChannelsEnabled;
+        }
+    }
+
+    public boolean areUsersEnabled() {
+        synchronized (this) {
+            return mUsersEnabled;
         }
     }
 
@@ -128,6 +136,12 @@ public class ChatSuggestionsAdapter extends RecyclerView.Adapter<ChatSuggestions
                 for (String channel : mConnection.getChannels()) {
                     if (channel.regionMatches(true, 0, str, 0, str.length()))
                         list.add(channel);
+                }
+            }
+            if (areUsersEnabled()) {
+                try {
+                    list.addAll(mConnection.getApiInstance().getUserInfoApi().findUsers(str, null, null).get());
+                } catch (Exception ignored) {
                 }
             }
             ret.values = list;

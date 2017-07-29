@@ -50,12 +50,14 @@ public class CommandAliasManager {
 
         sDefaultAliases = new ArrayList<>();
         sDefaultAliases.add(CommandAlias.raw("raw", "<command>", "${command}"));
-        sDefaultAliases.add(CommandAlias.raw("join", "<channels> [keys]", "JOIN ${channels} ${keys}"));
+        CommandAlias joinAlias = CommandAlias.raw("join", "<channels> [keys]", "JOIN ${channels} ${keys}");
+        joinAlias.disableArgAutocomplete = true;
+        sDefaultAliases.add(joinAlias);
         sDefaultAliases.add(CommandAlias.raw("part", "[channel] [message...]", "PART ${channel} :${message}"));
         sDefaultAliases.add(CommandAlias.raw("nick", "<new-nick>", "NICK ${new-nick}"));
-        sDefaultAliases.add(CommandAlias.message("msg", "<channel> <message...>", "${channel}", "${message}"));
+        sDefaultAliases.add(CommandAlias.message("msg", "<target> <message...>", "${target}", "${message}"));
         sDefaultAliases.add(CommandAlias.message("me", "<message...>", "${channel}", "${ctcp_delim}ACTION ${message}${ctcp_delim}"));
-        sDefaultAliases.add(CommandAlias.raw("kick", "[channel] <user> [message...]", "KICK ${channel} ${user} :${message}"));
+        sDefaultAliases.add(CommandAlias.raw("kick", "[channel] <member> [message...]", "KICK ${channel} ${member} :${message}"));
         sDefaultAliases.add(CommandAlias.raw("mode", "[channel] <modes> [args...]", "MODE ${channel} ${modes} ${args}"));
         sDefaultAliases.add(CommandAlias.raw("quit", "[message...]", "QUIT :${message}"));
     }
@@ -204,6 +206,7 @@ public class CommandAliasManager {
         public int mode;
         public String channel;
         private transient CommandAliasSyntaxParser syntaxParser;
+        public boolean disableArgAutocomplete = false;
 
         public CommandAlias() {
         }
