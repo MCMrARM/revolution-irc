@@ -184,6 +184,7 @@ public class UserOverrideTrustManager implements X509TrustManager, HostnameVerif
             notification.setContentText(context.getString(R.string.certificate_error, getServerName()));
             Intent notificationIntent = new Intent(context, MainActivity.class);
             notificationIntent.putExtra(MainActivity.ARG_SERVER_UUID, mServerUUID.toString());
+            notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             notification.setContentIntent(PendingIntent.getActivity(context, notificationId, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT));
         }
 

@@ -51,7 +51,8 @@ public class MainActivity extends AppCompatActivity {
 
     public static Intent getLaunchIntent(Context context, ServerConnectionInfo server, String channel) {
         Intent intent = new Intent(context, MainActivity.class);
-        intent.putExtra(ARG_SERVER_UUID, server.getUUID().toString());
+        if (server != null)
+            intent.putExtra(ARG_SERVER_UUID, server.getUUID().toString());
         if (channel != null)
             intent.putExtra(ARG_CHANNEL_NAME, channel);
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);

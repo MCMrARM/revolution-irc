@@ -60,14 +60,14 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
         if (action == null)
             return START_STICKY;
         if (action.equals(ACTION_START_FOREGROUND)) {
-            Intent mainIntent = new Intent(this, MainActivity.class);
+            Intent mainIntent = MainActivity.getLaunchIntent(this, null, null);
             int connectionCount = ServerConnectionManager.getInstance(this).getConnections().size();
             Notification notification = new NotificationCompat.Builder(this)
                     .setContentTitle(getString(R.string.service_title))
                     .setContentText(getResources().getQuantityString(R.plurals.service_status, connectionCount, connectionCount))
                     .setSmallIcon(R.drawable.ic_server_connected)
                     .setPriority(NotificationCompat.PRIORITY_MIN)
-                    .setContentIntent(PendingIntent.getActivity(this, 0, mainIntent, 0))
+                    .setContentIntent(PendingIntent.getActivity(this, IDLE_NOTIFICATION_ID, mainIntent, PendingIntent.FLAG_CANCEL_CURRENT))
                     .build();
             startForeground(IDLE_NOTIFICATION_ID, notification);
         }

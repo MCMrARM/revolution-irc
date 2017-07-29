@@ -124,7 +124,7 @@ public class NotificationManager {
                 .setColor(context.getResources().getColor(R.color.colorNotificationMention));
         if (isLong) {
             PendingIntent intent = PendingIntent.getActivity(context, CHAT_SUMMARY_NOTIFICATION_ID,
-                    new Intent(context, MainActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
+                    MainActivity.getLaunchIntent(context, null, null), PendingIntent.FLAG_CANCEL_CURRENT);
             notification
                     .setContentTitle(context.getResources().getQuantityString(R.plurals.notify_multiple_messages, notificationCount, notificationCount))
                     .setContentText(longBuilder.toString())
