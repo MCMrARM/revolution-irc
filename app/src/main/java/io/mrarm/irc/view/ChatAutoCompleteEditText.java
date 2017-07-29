@@ -2,18 +2,14 @@ package io.mrarm.irc.view;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.TypedArray;
-import android.support.v7.widget.ListPopupWindow;
+import android.support.design.widget.BottomSheetBehavior;
+import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.method.QwertyKeyListener;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.WindowManager;
-import android.widget.Adapter;
-import android.widget.AdapterView;
 import android.widget.Filter;
-import android.widget.PopupWindow;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +18,6 @@ import io.mrarm.chatlib.dto.ModeList;
 import io.mrarm.chatlib.dto.NickWithPrefix;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.chatlib.irc.ServerConnectionData;
-import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.chat.ChatSuggestionsAdapter;
 import io.mrarm.irc.chat.CommandListSuggestionsAdapter;
@@ -31,7 +26,9 @@ import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.util.CommandAliasSyntaxParser;
 import io.mrarm.irc.util.SimpleTextWatcher;
 
-public class ChatAutoCompleteEditText extends FormattableEditText implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class ChatAutoCompleteEditText extends FormattableEditText implements
+        SharedPreferences.OnSharedPreferenceChangeListener,
+        ChatSuggestionsAdapter.OnItemClickListener {
 
     private static final int THRESHOLD = 2;
 
@@ -40,7 +37,9 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements Sha
     private boolean mAtSuggestionsRemoveAt;
     private boolean mDoChannelSuggestions;
 
-    private ListPopupWindow mPopup;
+    private View mSuggestionsContainer;
+    private View mSuggestionsCard;
+    private RecyclerView mSuggestionsList;
     private boolean mCurrentCommandAdapter = false;
     private ServerConnectionInfo mConnection;
     private ChatSuggestionsAdapter mAdapter;
@@ -64,14 +63,6 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements Sha
     }
 
     private void init() {
-        mPopup = new ListPopupWindow(getContext(), null, 0, R.style.SuggestionsPopupWindow);
-        mPopup.setAnchorView(this);
-        mPopup.setAnimationStyle(android.R.style.Animation_Dialog);
-        mPopup.setOnItemClickListener((AdapterView<?> adapterView, View view, int i, long l) -> {
-            onItemClick(adapterView.getAdapter(), i);
-        });
-        mPopup.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-
         addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
             updateCompletingCommands();
             if (enoughToFilter())
@@ -83,15 +74,23 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements Sha
         onSharedPreferenceChanged(null, null);
     }
 
+    public void setSuggestionsListView(View suggestionsContainer, View suggestionsCard, RecyclerView suggestionsList) {
+        mSuggestionsContainer = suggestionsContainer;
+        mSuggestionsCard = suggestionsCard;
+        mSuggestionsList = suggestionsList;
+    }
+
     public void setAdapter(ChatSuggestionsAdapter adapter) {
         mAdapter = adapter;
-        mPopup.setAdapter(adapter);
+        mAdapter.setClickListener(this);
+        mSuggestionsList.setAdapter(adapter);
         mCurrentCommandAdapter = false;
         mAdapter.setEnabledSuggestions(true, mDoChannelSuggestions);
     }
 
     public void setCommandListAdapter(CommandListSuggestionsAdapter adapter) {
         mCommandAdapter = adapter;
+        mCommandAdapter.setClickListener(this);
     }
 
     public void setConnectionContext(ServerConnectionInfo info) {
@@ -102,9 +101,9 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements Sha
         if (mCurrentCommandAdapter == command)
             return;
         if (command)
-            mPopup.setAdapter(mCommandAdapter);
+            mSuggestionsList.setAdapter(mCommandAdapter);
         else
-            mPopup.setAdapter(mAdapter);
+            mSuggestionsList.setAdapter(mAdapter);
         mCurrentCommandAdapter = command;
     }
 
@@ -117,15 +116,12 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements Sha
     }
 
     public void dismissDropDown() {
-        mPopup.dismiss();
-    }
-
-    public void setOnDismissListener(PopupWindow.OnDismissListener listener) {
-        mPopup.setOnDismissListener(listener);
+        mSuggestionsContainer.setVisibility(View.GONE);
+        BottomSheetBehavior.from(mSuggestionsCard).setState(BottomSheetBehavior.STATE_COLLAPSED);
     }
 
     private void showDropDown() {
-        mPopup.show();
+        mSuggestionsContainer.setVisibility(View.VISIBLE);
     }
 
     private void performFiltering(boolean completeIfSingle) {
@@ -141,7 +137,10 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements Sha
             if (!getCurrentToken().equals(text) && !enoughToFilter())
                 return;
             if (completeIfSingle && i == 1) {
-                onItemClick(filter == mCommandAdapter.getFilter() ? mCommandAdapter : mAdapter, 0);
+                if (filter == mCommandAdapter.getFilter())
+                    onItemClick(mCommandAdapter.getItem(0));
+                else
+                    onItemClick(mAdapter.getItem(0));
                 return;
             }
             if (i > 0) {
@@ -243,8 +242,8 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements Sha
             mAdapter.setEnabledSuggestions(true, mDoChannelSuggestions);
     }
 
-    public void onItemClick(Adapter adapter, int index) {
-        Object item = adapter.getItem(index);
+    @Override
+    public void onItemClick(Object item) {
         CharSequence val;
         if (item instanceof NickWithPrefix) {
             val = terminateNickToken(((NickWithPrefix) item).getNick());

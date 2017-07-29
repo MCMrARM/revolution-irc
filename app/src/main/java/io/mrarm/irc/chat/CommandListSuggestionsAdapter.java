@@ -3,13 +3,13 @@ package io.mrarm.irc.chat;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.support.v7.widget.RecyclerView;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
@@ -21,12 +21,13 @@ import java.util.List;
 import io.mrarm.irc.R;
 import io.mrarm.irc.config.CommandAliasManager;
 
-public class CommandListSuggestionsAdapter extends BaseAdapter implements Filterable {
+public class CommandListSuggestionsAdapter extends RecyclerView.Adapter<CommandListSuggestionsAdapter.ItemHolder> implements Filterable {
 
     private Context mContext;
     private List<CommandAliasManager.CommandAlias> mFilteredItems;
     private MyFilter mFilter;
     private int mSecondaryTextColor;
+    private ChatSuggestionsAdapter.OnItemClickListener mClickListener;
 
     public CommandListSuggestionsAdapter(Context context) {
         mContext = context;
@@ -38,19 +39,29 @@ public class CommandListSuggestionsAdapter extends BaseAdapter implements Filter
         ta.recycle();
     }
 
-    @Override
-    public int getCount() {
-        return mFilteredItems == null ? 0 : mFilteredItems.size();
+    public void setClickListener(ChatSuggestionsAdapter.OnItemClickListener listener) {
+        mClickListener = listener;
     }
 
-    @Override
-    public Object getItem(int position) {
+    public CommandAliasManager.CommandAlias getItem(int position) {
         return mFilteredItems.get(position);
     }
 
     @Override
-    public long getItemId(int position) {
-        return position;
+    public ItemHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+            .inflate(R.layout.simple_list_item, parent, false);
+        return new ItemHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(ItemHolder holder, int position) {
+        holder.bind(mFilteredItems.get(position));
+    }
+
+    @Override
+    public int getItemCount() {
+        return mFilteredItems != null ? mFilteredItems.size() : 0;
     }
 
     @Override
@@ -60,17 +71,25 @@ public class CommandListSuggestionsAdapter extends BaseAdapter implements Filter
         return mFilter;
     }
 
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        if (convertView == null) {
-            convertView = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.simple_list_item, parent, false);
+    public class ItemHolder extends RecyclerView.ViewHolder {
+
+        private TextView mText;
+
+        public ItemHolder(View view) {
+            super(view);
+            mText = (TextView) view;
+            view.setOnClickListener((View v) -> {
+                mClickListener.onItemClick(v.getTag());
+            });
         }
-        CommandAliasManager.CommandAlias item = mFilteredItems.get(position);
-        SpannableString str = new SpannableString("/" + item.name + " " + item.syntax);
-        str.setSpan(new ForegroundColorSpan(mSecondaryTextColor), item.name.length() + 1, str.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        ((TextView) convertView).setText(str);
-        return convertView;
+
+        public void bind(CommandAliasManager.CommandAlias item) {
+            itemView.setTag(item);
+            SpannableString str = new SpannableString("/" + item.name + " " + item.syntax);
+            str.setSpan(new ForegroundColorSpan(mSecondaryTextColor), item.name.length() + 1, str.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            mText.setText(str);
+        }
+
     }
 
     private class MyFilter extends Filter {

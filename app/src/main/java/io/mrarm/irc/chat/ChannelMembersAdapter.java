@@ -68,6 +68,7 @@ public class ChannelMembersAdapter extends RecyclerView.Adapter<ChannelMembersAd
 
         public void bind(NickWithPrefix nickWithPrefix) {
             bindText(mText, nickWithPrefix);
+            mText.setTag(nickWithPrefix.getNick());
         }
 
         public static void bindText(TextView text, NickWithPrefix nickWithPrefix) {
@@ -91,7 +92,6 @@ public class ChannelMembersAdapter extends RecyclerView.Adapter<ChannelMembersAd
                 text.setText(prefix + nickWithPrefix.getNick());
             else
                 text.setText(nickWithPrefix.getNick());
-            text.setTag(nickWithPrefix.getNick());
         }
 
     }

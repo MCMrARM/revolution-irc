@@ -1,9 +1,9 @@
 package io.mrarm.irc.chat;
 
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
@@ -15,7 +15,7 @@ import io.mrarm.chatlib.dto.NickWithPrefix;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 
-public class ChatSuggestionsAdapter extends BaseAdapter implements Filterable {
+public class ChatSuggestionsAdapter extends RecyclerView.Adapter<ChatSuggestionsAdapter.ItemHolder> implements Filterable {
 
     private ServerConnectionInfo mConnection;
     private List<NickWithPrefix> mMembers;
@@ -23,11 +23,16 @@ public class ChatSuggestionsAdapter extends BaseAdapter implements Filterable {
     private boolean mMembersEnabled = false;
     private boolean mChannelsEnabled = false;
     private MyFilter mFilter;
+    private OnItemClickListener mClickListener;
 
     public ChatSuggestionsAdapter(ServerConnectionInfo connection, List<NickWithPrefix> members) {
         mConnection = connection;
         mMembers = members;
         mFilteredItems = null;
+    }
+
+    public void setClickListener(OnItemClickListener listener) {
+        mClickListener = listener;
     }
 
     public void setMembers(List<NickWithPrefix> members) {
@@ -53,19 +58,25 @@ public class ChatSuggestionsAdapter extends BaseAdapter implements Filterable {
         }
     }
 
-    @Override
-    public int getCount() {
-        return mFilteredItems == null ? 0 : mFilteredItems.size();
-    }
-
-    @Override
     public Object getItem(int position) {
         return mFilteredItems.get(position);
     }
 
     @Override
-    public long getItemId(int position) {
-        return position;
+    public ItemHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.chat_member, parent, false);
+        return new ItemHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(ItemHolder holder, int position) {
+        holder.bind(mFilteredItems.get(position));
+    }
+
+    @Override
+    public int getItemCount() {
+        return mFilteredItems == null ? 0 : mFilteredItems.size();
     }
 
     @Override
@@ -75,19 +86,26 @@ public class ChatSuggestionsAdapter extends BaseAdapter implements Filterable {
         return mFilter;
     }
 
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        if (convertView == null) {
-            convertView = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.chat_member, parent, false);
+    public class ItemHolder extends RecyclerView.ViewHolder {
+
+        private TextView mText;
+
+        public ItemHolder(View view) {
+            super(view);
+            mText = view.findViewById(R.id.chat_member);
+            view.setOnClickListener((View v) -> {
+                mClickListener.onItemClick(v.getTag());
+            });
         }
-        TextView textView = convertView.findViewById(R.id.chat_member);
-        Object item = mFilteredItems.get(position);
-        if (item instanceof NickWithPrefix)
-            ChannelMembersAdapter.MemberHolder.bindText(textView, (NickWithPrefix) item);
-        else
-            textView.setText(item.toString());
-        return convertView;
+
+        public void bind(Object item) {
+            itemView.setTag(item);
+            if (item instanceof NickWithPrefix)
+                ChannelMembersAdapter.MemberHolder.bindText(mText, (NickWithPrefix) item);
+            else
+                mText.setText(item.toString());
+        }
+
     }
 
     private class MyFilter extends Filter {
@@ -124,6 +142,10 @@ public class ChatSuggestionsAdapter extends BaseAdapter implements Filterable {
             notifyDataSetChanged();
         }
 
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(Object item);
     }
 
 }

@@ -77,8 +77,6 @@ public class ChatFragment extends Fragment implements
     private ImageView mSendIcon;
     private ImageView mTabIcon;
     private int mNormalToolbarInset;
-    private boolean mJustDismissedPopup;
-    private boolean mClickForceAutocomplete;
 
     public static ChatFragment newInstance(ServerConnectionInfo server, String channel) {
         ChatFragment fragment = new ChatFragment();
@@ -160,31 +158,27 @@ public class ChatFragment extends Fragment implements
         mSendIcon = (ImageButton) rootView.findViewById(R.id.send_button);
         mTabIcon = (ImageButton) rootView.findViewById(R.id.tab_button);
 
-        mSendText.setOnDismissListener(() -> {
-            mJustDismissedPopup = true;
-            mSendText.postDelayed(() -> {
-                mJustDismissedPopup = false;
-            }, 100L);
-        });
-        mTabIcon.setOnTouchListener((View v, MotionEvent event) -> {
-            if (event.getAction() == MotionEvent.ACTION_DOWN)
-                mClickForceAutocomplete = mJustDismissedPopup;
-            return false;
-        });
-
         mSendText.setFormatBar(mFormatBar);
         mSendText.setCustomSelectionActionModeCallback(new FormatItemActionMode());
 
+        mFormatBar.setExtraButton(R.drawable.ic_close, getString(R.string.action_close), (View v) -> {
+            setFormatBarVisible(false);
+        });
+
+        RecyclerView suggestionsRecyclerView = rootView.findViewById(R.id.suggestions_list);
+        suggestionsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mChannelMembersListAdapter = new ChatSuggestionsAdapter(mConnectionInfo, null);
+        mSendText.setSuggestionsListView(rootView.findViewById(R.id.suggestions_container), rootView.findViewById(R.id.suggestions_card), suggestionsRecyclerView);
         mSendText.setAdapter(mChannelMembersListAdapter);
         mSendText.setCommandListAdapter(new CommandListSuggestionsAdapter(getContext()));
         mSendText.setConnectionContext(mConnectionInfo);
         if (mConnectionInfo.getApiInstance() instanceof ServerConnectionApi)
             mSendText.setChannelTypes(((ServerConnectionApi) mConnectionInfo.getApiInstance())
                     .getServerConnectionData().getSupportList().getSupportedChannelTypes());
-
-        mFormatBar.setExtraButton(R.drawable.ic_close, getString(R.string.action_close), (View v) -> {
-            setFormatBarVisible(false);
+        rootView.findViewById(R.id.suggestions_dismiss).setOnTouchListener((View view, MotionEvent motionEvent) -> {
+            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN)
+                mSendText.dismissDropDown();
+            return true;
         });
 
         ImageViewTintUtils.setTint(mSendIcon, 0x54000000);
