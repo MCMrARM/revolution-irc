@@ -58,6 +58,8 @@ public abstract class SearchDialog extends AppCompatDialog {
         mRecyclerView.setVisibility(View.GONE);
         // mRecyclerView.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
 
+        mRecyclerView.addOnLayoutChangeListener((View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) -> updateOverscrollMode());
+
         mSearchText.addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
             onQueryTextChange(s.toString());
             mSearchTextClear.setVisibility(s.length() > 0 ? View.VISIBLE : View.GONE);
@@ -133,6 +135,16 @@ public abstract class SearchDialog extends AppCompatDialog {
             mRecyclerView.getAdapter().unregisterAdapterDataObserver(mDataObserver);
         mRecyclerView.setAdapter(adapter);
         adapter.registerAdapterDataObserver(mDataObserver);
+    }
+
+    private void updateOverscrollMode() {
+        LinearLayoutManager lm = (LinearLayoutManager) mRecyclerView.getLayoutManager();
+        if (lm.findFirstCompletelyVisibleItemPosition() == 0 &&
+                lm.findLastCompletelyVisibleItemPosition() == mRecyclerView.getAdapter().getItemCount() - 1) {
+            mRecyclerView.setOverScrollMode(RecyclerView.OVER_SCROLL_NEVER);
+        } else {
+            mRecyclerView.setOverScrollMode(RecyclerView.OVER_SCROLL_ALWAYS);
+        }
     }
 
     private final RecyclerView.AdapterDataObserver mDataObserver = new RecyclerView.AdapterDataObserver() {
