@@ -107,9 +107,9 @@
                     android:id="@+id/format_bar_divider"
                     android:layout_below="@id/send_text"
                     android:layout_width="match_parent"
-                    android:layout_height="1dp"
+                    android:layout_height="wrap_content"
                     android:visibility="gone"
-                    android:background="?android:attr/listDivider" />
+                    android:background="?attr/dividerHorizontal" />
 
                 <io.mrarm.irc.view.TextFormatBar
                     android:id="@+id/format_bar"

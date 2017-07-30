@@ -159,7 +159,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 || InterfacePreferenceFragment.class.getName().equals(fragmentName)
                 || AutocompletePreferenceFragment.class.getName().equals(fragmentName)
                 || NotificationPreferenceFragment.class.getName().equals(fragmentName)
-                || CommandPreferenceFragment.class.getName().equals(fragmentName);
+                || CommandPreferenceFragment.class.getName().equals(fragmentName)
+                || StoragePreferenceFragment.class.getName().equals(fragmentName);
     }
 
     public SimpleCounter getRequestCodeCounter() {
@@ -345,7 +346,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
             View view = inflater.inflate(R.layout.simple_list_with_fab, container, false);
-            RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.items);
+            RecyclerView recyclerView = view.findViewById(R.id.items);
             recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
             mAdapter = new NotificationRulesAdapter(getActivity());
             recyclerView.setAdapter(mAdapter);
@@ -389,7 +390,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
             View view = inflater.inflate(R.layout.simple_list_with_fab, container, false);
-            RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.items);
+            RecyclerView recyclerView = view.findViewById(R.id.items);
             LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
             recyclerView.setLayoutManager(layoutManager);
             mAdapter = new CommandAliasesAdapter(getActivity());
@@ -408,6 +409,29 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         public void onResume() {
             super.onResume();
             mAdapter.notifyDataSetChanged();
+        }
+
+    }
+
+    public static class StoragePreferenceFragment extends MyPreferenceFragment {
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+            View view = inflater.inflate(R.layout.simple_list_with_fab, container, false);
+            view.findViewById(R.id.add).setVisibility(View.GONE);
+
+            RecyclerView recyclerView = view.findViewById(R.id.items);
+            LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+            recyclerView.setLayoutManager(layoutManager);
+            StorageSettingsAdapter adapter = new StorageSettingsAdapter(getActivity());
+            recyclerView.setAdapter(adapter);
+
+            return view;
         }
 
     }

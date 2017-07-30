@@ -65,6 +65,11 @@
     <color name="ignoreEntryUser">#558B2F</color>
     <color name="ignoreEntryHost">#D84315</color>
 
+    <color name="storageSettingsChartFirst">#2979FF</color>
+    <color name="storageSettingsChartSecond">#00E676</color>
+    <color name="storageSettingsChartThird">#FFC400</color>
+    <color name="storageSettingsChartOthers">#90A4AE</color>
+
     <integer-array name="colorPickerColors">
         <item>@color/ircBlack</item>
         <item>@color/ircWhite</item>

@@ -14,6 +14,7 @@
     <dimen name="edit_command_alias_spacing">12dp</dimen>
     <dimen name="chip_edit_text_horizontal_padding">4dp</dimen>
     <dimen name="chip_edit_text_min_height">24dp</dimen>
+    <dimen name="simple_bar_chart_radius">2dp</dimen>
     <dimen name="notification_rule_list_header_padding">8dp</dimen>
     <dimen name="item_swipe_icon_padding">16dp</dimen>
 

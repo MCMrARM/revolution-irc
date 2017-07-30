@@ -26,6 +26,11 @@
         android:title="@string/pref_header_command_aliases" />
 
     <header
+        android:fragment="io.mrarm.irc.SettingsActivity$StoragePreferenceFragment"
+        android:icon="@drawable/ic_storage"
+        android:title="@string/pref_header_storage" />
+
+    <header
         android:icon="@drawable/ic_settings_backup"
         android:title="@string/pref_header_backup">
         <intent
