@@ -53,7 +53,7 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
             }
         }
         mServerLogEntries.add(index, entry);
-        notifyItemInserted(index);
+        notifyItemInserted(1 + index);
         notifyItemChanged(0);
     }
 
