@@ -5,13 +5,9 @@ import android.graphics.Rect;
 import android.support.v7.widget.AppCompatEditText;
 import android.text.Editable;
 import android.text.NoCopySpan;
-import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +50,9 @@ public class FormattableEditText extends AppCompatEditText {
                     data.end = getText().getSpanEnd(span);
                     data.flags = getText().getSpanFlags(span);
                     int spanPointFlags = data.flags & Spanned.SPAN_POINT_MARK_MASK;
-                    if (data.start >= selStart && (data.end != selStart || !(spanPointFlags == Spanned.SPAN_EXCLUSIVE_INCLUSIVE || spanPointFlags == Spanned.SPAN_INCLUSIVE_INCLUSIVE)))
+                    if ((data.start >= selStart || data.start >= start + count) &&
+                            !(data.start == selStart && (spanPointFlags == Spanned.SPAN_INCLUSIVE_EXCLUSIVE || spanPointFlags == Spanned.SPAN_INCLUSIVE_INCLUSIVE)) &&
+                            !(data.end == selStart && (spanPointFlags == Spanned.SPAN_EXCLUSIVE_INCLUSIVE || spanPointFlags == Spanned.SPAN_INCLUSIVE_INCLUSIVE)))
                         data.start += after - count;
                     if (data.end > selStart) {
                         data.end = Math.max(data.end + after - count, data.start);
@@ -75,9 +73,8 @@ public class FormattableEditText extends AppCompatEditText {
                     return;
                 int selStart = getSelectionStart();
                 for (SpanData span : mBackedUpSpans) {
-                    if (span.extendToCursor) {
+                    if (span.extendToCursor)
                         span.end = Math.max(selStart, span.start);
-                    }
                 }
             }
 
@@ -86,7 +83,12 @@ public class FormattableEditText extends AppCompatEditText {
                 if (mSettingText)
                     return;
                 for (SpanData span : mBackedUpSpans) {
-                    s.setSpan(span.span, span.start, span.end, span.flags);
+                    if (span.start >= s.length())
+                        continue;
+                    int spanPointFlags = span.flags & Spanned.SPAN_POINT_MARK_MASK;
+                    if (span.start == span.end && (spanPointFlags == Spanned.SPAN_EXCLUSIVE_EXCLUSIVE || spanPointFlags == Spanned.SPAN_INCLUSIVE_EXCLUSIVE))
+                        continue;
+                    s.setSpan(span.span, span.start, Math.min(span.end, s.length()), span.flags);
                 }
                 mBackedUpSpans.clear();
             }
