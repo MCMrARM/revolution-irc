@@ -27,6 +27,7 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
 
     private List<ServerLogsEntry> mServerLogEntries = new ArrayList<>();
     private SpaceCalculateTask mAsyncTask = null;
+    private long mConfigurationSize = 0L;
 
     public StorageSettingsAdapter(Context context) {
         refreshServerLogs(context);
@@ -177,14 +178,17 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
 
     }
 
-    public static class ConfigurationSummaryHolder extends RecyclerView.ViewHolder {
+    public class ConfigurationSummaryHolder extends RecyclerView.ViewHolder {
+
+        private TextView mTotal;
 
         public ConfigurationSummaryHolder(View view) {
             super(view);
+            mTotal = view.findViewById(R.id.total_value);
         }
 
         public void bind() {
-            //
+            mTotal.setText(String.format("%.2f MB", mConfigurationSize / 1024.0 / 1024.0));
         }
 
     }
@@ -194,14 +198,17 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
 
         private WeakReference<StorageSettingsAdapter> mAdapter;
         private ServerConfigManager mServerManager;
+        private File mFilesDir;
 
         public SpaceCalculateTask(Context context, StorageSettingsAdapter adapter) {
             mServerManager = ServerConfigManager.getInstance(context);
+            mFilesDir = context.getFilesDir();
             mAdapter = new WeakReference<>(adapter);
         }
 
         @Override
         protected Void doInBackground(Void... voids) {
+            publishProgress(calculateDirectorySize(mFilesDir));
             for (ServerConfigData data : mServerManager.getServers()) {
                 if (mAdapter.get() == null)
                     return null;
@@ -234,8 +241,12 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
             if (adapter == null)
                 return;
             for (Object value : values) {
-                if (value instanceof ServerLogsEntry)
+                if (value instanceof ServerLogsEntry) {
                     adapter.addEntry((ServerLogsEntry) value);
+                } else if (value instanceof Long) {
+                    adapter.mConfigurationSize = (Long) value;
+                    adapter.notifyItemChanged(adapter.getItemCount() - 1);
+                }
             }
         }
 

@@ -429,6 +429,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
             recyclerView.setLayoutManager(layoutManager);
             StorageSettingsAdapter adapter = new StorageSettingsAdapter(getActivity());
+            recyclerView.setItemAnimator(null);
             recyclerView.setAdapter(adapter);
 
             return view;
