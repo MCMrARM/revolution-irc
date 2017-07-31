@@ -250,14 +250,27 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
                 dataSize += calculateDirectorySize(file, dataBlockSize);
             }
             publishProgress(dataSize);
+            List<File> processedDirs = new ArrayList<>();
             for (ServerConfigData data : mServerManager.getServers()) {
                 if (mAdapter.get() == null)
                     return null;
                 File file = mServerManager.getServerChatLogDir(data.uuid);
+                processedDirs.add(file);
                 long size = calculateDirectorySize(file, getBlockSize(file));
                 if (size == 0L)
                     continue;
                 publishProgress(new ServerLogsEntry(data.name, size));
+            }
+            File[] files = mServerManager.getChatLogDir().listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (processedDirs.contains(file))
+                        continue;
+                    long size = calculateDirectorySize(file, getBlockSize(file));
+                    if (size == 0L)
+                        continue;
+                    publishProgress(new ServerLogsEntry(file.getName(), size));
+                }
             }
             return null;
         }
