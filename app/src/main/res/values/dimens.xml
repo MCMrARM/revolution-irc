@@ -21,6 +21,9 @@
 
     <dimen name="simple_bar_chart_radius">2dp</dimen>
 
+    <dimen name="bottom_sheet_menu_vertical_margin">8dp</dimen>
+    <dimen name="bottom_sheet_menu_horizontal_margin">16dp</dimen>
+
     <dimen name="message_edit_text_margin_left">16dp</dimen>
     <dimen name="touch_press_select_autoscroll_amount">500dp</dimen>
 

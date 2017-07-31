@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -17,6 +18,7 @@ import android.view.ViewGroup;
 
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
+import io.mrarm.irc.dialog.MenuBottomSheetDialog;
 
 public class ServerListFragment extends Fragment {
 
@@ -49,62 +51,61 @@ public class ServerListFragment extends Fragment {
             ((MainActivity) getActivity()).openServer(info, null, true);
         });
         mAdapter.setActiveServerLongClickListener((ServerConnectionInfo info) -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-            builder.setTitle(info.getName());
-            builder.setItems(new CharSequence[] {
-                    getString(R.string.action_open),
-                    getString(R.string.action_edit),
-                    getString(R.string.action_clone),
-                    getString(R.string.action_disconnect_and_close)
-            }, (DialogInterface dialog, int which) -> {
-                if (which == 0) { // open
-                    ((MainActivity) getActivity()).openServer(info, null);
-                } else if (which == 1) { // edit
-                    ServerConfigData data = ServerConfigManager.getInstance(getContext()).findServer(info.getUUID());
-                    startActivity(EditServerActivity.getLaunchIntent(getContext(), data));
-                } else if (which == 2) { // clone
-                    ServerConfigData data = ServerConfigManager.getInstance(getContext()).findServer(info.getUUID());
-                    startActivity(EditServerActivity.getLaunchIntent(getContext(), data, true));
-                } else if (which == 3) { // disconnect
-                    info.disconnect();
-                    ServerConnectionManager.getInstance(getContext()).removeConnection(info);
-                    IRCService.start(getContext());
-                }
+            MenuBottomSheetDialog menu = new MenuBottomSheetDialog(getContext());
+            menu.addItem(R.string.action_open, R.drawable.ic_open_in_new
+                    , (MenuBottomSheetDialog.Item item) -> {
+                ((MainActivity) getActivity()).openServer(info, null);
+                return true;
             });
-            builder.show();
+            menu.addItem(R.string.action_edit, R.drawable.ic_edit, (MenuBottomSheetDialog.Item item) -> {
+                ServerConfigData data = ServerConfigManager.getInstance(getContext()).findServer(info.getUUID());
+                startActivity(EditServerActivity.getLaunchIntent(getContext(), data));
+                return true;
+            });
+            menu.addItem(R.string.action_clone, R.drawable.ic_content_copy, (MenuBottomSheetDialog.Item item) -> {
+                ServerConfigData data = ServerConfigManager.getInstance(getContext()).findServer(info.getUUID());
+                startActivity(EditServerActivity.getLaunchIntent(getContext(), data, true));
+                return true;
+            });
+            menu.addItem(R.string.action_disconnect_and_close, R.drawable.ic_close, (MenuBottomSheetDialog.Item item) -> {
+                info.disconnect();
+                ServerConnectionManager.getInstance(getContext()).removeConnection(info);
+                IRCService.start(getContext());
+                return true;
+            });
+            menu.show();
         });
         mAdapter.setInactiveServerClickListener((ServerConfigData data) -> {
             ServerConnectionManager.getInstance(getContext()).createConnection(data);
             IRCService.start(getContext());
         });
         mAdapter.setInactiveServerLongClickListener((ServerConfigData data) -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-            builder.setTitle(data.name);
-            builder.setItems(new CharSequence[] {
-                    getString(R.string.action_connect),
-                    getString(R.string.action_edit),
-                    getString(R.string.action_clone),
-                    getString(R.string.action_delete)
-            }, (DialogInterface dialog, int which) -> {
-                if (which == 0) { // connect
-                    ServerConnectionManager.getInstance(getContext()).createConnection(data);
-                    IRCService.start(getContext());
-                } else if (which == 1) { // edit
-                    startActivity(EditServerActivity.getLaunchIntent(getContext(), data));
-                } else if (which == 2) { // clone
-                    startActivity(EditServerActivity.getLaunchIntent(getContext(), data, true));
-                } else if (which == 3) { // delete
-                    AlertDialog.Builder builder2 = new AlertDialog.Builder(getContext());
-                    builder2.setTitle(R.string.action_delete_confirm_title);
-                    builder2.setMessage(getString(R.string.action_delete_confirm_body, data.name));
-                    builder2.setPositiveButton(R.string.action_delete, (DialogInterface dialog2, int which2) -> {
-                        ServerConfigManager.getInstance(getContext()).deleteServer(data);
-                    });
-                    builder2.setNegativeButton(R.string.action_cancel, null);
-                    builder2.show();
-                }
+            MenuBottomSheetDialog menu = new MenuBottomSheetDialog(getContext());
+            menu.addItem(R.string.action_connect, R.drawable.ic_server_connected, (MenuBottomSheetDialog.Item item) -> {
+                ServerConnectionManager.getInstance(getContext()).createConnection(data);
+                IRCService.start(getContext());
+                return true;
             });
-            builder.show();
+            menu.addItem(R.string.action_edit, R.drawable.ic_edit, (MenuBottomSheetDialog.Item item) -> {
+                startActivity(EditServerActivity.getLaunchIntent(getContext(), data));
+                return true;
+            });
+            menu.addItem(R.string.action_clone, R.drawable.ic_content_copy, (MenuBottomSheetDialog.Item item) -> {
+                startActivity(EditServerActivity.getLaunchIntent(getContext(), data, true));
+                return true;
+            });
+            menu.addItem(R.string.action_delete, R.drawable.ic_delete, (MenuBottomSheetDialog.Item item) -> {
+                AlertDialog.Builder builder2 = new AlertDialog.Builder(getContext());
+                builder2.setTitle(R.string.action_delete_confirm_title);
+                builder2.setMessage(getString(R.string.action_delete_confirm_body, data.name));
+                builder2.setPositiveButton(R.string.action_delete, (DialogInterface dialog2, int which2) -> {
+                    ServerConfigManager.getInstance(getContext()).deleteServer(data);
+                });
+                builder2.setNegativeButton(R.string.action_cancel, null);
+                builder2.show();
+                return true;
+            });
+            menu.show();
         });
         mAdapter.registerListeners();
 
