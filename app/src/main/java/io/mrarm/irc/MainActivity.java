@@ -55,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra(ARG_SERVER_UUID, server.getUUID().toString());
         if (channel != null)
             intent.putExtra(ARG_CHANNEL_NAME, channel);
-        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         return intent;
     }
 
