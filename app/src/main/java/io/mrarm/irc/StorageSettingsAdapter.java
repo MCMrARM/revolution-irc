@@ -256,6 +256,8 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
                     return null;
                 File file = mServerManager.getServerChatLogDir(data.uuid);
                 processedDirs.add(file);
+                if (!file.exists())
+                    continue;
                 long size = calculateDirectorySize(file, getBlockSize(file));
                 if (size == 0L)
                     continue;
