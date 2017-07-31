@@ -23,6 +23,7 @@ import io.mrarm.irc.config.NotificationRuleManager;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.config.SettingsHelper;
+import io.mrarm.irc.dialog.StorageLimitsDialog;
 import io.mrarm.irc.util.ColoredTextBuilder;
 import io.mrarm.irc.view.SimpleBarChart;
 
@@ -119,6 +120,9 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
             super(view);
             mChart = view.findViewById(R.id.chart);
             mTotal = view.findViewById(R.id.total_value);
+            view.findViewById(R.id.set_limits).setOnClickListener((View v) -> {
+                new StorageLimitsDialog(v.getContext()).show();
+            });
             view.findViewById(R.id.clear_chat_logs).setOnClickListener((View v) -> {
                 new AlertDialog.Builder(v.getContext())
                         .setTitle(R.string.pref_storage_clear_all_chat_logs)
