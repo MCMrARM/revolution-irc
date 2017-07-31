@@ -2,6 +2,8 @@ package io.mrarm.irc;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.os.StatFs;
 import android.support.v7.widget.RecyclerView;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
@@ -125,14 +127,14 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
                 colors[2] = mChart.getResources().getColor(R.color.storageSettingsChartThird);
             if (count > 3)
                 colors[3] = mChart.getResources().getColor(R.color.storageSettingsChartOthers);
-            double total = 0.0;
+            long total = 0;
             for (int i = mServerLogEntries.size() - 1; i >= 0; --i) {
-                double val = mServerLogEntries.get(i).size / 1024.0 / 1024.0;
+                long val = mServerLogEntries.get(i).size;
                 total += val;
-                values[Math.min(i, count - 1)] += (float) val;
+                values[Math.min(i, count - 1)] += (float) (val / 1024.0 / 1024.0);
             }
             mChart.setData(values, colors);
-            mTotal.setText(String.format("%.2f MB", total));
+            mTotal.setText(formatFileSize(total));
         }
 
     }
@@ -171,8 +173,7 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
             ColoredTextBuilder builder = new ColoredTextBuilder();
             builder.append(entry.name, new ForegroundColorSpan(mText.getResources().getColor(colorId)));
             builder.append("  ");
-            builder.append(String.format("%.2f", (entry.size / 1024L / 1024.0)));
-            builder.append(" MB");
+            builder.append(formatFileSize(entry.size));
             mText.setText(builder.getSpannable());
         }
 
@@ -188,7 +189,7 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
         }
 
         public void bind() {
-            mTotal.setText(String.format("%.2f MB", mConfigurationSize / 1024.0 / 1024.0));
+            mTotal.setText(formatFileSize(mConfigurationSize));
         }
 
     }
@@ -198,22 +199,30 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
 
         private WeakReference<StorageSettingsAdapter> mAdapter;
         private ServerConfigManager mServerManager;
-        private File mFilesDir;
+        private File mDataDir;
+        private StatFs mStatFs;
 
         public SpaceCalculateTask(Context context, StorageSettingsAdapter adapter) {
             mServerManager = ServerConfigManager.getInstance(context);
-            mFilesDir = context.getFilesDir();
+            mDataDir = new File(context.getApplicationInfo().dataDir);
             mAdapter = new WeakReference<>(adapter);
         }
 
         @Override
         protected Void doInBackground(Void... voids) {
-            publishProgress(calculateDirectorySize(mFilesDir));
+            long dataBlockSize = getBlockSize(mDataDir);
+            long dataSize = 0L;
+            for (File file : mDataDir.listFiles()) {
+                if (file.getName().equals("cache") || file.getName().equals("lib"))
+                    continue;
+                dataSize += calculateDirectorySize(file, dataBlockSize);
+            }
+            publishProgress(dataSize);
             for (ServerConfigData data : mServerManager.getServers()) {
                 if (mAdapter.get() == null)
                     return null;
                 File file = mServerManager.getServerChatLogDir(data.uuid);
-                long size = calculateDirectorySize(file);
+                long size = calculateDirectorySize(file, getBlockSize(file));
                 if (size == 0L)
                     continue;
                 publishProgress(new ServerLogsEntry(data.name, size));
@@ -221,16 +230,27 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
             return null;
         }
 
-        private long calculateDirectorySize(File file) {
+        private long getBlockSize(File file) {
+            if (mStatFs != null)
+                mStatFs.restat(file.getAbsolutePath());
+            else
+                mStatFs = new StatFs(file.getAbsolutePath());
+            if (Build.VERSION.SDK_INT >= 18)
+                return mStatFs.getBlockSizeLong();
+            else
+                return mStatFs.getBlockSize();
+        }
+
+        private long calculateDirectorySize(File file, long blockSize) {
             File[] files = file.listFiles();
             if (files == null)
                 return 0L;
-            long ret = 0L;
+            long ret = blockSize;
             for (File subfile : files) {
                 if (subfile.isDirectory())
-                    ret += calculateDirectorySize(subfile);
+                    ret += calculateDirectorySize(subfile, blockSize);
                 else
-                    ret += subfile.length();
+                    ret += (subfile.length() + blockSize - 1) / blockSize * blockSize;
             }
             return ret;
         }
@@ -250,6 +270,13 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
             }
         }
 
+    }
+
+    private static String formatFileSize(long size) {
+        if (size / 1024L >= 128)
+            return String.format("%.2f MB", size / 1024.0 / 1024.0);
+        else
+            return String.format("%.2f KB", size / 1024.0);
     }
 
 }
