@@ -9,6 +9,7 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:manageSpaceActivity=".StorageSettingsActivity"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
@@ -53,6 +54,9 @@
         <activity
             android:name=".MessageFormatSettingsActivity"
             android:label="@string/title_activity_message_format_settings" />
+        <activity android:name=".StorageSettingsActivity"
+            android:label="@string/pref_header_storage"
+            android:exported="true" />
         <activity
             android:name=".setup.BackupActivity"
             android:label="@string/title_activity_backup"
