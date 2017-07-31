@@ -162,11 +162,11 @@ public class CommandAliasManager {
 
     private List<CommandAlias> mAliasesStack = new ArrayList<>();
 
-    public void processCommand(IRCConnection connection, String command, SimpleTextVariableList vars) {
+    public boolean processCommand(IRCConnection connection, String command, SimpleTextVariableList vars) {
         String[] args = command.split(" ");
         CommandAlias alias = findCommandAlias(connection, args);
         if (alias == null)
-            return;
+            return false;
         SimpleTextVariableList varsCopy = null;
         if (alias.mode == CommandAlias.MODE_CLIENT) {
             if (mAliasesStack.contains(alias))
@@ -181,16 +181,22 @@ public class CommandAliasManager {
         String processedText = processVariables(alias.text, vars);
         if (alias.mode == CommandAlias.MODE_RAW) {
             connection.sendCommandRaw(processedText, null, null);
+            return true;
         } else if (alias.mode == CommandAlias.MODE_CLIENT) {
             if (processedText.startsWith("/"))
                 processedText = processedText.substring(1);
             mAliasesStack.add(alias);
-            processCommand(connection, processedText, varsCopy);
+            boolean ret = processCommand(connection, processedText, varsCopy);
             mAliasesStack.remove(mAliasesStack.size() - 1);
+            if (!ret)
+                throw new RuntimeException("Failed to process subcommand");
+            return true;
         } else if (alias.mode == CommandAlias.MODE_MESSAGE) {
             String processedChannel = processVariables(alias.channel, vars);
             connection.sendMessage(processedChannel, processedText, null, null);
+            return true;
         }
+        throw new RuntimeException("Internal error");
     }
 
 

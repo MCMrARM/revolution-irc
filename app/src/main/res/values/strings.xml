@@ -37,6 +37,11 @@
     <string name="message_mode_nick_half_op">channel half-operator status</string>
     <string name="message_mode_nick_voice">voice</string>
 
+    <string name="command_error_not_found">No such command was found.</string>
+    <string name="command_error_internal">An internal error occurred when trying to process the command.</string>
+
+    <string name="command_send_raw">Send as raw</string>
+
     <!-- Actions -->
 
     <string name="action_ok">OK</string>

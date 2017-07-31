@@ -2,7 +2,6 @@ package io.mrarm.irc.chat;
 
 import android.content.SharedPreferences;
 import android.database.DataSetObserver;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
@@ -17,7 +16,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
-import android.text.TextWatcher;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.view.ActionMode;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
@@ -28,7 +28,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -46,10 +45,12 @@ import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
 import io.mrarm.irc.config.CommandAliasManager;
+import io.mrarm.irc.util.ColoredTextBuilder;
 import io.mrarm.irc.util.IRCColorUtils;
 import io.mrarm.irc.util.ImageViewTintUtils;
 import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.util.SimpleTextVariableList;
+import io.mrarm.irc.util.SimpleTextWatcher;
 import io.mrarm.irc.view.ChatAutoCompleteEditText;
 import io.mrarm.irc.view.TextFormatBar;
 
@@ -76,6 +77,8 @@ public class ChatFragment extends Fragment implements
     private TextFormatBar mFormatBar;
     private ImageView mSendIcon;
     private ImageView mTabIcon;
+    private View mCommandErrorContainer;
+    private TextView mCommandErrorText;
     private int mNormalToolbarInset;
 
     public static ChatFragment newInstance(ServerConnectionInfo server, String channel) {
@@ -90,15 +93,15 @@ public class ChatFragment extends Fragment implements
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_chat_content, container, false);
+        View rootView = inflater.inflate(R.layout.chat_fragment, container, false);
 
         UUID connectionUUID = UUID.fromString(getArguments().getString(ARG_SERVER_UUID));
         mConnectionInfo = ServerConnectionManager.getInstance(getContext()).getConnection(connectionUUID);
         String requestedChannel = getArguments().getString(ARG_CHANNEL_NAME);
 
-        mAppBar = (AppBarLayout) rootView.findViewById(R.id.appbar);
+        mAppBar = rootView.findViewById(R.id.appbar);
 
-        mToolbar = (Toolbar) rootView.findViewById(R.id.toolbar);
+        mToolbar = rootView.findViewById(R.id.toolbar);
         mNormalToolbarInset = mToolbar.getContentInsetStartWithNavigation();
 
         ((AppCompatActivity) getActivity()).setSupportActionBar(mToolbar);
@@ -108,7 +111,7 @@ public class ChatFragment extends Fragment implements
 
         mSectionsPagerAdapter = new ChatPagerAdapter(getContext(), getChildFragmentManager(), mConnectionInfo);
 
-        mViewPager = (ViewPager) rootView.findViewById(R.id.container);
+        mViewPager = rootView.findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         if (requestedChannel != null)
@@ -132,7 +135,7 @@ public class ChatFragment extends Fragment implements
 
         mConnectionInfo.addOnChannelListChangeListener(this);
 
-        mTabLayout = (TabLayout) rootView.findViewById(R.id.tabs);
+        mTabLayout = rootView.findViewById(R.id.tabs);
         mTabLayout.setupWithViewPager(mViewPager, false);
 
         mSectionsPagerAdapter.registerDataSetObserver(new DataSetObserver() {
@@ -144,19 +147,19 @@ public class ChatFragment extends Fragment implements
         mConnectionInfo.getNotificationManager().addUnreadMessageCountCallback(this);
         updateTabLayoutTabs();
 
-        mDrawerLayout = (DrawerLayout) rootView.findViewById(R.id.drawer_layout);
+        mDrawerLayout = rootView.findViewById(R.id.drawer_layout);
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 
         mChannelMembersAdapter = new ChannelMembersAdapter(mConnectionInfo, null);
-        RecyclerView membersRecyclerView = (RecyclerView) rootView.findViewById(R.id.members_list);
+        RecyclerView membersRecyclerView = rootView.findViewById(R.id.members_list);
         membersRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         membersRecyclerView.setAdapter(mChannelMembersAdapter);
 
-        mFormatBar = (TextFormatBar) rootView.findViewById(R.id.format_bar);
+        mFormatBar = rootView.findViewById(R.id.format_bar);
         mFormatBarDivider = rootView.findViewById(R.id.format_bar_divider);
-        mSendText = (ChatAutoCompleteEditText) rootView.findViewById(R.id.send_text);
-        mSendIcon = (ImageButton) rootView.findViewById(R.id.send_button);
-        mTabIcon = (ImageButton) rootView.findViewById(R.id.tab_button);
+        mSendText = rootView.findViewById(R.id.send_text);
+        mSendIcon = rootView.findViewById(R.id.send_button);
+        mTabIcon = rootView.findViewById(R.id.tab_button);
 
         mSendText.setFormatBar(mFormatBar);
         mSendText.setCustomSelectionActionModeCallback(new FormatItemActionMode());
@@ -183,36 +186,19 @@ public class ChatFragment extends Fragment implements
 
         ImageViewTintUtils.setTint(mSendIcon, 0x54000000);
 
-        mSendText.addTextChangedListener(new TextWatcher() {
-            boolean wasEmpty = false;
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                boolean isEmpty = (s.length() > 0);
-                if (isEmpty == wasEmpty)
-                    return;
-                wasEmpty = isEmpty;
-                int accentColor = getResources().getColor(R.color.colorAccent);
-                if (s.length() > 0)
-                    ImageViewTintUtils.setTint(mSendIcon, accentColor);
-                else
-                    ImageViewTintUtils.setTint(mSendIcon, 0x54000000);
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
+        mSendText.addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
+            int accentColor = getResources().getColor(R.color.colorAccent);
+            if (s.length() > 0)
+                ImageViewTintUtils.setTint(mSendIcon, accentColor);
+            else
+                ImageViewTintUtils.setTint(mSendIcon, 0x54000000);
+            mCommandErrorContainer.setVisibility(View.GONE); // hide the error
+        }));
         mSendText.setOnEditorActionListener((TextView v, int actionId, KeyEvent event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEND)
                 sendMessage();
             return false;
         });
-
         mSendIcon.setOnClickListener((View view) -> {
             sendMessage();
         });
@@ -220,6 +206,11 @@ public class ChatFragment extends Fragment implements
         mTabIcon.setOnClickListener((View v) -> {
             mSendText.requestTabComplete();
         });
+
+        mCommandErrorContainer = rootView.findViewById(R.id.command_error_card);
+        mCommandErrorText = rootView.findViewById(R.id.command_error_text);
+        mCommandErrorText.setMovementMethod(new LinkMovementMethod());
+        rootView.findViewById(R.id.command_error_close).setOnClickListener((View v) -> mCommandErrorContainer.setVisibility(View.GONE));
 
         rootView.addOnLayoutChangeListener((View v, int left, int top, int right, int bottom,
                                             int oldLeft, int oldTop, int oldRight, int oldBottom) -> {
@@ -367,15 +358,38 @@ public class ChatFragment extends Fragment implements
         String text = IRCColorUtils.convertSpannableToIRCString(getContext(), mSendText.getText());
         if (text.length() == 0)
             return;
-        mSendText.setText("");
         String channel = mSectionsPagerAdapter.getChannel(mViewPager.getCurrentItem());
         if (text.charAt(0) == '/') {
             SimpleTextVariableList vars = new SimpleTextVariableList();
             vars.set(CommandAliasManager.VAR_CHANNEL, channel);
             vars.set(CommandAliasManager.VAR_MYNICK, mConnectionInfo.getUserNick());
-            CommandAliasManager.getInstance(getContext()).processCommand((IRCConnection) mConnectionInfo.getApiInstance(), text.substring(1), vars);
+            try {
+                if (CommandAliasManager.getInstance(getContext()).processCommand((IRCConnection) mConnectionInfo.getApiInstance(), text.substring(1), vars)) {
+                    mSendText.setText("");
+                    return;
+                }
+            } catch (RuntimeException e) {
+                mCommandErrorText.setText(R.string.command_error_internal);
+                mCommandErrorContainer.setVisibility(View.VISIBLE);
+                mSendText.dismissDropDown();
+                return;
+            }
+            ColoredTextBuilder builder = new ColoredTextBuilder();
+            builder.append(getString(R.string.command_error_not_found));
+            builder.append("  ");
+            builder.append(getString(R.string.command_send_raw), new ClickableSpan() {
+                @Override
+                public void onClick(View view) {
+                    ((IRCConnection) mConnectionInfo.getApiInstance()).sendCommandRaw(text.substring(1), null, null);
+                    mCommandErrorContainer.setVisibility(View.GONE);
+                }
+            });
+            mCommandErrorText.setText(builder.getSpannable());
+            mCommandErrorContainer.setVisibility(View.VISIBLE);
+            mSendText.dismissDropDown();
             return;
         }
+        mSendText.setText("");
         mConnectionInfo.getApiInstance().sendMessage(channel, text, null, null);
     }
 
