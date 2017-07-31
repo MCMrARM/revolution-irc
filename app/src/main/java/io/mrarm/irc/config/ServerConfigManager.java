@@ -115,6 +115,14 @@ public class ServerConfigManager {
         synchronized (mIOLock) {
             File file = new File(mServersPath, SERVER_FILE_PREFIX + data.uuid.toString() + SERVER_FILE_SUFFIX);
             file.delete();
+            file = getServerSSLCertsFile(data.uuid);
+            file.delete();
+            file = getServerChatLogDir(data.uuid);
+            if (file.exists()) {
+                File[] files = file.listFiles();
+                for (File f : files)
+                    f.delete();
+            }
         }
         synchronized (mListeners) {
             for (ConnectionsListener listener : mListeners)
@@ -131,6 +139,10 @@ public class ServerConfigManager {
 
     public File getServerSSLCertsFile(UUID uuid) {
         return new File(mServersPath, SERVER_CERTS_FILE_PREFIX + uuid.toString() + SERVER_CERTS_FILE_SUFFIX);
+    }
+
+    public File getChatLogDir() {
+        return mServerLogsPath;
     }
 
     public File getServerChatLogDir(UUID uuid) {

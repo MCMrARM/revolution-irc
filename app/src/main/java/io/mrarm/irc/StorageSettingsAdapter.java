@@ -1,9 +1,11 @@
 package io.mrarm.irc;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.StatFs;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
@@ -16,8 +18,11 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.mrarm.irc.config.CommandAliasManager;
+import io.mrarm.irc.config.NotificationRuleManager;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
+import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.util.ColoredTextBuilder;
 import io.mrarm.irc.view.SimpleBarChart;
 
@@ -114,26 +119,43 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
             super(view);
             mChart = view.findViewById(R.id.chart);
             mTotal = view.findViewById(R.id.total_value);
+            view.findViewById(R.id.clear_chat_logs).setOnClickListener((View v) -> {
+                new AlertDialog.Builder(v.getContext())
+                        .setTitle(R.string.pref_storage_clear_all_chat_logs)
+                        .setMessage(R.string.pref_storage_clear_all_chat_logs_confirm)
+                        .setPositiveButton(R.string.action_delete, (DialogInterface di, int i) -> {
+                            new RemoveDataTask(v.getContext(), false).execute();
+                        })
+                        .setNegativeButton(R.string.action_cancel, null)
+                        .show();
+            });
         }
 
         public void bind() {
-            int count = Math.max(1, Math.min(4, mServerLogEntries.size()));
-            float[] values = new float[count];
-            int[] colors = new int[count];
-            colors[0] = mChart.getResources().getColor(R.color.storageSettingsChartFirst);
-            if (count > 1)
-                colors[1] = mChart.getResources().getColor(R.color.storageSettingsChartSecond);
-            if (count > 2)
-                colors[2] = mChart.getResources().getColor(R.color.storageSettingsChartThird);
-            if (count > 3)
-                colors[3] = mChart.getResources().getColor(R.color.storageSettingsChartOthers);
+            int count = Math.min(4, mServerLogEntries.size());
             long total = 0;
-            for (int i = mServerLogEntries.size() - 1; i >= 0; --i) {
-                long val = mServerLogEntries.get(i).size;
-                total += val;
-                values[Math.min(i, count - 1)] += (float) (val / 1024.0 / 1024.0);
+            if (count > 0) {
+                float[] values = new float[count];
+                int[] colors = new int[count];
+                colors[0] = mChart.getResources().getColor(R.color.storageSettingsChartFirst);
+                if (count > 1)
+                    colors[1] = mChart.getResources().getColor(R.color.storageSettingsChartSecond);
+                if (count > 2)
+                    colors[2] = mChart.getResources().getColor(R.color.storageSettingsChartThird);
+                if (count > 3)
+                    colors[3] = mChart.getResources().getColor(R.color.storageSettingsChartOthers);
+                for (int i = mServerLogEntries.size() - 1; i >= 0; --i) {
+                    long val = mServerLogEntries.get(i).size;
+                    total += val;
+                    values[Math.min(i, count - 1)] += (float) (val / 1024.0 / 1024.0);
+                }
+                mChart.setData(values, colors);
+                mChart.setVisibility(View.VISIBLE);
+                itemView.setPadding(itemView.getPaddingLeft(), itemView.getPaddingTop(), itemView.getPaddingRight(), itemView.getResources().getDimensionPixelSize(R.dimen.storage_chat_logs_summary_padding_bottom));
+            } else {
+                mChart.setVisibility(View.GONE);
+                itemView.setPadding(itemView.getPaddingLeft(), itemView.getPaddingTop(), itemView.getPaddingRight(), itemView.getResources().getDimensionPixelSize(R.dimen.storage_chat_logs_summary_padding_bottom_no_items));
             }
-            mChart.setData(values, colors);
             mTotal.setText(formatFileSize(total));
         }
 
@@ -186,6 +208,16 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
         public ConfigurationSummaryHolder(View view) {
             super(view);
             mTotal = view.findViewById(R.id.total_value);
+            view.findViewById(R.id.reset).setOnClickListener((View v) -> {
+                new AlertDialog.Builder(v.getContext())
+                        .setTitle(R.string.pref_storage_reset_configuration)
+                        .setMessage(R.string.pref_storage_reset_configuration_confirm)
+                        .setPositiveButton(R.string.action_reset, (DialogInterface di, int i) -> {
+                            new RemoveDataTask(v.getContext(), true).execute();
+                        })
+                        .setNegativeButton(R.string.action_cancel, null)
+                        .show();
+            });
         }
 
         public void bind() {
@@ -230,6 +262,13 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
             return null;
         }
 
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            StorageSettingsAdapter adapter = mAdapter.get();
+            if (adapter != null)
+                adapter.mAsyncTask = null;
+        }
+
         private long getBlockSize(File file) {
             if (mStatFs != null)
                 mStatFs.restat(file.getAbsolutePath());
@@ -268,6 +307,62 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
                     adapter.notifyItemChanged(adapter.getItemCount() - 1);
                 }
             }
+        }
+
+    }
+
+    private class RemoveDataTask extends AsyncTask<Void, Void, Void> {
+
+        private Context mContext;
+        private AlertDialog mAlertDialog;
+        private boolean mDeleteConfig;
+
+        public RemoveDataTask(Context context, boolean deleteConfig) {
+            mContext = context;
+            mDeleteConfig = deleteConfig;
+            mAlertDialog = new AlertDialog.Builder(context)
+                    .setCancelable(false)
+                    .setView(R.layout.dialog_please_wait)
+                    .show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            Context ctx = mContext;
+            if (mDeleteConfig) {
+                ServerConnectionManager.getInstance(ctx).removeAllConnections();
+                ServerConfigManager.getInstance(ctx).deleteAllServers();
+                NotificationRuleManager.getUserRules(ctx).clear();
+                CommandAliasManager.getInstance(ctx).getUserAliases().clear();
+                SettingsHelper.getInstance(ctx).clear();
+
+                File files = ctx.getFilesDir();
+                for (File file : files.listFiles()) {
+                    if (file.getName().equals("cache") || file.getName().equals("lib"))
+                        continue;
+                    deleteRecursive(file);
+                }
+            }
+            deleteRecursive(ServerConfigManager.getInstance(mContext).getChatLogDir());
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            mAlertDialog.dismiss();
+            refreshServerLogs(mContext);
+        }
+
+        private void deleteRecursive(File file) {
+            if (file.isDirectory()) {
+                File[] files = file.listFiles();
+                if (files != null) {
+                    for (File subfile : files)
+                        deleteRecursive(subfile);
+                }
+            }
+            file.delete();
         }
 
     }
