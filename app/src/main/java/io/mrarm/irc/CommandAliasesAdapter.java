@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import io.mrarm.irc.config.CommandAliasManager;
+import io.mrarm.irc.dialog.MenuBottomSheetDialog;
 import io.mrarm.irc.util.AdvancedDividerItemDecoration;
 
 public class CommandAliasesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -134,30 +135,27 @@ public class CommandAliasesAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             super(view, secondaryColor);
             view.setOnLongClickListener((View v) -> {
                 Context ctx = v.getContext();
-                new AlertDialog.Builder(ctx)
-                        .setTitle(mText.getText())
-                        .setItems(new CharSequence[] {
-                                ctx.getString(R.string.action_edit),
-                                ctx.getString(R.string.action_delete)
-                        }, (DialogInterface di, int which) -> {
-                            if (which == 0) {
-                                startEditActivity();
-                            } else if (which == 1) {
-                                new AlertDialog.Builder(ctx)
-                                        .setTitle(R.string.action_delete_confirm_title)
-                                        .setMessage(ctx.getString(R.string.action_delete_confirm_body, mText.getText()))
-                                        .setPositiveButton(R.string.action_delete, (DialogInterface di2, int which2) -> {
-                                            adapter.mManager.getUserAliases().remove(getAdapterPosition() - 1);
-                                            adapter.mManager.saveUserSettings();
-                                            adapter.notifyItemRemoved(getAdapterPosition());
-                                            if (adapter.mManager.getUserAliases().size() == 0)
-                                                adapter.notifyItemRemoved(0); // header
-                                        })
-                                        .setNegativeButton(R.string.action_cancel, null)
-                                        .show();
-                            }
-                        })
-                        .show();
+                MenuBottomSheetDialog dialog = new MenuBottomSheetDialog(ctx);
+                dialog.addItem(R.string.action_edit, R.drawable.ic_edit, (MenuBottomSheetDialog.Item item) -> {
+                    startEditActivity();
+                    return true;
+                });
+                dialog.addItem(R.string.action_delete, R.drawable.ic_delete, (MenuBottomSheetDialog.Item item) -> {
+                    new AlertDialog.Builder(ctx)
+                            .setTitle(R.string.action_delete_confirm_title)
+                            .setMessage(ctx.getString(R.string.action_delete_confirm_body, mText.getText()))
+                            .setPositiveButton(R.string.action_delete, (DialogInterface di2, int which2) -> {
+                                adapter.mManager.getUserAliases().remove(getAdapterPosition() - 1);
+                                adapter.mManager.saveUserSettings();
+                                adapter.notifyItemRemoved(getAdapterPosition());
+                                if (adapter.mManager.getUserAliases().size() == 0)
+                                    adapter.notifyItemRemoved(0); // header
+                            })
+                            .setNegativeButton(R.string.action_cancel, null)
+                            .show();
+                    return true;
+                });
+                dialog.show();
                 return true;
             });
         }

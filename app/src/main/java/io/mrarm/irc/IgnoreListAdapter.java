@@ -1,8 +1,6 @@
 package io.mrarm.irc;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -18,6 +16,7 @@ import java.io.IOException;
 
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
+import io.mrarm.irc.dialog.MenuBottomSheetDialog;
 import io.mrarm.irc.util.ColoredTextBuilder;
 
 public class IgnoreListAdapter extends RecyclerView.Adapter<IgnoreListAdapter.ItemHolder> {
@@ -68,26 +67,23 @@ public class IgnoreListAdapter extends RecyclerView.Adapter<IgnoreListAdapter.It
             });
             mText.setOnLongClickListener((View v) -> {
                 Context context = v.getContext();
-                new AlertDialog.Builder(context)
-                        .setTitle(mText.getText())
-                        .setItems(new CharSequence[] {
-                                context.getString(R.string.action_edit),
-                                context.getString(R.string.action_delete)
-                        }, (DialogInterface i, int which) -> {
-                            if (which == 0) {
-                                startEdit();
-                            } else if (which == 1) {
-                                mServer.ignoreList.remove(getAdapterPosition());
-                                notifyItemRemoved(getAdapterPosition());
-                                try {
-                                    ServerConfigManager.getInstance(context).saveServer(mServer);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                    Toast.makeText(context, R.string.error_generic, Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        })
-                        .show();
+                MenuBottomSheetDialog dialog = new MenuBottomSheetDialog(context);
+                dialog.addItem(R.string.action_edit, R.drawable.ic_edit, (MenuBottomSheetDialog.Item item) -> {
+                    startEdit();
+                    return true;
+                });
+                dialog.addItem(R.string.action_delete, R.drawable.ic_delete, (MenuBottomSheetDialog.Item item) -> {
+                    mServer.ignoreList.remove(getAdapterPosition());
+                    notifyItemRemoved(getAdapterPosition());
+                    try {
+                        ServerConfigManager.getInstance(context).saveServer(mServer);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Toast.makeText(context, R.string.error_generic, Toast.LENGTH_SHORT).show();
+                    }
+                    return true;
+                });
+                dialog.show();
                 return true;
             });
         }
