@@ -27,6 +27,10 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="AppTheme.Widget.Button.Colored" parent="Widget.AppCompat.Button.Colored">
+        <item name="android:textColor">#fff</item>
+    </style>
+
     <style name="Icon">
         <item name="android:tint">@color/iconColor</item>
         <item name="tintMode">src_in</item>

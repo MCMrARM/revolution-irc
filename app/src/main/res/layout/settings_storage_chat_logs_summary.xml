@@ -12,7 +12,8 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
-        app:srcCompat="@drawable/ic_history" />
+        app:srcCompat="@drawable/ic_history"
+        android:tint="?android:attr/textColorPrimary" />
 
     <TextView
         android:id="@+id/title"
@@ -77,7 +78,7 @@
             android:id="@+id/set_limits"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/Widget.AppCompat.Button.Colored"
+            style="@style/AppTheme.Widget.Button.Colored"
             android:text="@string/pref_storage_change_limits"
             android:paddingLeft="24dp"
             android:paddingRight="24dp" />
@@ -86,7 +87,7 @@
             android:id="@+id/clear_chat_logs"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/Widget.AppCompat.Button.Colored"
+            style="@style/AppTheme.Widget.Button.Colored"
             android:text="@string/action_clear_all"
             android:paddingLeft="16dp"
             android:paddingRight="16dp" />
