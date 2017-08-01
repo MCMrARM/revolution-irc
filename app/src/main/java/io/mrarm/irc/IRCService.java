@@ -76,6 +76,7 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
 
     private void onMessage(ServerConnectionInfo connection, String channel, MessageInfo info) {
         NotificationManager.getInstance().processMessage(this, connection, channel, info);
+        ChatLogStorageManager.getInstance(this).onMessage(connection);
     }
 
     @Override

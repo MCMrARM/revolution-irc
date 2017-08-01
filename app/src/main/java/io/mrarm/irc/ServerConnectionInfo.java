@@ -40,6 +40,7 @@ public class ServerConnectionInfo {
     private final List<InfoChangeListener> mInfoListeners = new ArrayList<>();
     private final List<ChannelListChangeListener> mChannelsListeners = new ArrayList<>();
     private int mCurrentReconnectAttempt = -1;
+    int mChatLogStorageUpdateCounter = 0;
 
     public ServerConnectionInfo(ServerConnectionManager manager, UUID uuid, String name,
                                 IRCConnectionRequest connectionRequest, SASLOptions saslOptions,
