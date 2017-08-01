@@ -13,6 +13,7 @@ import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.TextWatcher;
 import android.text.style.CharacterStyle;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
@@ -42,16 +43,12 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
     private TextInputLayout mDateFormatCtr;
     private View mDateFormatPresetButton;
     private FormattableEditText mMessageFormatNormal;
-    private View mMessageFormatNormalPresetButton;
     private TextView mMessageFormatNormalExample;
     private FormattableEditText mMessageFormatAction;
-    private View mMessageFormatActionPresetButton;
     private TextView mMessageFormatActionExample;
     private FormattableEditText mMessageFormatNotice;
-    private View mMessageFormatNoticePresetButton;
     private TextView mMessageFormatNoticeExample;
     private FormattableEditText mMessageFormatEvent;
-    private View mMessageFormatEventPresetButton;
     private TextView mMessageFormatEventExample;
     private TextFormatBar mTextFormatBar;
 
@@ -69,18 +66,10 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
 
         mMessageBuilder = new MessageBuilder(this);
 
-        mTextFormatBar = (TextFormatBar) findViewById(R.id.format_bar);
+        mTextFormatBar = findViewById(R.id.format_bar);
         mTextFormatBar.setVisibility(View.GONE);
         mTextFormatBar.setOnChangeListener((TextFormatBar bar, EditText text) -> {
-            if (text == mMessageFormatNormal)
-                mMessageBuilder.setMessageFormat(prepareFormat(text.getText()));
-            else if (text == mMessageFormatAction)
-                mMessageBuilder.setActionMessageFormat(prepareFormat(text.getText()));
-            else if (text == mMessageFormatNotice)
-                mMessageBuilder.setNoticeMessageFormat(prepareFormat(text.getText()));
-            else if (text == mMessageFormatEvent)
-                mMessageBuilder.setEventMessageFormat(prepareFormat(text.getText()));
-            refreshExamples();
+            ((SimpleTextWatcher.OnTextChangedListener) text.getTag()).afterTextChanged(text.getText());
         });
         mTextFormatBar.setExtraButton(R.drawable.ic_add_circle_outline,
                 getString(R.string.message_format_add_chip), (View v) -> {
@@ -100,12 +89,9 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
                     menu.show();
                 });
 
-        View.OnFocusChangeListener focusListener = (View v, boolean hasFocus) -> {
-            mTextFormatBar.setVisibility(hasFocus ? View.VISIBLE : View.GONE);
-        };
 
-        mDateFormat = (EditText) findViewById(R.id.date_format);
-        mDateFormatCtr = (TextInputLayout) findViewById(R.id.date_format_ctr);
+        mDateFormat = findViewById(R.id.date_format);
+        mDateFormatCtr = findViewById(R.id.date_format_ctr);
         mDateFormat.setText(mMessageBuilder.getMessageTimeFormat().toPattern());
         mDateFormat.addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
             try {
@@ -141,83 +127,88 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
             menu.show();
         });
 
-        mMessageFormatNormal = (FormattableEditText) findViewById(R.id.message_format_normal);
+        mMessageFormatNormal = findViewById(R.id.message_format_normal);
+        mMessageFormatNormalExample = findViewById(R.id.message_format_normal_example);
         mMessageFormatNormal.setText(mMessageBuilder.getMessageFormat());
-        mMessageFormatNormal.setFormatBar(mTextFormatBar);
-        mMessageFormatNormal.setOnFocusChangeListener(focusListener);
-        mMessageFormatNormal.addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
+        setupFormatEntry(mMessageFormatNormal, R.id.message_format_normal_preset, (Editable s) -> {
             mMessageBuilder.setMessageFormat(prepareFormat(s));
             refreshExamples();
-        }));
-
-        mMessageFormatNormalPresetButton = findViewById(R.id.message_format_normal_preset);
-        mMessageFormatNormalPresetButton.setOnClickListener((View v) -> {
-            selectPreset(mMessageFormatNormal, new CharSequence[] {
-                    buildPresetMessageFormat(this, 0),
-                    buildPresetMessageFormat(this, 1)
-            });
+        }, new CharSequence[] {
+                buildPresetMessageFormat(this, 0),
+                buildPresetMessageFormat(this, 1)
         });
 
-        mMessageFormatNormalExample = (TextView) findViewById(R.id.message_format_normal_example);
-
-        mMessageFormatAction = (FormattableEditText) findViewById(R.id.message_format_action);
+        mMessageFormatAction = findViewById(R.id.message_format_action);
+        mMessageFormatActionExample = findViewById(R.id.message_format_action_example);
         mMessageFormatAction.setText(mMessageBuilder.getActionMessageFormat());
-        mMessageFormatAction.setFormatBar(mTextFormatBar);
-        mMessageFormatAction.setOnFocusChangeListener(focusListener);
-        mMessageFormatAction.addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
+        setupFormatEntry(mMessageFormatAction, R.id.message_format_action_preset, (Editable s) -> {
             mMessageBuilder.setActionMessageFormat(prepareFormat(s));
             refreshExamples();
-        }));
-
-        mMessageFormatActionPresetButton = findViewById(R.id.message_format_action_preset);
-        mMessageFormatActionPresetButton.setOnClickListener((View v) -> {
-            selectPreset(mMessageFormatAction, new CharSequence[] {
-                    buildActionPresetMessageFormat(this, 0),
-                    buildActionPresetMessageFormat(this, 1)
-            });
+        }, new CharSequence[] {
+                buildActionPresetMessageFormat(this, 0),
+                buildActionPresetMessageFormat(this, 1)
         });
 
-        mMessageFormatActionExample = (TextView) findViewById(R.id.message_format_action_example);
-
-        mMessageFormatNotice = (FormattableEditText) findViewById(R.id.message_format_notice);
+        mMessageFormatNotice = findViewById(R.id.message_format_notice);
+        mMessageFormatNoticeExample = findViewById(R.id.message_format_notice_example);
         mMessageFormatNotice.setText(mMessageBuilder.getNoticeMessageFormat());
-        mMessageFormatNotice.setFormatBar(mTextFormatBar);
-        mMessageFormatNotice.setOnFocusChangeListener(focusListener);
-        mMessageFormatNotice.addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
+        setupFormatEntry(mMessageFormatNotice, R.id.message_format_notice_preset, (Editable s) -> {
             mMessageBuilder.setNoticeMessageFormat(prepareFormat(s));
             refreshExamples();
-        }));
-
-        mMessageFormatNoticePresetButton = findViewById(R.id.message_format_notice_preset);
-        mMessageFormatNoticePresetButton.setOnClickListener((View v) -> {
-            selectPreset(mMessageFormatNotice, new CharSequence[] {
-                    buildNoticePresetMessageFormat(this, 0),
-                    buildNoticePresetMessageFormat(this, 1)
-            });
+        }, new CharSequence[] {
+                buildNoticePresetMessageFormat(this, 0),
+                buildNoticePresetMessageFormat(this, 1)
         });
 
-        mMessageFormatNoticeExample = (TextView) findViewById(R.id.message_format_notice_example);
-
-        mMessageFormatEvent = (FormattableEditText) findViewById(R.id.message_format_event);
+        mMessageFormatEvent = findViewById(R.id.message_format_event);
+        mMessageFormatEventExample = findViewById(R.id.message_format_event_example);
         mMessageFormatEvent.setText(mMessageBuilder.getEventMessageFormat());
-        mMessageFormatEvent.setFormatBar(mTextFormatBar);
-        mMessageFormatEvent.setOnFocusChangeListener(focusListener);
-        mMessageFormatEvent.addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
+        setupFormatEntry(mMessageFormatEvent, R.id.message_format_event_preset, (Editable s) -> {
             mMessageBuilder.setEventMessageFormat(prepareFormat(s));
             refreshExamples();
-        }));
-
-        mMessageFormatEventPresetButton = findViewById(R.id.message_format_event_preset);
-        mMessageFormatEventPresetButton.setOnClickListener((View v) -> {
-            selectPreset(mMessageFormatEvent, new CharSequence[] {
-                    buildEventPresetMessageFormat(this, 0),
-                    buildEventPresetMessageFormat(this, 1)
-            });
+        }, new CharSequence[] {
+                buildEventPresetMessageFormat(this, 0),
+                buildEventPresetMessageFormat(this, 1)
         });
 
-        mMessageFormatEventExample = (TextView) findViewById(R.id.message_format_event_example);
-
         refreshExamples();
+    }
+
+    private void refreshExamples() {
+        if (mTestSender == null) {
+            mTestSender = new MessageSenderInfo(getString(R.string.message_example_sender), "", "", null, null);
+            Date date = getSampleMessageTime();
+            mSampleMessage = new MessageInfo(mTestSender, date, getString(R.string.message_example_message), MessageInfo.MessageType.NORMAL);
+            mSampleActionMessage = new MessageInfo(mTestSender, date, getString(R.string.message_example_message), MessageInfo.MessageType.ME);
+            mSampleNoticeMessage = new MessageInfo(mTestSender, date, getString(R.string.message_example_message), MessageInfo.MessageType.NOTICE);
+            mSampleEventMessage = new MessageInfo(mTestSender, date, null, MessageInfo.MessageType.JOIN);
+        }
+
+        mMessageFormatNormalExample.setText(mMessageBuilder.buildMessage(mSampleMessage));
+        mMessageFormatActionExample.setText(mMessageBuilder.buildMessage(mSampleActionMessage));
+        mMessageFormatNoticeExample.setText(mMessageBuilder.buildMessage(mSampleNoticeMessage));
+        mMessageFormatEventExample.setText(mMessageBuilder.buildMessage(mSampleEventMessage));
+    }
+
+    public void save() {
+        MessageBuilder global = MessageBuilder.getInstance(this);
+        global.setMessageTimeFormat(mMessageBuilder.getMessageTimeFormat().toPattern());
+        global.setMessageFormat(mMessageBuilder.getMessageFormat());
+        global.setActionMessageFormat(mMessageBuilder.getActionMessageFormat());
+        global.setNoticeMessageFormat(mMessageBuilder.getNoticeMessageFormat());
+        global.setEventMessageFormat(mMessageBuilder.getEventMessageFormat());
+        global.saveFormats();
+    }
+
+    private void setupFormatEntry(FormattableEditText editText, int presetButtonId, SimpleTextWatcher.OnTextChangedListener textListener, CharSequence[] presets) {
+        editText.setFormatBar(mTextFormatBar);
+        editText.setOnFocusChangeListener(mEditTextFocusListener);
+        editText.addTextChangedListener(new SimpleTextWatcher(textListener));
+        editText.setTag(textListener);
+
+        findViewById(presetButtonId).setOnClickListener((View v) -> {
+            selectPreset(editText, presets);
+        });
     }
 
     private CharSequence prepareFormat(Spannable s) {
@@ -337,32 +328,6 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
         return calendar.getTime();
     }
 
-    private void refreshExamples() {
-        if (mTestSender == null) {
-            mTestSender = new MessageSenderInfo(getString(R.string.message_example_sender), "", "", null, null);
-            Date date = getSampleMessageTime();
-            mSampleMessage = new MessageInfo(mTestSender, date, getString(R.string.message_example_message), MessageInfo.MessageType.NORMAL);
-            mSampleActionMessage = new MessageInfo(mTestSender, date, getString(R.string.message_example_message), MessageInfo.MessageType.ME);
-            mSampleNoticeMessage = new MessageInfo(mTestSender, date, getString(R.string.message_example_message), MessageInfo.MessageType.NOTICE);
-            mSampleEventMessage = new MessageInfo(mTestSender, date, null, MessageInfo.MessageType.JOIN);
-        }
-
-        mMessageFormatNormalExample.setText(mMessageBuilder.buildMessage(mSampleMessage));
-        mMessageFormatActionExample.setText(mMessageBuilder.buildMessage(mSampleActionMessage));
-        mMessageFormatNoticeExample.setText(mMessageBuilder.buildMessage(mSampleNoticeMessage));
-        mMessageFormatEventExample.setText(mMessageBuilder.buildMessage(mSampleEventMessage));
-    }
-
-    public void save() {
-        MessageBuilder global = MessageBuilder.getInstance(this);
-        global.setMessageTimeFormat(mMessageBuilder.getMessageTimeFormat().toPattern());
-        global.setMessageFormat(mMessageBuilder.getMessageFormat());
-        global.setActionMessageFormat(mMessageBuilder.getActionMessageFormat());
-        global.setNoticeMessageFormat(mMessageBuilder.getNoticeMessageFormat());
-        global.setEventMessageFormat(mMessageBuilder.getEventMessageFormat());
-        global.saveFormats();
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_edit_only_done, menu);
@@ -384,5 +349,10 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+
+    private final View.OnFocusChangeListener mEditTextFocusListener = (View v, boolean hasFocus) -> {
+        mTextFormatBar.setVisibility(hasFocus ? View.VISIBLE : View.GONE);
+    };
 
 }
