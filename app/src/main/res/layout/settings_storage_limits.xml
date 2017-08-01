@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:attr/windowBackground">
+    android:background="?android:attr/windowBackground"
+    android:orientation="vertical">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbar"
@@ -17,47 +19,20 @@
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|enterAlways"
+            app:navigationIcon="@drawable/ic_close"
             app:popupTheme="@style/AppTheme.PopupOverlay"
-            app:title="@string/pref_header_storage_limits"
-            app:navigationIcon="@drawable/ic_close" />
+            app:title="@string/pref_header_storage_limits" />
 
     </android.support.design.widget.AppBarLayout>
 
-    <TextView
-        android:id="@+id/global_limit_title"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@id/title"
-        android:layout_alignStart="@id/title"
-        android:layout_below="@id/appbar"
-        android:layout_marginTop="24dp"
-        android:layout_marginLeft="24dp"
-        android:layout_marginRight="24dp"
-        android:text="@string/pref_storage_limit_global_title"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+        android:layout_height="match_parent"
+        android:layout_below="@id/appbar">
 
-    <TextView
-        android:id="@+id/global_limit_value"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/global_limit_title"
-        android:layout_alignLeft="@id/global_limit_title"
-        android:layout_alignRight="@id/global_limit_title"
-        android:layout_marginLeft="-1dp"
-        android:layout_marginStart="-1dp"
-        android:layout_marginTop="-4dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-        android:textColor="?android:attr/textColorPrimary" />
+        <include
+            layout="@layout/settings_storage_limits_content" />
 
-    <SeekBar
-        android:id="@+id/global_limit_seekbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@id/global_limit_title"
-        android:layout_alignRight="@id/global_limit_title"
-        android:layout_marginLeft="-12dp"
-        android:layout_marginRight="-12dp"
-        android:layout_below="@id/global_limit_value"
-        android:layout_marginTop="8dp"/>
+    </ScrollView>
 
 </RelativeLayout>

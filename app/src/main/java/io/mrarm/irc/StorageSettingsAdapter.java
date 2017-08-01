@@ -23,6 +23,8 @@ import io.mrarm.irc.config.NotificationRuleManager;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.config.SettingsHelper;
+import io.mrarm.irc.dialog.MenuBottomSheetDialog;
+import io.mrarm.irc.dialog.ServerStorageLimitDialog;
 import io.mrarm.irc.dialog.StorageLimitsDialog;
 import io.mrarm.irc.util.ColoredTextBuilder;
 import io.mrarm.irc.view.SimpleBarChart;
@@ -184,6 +186,24 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
         public ServerLogsHolder(View view) {
             super(view);
             mText = view.findViewById(R.id.text);
+            view.setOnClickListener((View v) -> showActionsMenu());
+            view.setOnLongClickListener((View v) -> {
+                showActionsMenu();
+                return true;
+            });
+        }
+
+        private void showActionsMenu() {
+            MenuBottomSheetDialog menu = new MenuBottomSheetDialog(itemView.getContext());
+            menu.addItem(R.string.pref_storage_set_server_limit, R.drawable.ic_storage, (MenuBottomSheetDialog.Item it) -> {
+                ServerStorageLimitDialog dialog = new ServerStorageLimitDialog(itemView.getContext());
+                dialog.show();
+                return true;
+            });
+            menu.addItem(R.string.pref_storage_clear_server_chat_logs, R.drawable.ic_delete, (MenuBottomSheetDialog.Item it) -> {
+                return true;
+            });
+            menu.show();
         }
 
         public void bind(ServerLogsEntry entry, int pos) {

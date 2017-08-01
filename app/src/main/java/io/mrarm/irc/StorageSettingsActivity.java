@@ -7,8 +7,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 import android.view.View;
 
-import io.mrarm.irc.dialog.StorageLimitsDialog;
-
 public class StorageSettingsActivity extends AppCompatActivity {
 
     @Override
@@ -25,8 +23,6 @@ public class StorageSettingsActivity extends AppCompatActivity {
         StorageSettingsAdapter adapter = new StorageSettingsAdapter(this);
         recyclerView.setItemAnimator(null);
         recyclerView.setAdapter(adapter);
-
-        new StorageLimitsDialog(this).show();
     }
 
     @Override

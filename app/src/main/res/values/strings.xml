@@ -414,10 +414,16 @@
     <string name="pref_storage_clear_all_chat_logs">Delete all chat logs</string>
     <string name="pref_storage_clear_all_chat_logs_confirm">Are you sure you want to delete all chat logs?</string>
 
-    <string name="pref_storage_limit_global_title">Chat history storage limit</string>
+    <string name="pref_storage_clear_server_chat_logs">Delete server chat history</string>
 
     <string name="pref_header_storage_limits">Limits</string>
+    <string name="pref_storage_limit_global_title">Global chat history storage limit</string>
+    <string name="pref_storage_limit_def_server_title">Per-server chat history storage limit</string>
     <string name="pref_storage_no_limit">No limit</string>
+    <string name="pref_storage_limit_notice">Please note that those are soft limits and sometimes might be exceeded.</string>
+
+    <string name="pref_storage_set_server_limit">Set server limit</string>
+    <string name="pref_storage_limit_server_title">Server chat storage limit</string>
 
     <!-- Backup settings -->
 

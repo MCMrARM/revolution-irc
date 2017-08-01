@@ -65,7 +65,7 @@
             android:id="@+id/format_bar_divider"
             android:layout_below="@id/send_text"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/divider_height"
             android:visibility="gone"
             android:background="?attr/dividerHorizontal" />
 

@@ -18,24 +18,28 @@ import io.mrarm.irc.R;
 
 public class StorageLimitsDialog extends Dialog {
 
-    private static final int[] SIZES = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 12, 24, 36, 48, 60, 72, 84, 96, 128, 256, 512, 1024, 2048, 3072, 4096 };
+    static final int[] SIZES = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 12, 24, 36, 48, 64, 96, 128, 256, 512, 1024, 2048, 3072, 4096 };
 
     public StorageLimitsDialog(@NonNull Context context) {
         super(context, R.style.Theme_AppCompat_Light);
         setContentView(R.layout.settings_storage_limits);
 
-        TextView value = findViewById(R.id.global_limit_value);
+        SeekBar globalLimitSeekBar = findViewById(R.id.global_limit_seekbar);
+        SeekBar serverLimitSeekBar = findViewById(R.id.server_limit_seekbar);
 
-        SeekBar seekBar = findViewById(R.id.global_limit_seekbar);
-        seekBar.setMax(SIZES.length);
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        TextView globalLimitValue = findViewById(R.id.global_limit_value);
+        TextView serverLimitValue = findViewById(R.id.server_limit_value);
+
+        globalLimitSeekBar.setMax(SIZES.length);
+        globalLimitSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                serverLimitSeekBar.setMax(i);
                 if (i >= SIZES.length) {
-                    value.setText(R.string.pref_storage_no_limit);
+                    globalLimitValue.setText(R.string.pref_storage_no_limit);
                     return;
                 }
-                value.setText(SIZES[i] + " MB");
+                globalLimitValue.setText(SIZES[i] + " MB");
             }
 
             @Override
@@ -46,7 +50,28 @@ public class StorageLimitsDialog extends Dialog {
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
-        seekBar.setProgress(SIZES.length);
+        globalLimitSeekBar.setProgress(SIZES.length);
+
+        serverLimitSeekBar.setMax(SIZES.length);
+        serverLimitSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                if (i >= SIZES.length) {
+                    serverLimitValue.setText(R.string.pref_storage_no_limit);
+                    return;
+                }
+                serverLimitValue.setText(SIZES[i] + " MB");
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+        serverLimitSeekBar.setProgress(SIZES.length);
 
         ((Toolbar) findViewById(R.id.toolbar)).setNavigationOnClickListener((View v) -> {
             dismiss();
