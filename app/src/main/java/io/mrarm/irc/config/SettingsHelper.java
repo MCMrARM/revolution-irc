@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import io.mrarm.irc.R;
+import io.mrarm.irc.dialog.StorageLimitsDialog;
 import io.mrarm.irc.preference.ListWithCustomPreference;
 import io.mrarm.irc.preference.ReconnectIntervalPreference;
 
@@ -47,6 +48,8 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     public static final String PREF_NICK_AUTOCOMPLETE_AT_SUGGESTIONS = "nick_autocomplete_at_suggestions";
     public static final String PREF_NICK_AUTOCOMPLETE_AT_SUGGESTIONS_REMOVE_AT = "nick_autocomplete_at_suggestions_remove_at";
     public static final String PREF_CHANNEL_AUTOCOMPLETE_SUGGESTIONS = "channel_autocomplete_suggestions";
+    public static final String PREF_STORAGE_LIMIT_GLOBAL = "storage_limit_global";
+    public static final String PREF_STORAGE_LIMIT_SERVER = "storage_limit_server";
 
     public static final String COMPACT_MODE_ALWAYS = "always";
     public static final String COMPACT_MODE_NEVER = "never";
@@ -248,4 +251,11 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         return mPreferences.getBoolean(PREF_CHANNEL_AUTOCOMPLETE_SUGGESTIONS, true);
     }
 
+    public long getStorageLimitGlobal() {
+        return mPreferences.getLong(PREF_STORAGE_LIMIT_GLOBAL, StorageLimitsDialog.DEFAULT_LIMIT_GLOBAL);
+    }
+
+    public long getStorageLimitServer() {
+        return mPreferences.getLong(PREF_STORAGE_LIMIT_SERVER, StorageLimitsDialog.DEFAULT_LIMIT_SERVER);
+    }
 }

@@ -2,9 +2,11 @@ package io.mrarm.irc.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -15,31 +17,34 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import io.mrarm.irc.R;
+import io.mrarm.irc.config.SettingsHelper;
 
 public class StorageLimitsDialog extends Dialog {
 
+    public static final long DEFAULT_LIMIT_GLOBAL = 24L * 1024L * 1024L;
+    public static final long DEFAULT_LIMIT_SERVER = 24L * 1024L * 1024L;
+
     static final int[] SIZES = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 12, 24, 36, 48, 64, 96, 128, 256, 512, 1024, 2048, 3072, 4096 };
+
+    private SeekBar mGlobalLimitSeekBar;
+    private SeekBar mServerLimitSeekBar;
 
     public StorageLimitsDialog(@NonNull Context context) {
         super(context, R.style.Theme_AppCompat_Light);
         setContentView(R.layout.settings_storage_limits);
 
-        SeekBar globalLimitSeekBar = findViewById(R.id.global_limit_seekbar);
-        SeekBar serverLimitSeekBar = findViewById(R.id.server_limit_seekbar);
+        mGlobalLimitSeekBar = findViewById(R.id.global_limit_seekbar);
+        mServerLimitSeekBar = findViewById(R.id.server_limit_seekbar);
 
         TextView globalLimitValue = findViewById(R.id.global_limit_value);
         TextView serverLimitValue = findViewById(R.id.server_limit_value);
 
-        globalLimitSeekBar.setMax(SIZES.length);
-        globalLimitSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        mGlobalLimitSeekBar.setMax(SIZES.length);
+        mGlobalLimitSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                serverLimitSeekBar.setMax(i);
-                if (i >= SIZES.length) {
-                    globalLimitValue.setText(R.string.pref_storage_no_limit);
-                    return;
-                }
-                globalLimitValue.setText(SIZES[i] + " MB");
+                mServerLimitSeekBar.setMax(i);
+                updateLabel(mGlobalLimitSeekBar, globalLimitValue);
             }
 
             @Override
@@ -50,17 +55,12 @@ public class StorageLimitsDialog extends Dialog {
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
-        globalLimitSeekBar.setProgress(SIZES.length);
 
-        serverLimitSeekBar.setMax(SIZES.length);
-        serverLimitSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        mServerLimitSeekBar.setMax(SIZES.length);
+        mServerLimitSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                if (i >= SIZES.length) {
-                    serverLimitValue.setText(R.string.pref_storage_no_limit);
-                    return;
-                }
-                serverLimitValue.setText(SIZES[i] + " MB");
+                updateLabel(mServerLimitSeekBar, serverLimitValue);
             }
 
             @Override
@@ -71,11 +71,17 @@ public class StorageLimitsDialog extends Dialog {
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
-        serverLimitSeekBar.setProgress(SIZES.length);
 
         ((Toolbar) findViewById(R.id.toolbar)).setNavigationOnClickListener((View v) -> {
             dismiss();
         });
+
+        SettingsHelper settings = SettingsHelper.getInstance(getContext());
+        mGlobalLimitSeekBar.setProgress(findNearestSizeIndex(settings.getStorageLimitGlobal()));
+        mServerLimitSeekBar.setMax(mGlobalLimitSeekBar.getProgress());
+        mServerLimitSeekBar.setProgress(findNearestSizeIndex(settings.getStorageLimitServer()));
+        updateLabel(mGlobalLimitSeekBar, globalLimitValue);
+        updateLabel(mServerLimitSeekBar, serverLimitValue);
     }
 
     @Override
@@ -97,4 +103,41 @@ public class StorageLimitsDialog extends Dialog {
             window.setWindowAnimations(R.style.Animation_AppCompat_Dialog);
         }
     }
+
+    @Override
+    public void dismiss() {
+        super.dismiss();
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getContext()).edit();
+        if (mGlobalLimitSeekBar.getProgress() == SIZES.length)
+            editor.putLong(SettingsHelper.PREF_STORAGE_LIMIT_GLOBAL, -1L);
+        else
+            editor.putLong(SettingsHelper.PREF_STORAGE_LIMIT_GLOBAL, SIZES[mGlobalLimitSeekBar.getProgress()] * 1024L * 1024L);
+        if (mServerLimitSeekBar.getProgress() == SIZES.length)
+            editor.putLong(SettingsHelper.PREF_STORAGE_LIMIT_SERVER, -1L);
+        else
+            editor.putLong(SettingsHelper.PREF_STORAGE_LIMIT_SERVER, SIZES[mServerLimitSeekBar.getProgress()] * 1024L * 1024L);
+        editor.apply();
+    }
+
+    private void updateLabel(SeekBar seekBar, TextView label) {
+        if (seekBar.getProgress() >= SIZES.length) {
+            label.setText(R.string.pref_storage_no_limit);
+            return;
+        }
+        label.setText(SIZES[seekBar.getProgress()] + " MB");
+    }
+
+    public static int findNearestSizeIndex(long val) {
+        long nearestVal = -1L;
+        int nearestI = -1;
+        for (int i = 0; i < SIZES.length; i++) {
+            long v = SIZES[i] * 1024L * 1024L;
+            if (nearestVal == -1L || Math.abs(v - val) < Math.abs(nearestVal - val)) {
+                nearestVal = v;
+                nearestI = i;
+            }
+        }
+        return nearestI;
+    }
+
 }

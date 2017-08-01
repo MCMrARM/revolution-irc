@@ -10,6 +10,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import io.mrarm.irc.R;
+import io.mrarm.irc.config.SettingsHelper;
 
 public class ServerStorageLimitDialog extends AlertDialog {
 
@@ -43,6 +44,7 @@ public class ServerStorageLimitDialog extends AlertDialog {
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
-        seekBar.setProgress(StorageLimitsDialog.SIZES.length);
+        SettingsHelper settings = SettingsHelper.getInstance(getContext());
+        seekBar.setProgress(StorageLimitsDialog.findNearestSizeIndex(settings.getStorageLimitGlobal()));
     }
 }
