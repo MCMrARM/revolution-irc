@@ -153,7 +153,7 @@
     </style>
 
     <style name="BottomSheetIconTextAppearance">
-        <item name="android:textSize">16dp</item>
+        <item name="android:textSize">16sp</item>
         <item name="android:textColor">#DE000000</item>
     </style>
 

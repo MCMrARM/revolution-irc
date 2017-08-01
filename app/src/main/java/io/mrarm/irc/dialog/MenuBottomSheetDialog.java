@@ -1,6 +1,7 @@
 package io.mrarm.irc.dialog;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -29,6 +30,10 @@ public class MenuBottomSheetDialog extends BottomSheetDialog {
         int verticalPadding = content.getResources().getDimensionPixelSize(R.dimen.bottom_sheet_menu_vertical_margin);
         content.setPadding(0, verticalPadding, 0, verticalPadding);
         setContentView(content);
+
+        TypedArray ta = context.obtainStyledAttributes(new int[] { R.attr.colorBackgroundFloating });
+        content.setBackgroundColor(ta.getColor(0, 0));
+        ta.recycle();
     }
 
     public void addItem(int stringId, int iconId, OnItemClickListener listener) {
