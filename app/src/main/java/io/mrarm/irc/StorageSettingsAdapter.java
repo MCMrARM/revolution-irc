@@ -2,6 +2,8 @@ package io.mrarm.irc;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.StatFs;
@@ -14,9 +16,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import io.mrarm.irc.config.CommandAliasManager;
 import io.mrarm.irc.config.NotificationRuleManager;
@@ -38,9 +42,15 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
     private List<ServerLogsEntry> mServerLogEntries = new ArrayList<>();
     private SpaceCalculateTask mAsyncTask = null;
     private long mConfigurationSize = 0L;
+    private int mSecondaryTextColor;
 
     public StorageSettingsAdapter(Context context) {
         refreshServerLogs(context);
+
+        TypedArray ta = context.getTheme().obtainStyledAttributes(R.style.AppTheme,
+                new int[] { android.R.attr.textColorSecondary });
+        mSecondaryTextColor = ta.getColor(0, Color.BLACK);
+        ta.recycle();
     }
 
     private void refreshServerLogs(Context context) {
@@ -170,16 +180,18 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
     private static class ServerLogsEntry {
 
         String name;
+        UUID uuid;
         long size;
 
-        public ServerLogsEntry(String name, long size) {
+        public ServerLogsEntry(String name, UUID uuid, long size) {
             this.name = name;
+            this.uuid = uuid;
             this.size = size;
         }
 
     }
 
-    public static class ServerLogsHolder extends RecyclerView.ViewHolder {
+    public class ServerLogsHolder extends RecyclerView.ViewHolder {
 
         private TextView mText;
 
@@ -195,11 +207,36 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
 
         private void showActionsMenu() {
             MenuBottomSheetDialog menu = new MenuBottomSheetDialog(itemView.getContext());
-            menu.addItem(R.string.pref_storage_set_server_limit, R.drawable.ic_storage, (MenuBottomSheetDialog.Item it) -> {
-                ServerStorageLimitDialog dialog = new ServerStorageLimitDialog(itemView.getContext());
-                dialog.show();
-                return true;
-            });
+            if (mText.getTag() != null) {
+                ServerConfigData server = ServerConfigManager.getInstance(itemView.getContext()).findServer((UUID) mText.getTag());
+                if (server != null && server.storageLimit == 0L) {
+                    menu.addItem(R.string.pref_storage_set_server_limit, R.drawable.ic_storage, (MenuBottomSheetDialog.Item it) -> {
+                        ServerStorageLimitDialog dialog = new ServerStorageLimitDialog(itemView.getContext(), server);
+                        dialog.show();
+                        return true;
+                    });
+                } else if (server != null) {
+                    ColoredTextBuilder builder = new ColoredTextBuilder();
+                    builder.append(mText.getContext().getString(R.string.pref_storage_change_server_limit));
+                    builder.setSpan(new ForegroundColorSpan(mSecondaryTextColor));
+                    builder.append(" (");
+                    builder.append((server.storageLimit / 1024L / 1024L) + " MB");
+                    builder.append(")");
+                    menu.addItem(builder.getSpannable(), R.drawable.ic_storage, (MenuBottomSheetDialog.Item it) -> {
+                        ServerStorageLimitDialog dialog = new ServerStorageLimitDialog(itemView.getContext(), server);
+                        dialog.show();
+                        return true;
+                    });
+                    menu.addItem(R.string.pref_storage_remove_server_limit, 0, (MenuBottomSheetDialog.Item it) -> {
+                        server.storageLimit = 0L;
+                        try {
+                            ServerConfigManager.getInstance(itemView.getContext()).saveServer(server);
+                        } catch (IOException ignored) {
+                        }
+                        return true;
+                    });
+                }
+            }
             menu.addItem(R.string.pref_storage_clear_server_chat_logs, R.drawable.ic_delete, (MenuBottomSheetDialog.Item it) -> {
                 return true;
             });
@@ -221,6 +258,7 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
             builder.append("  ");
             builder.append(formatFileSize(entry.size));
             mText.setText(builder.getSpannable());
+            mText.setTag(entry.uuid);
         }
 
     }
@@ -285,7 +323,7 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
                 long size = calculateDirectorySize(file, getBlockSize(file));
                 if (size == 0L)
                     continue;
-                publishProgress(new ServerLogsEntry(data.name, size));
+                publishProgress(new ServerLogsEntry(data.name, data.uuid, size));
             }
             File[] files = mServerManager.getChatLogDir().listFiles();
             if (files != null) {
@@ -295,7 +333,12 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
                     long size = calculateDirectorySize(file, getBlockSize(file));
                     if (size == 0L)
                         continue;
-                    publishProgress(new ServerLogsEntry(file.getName(), size));
+                    UUID uuid = null;
+                    try {
+                        uuid = UUID.fromString(file.getName());
+                    } catch (IllegalArgumentException ignored) {
+                    }
+                    publishProgress(new ServerLogsEntry(file.getName(), uuid, size));
                 }
             }
             return null;

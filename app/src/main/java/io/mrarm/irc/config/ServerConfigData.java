@@ -28,6 +28,8 @@ public class ServerConfigData {
     public List<String> autojoinChannels;
     public List<IgnoreEntry> ignoreList;
 
+    public long storageLimit;
+
     public static class IgnoreEntry {
 
         public String nick;

@@ -37,8 +37,12 @@ public class MenuBottomSheetDialog extends BottomSheetDialog {
     }
 
     public void addItem(int stringId, int iconId, OnItemClickListener listener) {
+        addItem(getContext().getString(stringId), iconId, listener);
+    }
+
+    public void addItem(CharSequence text, int iconId, OnItemClickListener listener) {
         Item item = new Item();
-        item.mText = getContext().getString(stringId);
+        item.mText = text;
         item.mIconId = iconId;
         item.mClickListener = listener;
         mItems.add(item);

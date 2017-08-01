@@ -9,17 +9,30 @@ import android.view.LayoutInflater;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import java.io.IOException;
+
 import io.mrarm.irc.R;
+import io.mrarm.irc.config.ServerConfigData;
+import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.config.SettingsHelper;
 
 public class ServerStorageLimitDialog extends AlertDialog {
 
-    public ServerStorageLimitDialog(@NonNull Context context) {
+    private ServerConfigData mServer;
+    private SeekBar mSeekBar;
+
+    public ServerStorageLimitDialog(@NonNull Context context, ServerConfigData server) {
         super(context);
 
         setButton(AlertDialog.BUTTON_POSITIVE, getContext().getString(R.string.action_ok), (DialogInterface di, int i) -> {
-            //
+            mServer.storageLimit = StorageLimitsDialog.SIZES[mSeekBar.getProgress()] * 1024L * 1024L;
+            try {
+                ServerConfigManager.getInstance(getContext()).saveServer(server);
+            } catch (IOException ignored) {
+            }
         });
+
+        mServer = server;
         setView(LayoutInflater.from(context).inflate(R.layout.settings_storage_limit_dialog, null));
     }
 
@@ -27,10 +40,10 @@ public class ServerStorageLimitDialog extends AlertDialog {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        SeekBar seekBar = findViewById(R.id.seekbar);
+        mSeekBar = findViewById(R.id.seekbar);
         TextView valueText = findViewById(R.id.value);
-        seekBar.setMax(StorageLimitsDialog.SIZES.length - 1);
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        mSeekBar.setMax(StorageLimitsDialog.SIZES.length - 1);
+        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 valueText.setText(StorageLimitsDialog.SIZES[i] + " MB");
@@ -44,7 +57,12 @@ public class ServerStorageLimitDialog extends AlertDialog {
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
-        SettingsHelper settings = SettingsHelper.getInstance(getContext());
-        seekBar.setProgress(StorageLimitsDialog.findNearestSizeIndex(settings.getStorageLimitGlobal()));
+        if (mServer.storageLimit == 0L) {
+            SettingsHelper settings = SettingsHelper.getInstance(getContext());
+            mSeekBar.setProgress(StorageLimitsDialog.findNearestSizeIndex(settings.getStorageLimitGlobal()));
+        } else {
+            mSeekBar.setProgress(StorageLimitsDialog.findNearestSizeIndex(mServer.storageLimit));
+        }
+        valueText.setText(StorageLimitsDialog.SIZES[mSeekBar.getProgress()] + " MB");
     }
 }

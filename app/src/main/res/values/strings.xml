@@ -423,6 +423,8 @@
     <string name="pref_storage_limit_notice">Please note that those are soft limits and sometimes might be exceeded.</string>
 
     <string name="pref_storage_set_server_limit">Set server limit</string>
+    <string name="pref_storage_change_server_limit">Change server limit</string>
+    <string name="pref_storage_remove_server_limit">Reset custom server limit</string>
     <string name="pref_storage_limit_server_title">Server chat storage limit</string>
 
     <!-- Backup settings -->
