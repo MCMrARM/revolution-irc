@@ -1,25 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent" android:layout_height="wrap_content">
-
-    <Button
-        style="@style/Widget.AppCompat.Button.Borderless"
-        android:id="@+id/delete"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginLeft="@dimen/activity_horizontal_margin_s12"
-        android:layout_marginStart="@dimen/activity_horizontal_margin_s12"
-        android:drawableLeft="@drawable/ic_delete"
-        android:drawableStart="@drawable/ic_delete"
-        android:drawableTint="?android:attr/colorForeground"
-        android:drawablePadding="8dp"
-        android:paddingRight="12dp"
-        android:paddingLeft="12dp"
-        android:text="@string/action_delete" />
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/transparent">
 
     <ImageView
         android:id="@+id/expand"
@@ -30,19 +14,40 @@
         android:layout_alignParentTop="true"
         android:layout_marginRight="@dimen/activity_horizontal_margin_s12"
         android:layout_marginEnd="@dimen/activity_horizontal_margin_s12"
-        android:padding="12dp"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
         android:rotation="180"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:tint="?android:attr/colorForeground"
         app:srcCompat="@drawable/ic_expand"
         android:contentDescription="@string/action_expand" />
 
+    <Button
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:id="@+id/delete"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignTop="@id/expand"
+        android:layout_alignBottom="@id/expand"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin_s12"
+        android:layout_marginStart="@dimen/activity_horizontal_margin_s12"
+        android:drawableLeft="@drawable/ic_delete"
+        android:drawableStart="@drawable/ic_delete"
+        android:drawableTint="?android:attr/colorForeground"
+        android:drawablePadding="8dp"
+        android:paddingRight="12dp"
+        android:paddingLeft="12dp"
+        android:text="@string/action_delete" />
+
 
     <io.mrarm.irc.view.LabelLayout
         android:id="@+id/server_ctr"
         android:layout_marginLeft="@dimen/activity_horizontal_margin_s4"
         android:layout_marginRight="@dimen/activity_horizontal_margin_s4"
-        android:layout_marginTop="8dp"
         android:layout_below="@+id/delete"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -132,7 +137,7 @@
         android:layout_below="@+id/direct_messages"
         android:layout_marginLeft="@dimen/activity_horizontal_margin_s4"
         android:layout_marginRight="@dimen/activity_horizontal_margin_s4"
-        android:layout_marginBottom="1dp"
+        android:layout_marginBottom="8dp"
         android:text="@string/notification_rule_notice" />
 
 
