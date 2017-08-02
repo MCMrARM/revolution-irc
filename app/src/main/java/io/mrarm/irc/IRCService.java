@@ -37,6 +37,8 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
 
         WarningHelper.setAppContext(getApplicationContext());
 
+        ChatLogStorageManager.getInstance(getApplicationContext());
+
         for (ServerConnectionInfo connection : ServerConnectionManager.getInstance(this).getConnections())
             onConnectionAdded(connection);
         ServerConnectionManager.getInstance(this).addListener(this);

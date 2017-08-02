@@ -133,7 +133,13 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
             mChart = view.findViewById(R.id.chart);
             mTotal = view.findViewById(R.id.total_value);
             view.findViewById(R.id.set_limits).setOnClickListener((View v) -> {
-                new StorageLimitsDialog(v.getContext()).show();
+                StorageLimitsDialog dialog = new StorageLimitsDialog(v.getContext());
+                dialog.setOnDismissListener((DialogInterface di) -> {
+                    ChatLogStorageManager.getInstance(v.getContext()).requestUpdate(null, () -> {
+                        v.post(() -> refreshServerLogs(v.getContext()));
+                    });
+                });
+                dialog.show();
             });
             view.findViewById(R.id.clear_chat_logs).setOnClickListener((View v) -> {
                 new AlertDialog.Builder(v.getContext())

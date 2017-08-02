@@ -1,6 +1,7 @@
 package io.mrarm.irc;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -14,14 +15,17 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeSet;
 import java.util.UUID;
 
+import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
+import io.mrarm.irc.config.SettingsHelper;
 
-public class ChatLogStorageManager {
+public class ChatLogStorageManager implements SharedPreferences.OnSharedPreferenceChangeListener, ServerConfigManager.ConnectionsListener {
 
     private static final int MIN_GLOBAL_MESSAGES_UPDATE = 1024;
     private static final int MIN_SERVER_MESSAGES_UPDATE = 128;
@@ -40,30 +44,61 @@ public class ChatLogStorageManager {
     }
 
     private ServerConnectionManager mConnectionManager;
+    private ServerConfigManager mServerConfigManager;
     private long mBlockSize = 0L;
+    private Map<UUID, ServerManager> mServerManagers = new HashMap<>();
     private int mGlobalMessageCounter = 0;
     private TreeSet<DeletionCandidate> mGlobalDeletionCandidates = new TreeSet<>();
-    private Map<UUID, ServerManager> mServerManagers = new HashMap<>();
     private long mGlobalTotalSize = 0L;
+    private long mGlobalLimit;
+    private long mDefaultServerLimit;
     private HandlerThread mUpdateThread;
     private Handler mUpdateThreadHandler;
 
     public ChatLogStorageManager(Context context) {
         mConnectionManager = ServerConnectionManager.getInstance(context);
-        File chatLogDir = ServerConfigManager.getInstance(context).getChatLogDir();
+        mServerConfigManager = ServerConfigManager.getInstance(context);
+        File chatLogDir = mServerConfigManager.getChatLogDir();
         StatFs statFs = new StatFs(chatLogDir.getAbsolutePath());
         if (Build.VERSION.SDK_INT >= 18)
             mBlockSize = statFs.getBlockSizeLong();
         else
             mBlockSize = statFs.getBlockSize();
 
+        SettingsHelper helper = SettingsHelper.getInstance(context);
+        helper.addPreferenceChangeListener(SettingsHelper.PREF_STORAGE_LIMIT_GLOBAL, this);
+        helper.addPreferenceChangeListener(SettingsHelper.PREF_STORAGE_LIMIT_SERVER, this);
+        onSharedPreferenceChanged(null, null);
+
         mUpdateThread = new HandlerThread("ChatLogStorageManager");
         mUpdateThread.start();
         mUpdateThreadHandler = new Handler(mUpdateThread.getLooper());
+
+        mServerConfigManager.addListener(this);
+        List<ServerConfigData> servers = mServerConfigManager.getServers();
+        mUpdateThreadHandler.post(() -> {
+            for (ServerConfigData data : servers)
+                mServerManagers.put(data.uuid, new ServerManager(data));
+            performUpdate(null);
+        });
     }
 
-    private void requestUpdate(UUID serverUUID) {
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+        SettingsHelper helper = SettingsHelper.getInstance(null);
+        mGlobalLimit = helper.getStorageLimitGlobal();
+        mDefaultServerLimit = helper.getStorageLimitServer();
+    }
+
+    public void requestUpdate(UUID serverUUID) {
         mUpdateThreadHandler.post(() -> performUpdate(serverUUID));
+    }
+
+    public void requestUpdate(UUID serverUUID, Runnable callback) {
+        mUpdateThreadHandler.post(() -> {
+            performUpdate(serverUUID);
+            callback.run();
+        });
     }
 
     private void performUpdate(UUID serverUUID) {
@@ -78,6 +113,37 @@ public class ChatLogStorageManager {
             ServerManager manager = mServerManagers.get(serverUUID);
             if (manager != null)
                 manager.update(currentYear, currentMonth, currentDay);
+        }
+        if (mGlobalTotalSize > mGlobalLimit)
+            performGlobalDeletion(mGlobalTotalSize - mGlobalLimit);
+    }
+
+    private void performGlobalDeletion(long size) {
+        while (true) {
+            boolean deletedAnyFile = false;
+            for (Iterator<DeletionCandidate> iterator = mGlobalDeletionCandidates.iterator(); iterator.hasNext(); ) {
+                DeletionCandidate candidate = iterator.next();
+                mGlobalTotalSize -= candidate.size;
+                File file = new File(candidate.server.mLogsDir, sFileNameFormat.format(candidate.dateMs));
+                size -= getFileSize(file);
+                file.delete();
+                deletedAnyFile = true;
+                iterator.remove();
+                if (size <= 0L) {
+                    if (mGlobalDeletionCandidates.size() == 0) {
+                        // If there are no deletion candidates left, refresh the list so they are
+                        // available during the next performGlobalDeletion call.
+                        for (ServerManager manager : mServerManagers.values())
+                            manager.reload();
+                    }
+                    return;
+                }
+            }
+            if (!deletedAnyFile)
+                return;
+            // Refresh deletion candidates
+            for (ServerManager manager : mServerManagers.values())
+                manager.reload();
         }
     }
 
@@ -108,8 +174,29 @@ public class ChatLogStorageManager {
         return (file.length() + mBlockSize - 1) / mBlockSize * mBlockSize;
     }
 
+    @Override
+    public void onConnectionAdded(ServerConfigData data) {
+        mUpdateThreadHandler.post(() -> {
+            mServerManagers.put(data.uuid, new ServerManager(data));
+        });
+    }
+
+    @Override
+    public void onConnectionRemoved(ServerConfigData data) {
+        mUpdateThreadHandler.post(() -> {
+            mServerManagers.get(data.uuid).remove();
+            mServerManagers.remove(data.uuid);
+        });
+    }
+
+    @Override
+    public void onConnectionUpdated(ServerConfigData data) {
+        requestUpdate(data.uuid);
+    }
+
     public class ServerManager {
 
+        private ServerConfigData mServerConfig;
         private File mLogsDir;
         private long mTotalSize = 0L;
         private Calendar mCurrentLogTime;
@@ -117,11 +204,16 @@ public class ChatLogStorageManager {
         private long mCurrentLogSize = 0L;
         private TreeSet<DeletionCandidate> mDeletionCandidates = new TreeSet<>();
 
-        public ServerManager(File logsDir) {
-            mLogsDir = logsDir;
+        public ServerManager(ServerConfigData config) {
+            mServerConfig = config;
             mCurrentLogTime = Calendar.getInstance();
+            mLogsDir = mServerConfigManager.getServerChatLogDir(config.uuid);
+            reload();
+        }
 
-            File[] files = logsDir.listFiles();
+        private void reload() {
+            remove();
+            File[] files = mLogsDir.listFiles();
             if (files == null)
                 return;
             mTotalSize = mBlockSize;
@@ -161,12 +253,15 @@ public class ChatLogStorageManager {
                 if (candidate.server == this)
                     iterator.remove();
             }
+            mTotalSize = 0L;
+            mCurrentLogFile = null;
+            mCurrentLogSize = 0L;
         }
 
         public void update(int currentYear, int currentMonth, int currentDay) {
             mTotalSize -= mCurrentLogSize;
             mGlobalTotalSize -= mCurrentLogSize;
-            mCurrentLogSize = getFileSize(mCurrentLogFile);
+            mCurrentLogSize = mCurrentLogFile == null ? 0L : getFileSize(mCurrentLogFile);
             mTotalSize += mCurrentLogSize;
             mGlobalTotalSize += mCurrentLogSize;
 
@@ -185,6 +280,32 @@ public class ChatLogStorageManager {
                 mCurrentLogSize = (mCurrentLogFile.length() + mBlockSize - 1) / mBlockSize * mBlockSize;
                 mTotalSize += mCurrentLogSize;
                 mGlobalTotalSize += mCurrentLogSize;
+            }
+
+            long limit = mServerConfig.storageLimit != 0L ? mServerConfig.storageLimit : mDefaultServerLimit;
+            if (limit != -1 && mTotalSize >= limit)
+                performDeletion(mTotalSize - limit);
+        }
+
+        private void performDeletion(long size) {
+            while (true) {
+                boolean deletedAnyFile = false;
+                for (Iterator<DeletionCandidate> iterator = mDeletionCandidates.iterator(); iterator.hasNext(); ) {
+                    DeletionCandidate candidate = iterator.next();
+                    mGlobalTotalSize -= candidate.size;
+                    File file = new File(candidate.server.mLogsDir, sFileNameFormat.format(candidate.dateMs));
+                    size -= getFileSize(file);
+                    deletedAnyFile = true;
+                    iterator.remove();
+                    if (size <= 0L) {
+                        if (mGlobalDeletionCandidates.size() == 0)
+                            reload();
+                        return;
+                    }
+                }
+                if (!deletedAnyFile)
+                    return;
+                reload();
             }
         }
 

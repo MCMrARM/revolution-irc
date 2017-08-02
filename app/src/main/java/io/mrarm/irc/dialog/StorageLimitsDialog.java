@@ -106,7 +106,6 @@ public class StorageLimitsDialog extends Dialog {
 
     @Override
     public void dismiss() {
-        super.dismiss();
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getContext()).edit();
         if (mGlobalLimitSeekBar.getProgress() == SIZES.length)
             editor.putLong(SettingsHelper.PREF_STORAGE_LIMIT_GLOBAL, -1L);
@@ -116,7 +115,9 @@ public class StorageLimitsDialog extends Dialog {
             editor.putLong(SettingsHelper.PREF_STORAGE_LIMIT_SERVER, -1L);
         else
             editor.putLong(SettingsHelper.PREF_STORAGE_LIMIT_SERVER, SIZES[mServerLimitSeekBar.getProgress()] * 1024L * 1024L);
-        editor.apply();
+        editor.commit();
+
+        super.dismiss();
     }
 
     private void updateLabel(SeekBar seekBar, TextView label) {
