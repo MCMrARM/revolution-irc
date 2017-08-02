@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import io.mrarm.chatlib.android.storage.SQLiteMessageStorageApi;
+import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.irc.config.CommandAliasManager;
 import io.mrarm.irc.config.NotificationRuleManager;
 import io.mrarm.irc.config.ServerConfigData;
@@ -31,6 +33,7 @@ import io.mrarm.irc.dialog.MenuBottomSheetDialog;
 import io.mrarm.irc.dialog.ServerStorageLimitDialog;
 import io.mrarm.irc.dialog.StorageLimitsDialog;
 import io.mrarm.irc.util.ColoredTextBuilder;
+import io.mrarm.irc.util.StubMessageStorageApi;
 import io.mrarm.irc.view.SimpleBarChart;
 
 public class StorageSettingsAdapter extends RecyclerView.Adapter {
@@ -146,7 +149,7 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
                         .setTitle(R.string.pref_storage_clear_all_chat_logs)
                         .setMessage(R.string.pref_storage_clear_all_chat_logs_confirm)
                         .setPositiveButton(R.string.action_delete, (DialogInterface di, int i) -> {
-                            new RemoveDataTask(v.getContext(), false).execute();
+                            new RemoveDataTask(v.getContext(), false, null).execute();
                         })
                         .setNegativeButton(R.string.action_cancel, null)
                         .show();
@@ -247,6 +250,7 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
                 }
             }
             menu.addItem(R.string.pref_storage_clear_server_chat_logs, R.drawable.ic_delete, (MenuBottomSheetDialog.Item it) -> {
+                new RemoveDataTask(itemView.getContext(), false, (UUID) mText.getTag()).execute();
                 return true;
             });
             menu.show();
@@ -284,7 +288,7 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
                         .setTitle(R.string.pref_storage_reset_configuration)
                         .setMessage(R.string.pref_storage_reset_configuration_confirm)
                         .setPositiveButton(R.string.action_reset, (DialogInterface di, int i) -> {
-                            new RemoveDataTask(v.getContext(), true).execute();
+                            new RemoveDataTask(v.getContext(), true, null).execute();
                         })
                         .setNegativeButton(R.string.action_cancel, null)
                         .show();
@@ -407,10 +411,12 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
         private Context mContext;
         private AlertDialog mAlertDialog;
         private boolean mDeleteConfig;
+        private UUID mDeleteServerLogs;
 
-        public RemoveDataTask(Context context, boolean deleteConfig) {
+        public RemoveDataTask(Context context, boolean deleteConfig, UUID deleteOnlyServerLogs) {
             mContext = context;
             mDeleteConfig = deleteConfig;
+            mDeleteServerLogs = deleteOnlyServerLogs;
             mAlertDialog = new AlertDialog.Builder(context)
                     .setCancelable(false)
                     .setView(R.layout.dialog_please_wait)
@@ -434,7 +440,18 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
                     deleteRecursive(file);
                 }
             }
-            deleteRecursive(ServerConfigManager.getInstance(mContext).getChatLogDir());
+            if (mDeleteServerLogs != null) {
+                deleteChatLogDir(mDeleteServerLogs);
+            } else {
+                File[] logFiles = ServerConfigManager.getInstance(mContext).getChatLogDir().listFiles();
+                for (File file : logFiles) {
+                    try {
+                        deleteChatLogDir(UUID.fromString(file.getName()));
+                    } catch (IllegalArgumentException ignored) {
+                        deleteRecursive(file);
+                    }
+                }
+            }
 
             return null;
         }
@@ -443,6 +460,26 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
         protected void onPostExecute(Void aVoid) {
             mAlertDialog.dismiss();
             refreshServerLogs(mContext);
+        }
+
+        private void deleteChatLogDir(UUID uuid) {
+            ServerConnectionManager connectionManager = ServerConnectionManager.getInstance(null);
+            ServerConnectionInfo connection = connectionManager != null ? connectionManager.getConnection(uuid) : null;
+            SQLiteMessageStorageApi storageApi = null;
+            if (connection != null && connection.getApiInstance() != null &&
+                    connection.getApiInstance() instanceof ServerConnectionApi &&
+                    connection.getApiInstance().getMessageStorageApi() != null &&
+                    connection.getApiInstance().getMessageStorageApi() instanceof SQLiteMessageStorageApi) {
+                storageApi = (SQLiteMessageStorageApi) connection.getApiInstance().getMessageStorageApi();
+                storageApi.close();
+                ((ServerConnectionApi) connection.getApiInstance()).getServerConnectionData().setMessageStorageApi(new StubMessageStorageApi());
+            }
+            File file = ServerConfigManager.getInstance(mContext).getServerChatLogDir(uuid);
+            deleteRecursive(file);
+            if (storageApi != null) {
+                storageApi.open();
+                ((ServerConnectionApi) connection.getApiInstance()).getServerConnectionData().setMessageStorageApi(storageApi);
+            }
         }
 
         private void deleteRecursive(File file) {
