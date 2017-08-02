@@ -78,6 +78,7 @@
     <string name="action_close_direct">Close conversation</string>
     <string name="action_clear_all">Clear all</string>
     <string name="action_reset">Reset</string>
+    <string name="action_exit">Exit</string>
 
     <string name="action_delete_confirm_title">Are you sure?</string>
     <string name="action_delete_confirm_body">Are you sure you want to delete %s? This cannot be undone.</string>

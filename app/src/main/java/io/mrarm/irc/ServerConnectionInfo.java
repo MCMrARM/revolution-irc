@@ -84,6 +84,7 @@ public class ServerConnectionInfo {
             if (mConnected || mConnecting)
                 return;
             mConnecting = true;
+            mUserDisconnectRequest = false;
         }
         Log.i("ServerConnectionInfo", "Connecting...");
 

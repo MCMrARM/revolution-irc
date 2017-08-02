@@ -34,6 +34,8 @@ import io.mrarm.irc.view.ChipsEditText;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static boolean sDoReconnectOnOpen = false;
+
     public static final String ARG_SERVER_UUID = "server_uuid";
     public static final String ARG_CHANNEL_NAME = "channel";
 
@@ -55,6 +57,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         ServerConnectionManager.getInstance(this);
+        if (sDoReconnectOnOpen) {
+            sDoReconnectOnOpen = false;
+            for (ServerConnectionInfo connection : ServerConnectionManager.getInstance(this).getConnections())
+                connection.connect();
+        }
         WarningHelper.setAppContext(getApplicationContext());
 
         if (SettingsHelper.getInstance(this).isNightModeEnabled())
@@ -216,6 +223,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         if (getCurrentFragment() instanceof ChatFragment) {
             getMenuInflater().inflate(R.menu.menu_chat, menu);
+        } else if (getCurrentFragment() instanceof ServerListFragment) {
+            getMenuInflater().inflate(R.menu.menu_server_list, menu);
         }
         return true;
     }
@@ -271,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
         if (id == R.id.action_join_channel) {
             View v = LayoutInflater.from(this).inflate(R.layout.dialog_chip_edit_text, null);
-            ChipsEditText editText = (ChipsEditText) v.findViewById(R.id.chip_edit_text);
+            ChipsEditText editText = v.findViewById(R.id.chip_edit_text);
             editText.startItemEdit();
             AlertDialog dialog = new AlertDialog.Builder(this)
                     .setTitle(R.string.action_join_channel)
@@ -316,6 +325,14 @@ public class MainActivity extends AppCompatActivity {
             ((ChatFragment) getCurrentFragment()).getConnectionInfo().connect();
         } else if (id == R.id.action_format) {
             ((ChatFragment) getCurrentFragment()).setFormatBarVisible(true);
+        } else if (id == R.id.action_settings) {
+            startActivity(new Intent(this, SettingsActivity.class));
+        } else if (id == R.id.action_exit) {
+            for (ServerConnectionInfo connection : ServerConnectionManager.getInstance(this).getConnections())
+                connection.disconnect();
+            IRCService.stop(this);
+            finish();
+            sDoReconnectOnOpen = true;
         } else {
             return super.onOptionsItemSelected(item);
         }
