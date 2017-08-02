@@ -10,11 +10,8 @@ import com.google.gson.Gson;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 
 import io.mrarm.irc.R;
 import io.mrarm.irc.dialog.StorageLimitsDialog;
@@ -32,7 +29,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     public static final String PREF_RECONNECT_CONNCHG = "reconnect_connchg";
     public static final String PREF_RECONNECT_WIFI = "reconnect_wifi";
     public static final String PREF_RECONNECT_INTERVAL = "reconnect_interval";
-    public static final String PREF_AUTOCONNECT_SERVERS = "connect_servers";
+    public static final String PREF_RECONNECT_REJOIN_CHANNELS = "reconnect_rejoin_channels";
     public static final String PREF_DARK_THEME = "dark_theme";
     public static final String PREF_CHAT_FONT = "chat_font";
     public static final String PREF_CHAT_FONT_SIZE = "chat_font_size";
@@ -174,25 +171,6 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
             }
         }
         return mCachedIntervalRules;
-    }
-
-    public List<UUID> getAutoConnectServerList() {
-        Set<String> set = mPreferences.getStringSet(PREF_AUTOCONNECT_SERVERS, null);
-        if (set == null)
-            return null;
-        List<UUID> ret = new ArrayList<>();
-        for (String s : set)
-            ret.add(UUID.fromString(s));
-        return ret;
-    }
-
-    public void setAutoConnectServerList(List<UUID> list) {
-        Set<String> set = new HashSet<>();
-        for (UUID uuid : list)
-            set.add(uuid.toString());
-        mPreferences.edit()
-                .putStringSet(PREF_AUTOCONNECT_SERVERS, set)
-                .apply();
     }
 
     public boolean isNightModeEnabled() {

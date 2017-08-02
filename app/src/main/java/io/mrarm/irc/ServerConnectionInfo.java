@@ -109,22 +109,23 @@ public class ServerConnectionInfo {
 
         IRCConnection fConnection = connection;
 
-        List<String> joinChannels = new ArrayList<>();
-        if (mChannels != null)
-            joinChannels.addAll(mChannels);
-        for (String channel : mServerConfig.autojoinChannels) {
-            if (!joinChannels.contains(channel))
-                joinChannels.add(channel);
-        }
+        List<String> rejoinChannels = getChannels();
 
         connection.connect(mConnectionRequest, (Void v) -> {
             synchronized (this) {
                 mConnecting = false;
                 setConnected(true);
                 mCurrentReconnectAttempt = 0;
-
-                fConnection.joinChannels(joinChannels, null, null);
             }
+
+            List<String> joinChannels = new ArrayList<>();
+            if (mServerConfig.autojoinChannels != null)
+                joinChannels.addAll(mServerConfig.autojoinChannels);
+            if (rejoinChannels != null && mServerConfig.rejoinChannels)
+                joinChannels.addAll(rejoinChannels);
+            if (joinChannels.size() > 0)
+                fConnection.joinChannels(joinChannels, null, null);
+
         }, (Exception e) -> {
             if (e instanceof UserOverrideTrustManager.UserRejectedCertificateException ||
                     (e.getCause() != null && e.getCause() instanceof

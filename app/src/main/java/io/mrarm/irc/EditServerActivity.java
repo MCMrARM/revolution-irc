@@ -61,6 +61,7 @@ public class EditServerActivity extends AppCompatActivity {
     private EditText mServerUser;
     private EditText mServerRealname;
     private ChipsEditText mServerChannels;
+    private CheckBox mServerRejoinChannels;
 
     private View mServerUserExpandIcon;
     private View mServerUserExpandContent;
@@ -111,26 +112,27 @@ public class EditServerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit_server);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mServerName = (EditText) findViewById(R.id.server_name);
-        mServerNameCtr = (TextInputLayout) findViewById(R.id.server_name_ctr);
-        mServerAddress = (EditText) findViewById(R.id.server_address_name);
-        mServerAddressCtr = (TextInputLayout) findViewById(R.id.server_address_name_ctr);
-        mServerPort = (EditText) findViewById(R.id.server_address_port);
-        mServerPortCtr = (TextInputLayout) findViewById(R.id.server_address_port_ctr);
-        mServerSSL = (CheckBox) findViewById(R.id.server_ssl_checkbox);
+        mServerName = findViewById(R.id.server_name);
+        mServerNameCtr = findViewById(R.id.server_name_ctr);
+        mServerAddress = findViewById(R.id.server_address_name);
+        mServerAddressCtr = findViewById(R.id.server_address_name_ctr);
+        mServerPort = findViewById(R.id.server_address_port);
+        mServerPortCtr = findViewById(R.id.server_address_port_ctr);
+        mServerSSL = findViewById(R.id.server_ssl_checkbox);
         mServerSSLCertsButton = findViewById(R.id.server_ssl_certs);
-        mServerSSLCertsLbl = (TextView) findViewById(R.id.server_ssl_cert_lbl);
-        mServerAuthMode = (Spinner) findViewById(R.id.server_auth_mode);
-        mServerAuthUser = (EditText) findViewById(R.id.server_username);
-        mServerAuthUserCtr = (TextInputLayout) findViewById(R.id.server_username_ctr);
-        mServerAuthPass = (EditText) findViewById(R.id.server_password);
-        mServerAuthPassCtr = (StaticLabelTextInputLayout) findViewById(R.id.server_password_ctr);
+        mServerSSLCertsLbl = findViewById(R.id.server_ssl_cert_lbl);
+        mServerAuthMode = findViewById(R.id.server_auth_mode);
+        mServerAuthUser = findViewById(R.id.server_username);
+        mServerAuthUserCtr = findViewById(R.id.server_username_ctr);
+        mServerAuthPass = findViewById(R.id.server_password);
+        mServerAuthPassCtr = findViewById(R.id.server_password_ctr);
         mServerAuthPassMainCtr = findViewById(R.id.server_password_main_ctr);
         mServerAuthPassReset = findViewById(R.id.server_password_reset);
-        mServerNick = (ChipsEditText) findViewById(R.id.server_nick);
-        mServerUser = (EditText) findViewById(R.id.server_user);
-        mServerRealname = (EditText) findViewById(R.id.server_realname);
-        mServerChannels = (ChipsEditText) findViewById(R.id.server_channels);
+        mServerNick = findViewById(R.id.server_nick);
+        mServerUser = findViewById(R.id.server_user);
+        mServerRealname = findViewById(R.id.server_realname);
+        mServerChannels = findViewById(R.id.server_channels);
+        mServerRejoinChannels = findViewById(R.id.server_rejoin_channels);
 
         mServerUserExpandIcon = findViewById(R.id.server_user_expand);
         mServerUserExpandContent = findViewById(R.id.server_user_expand_content);
@@ -184,6 +186,7 @@ public class EditServerActivity extends AppCompatActivity {
             mServerAddress.setText(mEditServer.address);
             mServerPort.setText(String.valueOf(mEditServer.port));
             mServerSSL.setChecked(mEditServer.ssl);
+            mServerRejoinChannels.setChecked(mEditServer.rejoinChannels);
 
             if (mEditServer.authPass != null) {
                 mServerAuthPassReset.setVisibility(View.VISIBLE);
@@ -303,6 +306,7 @@ public class EditServerActivity extends AppCompatActivity {
         if (mServerAuthPassReset.getVisibility() == View.GONE && authModePassword)
             mEditServer.authPass = mServerAuthPass.getText().length() > 0 ? mServerAuthPass.getText().toString() : null;
         mEditServer.autojoinChannels = mServerChannels.getItems();
+        mEditServer.rejoinChannels = mServerRejoinChannels.isChecked();
         try {
             ServerConfigManager.getInstance(this).saveServer(mEditServer);
         } catch (IOException e) {

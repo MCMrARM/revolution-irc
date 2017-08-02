@@ -26,7 +26,8 @@ public class ServerConfigData {
     public String realname;
 
     public List<String> autojoinChannels;
-    public List<String> lastJoinedChannels;
+    public boolean rejoinChannels = true;
+
     public List<IgnoreEntry> ignoreList;
 
     public long storageLimit;

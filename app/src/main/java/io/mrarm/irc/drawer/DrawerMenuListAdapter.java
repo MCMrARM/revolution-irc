@@ -328,7 +328,8 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
         public void bind(ServerConnectionInfo info, int channelIndex) {
             mConnection = info;
-            mChannel = info.getChannels().get(channelIndex);
+            List<String> channels = info.getChannels();
+            mChannel = channels.size() > channelIndex ? channels.get(channelIndex) : null;
             mName.setText(mChannel);
 
             if (mAdapter.mSelectedItemServer != null && mAdapter.mSelectedItemChannel != null &&

@@ -281,6 +281,7 @@
                 style="@style/EditServerIcon.TextInput" />
 
             <io.mrarm.irc.view.LabelLayout
+                android:id="@+id/server_channels_ctr"
                 style="@style/EditServerTextInput"
                 android:hint="@string/server_channels">
 
@@ -290,6 +291,16 @@
                     android:layout_height="wrap_content" />
 
             </io.mrarm.irc.view.LabelLayout>
+
+            <CheckBox
+                android:id="@+id/server_rejoin_channels"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/server_channels_icon"
+                android:layout_toEndOf="@id/server_channels_icon"
+                android:layout_below="@id/server_channels_ctr"
+                android:layout_marginTop="8dp"
+                android:text="@string/server_rejoin_channels" />
 
         </RelativeLayout>
 

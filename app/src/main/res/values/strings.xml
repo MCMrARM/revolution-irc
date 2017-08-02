@@ -135,6 +135,7 @@
     <string name="server_password_unchanged">Unchanged</string>
     <string name="server_authentication_mode">Authentication mode</string>
     <string name="server_channels">Auto-join channel list</string>
+    <string name="server_rejoin_channels">Rejoin opened channels</string>
     <string name="server_nicks">Nicknames</string>
     <string name="server_user">User</string>
     <string name="server_realname">Real name</string>
