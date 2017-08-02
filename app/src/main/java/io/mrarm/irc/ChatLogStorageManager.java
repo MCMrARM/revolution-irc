@@ -114,7 +114,7 @@ public class ChatLogStorageManager implements SharedPreferences.OnSharedPreferen
             if (manager != null)
                 manager.update(currentYear, currentMonth, currentDay);
         }
-        if (mGlobalTotalSize > mGlobalLimit)
+        if (mGlobalLimit != -1L && mGlobalTotalSize > mGlobalLimit)
             performGlobalDeletion(mGlobalTotalSize - mGlobalLimit);
     }
 
@@ -283,7 +283,7 @@ public class ChatLogStorageManager implements SharedPreferences.OnSharedPreferen
             }
 
             long limit = mServerConfig.storageLimit != 0L ? mServerConfig.storageLimit : mDefaultServerLimit;
-            if (limit != -1 && mTotalSize >= limit)
+            if (limit != -1L && mTotalSize >= limit)
                 performDeletion(mTotalSize - limit);
         }
 

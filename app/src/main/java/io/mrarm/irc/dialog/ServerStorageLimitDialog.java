@@ -25,7 +25,10 @@ public class ServerStorageLimitDialog extends AlertDialog {
         super(context);
 
         setButton(AlertDialog.BUTTON_POSITIVE, getContext().getString(R.string.action_ok), (DialogInterface di, int i) -> {
-            mServer.storageLimit = StorageLimitsDialog.SIZES[mSeekBar.getProgress()] * 1024L * 1024L;
+            if (mSeekBar.getProgress() == StorageLimitsDialog.SIZES.length)
+                mServer.storageLimit = -1L;
+            else
+                mServer.storageLimit = StorageLimitsDialog.SIZES[mSeekBar.getProgress()] * 1024L * 1024L;
             try {
                 ServerConfigManager.getInstance(getContext()).saveServer(server);
             } catch (IOException ignored) {
@@ -42,11 +45,11 @@ public class ServerStorageLimitDialog extends AlertDialog {
 
         mSeekBar = findViewById(R.id.seekbar);
         TextView valueText = findViewById(R.id.value);
-        mSeekBar.setMax(StorageLimitsDialog.SIZES.length - 1);
+        mSeekBar.setMax(StorageLimitsDialog.SIZES.length);
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                valueText.setText(StorageLimitsDialog.SIZES[i] + " MB");
+                StorageLimitsDialog.updateLabel(mSeekBar, valueText);
             }
 
             @Override
@@ -57,12 +60,18 @@ public class ServerStorageLimitDialog extends AlertDialog {
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
-        if (mServer.storageLimit == 0L) {
+        if (mServer.storageLimit == -1L) {
+            mSeekBar.setProgress(StorageLimitsDialog.SIZES.length);
+        } else if (mServer.storageLimit == 0L) {
             SettingsHelper settings = SettingsHelper.getInstance(getContext());
-            mSeekBar.setProgress(StorageLimitsDialog.findNearestSizeIndex(settings.getStorageLimitGlobal()));
+            long limit = settings.getStorageLimitGlobal();
+            if (limit == -1L)
+                mSeekBar.setProgress(StorageLimitsDialog.SIZES.length);
+            else
+                mSeekBar.setProgress(StorageLimitsDialog.findNearestSizeIndex(limit));
         } else {
             mSeekBar.setProgress(StorageLimitsDialog.findNearestSizeIndex(mServer.storageLimit));
         }
-        valueText.setText(StorageLimitsDialog.SIZES[mSeekBar.getProgress()] + " MB");
+        StorageLimitsDialog.updateLabel(mSeekBar, valueText);
     }
 }

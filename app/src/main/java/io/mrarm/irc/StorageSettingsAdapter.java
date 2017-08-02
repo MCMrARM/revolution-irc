@@ -226,7 +226,10 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
                     builder.append(mText.getContext().getString(R.string.pref_storage_change_server_limit));
                     builder.setSpan(new ForegroundColorSpan(mSecondaryTextColor));
                     builder.append(" (");
-                    builder.append((server.storageLimit / 1024L / 1024L) + " MB");
+                    if (server.storageLimit == -1L)
+                        builder.append(itemView.getContext().getString(R.string.pref_storage_no_limit));
+                    else
+                        builder.append((server.storageLimit / 1024L / 1024L) + " MB");
                     builder.append(")");
                     menu.addItem(builder.getSpannable(), R.drawable.ic_storage, (MenuBottomSheetDialog.Item it) -> {
                         ServerStorageLimitDialog dialog = new ServerStorageLimitDialog(itemView.getContext(), server);

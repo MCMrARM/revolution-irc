@@ -77,9 +77,17 @@ public class StorageLimitsDialog extends Dialog {
         });
 
         SettingsHelper settings = SettingsHelper.getInstance(getContext());
-        mGlobalLimitSeekBar.setProgress(findNearestSizeIndex(settings.getStorageLimitGlobal()));
+        long v = settings.getStorageLimitGlobal();
+        if (v == -1L)
+            mGlobalLimitSeekBar.setProgress(SIZES.length);
+        else
+            mGlobalLimitSeekBar.setProgress(findNearestSizeIndex(v));
         mServerLimitSeekBar.setMax(mGlobalLimitSeekBar.getProgress());
-        mServerLimitSeekBar.setProgress(findNearestSizeIndex(settings.getStorageLimitServer()));
+        v = settings.getStorageLimitServer();
+        if (v == -1L)
+            mServerLimitSeekBar.setProgress(SIZES.length);
+        else
+            mServerLimitSeekBar.setProgress(findNearestSizeIndex(v));
         updateLabel(mGlobalLimitSeekBar, globalLimitValue);
         updateLabel(mServerLimitSeekBar, serverLimitValue);
     }
@@ -120,7 +128,7 @@ public class StorageLimitsDialog extends Dialog {
         super.dismiss();
     }
 
-    private void updateLabel(SeekBar seekBar, TextView label) {
+    public static void updateLabel(SeekBar seekBar, TextView label) {
         if (seekBar.getProgress() >= SIZES.length) {
             label.setText(R.string.pref_storage_no_limit);
             return;
