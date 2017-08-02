@@ -8,7 +8,6 @@ import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
-import android.text.util.Linkify;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -239,13 +238,13 @@ public class MessageBuilder {
         switch (message.getType()) {
             case NORMAL:
                 return processFormat(mMessageFormat, message.getDate(), senderNick,
-                        addLinks(IRCColorUtils.getFormattedString(mContext, message.getMessage())));
+                        LinkHelper.addLinks(IRCColorUtils.getFormattedString(mContext, message.getMessage())));
             case NOTICE:
                 return processFormat(mNoticeMessageFormat, message.getDate(), senderNick,
-                        addLinks(IRCColorUtils.getFormattedString(mContext, message.getMessage())));
+                        LinkHelper.addLinks(IRCColorUtils.getFormattedString(mContext, message.getMessage())));
             case ME:
                 return processFormat(mActionMessageFormat, message.getDate(), senderNick,
-                        addLinks(IRCColorUtils.getFormattedString(mContext, message.getMessage())));
+                        LinkHelper.addLinks(IRCColorUtils.getFormattedString(mContext, message.getMessage())));
             case JOIN:
                 return processFormat(mEventMessageFormat, message.getDate(), null,
                         SpannableStringHelper.getText(mContext, R.string.message_join, buildColoredNick(senderNick)));
@@ -274,7 +273,7 @@ public class MessageBuilder {
 
     public CharSequence buildStatusMessage(StatusMessageInfo message, CharSequence text) {
         return processFormat(mMessageFormat, message.getDate(), message.getSender(),
-                IRCColorUtils.getStatusTextColor(mContext), addLinks(text));
+                IRCColorUtils.getStatusTextColor(mContext), LinkHelper.addLinks(text));
     }
 
     private CharSequence buildModeMessage(String senderNick,
@@ -428,11 +427,6 @@ public class MessageBuilder {
         if (builder.length() > 0)
             builder.append(mContext.getString(R.string.text_comma));
         builder.append(seq);
-    }
-
-    private static CharSequence addLinks(CharSequence spannable) {
-        Linkify.addLinks((Spannable) spannable, Linkify.WEB_URLS);
-        return spannable;
     }
 
     private CharSequence processFormat(CharSequence format, Date date, String sender,

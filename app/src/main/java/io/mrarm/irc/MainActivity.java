@@ -206,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
         return mDrawerHelper;
     }
 
-    private Fragment getCurrentFragment() {
+    public Fragment getCurrentFragment() {
         return getSupportFragmentManager().findFragmentById(R.id.content_frame);
     }
 

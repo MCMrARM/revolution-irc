@@ -215,10 +215,12 @@ public class ServerConnectionInfo {
     public void setChannels(List<String> channels) {
         synchronized (this) {
             mChannels = channels;
-            for (ChannelListChangeListener listener : mChannelsListeners)
-                listener.onChannelListChanged(this, channels);
             mManager.notifyChannelListChanged(this, channels);
             mManager.saveAutoconnectListAsync();
+        }
+        synchronized (mChannelsListeners) {
+            for (ChannelListChangeListener listener : mChannelsListeners)
+                listener.onChannelListChanged(this, channels);
         }
     }
 

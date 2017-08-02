@@ -36,6 +36,12 @@ public class MenuBottomSheetDialog extends BottomSheetDialog {
         ta.recycle();
     }
 
+    public void addHeader(CharSequence text) {
+        HeaderItem item = new HeaderItem();
+        item.mText = text;
+        mItems.add(item);
+    }
+
     public void addItem(int stringId, int iconId, OnItemClickListener listener) {
         addItem(getContext().getString(stringId), iconId, listener);
     }
@@ -56,6 +62,12 @@ public class MenuBottomSheetDialog extends BottomSheetDialog {
 
     }
 
+    public static class HeaderItem {
+
+        CharSequence mText;
+
+    }
+
     public interface OnItemClickListener {
 
         boolean onClick(Item item);
@@ -66,6 +78,7 @@ public class MenuBottomSheetDialog extends BottomSheetDialog {
     protected class ItemAdapter extends RecyclerView.Adapter {
 
         private static final int TYPE_ITEM = 0;
+        private static final int TYPE_HEADER = 1;
 
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -73,6 +86,11 @@ public class MenuBottomSheetDialog extends BottomSheetDialog {
                 View view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.dialog_bottom_menu_item, parent, false);
                 return new ItemHolder(view);
+            }
+            if (viewType == TYPE_HEADER) {
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.dialog_bottom_menu_header, parent, false);
+                return new HeaderItemHolder(view);
             }
             return null;
         }
@@ -83,6 +101,8 @@ public class MenuBottomSheetDialog extends BottomSheetDialog {
             int type = holder.getItemViewType();
             if (type == TYPE_ITEM)
                 ((ItemHolder) holder).bind((Item) item);
+            if (type == TYPE_HEADER)
+                ((HeaderItemHolder) holder).bind((HeaderItem) item);
         }
 
         @Override
@@ -95,6 +115,8 @@ public class MenuBottomSheetDialog extends BottomSheetDialog {
             Object item = mItems.get(position);
             if (item instanceof Item)
                 return TYPE_ITEM;
+            if (item instanceof HeaderItem)
+                return TYPE_HEADER;
             return -1;
         }
 
@@ -118,6 +140,21 @@ public class MenuBottomSheetDialog extends BottomSheetDialog {
 
         public void bind(Item item) {
             mIcon.setImageResource(item.mIconId);
+            mText.setText(item.mText);
+        }
+
+    }
+
+    protected class HeaderItemHolder extends RecyclerView.ViewHolder {
+
+        private TextView mText;
+
+        public HeaderItemHolder(View itemView) {
+            super(itemView);
+            mText = itemView.findViewById(R.id.text);
+        }
+
+        public void bind(HeaderItem item) {
             mText.setText(item.mText);
         }
 
