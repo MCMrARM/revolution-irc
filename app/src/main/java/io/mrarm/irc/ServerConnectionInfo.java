@@ -17,7 +17,7 @@ import io.mrarm.chatlib.irc.cap.SASLCapability;
 import io.mrarm.chatlib.irc.cap.SASLOptions;
 import io.mrarm.chatlib.irc.filters.ZNCPlaybackMessageFilter;
 import io.mrarm.irc.config.ServerConfigManager;
-import io.mrarm.irc.util.FilteredStorageApi;
+import io.mrarm.irc.util.IgnoreListMessageFilter;
 import io.mrarm.irc.config.SettingsHelper;
 
 public class ServerConnectionInfo {
@@ -102,9 +102,8 @@ public class ServerConnectionInfo {
         if (mApi == null || !(mApi instanceof IRCConnection)) {
             connection = new IRCConnection();
             ServerConfigManager configManager = ServerConfigManager.getInstance(mManager.getContext());
-            connection.getServerConnectionData().setMessageStorageApi(new FilteredStorageApi(
-                    new SQLiteMessageStorageApi(configManager.getServerChatLogDir(mUUID)),
-                    configManager.findServer(mUUID)));
+            connection.getServerConnectionData().setMessageStorageApi(new SQLiteMessageStorageApi(configManager.getServerChatLogDir(mUUID)));
+            connection.getServerConnectionData().getMessageFilterList().addMessageFilter(new IgnoreListMessageFilter(configManager.findServer(mUUID)));
             if (mSASLOptions != null)
                 connection.getServerConnectionData().getCapabilityManager().registerCapability(
                         new SASLCapability(mSASLOptions));
