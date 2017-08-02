@@ -113,6 +113,7 @@ public class ServerConnectionManager {
             for (ConnectionsListener listener : mListeners)
                 listener.onConnectionAdded(connection);
         }
+        IRCService.start(mContext);
     }
 
     public void addConnection(ServerConnectionInfo connection) {
@@ -175,6 +176,8 @@ public class ServerConnectionManager {
             mConnectionsMap.remove(connection.getUUID());
             if (saveAutoconnect)
                 saveAutoconnectListAsync();
+            if (mConnections.size() == 0)
+                IRCService.stop(mContext);
         }
         synchronized (mListeners) {
             for (ConnectionsListener listener : mListeners)

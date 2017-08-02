@@ -54,8 +54,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        ServerConnectionManager.getInstance(this);
         WarningHelper.setAppContext(getApplicationContext());
-        IRCService.start(this);
 
         if (SettingsHelper.getInstance(this).isNightModeEnabled())
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerLayout = findViewById(R.id.drawer_layout);
 
         mDrawerHelper = new DrawerHelper(this);
         mDrawerHelper.registerListeners();
@@ -311,7 +311,6 @@ public class MainActivity extends AppCompatActivity {
             ServerConnectionInfo info = ((ChatFragment) getCurrentFragment()).getConnectionInfo();
             info.disconnect();
             ServerConnectionManager.getInstance(this).removeConnection(info);
-            IRCService.start(this);
             openManageServers();
         } else if (id == R.id.action_reconnect) {
             ((ChatFragment) getCurrentFragment()).getConnectionInfo().connect();

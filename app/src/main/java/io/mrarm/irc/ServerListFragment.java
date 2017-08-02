@@ -69,20 +69,17 @@ public class ServerListFragment extends Fragment {
             menu.addItem(R.string.action_disconnect_and_close, R.drawable.ic_close, (MenuBottomSheetDialog.Item item) -> {
                 info.disconnect();
                 ServerConnectionManager.getInstance(getContext()).removeConnection(info);
-                IRCService.start(getContext());
                 return true;
             });
             menu.show();
         });
         mAdapter.setInactiveServerClickListener((ServerConfigData data) -> {
             ServerConnectionManager.getInstance(getContext()).createConnection(data);
-            IRCService.start(getContext());
         });
         mAdapter.setInactiveServerLongClickListener((ServerConfigData data) -> {
             MenuBottomSheetDialog menu = new MenuBottomSheetDialog(getContext());
             menu.addItem(R.string.action_connect, R.drawable.ic_server_connected, (MenuBottomSheetDialog.Item item) -> {
                 ServerConnectionManager.getInstance(getContext()).createConnection(data);
-                IRCService.start(getContext());
                 return true;
             });
             menu.addItem(R.string.action_edit, R.drawable.ic_edit, (MenuBottomSheetDialog.Item item) -> {
