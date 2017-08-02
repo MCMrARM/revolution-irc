@@ -2,7 +2,13 @@ package io.mrarm.irc;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.os.AsyncTask;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,9 +24,12 @@ import io.mrarm.irc.config.SettingsHelper;
 
 public class ServerConnectionManager {
 
+    public static final String CONNECTED_SERVERS_FILE_PATH = "connected_servers.json";
+
     private static ServerConnectionManager instance;
 
     private final Context mContext;
+    private final File mConnectedServersFile;
     private final HashMap<UUID, ServerConnectionInfo> mConnectionsMap = new HashMap<>();
     private final ArrayList<ServerConnectionInfo> mConnections = new ArrayList<>();
     private final List<ConnectionsListener> mListeners = new ArrayList<>();
@@ -36,25 +45,51 @@ public class ServerConnectionManager {
     public ServerConnectionManager(Context context) {
         mContext = context;
 
-        ServerConfigManager configManager = ServerConfigManager.getInstance(context);
-        SettingsHelper settings = SettingsHelper.getInstance(mContext);
-        List<UUID> uuids = settings.getAutoConnectServerList();
-        if (uuids != null) {
-            for (UUID uuid : uuids) {
-                ServerConfigData configData = configManager.findServer(uuid);
+        mConnectedServersFile = new File(context.getFilesDir(), CONNECTED_SERVERS_FILE_PATH);
+        ConnectedServersList servers = null;
+        try {
+            servers = SettingsHelper.getGson().fromJson(new BufferedReader(new FileReader(mConnectedServersFile)), ConnectedServersList.class);
+        } catch (Exception ignored) {
+        }
+
+        if (servers != null) {
+            ServerConfigManager configManager = ServerConfigManager.getInstance(context);
+            for (ConnectedServerInfo server : servers.servers) {
+                ServerConfigData configData = configManager.findServer(server.uuid);
                 if (configData != null)
-                    createConnection(configData, false);
+                    createConnection(configData, server.channels, false);
             }
         }
     }
 
     private void saveAutoconnectList() {
-        List<UUID> uuids = new ArrayList<>();
+        ConnectedServersList list = new ConnectedServersList();
+        list.servers = new ArrayList<>();
         synchronized (this) {
-            uuids.addAll(mConnectionsMap.keySet());
+            for (ServerConnectionInfo connectionInfo : mConnections) {
+                ConnectedServerInfo server = new ConnectedServerInfo();
+                server.uuid = connectionInfo.getUUID();
+                server.channels = connectionInfo.getChannels();
+                list.servers.add(server);
+            }
         }
-        SettingsHelper settings = SettingsHelper.getInstance(mContext);
-        settings.setAutoConnectServerList(uuids);
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(mConnectedServersFile));
+            SettingsHelper.getGson().toJson(list, writer);
+            writer.close();
+        } catch (Exception ignored) {
+        }
+    }
+
+    void saveAutoconnectListAsync() {
+        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                saveAutoconnectList();
+                return null;
+            }
+        };
+        task.execute();
     }
 
     public Context getContext() {
@@ -72,7 +107,7 @@ public class ServerConnectionManager {
             mConnectionsMap.put(connection.getUUID(), connection);
             mConnections.add(connection);
             if (saveAutoconnect)
-                saveAutoconnectList();
+                saveAutoconnectListAsync();
         }
         synchronized (mListeners) {
             for (ConnectionsListener listener : mListeners)
@@ -84,7 +119,7 @@ public class ServerConnectionManager {
         addConnection(connection, true);
     }
 
-    private ServerConnectionInfo createConnection(ServerConfigData data, boolean saveAutoconnect) {
+    private ServerConnectionInfo createConnection(ServerConfigData data, List<String> joinChannels, boolean saveAutoconnect) {
         SettingsHelper settings = SettingsHelper.getInstance(mContext);
 
         IRCConnectionRequest request = new IRCConnectionRequest();
@@ -123,14 +158,14 @@ public class ServerConnectionManager {
             UserOverrideTrustManager sslHelper = new UserOverrideTrustManager(mContext, data.uuid);
             request.enableSSL(sslHelper.createSocketFactory(), sslHelper);
         }
-        ServerConnectionInfo connectionInfo = new ServerConnectionInfo(this, data.uuid, data.name, request, saslOptions, data.autojoinChannels);
+        ServerConnectionInfo connectionInfo = new ServerConnectionInfo(this, data, request, saslOptions, joinChannels);
         connectionInfo.connect();
         addConnection(connectionInfo, saveAutoconnect);
         return connectionInfo;
     }
 
     public ServerConnectionInfo createConnection(ServerConfigData data) {
-        return createConnection(data, true);
+        return createConnection(data, null, true);
     }
 
     public void removeConnection(ServerConnectionInfo connection, boolean saveAutoconnect) {
@@ -139,7 +174,7 @@ public class ServerConnectionManager {
             mConnections.remove(connection);
             mConnectionsMap.remove(connection.getUUID());
             if (saveAutoconnect)
-                saveAutoconnectList();
+                saveAutoconnectListAsync();
         }
         synchronized (mListeners) {
             for (ConnectionsListener listener : mListeners)
@@ -155,7 +190,7 @@ public class ServerConnectionManager {
         synchronized (this) {
             while (mConnections.size() > 0)
                 removeConnection(mConnections.get(mConnections.size() - 1), false);
-            saveAutoconnectList();
+            saveAutoconnectListAsync();
         }
     }
 
@@ -260,6 +295,19 @@ public class ServerConnectionManager {
         void onConnectionAdded(ServerConnectionInfo connection);
 
         void onConnectionRemoved(ServerConnectionInfo connection);
+
+    }
+
+    private static class ConnectedServerInfo {
+
+        public UUID uuid;
+        public List<String> channels;
+
+    }
+
+    private static class ConnectedServersList {
+
+        public List<ConnectedServerInfo> servers;
 
     }
 

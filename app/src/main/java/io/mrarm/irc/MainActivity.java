@@ -3,7 +3,6 @@ package io.mrarm.irc;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -21,13 +20,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.UUID;
 
 import io.mrarm.chatlib.ChatApi;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
-import io.mrarm.chatlib.test.TestApiImpl;
 import io.mrarm.irc.chat.ChatFragment;
 import io.mrarm.irc.dialog.UserSearchDialog;
 import io.mrarm.irc.drawer.DrawerHelper;
@@ -47,8 +43,6 @@ public class MainActivity extends AppCompatActivity {
     private Toolbar mToolbar;
     private boolean mBackReturnToServerList;
 
-    private static ServerConnectionInfo mTestConnection;
-
     public static Intent getLaunchIntent(Context context, ServerConnectionInfo server, String channel) {
         Intent intent = new Intent(context, MainActivity.class);
         if (server != null)
@@ -56,24 +50,6 @@ public class MainActivity extends AppCompatActivity {
         if (channel != null)
             intent.putExtra(ARG_CHANNEL_NAME, channel);
         return intent;
-    }
-
-    private void createTestFileConnection() {
-        if (mTestConnection != null)
-            return;
-
-        TestApiImpl api = new TestApiImpl("test-user");
-
-        BufferedReader reader = new BufferedReader(new InputStreamReader(getResources().openRawResource(R.raw.testdata)));
-        try {
-            api.readTestChatLog(reader);
-        } catch (Throwable t) {
-            throw new RuntimeException(t);
-        }
-
-        mTestConnection = new ServerConnectionInfo(ServerConnectionManager.getInstance(this), UUID.randomUUID(), "Test Connection", api);
-        ServerConnectionManager.getInstance(this).addConnection(mTestConnection);
-        mTestConnection.setConnected(true);
     }
 
     @Override
@@ -86,8 +62,6 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        //createTestFileConnection();
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 

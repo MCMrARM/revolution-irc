@@ -16,6 +16,7 @@ import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.chatlib.irc.cap.SASLCapability;
 import io.mrarm.chatlib.irc.cap.SASLOptions;
 import io.mrarm.chatlib.irc.filters.ZNCPlaybackMessageFilter;
+import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.util.IgnoreListMessageFilter;
 import io.mrarm.irc.config.SettingsHelper;
@@ -25,13 +26,11 @@ public class ServerConnectionInfo {
     private static Handler mReconnectHandler = new Handler();
 
     private ServerConnectionManager mManager;
-    private UUID mUUID;
-    private String mName;
+    private ServerConfigData mServerConfig;
     private List<String> mChannels;
     private ChatApi mApi;
     private IRCConnectionRequest mConnectionRequest;
     private SASLOptions mSASLOptions;
-    private List<String> mAutojoinChannels;
     private boolean mExpandedInDrawer = true;
     private boolean mConnected = false;
     private boolean mConnecting = false;
@@ -42,24 +41,15 @@ public class ServerConnectionInfo {
     private int mCurrentReconnectAttempt = -1;
     int mChatLogStorageUpdateCounter = 0;
 
-    public ServerConnectionInfo(ServerConnectionManager manager, UUID uuid, String name,
+    public ServerConnectionInfo(ServerConnectionManager manager, ServerConfigData config,
                                 IRCConnectionRequest connectionRequest, SASLOptions saslOptions,
-                                List<String> autojoinChannels) {
+                                List<String> joinChannels) {
         mManager = manager;
-        mUUID = uuid;
-        mName = name;
+        mServerConfig = config;
         mConnectionRequest = connectionRequest;
-        mAutojoinChannels = autojoinChannels;
         mSASLOptions = saslOptions;
         mNotificationData = new NotificationManager.ConnectionManager(this);
-    }
-
-    public ServerConnectionInfo(ServerConnectionManager manager, UUID uuid, String name, ChatApi api) {
-        mManager = manager;
-        mUUID = uuid;
-        mName = name;
-        mNotificationData = new NotificationManager.ConnectionManager(this);
-        setApi(api);
+        mChannels = joinChannels;
     }
 
     private void setApi(ChatApi api) {
@@ -102,8 +92,8 @@ public class ServerConnectionInfo {
         if (mApi == null || !(mApi instanceof IRCConnection)) {
             connection = new IRCConnection();
             ServerConfigManager configManager = ServerConfigManager.getInstance(mManager.getContext());
-            connection.getServerConnectionData().setMessageStorageApi(new SQLiteMessageStorageApi(configManager.getServerChatLogDir(mUUID)));
-            connection.getServerConnectionData().getMessageFilterList().addMessageFilter(new IgnoreListMessageFilter(configManager.findServer(mUUID)));
+            connection.getServerConnectionData().setMessageStorageApi(new SQLiteMessageStorageApi(configManager.getServerChatLogDir(getUUID())));
+            connection.getServerConnectionData().getMessageFilterList().addMessageFilter(new IgnoreListMessageFilter(mServerConfig));
             if (mSASLOptions != null)
                 connection.getServerConnectionData().getCapabilityManager().registerCapability(
                         new SASLCapability(mSASLOptions));
@@ -119,13 +109,22 @@ public class ServerConnectionInfo {
 
         IRCConnection fConnection = connection;
 
+        List<String> joinChannels = new ArrayList<>();
+        if (mChannels != null)
+            joinChannels.addAll(mChannels);
+        for (String channel : mServerConfig.autojoinChannels) {
+            if (!joinChannels.contains(channel))
+                joinChannels.add(channel);
+        }
+
         connection.connect(mConnectionRequest, (Void v) -> {
             synchronized (this) {
                 mConnecting = false;
                 setConnected(true);
                 mCurrentReconnectAttempt = 0;
+
+                fConnection.joinChannels(joinChannels, null, null);
             }
-            fConnection.joinChannels(mAutojoinChannels, null, null);
         }, (Exception e) -> {
             if (e instanceof UserOverrideTrustManager.UserRejectedCertificateException ||
                     (e.getCause() != null && e.getCause() instanceof
@@ -173,11 +172,11 @@ public class ServerConnectionInfo {
     }
 
     public UUID getUUID() {
-        return mUUID;
+        return mServerConfig.uuid;
     }
 
     public String getName() {
-        return mName;
+        return mServerConfig.name;
     }
 
     public ChatApi getApiInstance() {
@@ -217,6 +216,7 @@ public class ServerConnectionInfo {
             for (ChannelListChangeListener listener : mChannelsListeners)
                 listener.onChannelListChanged(this, channels);
             mManager.notifyChannelListChanged(this, channels);
+            mManager.saveAutoconnectListAsync();
         }
     }
 
