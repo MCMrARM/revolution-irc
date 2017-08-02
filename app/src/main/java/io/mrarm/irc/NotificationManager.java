@@ -36,12 +36,13 @@ public class NotificationManager {
 
     public void processMessage(Context context, ServerConnectionInfo connection, String channel,
                                MessageInfo info) {
-        if (info.getMessage() == null || info.getSender().getNick().equals(
-                connection.getUserNick()))
-            return;
-
         ChannelNotificationManager channelManager = connection.getNotificationManager().getChannelManager(channel, true);
         channelManager.addUnreadMessage();
+
+        if (info.getMessage() == null || info.getSender() == null ||
+                info.getSender().getNick().equals(connection.getUserNick()))
+            return;
+
         NotificationRule rule = findNotificationRule(connection, channel, info);
         if (rule == null || rule.settings.noNotification)
             return;

@@ -265,6 +265,15 @@ public class MessageBuilder {
             case MODE:
                 return processFormat(mEventMessageFormat, message.getDate(), null,
                         buildModeMessage(senderNick, ((ChannelModeMessageInfo) message).getEntries()));
+            case TOPIC:
+                if (message.getSender() == null)
+                    return processFormat(mEventMessageFormat, message.getDate(), null,
+                            SpannableStringHelper.getText(mContext, R.string.message_topic,
+                                    buildColoredMessage(message.getMessage(), IRCColorUtils.getTopicTextColor(mContext))));
+                return processFormat(mEventMessageFormat, message.getDate(), null,
+                        SpannableStringHelper.getText(mContext, R.string.message_topic_by,
+                                buildColoredMessage(message.getMessage(), IRCColorUtils.getTopicTextColor(mContext)),
+                                buildColoredNick(senderNick)));
             case DISCONNECT_WARNING:
                 return buildDisconnectWarning(message.getDate());
         }

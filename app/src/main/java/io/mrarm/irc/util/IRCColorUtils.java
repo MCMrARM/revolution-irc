@@ -48,6 +48,10 @@ public class IRCColorUtils {
         return context.getResources().getColor(R.color.messageTimestamp);
     }
 
+    public static int getTopicTextColor(Context context) {
+        return context.getResources().getColor(R.color.messageTopic);
+    }
+
     public static int getBanMaskColor(Context context) {
         return context.getResources().getColor(R.color.ircLightRed);
     }

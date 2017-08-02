@@ -20,6 +20,7 @@
 
     <color name="messageTimestamp">#9E9E9E</color>
     <color name="messageStatusText">#BDBDBD</color>
+    <color name="messageTopic">#fff</color>
 
     <color name="ircGray">#757575</color>
     <color name="ircLightGray">#E0E0E0</color>
