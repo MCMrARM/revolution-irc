@@ -67,6 +67,27 @@
             <android.support.design.widget.TextInputLayout style="@style/MessageFormatSettingsTextInputLayout">
 
                 <io.mrarm.irc.view.FormattableEditText
+                    android:id="@+id/message_format_normal_mention"
+                    style="@style/EditTextWithExpandIcon"
+                    android:hint="@string/message_format_normal_mention" />
+
+                <ImageButton
+                    android:id="@+id/message_format_normal_mention_preset"
+                    style="@style/EditTextExpandIconButton"
+                    android:contentDescription="@string/value_preset"
+                    app:srcCompat="@drawable/ic_expand" />
+
+            </android.support.design.widget.TextInputLayout>
+
+            <TextView
+                android:id="@+id/message_format_normal_mention_example"
+                style="@style/MessageFormatSettingsExampleText" />
+
+            <View style="@style/MessageFormatSettingsDivider" />
+
+            <android.support.design.widget.TextInputLayout style="@style/MessageFormatSettingsTextInputLayout">
+
+                <io.mrarm.irc.view.FormattableEditText
                     android:id="@+id/message_format_action"
                     style="@style/EditTextWithExpandIcon"
                     android:hint="@string/message_format_action" />
@@ -81,6 +102,27 @@
 
             <TextView
                 android:id="@+id/message_format_action_example"
+                style="@style/MessageFormatSettingsExampleText" />
+
+            <View style="@style/MessageFormatSettingsDivider" />
+
+            <android.support.design.widget.TextInputLayout style="@style/MessageFormatSettingsTextInputLayout">
+
+                <io.mrarm.irc.view.FormattableEditText
+                    android:id="@+id/message_format_action_mention"
+                    style="@style/EditTextWithExpandIcon"
+                    android:hint="@string/message_format_action_mention" />
+
+                <ImageButton
+                    android:id="@+id/message_format_action_mention_preset"
+                    style="@style/EditTextExpandIconButton"
+                    android:contentDescription="@string/value_preset"
+                    app:srcCompat="@drawable/ic_expand" />
+
+            </android.support.design.widget.TextInputLayout>
+
+            <TextView
+                android:id="@+id/message_format_action_mention_example"
                 style="@style/MessageFormatSettingsExampleText" />
 
             <View style="@style/MessageFormatSettingsDivider" />

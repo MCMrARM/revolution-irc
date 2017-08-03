@@ -246,6 +246,10 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             mConnection.getApiInstance().unsubscribeStatusMessages(ChatMessagesFragment.this, null, null);
     }
 
+    public ServerConnectionInfo getConnectionInfo() {
+        return mConnection;
+    }
+
     public String getChannelName() {
         return mChannelName;
     }

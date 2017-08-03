@@ -25,6 +25,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.lang.reflect.Type;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -44,8 +45,12 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
     private View mDateFormatPresetButton;
     private FormattableEditText mMessageFormatNormal;
     private TextView mMessageFormatNormalExample;
+    private FormattableEditText mMessageFormatNormalMention;
+    private TextView mMessageFormatNormalMentionExample;
     private FormattableEditText mMessageFormatAction;
     private TextView mMessageFormatActionExample;
+    private FormattableEditText mMessageFormatActionMention;
+    private TextView mMessageFormatActionMentionExample;
     private FormattableEditText mMessageFormatNotice;
     private TextView mMessageFormatNoticeExample;
     private FormattableEditText mMessageFormatEvent;
@@ -134,8 +139,19 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
             mMessageBuilder.setMessageFormat(prepareFormat(s));
             refreshExamples();
         }, new CharSequence[] {
-                buildPresetMessageFormat(this, 0),
-                buildPresetMessageFormat(this, 1)
+                buildPresetMessageFormat(this, 0, false),
+                buildPresetMessageFormat(this, 1, false)
+        });
+
+        mMessageFormatNormalMention = findViewById(R.id.message_format_normal_mention);
+        mMessageFormatNormalMentionExample = findViewById(R.id.message_format_normal_mention_example);
+        mMessageFormatNormalMention.setText(mMessageBuilder.getMentionMessageFormat());
+        setupFormatEntry(mMessageFormatNormalMention, R.id.message_format_normal_mention_preset, (Editable s) -> {
+            mMessageBuilder.setMentionMessageFormat(prepareFormat(s));
+            refreshExamples();
+        }, new CharSequence[] {
+                buildPresetMessageFormat(this, 0, true),
+                buildPresetMessageFormat(this, 1, true)
         });
 
         mMessageFormatAction = findViewById(R.id.message_format_action);
@@ -145,8 +161,19 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
             mMessageBuilder.setActionMessageFormat(prepareFormat(s));
             refreshExamples();
         }, new CharSequence[] {
-                buildActionPresetMessageFormat(this, 0),
-                buildActionPresetMessageFormat(this, 1)
+                buildActionPresetMessageFormat(this, 0, false),
+                buildActionPresetMessageFormat(this, 1, false)
+        });
+
+        mMessageFormatActionMention = findViewById(R.id.message_format_action_mention);
+        mMessageFormatActionMentionExample = findViewById(R.id.message_format_action_mention_example);
+        mMessageFormatActionMention.setText(mMessageBuilder.getActionMentionMessageFormat());
+        setupFormatEntry(mMessageFormatActionMention, R.id.message_format_action_mention_preset, (Editable s) -> {
+            mMessageBuilder.setActionMentionMessageFormat(prepareFormat(s));
+            refreshExamples();
+        }, new CharSequence[] {
+                buildActionPresetMessageFormat(this, 0, true),
+                buildActionPresetMessageFormat(this, 1, true)
         });
 
         mMessageFormatNotice = findViewById(R.id.message_format_notice);
@@ -185,7 +212,9 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
         }
 
         mMessageFormatNormalExample.setText(mMessageBuilder.buildMessage(mSampleMessage));
+        mMessageFormatNormalMentionExample.setText(mMessageBuilder.buildMessageWithMention(mSampleMessage));
         mMessageFormatActionExample.setText(mMessageBuilder.buildMessage(mSampleActionMessage));
+        mMessageFormatActionMentionExample.setText(mMessageBuilder.buildMessageWithMention(mSampleActionMessage));
         mMessageFormatNoticeExample.setText(mMessageBuilder.buildMessage(mSampleNoticeMessage));
         mMessageFormatEventExample.setText(mMessageBuilder.buildMessage(mSampleEventMessage));
     }
@@ -232,7 +261,7 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
         menu.show();
     }
 
-    public static SpannableString buildPresetMessageFormat(Context context, int preset) {
+    public static SpannableString buildPresetMessageFormat(Context context, int preset, boolean mention) {
         if (preset == 0) {
             SpannableString spannable = new SpannableString("   :  ");
             spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_TIMESTAMP), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
@@ -240,6 +269,10 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
             spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_TIME), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
             spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_SENDER), 2, 3, MessageBuilder.FORMAT_SPAN_FLAGS);
             spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_MESSAGE), 5, 6, MessageBuilder.FORMAT_SPAN_FLAGS);
+            if (mention) {
+                spannable.setSpan(new StyleSpan(Typeface.BOLD), 2, 3, MessageBuilder.FORMAT_SPAN_FLAGS);
+                spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_SENDER),  5, 6, MessageBuilder.FORMAT_SPAN_FLAGS);
+            }
             return spannable;
         }
         if (preset == 1) {
@@ -251,22 +284,31 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
             spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_TIME), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
             spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_SENDER), 3, 4, MessageBuilder.FORMAT_SPAN_FLAGS);
             spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_MESSAGE), 6, 7, MessageBuilder.FORMAT_SPAN_FLAGS);
+            if (mention) {
+                spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_SENDER), 6, 7, MessageBuilder.FORMAT_SPAN_FLAGS);
+                spannable.setSpan(new StyleSpan(Typeface.BOLD), 3, 4, MessageBuilder.FORMAT_SPAN_FLAGS);
+            }
             return spannable;
         }
         return null;
     }
 
-    public static SpannableString buildActionPresetMessageFormat(Context context, int preset) {
+    public static SpannableString buildActionPresetMessageFormat(Context context, int preset, boolean mention) {
         if (preset == 0 || preset == 1) {
             SpannableString spannable = new SpannableString("  *    ");
             spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_TIMESTAMP), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
             if (preset == 0)
                 spannable.setSpan(new StyleSpan(Typeface.ITALIC), 2, 7, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-            spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_STATUS), 2, 3, MessageBuilder.FORMAT_SPAN_FLAGS);
-            spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_SENDER), 4, 5, MessageBuilder.FORMAT_SPAN_FLAGS);
             spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_TIME), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
             spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_SENDER), 4, 5, MessageBuilder.FORMAT_SPAN_FLAGS);
             spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_MESSAGE),  6, 7, MessageBuilder.FORMAT_SPAN_FLAGS);
+            if (mention) {
+                spannable.setSpan(new StyleSpan(Typeface.BOLD), 4, 5, MessageBuilder.FORMAT_SPAN_FLAGS);
+                spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_SENDER),  2, 7, MessageBuilder.FORMAT_SPAN_FLAGS);
+            } else {
+                spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_STATUS), 2, 3, MessageBuilder.FORMAT_SPAN_FLAGS);
+                spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_SENDER), 4, 5, MessageBuilder.FORMAT_SPAN_FLAGS);
+            }
             return spannable;
         }
         return null;

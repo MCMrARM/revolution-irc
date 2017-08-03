@@ -50,16 +50,26 @@ public class MessageBuilder {
     private Context mContext;
     private SimpleDateFormat mMessageTimeFormat;
     private CharSequence mMessageFormat;
+    private CharSequence mMentionMessageFormat;
     private CharSequence mActionMessageFormat;
+    private CharSequence mActionMentionMessageFormat;
     private CharSequence mNoticeMessageFormat;
     private CharSequence mEventMessageFormat;
 
     public static SpannableString buildDefaultMessageFormat(Context context) {
-        return MessageFormatSettingsActivity.buildPresetMessageFormat(context, 0);
+        return MessageFormatSettingsActivity.buildPresetMessageFormat(context, 0, false);
+    }
+
+    public static SpannableString buildDefaultMentionMessageFormat(Context context) {
+        return MessageFormatSettingsActivity.buildPresetMessageFormat(context, 0, true);
     }
 
     public static SpannableString buildDefaultActionMessageFormat(Context context) {
-        return MessageFormatSettingsActivity.buildActionPresetMessageFormat(context, 0);
+        return MessageFormatSettingsActivity.buildActionPresetMessageFormat(context, 0, false);
+    }
+
+    public static SpannableString buildDefaultActionMentionMessageFormat(Context context) {
+        return MessageFormatSettingsActivity.buildActionPresetMessageFormat(context, 0, true);
     }
 
     public static SpannableString buildDefaultNoticeMessageFormat(Context context) {
@@ -139,9 +149,15 @@ public class MessageBuilder {
         mMessageFormat = getMessageFormat(mgr, SettingsHelper.PREF_MESSAGE_FORMAT);
         if (mMessageFormat == null)
             mMessageFormat = buildDefaultMessageFormat(context);
+        mMentionMessageFormat = getMessageFormat(mgr, SettingsHelper.PREF_MESSAGE_FORMAT_MENTION);
+        if (mMentionMessageFormat == null)
+            mMentionMessageFormat = buildDefaultMentionMessageFormat(context);
         mActionMessageFormat = getMessageFormat(mgr, SettingsHelper.PREF_MESSAGE_FORMAT_ACTION);
         if (mActionMessageFormat == null)
             mActionMessageFormat = buildDefaultActionMessageFormat(context);
+        mActionMentionMessageFormat = getMessageFormat(mgr, SettingsHelper.PREF_MESSAGE_FORMAT_MENTION);
+        if (mActionMentionMessageFormat == null)
+            mActionMentionMessageFormat = buildDefaultActionMentionMessageFormat(context);
         mNoticeMessageFormat = getMessageFormat(mgr, SettingsHelper.PREF_MESSAGE_FORMAT_NOTICE);
         if (mNoticeMessageFormat == null)
             mNoticeMessageFormat = buildDefaultNoticeMessageFormat(context);
@@ -154,7 +170,9 @@ public class MessageBuilder {
         SharedPreferences.Editor mgr = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
         mgr.putString(SettingsHelper.PREF_MESSAGE_TIME_FORMAT, mMessageTimeFormat.toPattern());
         mgr.putString(SettingsHelper.PREF_MESSAGE_FORMAT, SettingsHelper.getGson().toJson(spannableToJson(mMessageFormat)));
+        mgr.putString(SettingsHelper.PREF_MESSAGE_FORMAT_MENTION, SettingsHelper.getGson().toJson(spannableToJson(mMentionMessageFormat)));
         mgr.putString(SettingsHelper.PREF_MESSAGE_FORMAT_ACTION, SettingsHelper.getGson().toJson(spannableToJson(mActionMessageFormat)));
+        mgr.putString(SettingsHelper.PREF_MESSAGE_FORMAT_ACTION_MENTION, SettingsHelper.getGson().toJson(spannableToJson(mActionMentionMessageFormat)));
         mgr.putString(SettingsHelper.PREF_MESSAGE_FORMAT_NOTICE, SettingsHelper.getGson().toJson(spannableToJson(mNoticeMessageFormat)));
         mgr.putString(SettingsHelper.PREF_MESSAGE_FORMAT_EVENT, SettingsHelper.getGson().toJson(spannableToJson(mEventMessageFormat)));
         mgr.apply();
@@ -188,12 +206,28 @@ public class MessageBuilder {
         mMessageFormat = format;
     }
 
+    public CharSequence getMentionMessageFormat() {
+        return mMentionMessageFormat;
+    }
+
+    public void setMentionMessageFormat(CharSequence format) {
+        mMentionMessageFormat = format;
+    }
+
     public CharSequence getActionMessageFormat() {
         return mActionMessageFormat;
     }
 
     public void setActionMessageFormat(CharSequence format) {
         mActionMessageFormat = format;
+    }
+
+    public CharSequence getActionMentionMessageFormat() {
+        return mActionMentionMessageFormat;
+    }
+
+    public void setActionMentionMessageFormat(CharSequence format) {
+        mActionMentionMessageFormat = format;
     }
 
     public CharSequence getNoticeMessageFormat() {
@@ -278,6 +312,19 @@ public class MessageBuilder {
                 return buildDisconnectWarning(message.getDate());
         }
         return "";
+    }
+
+    public CharSequence buildMessageWithMention(MessageInfo message) {
+        String senderNick = message.getSender() == null ? null : message.getSender().getNick();
+        switch (message.getType()) {
+            case NORMAL:
+                return processFormat(mMentionMessageFormat, message.getDate(), senderNick,
+                        LinkHelper.addLinks(IRCColorUtils.getFormattedString(mContext, message.getMessage())));
+            case ME:
+                return processFormat(mActionMentionMessageFormat, message.getDate(), senderNick,
+                        LinkHelper.addLinks(IRCColorUtils.getFormattedString(mContext, message.getMessage())));
+        }
+        return buildMessage(message);
     }
 
     public CharSequence buildStatusMessage(StatusMessageInfo message, CharSequence text) {

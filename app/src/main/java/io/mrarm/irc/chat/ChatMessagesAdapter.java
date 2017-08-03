@@ -17,7 +17,9 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import io.mrarm.chatlib.dto.MessageInfo;
+import io.mrarm.irc.NotificationManager;
 import io.mrarm.irc.R;
+import io.mrarm.irc.config.NotificationRuleManager;
 import io.mrarm.irc.util.LongPressSelectTouchListener;
 import io.mrarm.irc.util.MessageBuilder;
 
@@ -134,7 +136,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
         public MessageHolder(View v) {
             super(v);
-            mText = (TextView) v.findViewById(R.id.chat_message);
+            mText = v.findViewById(R.id.chat_message);
             v.setOnClickListener((View view) -> {
                 if (mSelectedItems.size() > 0)
                     setSelected(!isSelected(), true);
@@ -175,7 +177,10 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 mText.setTextSize(TypedValue.COMPLEX_UNIT_SP, mFontSize);
 
             setSelected(selected, false);
-            mText.setText(MessageBuilder.getInstance(mText.getContext()).buildMessage(message));
+            if (NotificationManager.getInstance().doesMessageTriggerNotitification(mFragment.getConnectionInfo(), mFragment.getChannelName(), message))
+                mText.setText(MessageBuilder.getInstance(mText.getContext()).buildMessageWithMention(message));
+            else
+                mText.setText(MessageBuilder.getInstance(mText.getContext()).buildMessage(message));
         }
 
     }

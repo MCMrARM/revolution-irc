@@ -52,6 +52,15 @@ public class NotificationManager {
         }
     }
 
+    public boolean doesMessageTriggerNotitification(ServerConnectionInfo connection, String channel,
+                                                    MessageInfo info) {
+        if (info.getMessage() == null || info.getSender() == null ||
+                info.getSender().getNick().equals(connection.getUserNick()))
+            return false;
+        NotificationRule rule = findNotificationRule(connection, channel, info);
+        return (rule != null && !rule.settings.noNotification);
+    }
+
     public void clearAllNotifications(Context context, ServerConnectionInfo connection) {
         ConnectionManager connectionData = connection.getNotificationManager();
         for (ChannelNotificationManager mgr : connectionData.getChannelManagerList())
