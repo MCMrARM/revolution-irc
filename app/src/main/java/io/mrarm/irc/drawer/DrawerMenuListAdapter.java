@@ -84,6 +84,28 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         mChannelClickListener = listener;
     }
 
+    public int getSelectedItemIndex() {
+        if (mSelectedMenuItem != null) {
+            DrawerMenuItem menuItem = mSelectedMenuItem.get();
+            if (menuItem != null)
+                return getBottomMenuItemsStart() + mMenuItems.indexOf(menuItem);
+        }
+        if (mSelectedItemServer == null || mSelectedItemChannel == null || !mSelectedItemServer.isExpandedInDrawer())
+            return -1;
+        int currentIndex = getServerListStart();
+        int serverIndex = -1;
+        for (ServerConnectionInfo info : mServers) {
+            if (info == mSelectedItemServer) {
+                serverIndex = currentIndex;
+                break;
+            }
+            if (info.isExpandedInDrawer() && info.getChannels() != null)
+                currentIndex += info.getChannels().size();
+            currentIndex += 2;
+        }
+        return serverIndex + 1 + mSelectedItemServer.getChannels().indexOf(mSelectedItemChannel);
+    }
+
     public void setSelectedChannel(ServerConnectionInfo server, String channel) {
         if (mSelectedMenuItem != null)
             setSelectedMenuItem(null);

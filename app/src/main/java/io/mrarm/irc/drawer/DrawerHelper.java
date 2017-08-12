@@ -3,6 +3,7 @@ package io.mrarm.irc.drawer;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.OnApplyWindowInsetsListener;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.WindowInsetsCompat;
@@ -60,6 +61,42 @@ public class DrawerHelper implements ServerConnectionManager.ConnectionsListener
         });
         mAdapter.addMenuItem(mSettingsItem);
 
+        mDrawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
+            boolean wasClosed = false;
+
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                wasClosed = false;
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                wasClosed = true;
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+                if (newState == DrawerLayout.STATE_DRAGGING && wasClosed) {
+                    updateScrollPosition();
+                    wasClosed = false;
+                }
+            }
+        });
+        mRecyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            int oldPadding;
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                if (oldLeft == left && oldTop == top && oldRight == right && oldBottom == bottom && mRecyclerView.getPaddingBottom() == oldPadding)
+                    return;
+                oldPadding = mRecyclerView.getPaddingBottom();
+                if (mDrawerLayout.isDrawerVisible(GravityCompat.START))
+                    updateScrollPosition();
+            }
+        });
         mRecyclerView.setAdapter(mAdapter);
     }
 
@@ -91,6 +128,18 @@ public class DrawerHelper implements ServerConnectionManager.ConnectionsListener
 
     public void setSelectedMenuItem(DrawerMenuItem menuItem) {
         mAdapter.setSelectedMenuItem(menuItem);
+    }
+
+    private void updateScrollPosition() {
+        int pos = mAdapter.getSelectedItemIndex();
+        if (pos == -1)
+            return;
+        int s = mLayoutManager.findFirstCompletelyVisibleItemPosition();
+        int e = mLayoutManager.findLastCompletelyVisibleItemPosition();
+        if (pos < s || pos > e) {
+            mLayoutManager.scrollToPositionWithOffset(pos, (mLayoutManager.getHeight()
+                    - mLayoutManager.getPaddingTop() - mLayoutManager.getPaddingBottom()) / 3);
+        }
     }
 
     @Override
