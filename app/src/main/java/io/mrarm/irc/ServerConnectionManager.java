@@ -178,6 +178,8 @@ public class ServerConnectionManager {
                 saveAutoconnectListAsync();
             if (mConnections.size() == 0)
                 IRCService.stop(mContext);
+            else
+                IRCService.start(mContext); // update connection count
         }
         synchronized (mListeners) {
             for (ConnectionsListener listener : mListeners)
