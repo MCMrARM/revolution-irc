@@ -438,8 +438,9 @@ public class ChatFragment extends Fragment implements
     }
 
     @Override
-    public void onUnreadMessageCountChanged(ServerConnectionInfo info, String channel, int messageCount) {
-        if (messageCount == 0 || messageCount == 1) {
+    public void onUnreadMessageCountChanged(ServerConnectionInfo info, String channel,
+                                            int messageCount, int oldMessageCount) {
+        if (messageCount == 0 || (messageCount > 0 && oldMessageCount == 0)) {
             getActivity().runOnUiThread(() -> {
                 int tabNumber = mSectionsPagerAdapter.findChannel(channel);
                 updateTabLayoutTab(mTabLayout.getTabAt(tabNumber));

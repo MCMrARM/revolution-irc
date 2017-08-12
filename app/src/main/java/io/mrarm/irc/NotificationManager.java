@@ -169,13 +169,14 @@ public class NotificationManager {
     }
 
     public void callUnreadMessageCountCallbacks(ServerConnectionInfo connection, String channel,
-                                                int messageCount) {
+                                                int messageCount, int oldMessageCount) {
         synchronized (mGlobalUnreadCallbacks) {
             for (UnreadMessageCountCallback cb : mGlobalUnreadCallbacks) {
-                cb.onUnreadMessageCountChanged(connection, channel, messageCount);
+                cb.onUnreadMessageCountChanged(connection, channel, messageCount, oldMessageCount);
             }
         }
-        connection.getNotificationManager().callUnreadMessageCountCallbacks(channel, messageCount);
+        connection.getNotificationManager().callUnreadMessageCountCallbacks(channel, messageCount,
+                oldMessageCount);
     }
 
     public static class ConnectionManager {
@@ -226,10 +227,12 @@ public class NotificationManager {
             }
         }
 
-        private void callUnreadMessageCountCallbacks(String channel, int messageCount) {
+        private void callUnreadMessageCountCallbacks(String channel, int messageCount,
+                                                     int oldMessageCount) {
             synchronized (mUnreadCallbacks) {
                 for (UnreadMessageCountCallback cb : mUnreadCallbacks) {
-                    cb.onUnreadMessageCountChanged(mConnection, channel, messageCount);
+                    cb.onUnreadMessageCountChanged(mConnection, channel, messageCount,
+                            oldMessageCount);
                 }
             }
         }
@@ -238,7 +241,8 @@ public class NotificationManager {
 
     public interface UnreadMessageCountCallback {
 
-        void onUnreadMessageCountChanged(ServerConnectionInfo info, String channel, int messageCount);
+        void onUnreadMessageCountChanged(ServerConnectionInfo info, String channel,
+                                         int messageCount, int oldMessageCount);
 
     }
 

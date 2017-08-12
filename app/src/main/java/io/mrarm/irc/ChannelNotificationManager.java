@@ -11,16 +11,18 @@ import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.widget.RemoteViews;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import io.mrarm.chatlib.dto.MessageInfo;
+import io.mrarm.irc.config.NotificationCountStorage;
 import io.mrarm.irc.config.NotificationRule;
 import io.mrarm.irc.util.ColoredTextBuilder;
 import io.mrarm.irc.util.IRCColorUtils;
 
-public class ChannelNotificationManager {
+public class ChannelNotificationManager implements NotificationCountStorage.OnChannelCounterResult {
 
     public static final int CHAT_NOTIFICATION_ID_START = 10000;
     public static final int CHAT_DISMISS_INTENT_ID_START = 10000000;
@@ -28,6 +30,7 @@ public class ChannelNotificationManager {
     private static int mNextChatNotificationId = CHAT_NOTIFICATION_ID_START;
 
     private final ServerConnectionInfo mConnection;
+    private final NotificationCountStorage mStorage;
     private final String mChannel;
     private final int mNotificationId = mNextChatNotificationId++;
     private List<NotificationMessage> mMessages = new ArrayList<>();
@@ -37,6 +40,10 @@ public class ChannelNotificationManager {
     public ChannelNotificationManager(ServerConnectionInfo connection, String channel) {
         mConnection = connection;
         mChannel = channel;
+        mStorage = NotificationCountStorage.getInstance(connection.getConnectionManager().getContext());
+        if (mChannel != null) {
+            mStorage.requestGetChannelCounter(connection.getUUID(), channel, new WeakReference<>(this));
+        }
     }
 
     public ServerConnectionInfo getConnection() {
@@ -67,7 +74,10 @@ public class ChannelNotificationManager {
                 return;
             mUnreadMessageCount++;
             NotificationManager.getInstance().callUnreadMessageCountCallbacks(mConnection, mChannel,
-                    mUnreadMessageCount);
+                    mUnreadMessageCount, mUnreadMessageCount - 1);
+            if (mChannel != null) {
+                mStorage.requestIncrementChannelCounter(mConnection.getUUID(), getChannel());
+            }
         }
     }
 
@@ -86,9 +96,11 @@ public class ChannelNotificationManager {
             mOpened = opened;
             if (mOpened) {
                 mMessages.clear();
+                int prevCount = mUnreadMessageCount;
                 mUnreadMessageCount = 0;
                 NotificationManager.getInstance().callUnreadMessageCountCallbacks(mConnection,
-                        mChannel, 0);
+                        mChannel, 0, prevCount);
+                mStorage.requestResetChannelCounter(mConnection.getUUID(), getChannel());
 
                 // cancel the notification
                 NotificationManagerCompat.from(context).cancel(mNotificationId);
@@ -191,6 +203,18 @@ public class ChannelNotificationManager {
         }
     }
 
+    @Override
+    public void onChannelCounterResult(UUID server, String channel, int result) {
+        synchronized (this) {
+            if (mOpened)
+                return;
+            mUnreadMessageCount += result;
+            if (mChannel != null) {
+                NotificationManager.getInstance().callUnreadMessageCountCallbacks(mConnection,
+                        mChannel, mUnreadMessageCount, mUnreadMessageCount - result);
+            }
+        }
+    }
 
 
     public static class NotificationMessage {

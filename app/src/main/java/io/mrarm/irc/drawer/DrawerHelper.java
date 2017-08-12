@@ -166,7 +166,7 @@ public class DrawerHelper implements ServerConnectionManager.ConnectionsListener
 
     @Override
     public void onUnreadMessageCountChanged(ServerConnectionInfo info, String channel,
-                                            int messageCount) {
+                                            int messageCount, int oldMessageCount) {
         mActivity.runOnUiThread(() -> {
             mAdapter.notifyChannelUnreadCountChanged(info, channel);
         });

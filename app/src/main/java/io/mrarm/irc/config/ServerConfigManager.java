@@ -37,12 +37,14 @@ public class ServerConfigManager {
     private final File mServersPath;
     private final File mServerLogsPath;
 
+    private final Context mContext;
     private final List<ServerConfigData> mServers = new ArrayList<>();
     private final Map<UUID, ServerConfigData> mServersMap = new HashMap<>();
     private final List<ConnectionsListener> mListeners = new ArrayList<>();
     private final Object mIOLock = new Object();
 
     public ServerConfigManager(Context context) {
+        mContext = context;
         mServersPath = new File(context.getFilesDir(), SERVERS_PATH);
         mServersPath.mkdirs();
         mServerLogsPath = new File(context.getExternalFilesDir(null), SERVER_LOGS_PATH);
@@ -128,6 +130,7 @@ public class ServerConfigManager {
             for (ConnectionsListener listener : mListeners)
                 listener.onConnectionRemoved(data);
         }
+        NotificationCountStorage.getInstance(mContext).requestRemoveServerCounters(data.uuid);
     }
 
     public void deleteAllServers() {
