@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="224dp"
+    android:layout_height="@dimen/dialog_bottom_user_header_height"
     android:theme="@style/Theme.AppCompat"
     android:background="@color/colorPrimary">
 
@@ -13,7 +13,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="@dimen/dialog_bottom_user_header_bottom_margin"
         android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
         android:text="Nick placeholder"
@@ -40,7 +40,7 @@
         android:id="@+id/name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="40dp"
+        android:layout_marginBottom="@dimen/dialog_bottom_user_header_name_bottom_margin"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"

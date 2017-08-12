@@ -12,7 +12,7 @@ import android.view.WindowManager;
 
 import io.mrarm.irc.R;
 
-public class StatusBarColorBottomSheetDialog extends BottomSheetDialog {
+public class StatusBarColorBottomSheetDialog extends ProperHeightBottomSheetDialog {
 
     private int mStatusBarColor;
 
@@ -24,30 +24,14 @@ public class StatusBarColorBottomSheetDialog extends BottomSheetDialog {
     }
 
     @Override
-    public void setContentView(View view) {
-        super.setContentView(view);
-        addCallback();
-    }
-
-    @Override
-    public void setContentView(int layoutResId) {
-        super.setContentView(layoutResId);
-        addCallback();
-    }
-
-    @Override
-    public void setContentView(View view, ViewGroup.LayoutParams params) {
-        super.setContentView(view, params);
-        addCallback();
-    }
-
-    @Override
     public void dismiss() {
         super.dismiss();
         updateActivityStatusBar(false);
     }
 
-    private void addCallback() {
+    @Override
+    protected void configureBottomSheetLayout() {
+        super.configureBottomSheetLayout();
         BottomSheetBehavior behaviour = BottomSheetBehavior.from(
                 findViewById(android.support.design.R.id.design_bottom_sheet));
         behaviour.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {

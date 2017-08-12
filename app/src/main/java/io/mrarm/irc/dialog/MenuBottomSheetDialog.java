@@ -17,7 +17,7 @@ import java.util.List;
 
 import io.mrarm.irc.R;
 
-public class MenuBottomSheetDialog extends BottomSheetDialog {
+public class MenuBottomSheetDialog extends ProperHeightBottomSheetDialog {
 
     private List<Object> mItems = new ArrayList<>();
 
