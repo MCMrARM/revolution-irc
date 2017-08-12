@@ -3,7 +3,10 @@ package io.mrarm.irc;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.content.res.TypedArray;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
@@ -18,6 +21,8 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.WindowManager;
 
 import java.util.UUID;
@@ -43,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout mDrawerLayout;
     private DrawerHelper mDrawerHelper;
     private Toolbar mToolbar;
+    private View mFakeToolbar;
     private boolean mBackReturnToServerList;
 
     public static Intent getLaunchIntent(Context context, ServerConnectionInfo server, String channel) {
@@ -69,6 +75,8 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mFakeToolbar = findViewById(R.id.fake_toolbar);
 
         mDrawerLayout = findViewById(R.id.drawer_layout);
 
@@ -97,6 +105,29 @@ public class MainActivity extends AppCompatActivity {
             openServer(server, getIntent().getStringExtra(ARG_CHANNEL_NAME));
         } else {
             openManageServers();
+        }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        TypedArray ta = obtainStyledAttributes(new int[] { R.attr.actionBarSize });
+        ViewGroup.LayoutParams params = mFakeToolbar.getLayoutParams();
+        params.height = ta.getDimensionPixelSize(0, 0);
+        mFakeToolbar.setLayoutParams(params);
+        ta.recycle();
+        if (mToolbar != null) {
+            ViewGroup group = (ViewGroup) mToolbar.getParent();
+            int i = group.indexOfChild(mToolbar);
+            group.removeViewAt(i);
+            Toolbar replacement = new Toolbar(group.getContext());
+            replacement.setPopupTheme(mToolbar.getPopupTheme());
+            AppBarLayout.LayoutParams toolbarParams = new AppBarLayout.LayoutParams(
+                    AppBarLayout.LayoutParams.WRAP_CONTENT, params.height);
+            replacement.setLayoutParams(toolbarParams);
+            group.addView(replacement, i);
+            setSupportActionBar(replacement);
+            addActionBarDrawerToggle(replacement);
         }
     }
 

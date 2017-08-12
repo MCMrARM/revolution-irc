@@ -65,7 +65,6 @@ public class ChatFragment extends Fragment implements
     private ServerConnectionInfo mConnectionInfo;
 
     private AppBarLayout mAppBar;
-    private Toolbar mToolbar;
     private TabLayout mTabLayout;
     private ChatPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
@@ -101,13 +100,13 @@ public class ChatFragment extends Fragment implements
 
         mAppBar = rootView.findViewById(R.id.appbar);
 
-        mToolbar = rootView.findViewById(R.id.toolbar);
-        mNormalToolbarInset = mToolbar.getContentInsetStartWithNavigation();
+        Toolbar toolbar = rootView.findViewById(R.id.toolbar);
+        mNormalToolbarInset = toolbar.getContentInsetStartWithNavigation();
 
-        ((AppCompatActivity) getActivity()).setSupportActionBar(mToolbar);
+        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(mConnectionInfo.getName());
 
-        ((MainActivity) getActivity()).addActionBarDrawerToggle(mToolbar);
+        ((MainActivity) getActivity()).addActionBarDrawerToggle(toolbar);
 
         mSectionsPagerAdapter = new ChatPagerAdapter(getContext(), getChildFragmentManager(), mConnectionInfo);
 
@@ -292,19 +291,21 @@ public class ChatFragment extends Fragment implements
     }
 
     public void setUseToolbarCompactLayout(boolean enable) {
-        if (enable == (mTabLayout.getParent() == mToolbar))
+        Toolbar toolbar = ((MainActivity) getActivity()).getToolbar();
+        if (enable == (mTabLayout.getParent() == toolbar))
             return;
+        ((ViewGroup) mTabLayout.getParent()).removeView(mTabLayout);
         if (enable) {
-            mAppBar.removeView(mTabLayout);
-            mToolbar.addView(mTabLayout);
-            mToolbar.setContentInsetStartWithNavigation(0);
-            ViewGroup.LayoutParams params = mTabLayout.getLayoutParams();
+            ViewGroup.LayoutParams params = new Toolbar.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+            mTabLayout.setLayoutParams(params);
+            toolbar.addView(mTabLayout);
+            toolbar.setContentInsetStartWithNavigation(0);
             params.height = ViewGroup.LayoutParams.MATCH_PARENT;
             mTabLayout.setLayoutParams(params);
         } else {
-            mToolbar.removeView(mTabLayout);
             mAppBar.addView(mTabLayout);
-            mToolbar.setContentInsetStartWithNavigation(mNormalToolbarInset);
+            toolbar.setContentInsetStartWithNavigation(mNormalToolbarInset);
             ViewGroup.LayoutParams params = mTabLayout.getLayoutParams();
             params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
             mTabLayout.setLayoutParams(params);
