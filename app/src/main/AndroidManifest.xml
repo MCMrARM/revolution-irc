@@ -44,7 +44,8 @@
         <activity
             android:name=".ChannelListActivity"
             android:label="@string/title_activity_channel_list"
-            android:theme="@style/AppTheme.NoActionBar.OpaqueStatusBar" />
+            android:theme="@style/AppTheme.NoActionBar.OpaqueStatusBar"
+            android:configChanges="keyboardHidden|orientation|screenSize|screenLayout" />
         <activity
             android:name=".CertificateManagerActivity"
             android:label="@string/title_activity_certificate_manager" />
