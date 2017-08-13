@@ -21,71 +21,117 @@ public class NotificationCountStorage {
 
     public static NotificationCountStorage getInstance(Context ctx) {
         if (sInstance == null)
-            sInstance = new NotificationCountStorage(new File(ctx.getFilesDir(), "notification-count.db").getAbsolutePath());
+            sInstance = new NotificationCountStorage(getFile(ctx).getAbsolutePath());
         return sInstance;
     }
 
+    public static File getFile(Context ctx) {
+        return new File(ctx.getFilesDir(), "notification-count.db");
+    }
+
+    private final String mPath;
+    private final Object mDatabaseLock = new Object();
     private SQLiteDatabase mDatabase;
     private SQLiteStatement mGetNotificationCountStatement;
     private SQLiteStatement mIncrementNotificationCountStatement;
     private SQLiteStatement mCreateNotificationCountStatement;
     private Handler mHandler;
+    private HandlerThread mHandlerThread;
     private Map<UUID, Map<String, Integer>> mChangeQueue;
 
     public NotificationCountStorage(String path) {
-        mDatabase = SQLiteDatabase.openOrCreateDatabase(path, null);
-        mDatabase.execSQL("CREATE TABLE IF NOT EXISTS 'notification_count' (server TEXT, channel TEXT, count INTEGER)");
-        mGetNotificationCountStatement = mDatabase.compileStatement("SELECT count FROM 'notification_count' WHERE server=?1 AND channel=?2");
-        mIncrementNotificationCountStatement = mDatabase.compileStatement("UPDATE 'notification_count' SET count=count+?3 WHERE server=?1 AND channel=?2");
-        mCreateNotificationCountStatement = mDatabase.compileStatement("INSERT INTO 'notification_count' (server, channel, count) VALUES (?1, ?2, ?3)");
+        mPath = path;
+        mHandlerThread = new HandlerThread("NotificationCountStorage Thread");
+        mHandlerThread.start();
+        mHandler = new Handler(mHandlerThread.getLooper());
 
-        HandlerThread thread = new HandlerThread("NotificationCountStorage Thread");
-        thread.start();
-        mHandler = new Handler(thread.getLooper());
+        open();
+    }
+
+    public void open() {
+        synchronized (mDatabaseLock) {
+            if (mDatabase != null)
+                return;
+            mDatabase = SQLiteDatabase.openOrCreateDatabase(mPath, null);
+            mDatabase.execSQL("CREATE TABLE IF NOT EXISTS 'notification_count' (server TEXT, channel TEXT, count INTEGER)");
+            mGetNotificationCountStatement = mDatabase.compileStatement("SELECT count FROM 'notification_count' WHERE server=?1 AND channel=?2");
+            mIncrementNotificationCountStatement = mDatabase.compileStatement("UPDATE 'notification_count' SET count=count+?3 WHERE server=?1 AND channel=?2");
+            mCreateNotificationCountStatement = mDatabase.compileStatement("INSERT INTO 'notification_count' (server, channel, count) VALUES (?1, ?2, ?3)");
+        }
+    }
+
+    public void close() {
+        synchronized (mDatabaseLock) {
+            if (mDatabase != null)
+                mDatabase.close();
+            mDatabase = null;
+        }
     }
 
     @Override
     protected void finalize() throws Throwable {
-        mDatabase.close();
+        mHandlerThread.quit();
+        close();
         super.finalize();
     }
 
-    private int getChannelCounter(UUID server, String channel) {
-        mGetNotificationCountStatement.bindString(1, server.toString());
-        mGetNotificationCountStatement.bindString(2, channel);
-        long ret;
-        try {
-            ret = mGetNotificationCountStatement.simpleQueryForLong();
-        } catch (SQLiteDoneException e) {
-            ret = 0;
+    private void waitForDatabase() {
+        while (mDatabase == null) {
+            try {
+                mDatabaseLock.wait();
+            } catch (InterruptedException ignored) {
+            }
         }
-        mGetNotificationCountStatement.clearBindings();
-        return (int) ret;
+    }
+
+    private int getChannelCounter(UUID server, String channel) {
+        synchronized (mDatabaseLock) {
+            waitForDatabase();
+            mGetNotificationCountStatement.bindString(1, server.toString());
+            mGetNotificationCountStatement.bindString(2, channel);
+            long ret;
+            try {
+                ret = mGetNotificationCountStatement.simpleQueryForLong();
+            } catch (SQLiteDoneException e) {
+                ret = 0;
+            }
+            mGetNotificationCountStatement.clearBindings();
+            return (int) ret;
+        }
     }
 
     private void incrementChannelCounter(UUID server, String channel, int i) {
-        mIncrementNotificationCountStatement.bindString(1, server.toString());
-        mIncrementNotificationCountStatement.bindString(2, channel);
-        mIncrementNotificationCountStatement.bindLong(3, i);
-        int ii = mIncrementNotificationCountStatement.executeUpdateDelete();
-        mIncrementNotificationCountStatement.clearBindings();
-        if (ii == 0) {
-            mCreateNotificationCountStatement.bindString(1, server.toString());
-            mCreateNotificationCountStatement.bindString(2, channel);
-            mCreateNotificationCountStatement.bindLong(3, i);
-            mCreateNotificationCountStatement.execute();
-            mCreateNotificationCountStatement.clearBindings();
+        synchronized (mDatabaseLock) {
+            waitForDatabase();
+            mIncrementNotificationCountStatement.bindString(1, server.toString());
+            mIncrementNotificationCountStatement.bindString(2, channel);
+            mIncrementNotificationCountStatement.bindLong(3, i);
+            int ii = mIncrementNotificationCountStatement.executeUpdateDelete();
+            mIncrementNotificationCountStatement.clearBindings();
+            if (ii == 0) {
+                mCreateNotificationCountStatement.bindString(1, server.toString());
+                mCreateNotificationCountStatement.bindString(2, channel);
+                mCreateNotificationCountStatement.bindLong(3, i);
+                mCreateNotificationCountStatement.execute();
+                mCreateNotificationCountStatement.clearBindings();
+            }
         }
     }
 
     private void resetChannelCounter(UUID server, String channel) {
-        mDatabase.execSQL("DELETE FROM 'notification_count' WHERE server=?1 AND channel=?2",
-                new Object[] { server.toString(), channel });
+        synchronized (mDatabaseLock) {
+            waitForDatabase();
+            mDatabase.execSQL("DELETE FROM 'notification_count' WHERE server=?1 AND channel=?2",
+                    new Object[]{server.toString(), channel});
+        }
     }
 
     private void removeServerCounters(UUID server) {
-        mDatabase.execSQL("DELETE FROM 'notification_count' WHERE server=?1",
-                new Object[] { server.toString() });
+        synchronized (mDatabaseLock) {
+            waitForDatabase();
+            mDatabase.execSQL("DELETE FROM 'notification_count' WHERE server=?1",
+                    new Object[]{server.toString()});
+        }
     }
 
     private void flushQueuedChanges() {

@@ -68,6 +68,13 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         return mGson;
     }
 
+    public static void deleteSQLiteDatabase(File path) {
+        path.delete();
+        new File(path.getParent(), path.getName() + "-journal").delete();
+        new File(path.getParent(), path.getName() + "-shm").delete();
+        new File(path.getParent(), path.getName() + "-wal").delete();
+    }
+
     private Context mContext;
     private SharedPreferences mPreferences;
     private List<ReconnectIntervalPreference.Rule> mCachedIntervalRules;

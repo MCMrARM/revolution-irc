@@ -3,6 +3,7 @@ package io.mrarm.irc.config;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -43,6 +44,7 @@ public class BackupManager {
     private static final String BACKUP_SERVER_CERTS_SUFFIX = ".jks";
     private static final String BACKUP_NOTIFICATION_RULES_PATH = "notification_rules.json";
     private static final String BACKUP_COMMAND_ALIASES_PATH = "command_aliases.json";
+    private static final String NOTIFICATION_COUNT_DB_PATH = "notification-count.db";
 
     public static void createBackup(Context context, File file, String password) throws IOException {
         try {
@@ -94,6 +96,11 @@ public class BackupManager {
             CommandAliasManager.getInstance(context).saveUserSettings(writer);
             params.setFileNameInZip(BACKUP_COMMAND_ALIASES_PATH);
             zipFile.addStream(new ByteArrayInputStream(writer.toString().getBytes()), params);
+
+            NotificationCountStorage.getInstance(context).close();
+            params.setFileNameInZip(NOTIFICATION_COUNT_DB_PATH);
+            zipFile.addFile(NotificationCountStorage.getFile(context), params);
+            NotificationCountStorage.getInstance(context).open();
         } catch (ZipException e) {
             throw new IOException(e);
         }
@@ -156,7 +163,8 @@ public class BackupManager {
                     String uuid = fileHeader.getFileName();
                     uuid = uuid.substring(BACKUP_SERVER_CERTS_PREFIX.length(), uuid.length() -
                             BACKUP_SERVER_CERTS_SUFFIX.length());
-                    ServerCertificateManager helper = ServerCertificateManager.get(context, UUID.fromString(uuid));
+                    ServerCertificateManager helper = ServerCertificateManager.get(context,
+                            UUID.fromString(uuid));
                     try {
                         helper.loadKeyStore(zipFile.getInputStream(fileHeader));
                         helper.saveKeyStore();
@@ -187,6 +195,16 @@ public class BackupManager {
             aliasManager.loadUserSettings(reader);
             reader.close();
             aliasManager.saveUserSettings();
+
+            NotificationCountStorage.getInstance(context).close();
+            SettingsHelper.deleteSQLiteDatabase(NotificationCountStorage.getFile(context));
+            try {
+                zipFile.extractFile(NOTIFICATION_COUNT_DB_PATH,
+                        ListWithCustomPreference.getCustomFilesDir(context).getAbsolutePath(),
+                        null, NotificationCountStorage.getFile(context).getAbsolutePath());
+            } catch (ZipException ignored) {
+            }
+            NotificationCountStorage.getInstance(context).open();
         } catch (ZipException e) {
             throw new IOException(e);
         }

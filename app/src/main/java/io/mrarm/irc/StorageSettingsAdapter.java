@@ -25,6 +25,7 @@ import java.util.UUID;
 import io.mrarm.chatlib.android.storage.SQLiteMessageStorageApi;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.irc.config.CommandAliasManager;
+import io.mrarm.irc.config.NotificationCountStorage;
 import io.mrarm.irc.config.NotificationRuleManager;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
@@ -432,6 +433,7 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
                 NotificationRuleManager.getUserRules(ctx).clear();
                 CommandAliasManager.getInstance(ctx).getUserAliases().clear();
                 SettingsHelper.getInstance(ctx).clear();
+                NotificationCountStorage.getInstance(ctx).close();
 
                 File files = ctx.getFilesDir();
                 for (File file : files.listFiles()) {
@@ -439,6 +441,8 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
                         continue;
                     deleteRecursive(file);
                 }
+
+                NotificationCountStorage.getInstance(ctx).open();
             }
             if (mDeleteServerLogs != null) {
                 deleteChatLogDir(mDeleteServerLogs);
