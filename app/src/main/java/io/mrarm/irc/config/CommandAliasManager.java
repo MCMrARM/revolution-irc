@@ -17,9 +17,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.mrarm.chatlib.irc.IRCConnection;
 import io.mrarm.chatlib.irc.ServerConnectionData;
-import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.util.CommandAliasSyntaxParser;
 import io.mrarm.irc.util.SimpleTextVariableList;
 
@@ -132,13 +130,13 @@ public class CommandAliasManager {
         return null;
     }
 
-    public CommandAlias findCommandAlias(IRCConnection connection, String[] args) {
+    public CommandAlias findCommandAlias(ServerConnectionData connectionData, String[] args) {
         for (CommandAlias a : mUserAliases) {
-            if (a.name.equalsIgnoreCase(args[0]) && a.checkSyntaxMatches(connection.getServerConnectionData(), args))
+            if (a.name.equalsIgnoreCase(args[0]) && a.checkSyntaxMatches(connectionData, args))
                 return a;
         }
         for (CommandAlias a : sDefaultAliases) {
-            if (a.name.equalsIgnoreCase(args[0]) && a.checkSyntaxMatches(connection.getServerConnectionData(), args))
+            if (a.name.equalsIgnoreCase(args[0]) && a.checkSyntaxMatches(connectionData, args))
                 return a;
         }
         return null;
@@ -162,11 +160,12 @@ public class CommandAliasManager {
 
     private List<CommandAlias> mAliasesStack = new ArrayList<>();
 
-    public boolean processCommand(IRCConnection connection, String command, SimpleTextVariableList vars) {
+    public ProcessCommandResult processCommand(ServerConnectionData connectionData,
+                                               String command, SimpleTextVariableList vars) {
         String[] args = command.split(" ");
-        CommandAlias alias = findCommandAlias(connection, args);
+        CommandAlias alias = findCommandAlias(connectionData, args);
         if (alias == null)
-            return false;
+            return null;
         SimpleTextVariableList varsCopy = null;
         if (alias.mode == CommandAlias.MODE_CLIENT) {
             if (mAliasesStack.contains(alias))
@@ -177,24 +176,22 @@ public class CommandAliasManager {
         String[] argsVar = new String[args.length - 1];
         System.arraycopy(args, 1, argsVar, 0, argsVar.length);
         vars.set(VAR_ARGS, Arrays.asList(argsVar), " ");
-        alias.getSyntaxParser().process(connection.getServerConnectionData(), args, 1, vars);
+        alias.getSyntaxParser().process(connectionData, args, 1, vars);
         String processedText = processVariables(alias.text, vars);
         if (alias.mode == CommandAlias.MODE_RAW) {
-            connection.sendCommandRaw(processedText, null, null);
-            return true;
+            return ProcessCommandResult.raw(processedText);
         } else if (alias.mode == CommandAlias.MODE_CLIENT) {
             if (processedText.startsWith("/"))
                 processedText = processedText.substring(1);
             mAliasesStack.add(alias);
-            boolean ret = processCommand(connection, processedText, varsCopy);
+            ProcessCommandResult ret = processCommand(connectionData, processedText, varsCopy);
             mAliasesStack.remove(mAliasesStack.size() - 1);
-            if (!ret)
+            if (ret == null)
                 throw new RuntimeException("Failed to process subcommand");
-            return true;
+            return ret;
         } else if (alias.mode == CommandAlias.MODE_MESSAGE) {
             String processedChannel = processVariables(alias.channel, vars);
-            connection.sendMessage(processedChannel, processedText, null, null);
-            return true;
+            return ProcessCommandResult.message(processedChannel, processedText);
         }
         throw new RuntimeException("Internal error");
     }
@@ -250,6 +247,29 @@ public class CommandAliasManager {
             ret.text = message;
             ret.channel = channel;
             ret.mode = MODE_MESSAGE;
+            return ret;
+        }
+
+    }
+
+    public static class ProcessCommandResult {
+
+        public int mode;
+        public String channel;
+        public String text;
+
+        public static ProcessCommandResult raw(String text) {
+            ProcessCommandResult ret = new ProcessCommandResult();
+            ret.mode = CommandAlias.MODE_RAW;
+            ret.text = text;
+            return ret;
+        }
+
+        public static ProcessCommandResult message(String channel, String text) {
+            ProcessCommandResult ret = new ProcessCommandResult();
+            ret.mode = CommandAlias.MODE_MESSAGE;
+            ret.channel = channel;
+            ret.text = text;
             return ret;
         }
 

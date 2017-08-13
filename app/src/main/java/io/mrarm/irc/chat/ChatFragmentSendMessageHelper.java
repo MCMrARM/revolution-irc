@@ -164,7 +164,18 @@ public class ChatFragmentSendMessageHelper {
             vars.set(CommandAliasManager.VAR_CHANNEL, channel);
             vars.set(CommandAliasManager.VAR_MYNICK, mFragment.getConnectionInfo().getUserNick());
             try {
-                if (CommandAliasManager.getInstance(mContext).processCommand((IRCConnection) mFragment.getConnectionInfo().getApiInstance(), text.substring(1), vars)) {
+                IRCConnection conn = (IRCConnection) mFragment.getConnectionInfo().getApiInstance();
+                CommandAliasManager.ProcessCommandResult result = CommandAliasManager
+                        .getInstance(mContext).processCommand(conn.getServerConnectionData(),
+                                text.substring(1), vars);
+                if (result != null) {
+                    if (result.mode == CommandAliasManager.CommandAlias.MODE_RAW) {
+                        conn.sendCommandRaw(result.text, null, null);
+                    } else if (result.mode == CommandAliasManager.CommandAlias.MODE_MESSAGE) {
+                        conn.sendMessage(result.channel, result.text, null, null);
+                    } else {
+                        throw new RuntimeException();
+                    }
                     mSendText.setText("");
                     return;
                 }
@@ -180,7 +191,8 @@ public class ChatFragmentSendMessageHelper {
             builder.append(mContext.getString(R.string.command_send_raw), new ClickableSpan() {
                 @Override
                 public void onClick(View view) {
-                    ((IRCConnection) mFragment.getConnectionInfo().getApiInstance()).sendCommandRaw(text.substring(1), null, null);
+                    ((IRCConnection) mFragment.getConnectionInfo().getApiInstance()).sendCommandRaw(
+                            text.substring(1), null, null);
                     mCommandErrorContainer.setVisibility(View.GONE);
                 }
             });
