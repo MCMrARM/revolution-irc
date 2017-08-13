@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
             Toolbar replacement = new Toolbar(group.getContext());
             replacement.setPopupTheme(mToolbar.getPopupTheme());
             AppBarLayout.LayoutParams toolbarParams = new AppBarLayout.LayoutParams(
-                    AppBarLayout.LayoutParams.WRAP_CONTENT, params.height);
+                    AppBarLayout.LayoutParams.MATCH_PARENT, params.height);
             replacement.setLayoutParams(toolbarParams);
             group.addView(replacement, i);
             setSupportActionBar(replacement);
