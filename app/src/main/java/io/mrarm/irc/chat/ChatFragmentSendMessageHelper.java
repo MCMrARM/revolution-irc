@@ -1,5 +1,6 @@
 package io.mrarm.irc.chat;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.v4.view.MarginLayoutParamsCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,11 +23,15 @@ import android.widget.TextView;
 import java.util.List;
 
 import io.mrarm.chatlib.dto.NickWithPrefix;
+import io.mrarm.chatlib.dto.WhoisInfo;
+import io.mrarm.chatlib.irc.CommandHandlerList;
 import io.mrarm.chatlib.irc.IRCConnection;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
+import io.mrarm.chatlib.irc.handlers.WhoisCommandHandler;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.config.CommandAliasManager;
+import io.mrarm.irc.dialog.UserBottomSheetDialog;
 import io.mrarm.irc.util.ColoredTextBuilder;
 import io.mrarm.irc.util.IRCColorUtils;
 import io.mrarm.irc.util.ImageViewTintUtils;
@@ -170,6 +175,7 @@ public class ChatFragmentSendMessageHelper {
                                 text.substring(1), vars);
                 if (result != null) {
                     if (result.mode == CommandAliasManager.CommandAlias.MODE_RAW) {
+                        setupCommandResultHandler(conn, result.text.split(" "));
                         conn.sendCommandRaw(result.text, null, null);
                     } else if (result.mode == CommandAliasManager.CommandAlias.MODE_MESSAGE) {
                         conn.sendMessage(result.channel, result.text, null, null);
@@ -180,9 +186,7 @@ public class ChatFragmentSendMessageHelper {
                     return;
                 }
             } catch (RuntimeException e) {
-                mCommandErrorText.setText(R.string.command_error_internal);
-                mCommandErrorContainer.setVisibility(View.VISIBLE);
-                mSendText.dismissDropDown();
+                setCommandError(mContext.getString(R.string.command_error_internal));
                 return;
             }
             ColoredTextBuilder builder = new ColoredTextBuilder();
@@ -196,13 +200,32 @@ public class ChatFragmentSendMessageHelper {
                     mCommandErrorContainer.setVisibility(View.GONE);
                 }
             });
-            mCommandErrorText.setText(builder.getSpannable());
-            mCommandErrorContainer.setVisibility(View.VISIBLE);
-            mSendText.dismissDropDown();
+            setCommandError(builder.getSpannable());
             return;
         }
         mSendText.setText("");
         mFragment.getConnectionInfo().getApiInstance().sendMessage(channel, text, null, null);
+    }
+
+    private void setupCommandResultHandler(IRCConnection connection, String[] command) {
+        CommandHandlerList l = connection.getServerConnectionData().getCommandHandlerList();
+        if (command[0].equalsIgnoreCase("WHOIS")) {
+            l.getHandler(WhoisCommandHandler.class).onRequested(command[1], (WhoisInfo whoisInfo) -> {
+                mFragment.getActivity().runOnUiThread(() -> {
+                    UserBottomSheetDialog dialog = new UserBottomSheetDialog(mContext);
+                    dialog.setData(whoisInfo);
+                    dialog.show();
+                });
+            }, (String n, int i, String m) -> {
+                setCommandError(n + " " + m);
+            });
+        }
+    }
+
+    private void setCommandError(CharSequence message) {
+        mCommandErrorText.setText(message);
+        mCommandErrorContainer.setVisibility(View.VISIBLE);
+        mSendText.dismissDropDown();
     }
 
 

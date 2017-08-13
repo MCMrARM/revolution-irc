@@ -83,7 +83,8 @@ public class UserBottomSheetDialog {
             addEntry(R.string.user_server_op, mContext.getString(R.string.user_server_op_desc));
         if (info.isConnectionSecure())
             addEntry(R.string.user_secure, mContext.getString(R.string.user_secure_desc));
-        mAdapter.notifyDataSetChanged();
+        if (mAdapter != null)
+            mAdapter.notifyDataSetChanged();
     }
 
     private String formatTime(int seconds) {
