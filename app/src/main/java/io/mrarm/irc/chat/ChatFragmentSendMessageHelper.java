@@ -208,16 +208,20 @@ public class ChatFragmentSendMessageHelper {
     }
 
     private void setupCommandResultHandler(IRCConnection connection, String[] command) {
+        if (command.length == 0)
+            return;
         CommandHandlerList l = connection.getServerConnectionData().getCommandHandlerList();
         if (command[0].equalsIgnoreCase("WHOIS")) {
-            l.getHandler(WhoisCommandHandler.class).onRequested(command[1], (WhoisInfo whoisInfo) -> {
+            l.getHandler(WhoisCommandHandler.class).onRequested(command.length > 1 ? command[1] : null, (WhoisInfo whoisInfo) -> {
                 mFragment.getActivity().runOnUiThread(() -> {
                     UserBottomSheetDialog dialog = new UserBottomSheetDialog(mContext);
                     dialog.setData(whoisInfo);
                     dialog.show();
                 });
             }, (String n, int i, String m) -> {
-                setCommandError(n + " " + m);
+                mFragment.getActivity().runOnUiThread(() -> {
+                    setCommandError((n != null ? (n + ": ") : "") + m);
+                });
             });
         }
     }
