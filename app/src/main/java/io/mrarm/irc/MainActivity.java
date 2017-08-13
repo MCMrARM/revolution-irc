@@ -282,9 +282,10 @@ public class MainActivity extends AppCompatActivity {
                 }
                 hasChanges = true;
             }
-            if (fragment.hasSendMessageTextSelection() !=
+            if (fragment.getSendMessageHelper().hasSendMessageTextSelection() !=
                     menu.findItem(R.id.action_format).isVisible()) {
-                menu.findItem(R.id.action_format).setVisible(fragment.hasSendMessageTextSelection());
+                menu.findItem(R.id.action_format).setVisible(fragment.getSendMessageHelper()
+                        .hasSendMessageTextSelection());
                 hasChanges = true;
             }
             MenuItem partItem = menu.findItem(R.id.action_part_channel);
@@ -357,7 +358,7 @@ public class MainActivity extends AppCompatActivity {
         } else if (id == R.id.action_reconnect) {
             ((ChatFragment) getCurrentFragment()).getConnectionInfo().connect();
         } else if (id == R.id.action_format) {
-            ((ChatFragment) getCurrentFragment()).setFormatBarVisible(true);
+            ((ChatFragment) getCurrentFragment()).getSendMessageHelper().setFormatBarVisible(true);
         } else if (id == R.id.action_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
         } else if (id == R.id.action_exit) {

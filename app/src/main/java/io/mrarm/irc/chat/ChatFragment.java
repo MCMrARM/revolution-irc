@@ -69,15 +69,8 @@ public class ChatFragment extends Fragment implements
     private ChatPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
     private DrawerLayout mDrawerLayout;
+    private ChatFragmentSendMessageHelper mSendHelper;
     private ChannelMembersAdapter mChannelMembersAdapter;
-    private ChatSuggestionsAdapter mChannelMembersListAdapter;
-    private ChatAutoCompleteEditText mSendText;
-    private View mFormatBarDivider;
-    private TextFormatBar mFormatBar;
-    private ImageView mSendIcon;
-    private ImageView mTabIcon;
-    private View mCommandErrorContainer;
-    private TextView mCommandErrorText;
     private int mNormalToolbarInset;
 
     public static ChatFragment newInstance(ServerConnectionInfo server, String channel) {
@@ -154,63 +147,6 @@ public class ChatFragment extends Fragment implements
         membersRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         membersRecyclerView.setAdapter(mChannelMembersAdapter);
 
-        mFormatBar = rootView.findViewById(R.id.format_bar);
-        mFormatBarDivider = rootView.findViewById(R.id.format_bar_divider);
-        mSendText = rootView.findViewById(R.id.send_text);
-        mSendIcon = rootView.findViewById(R.id.send_button);
-        mTabIcon = rootView.findViewById(R.id.tab_button);
-
-        mSendText.setFormatBar(mFormatBar);
-        mSendText.setCustomSelectionActionModeCallback(new FormatItemActionMode());
-
-        mFormatBar.setExtraButton(R.drawable.ic_close, getString(R.string.action_close), (View v) -> {
-            setFormatBarVisible(false);
-        });
-
-        RecyclerView suggestionsRecyclerView = rootView.findViewById(R.id.suggestions_list);
-        suggestionsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        mChannelMembersListAdapter = new ChatSuggestionsAdapter(mConnectionInfo, null);
-        mSendText.setSuggestionsListView(rootView.findViewById(R.id.suggestions_container), rootView.findViewById(R.id.suggestions_card), suggestionsRecyclerView);
-        mSendText.setAdapter(mChannelMembersListAdapter);
-        mSendText.setCommandListAdapter(new CommandListSuggestionsAdapter(getContext()));
-        mSendText.setConnectionContext(mConnectionInfo);
-        if (mConnectionInfo.getApiInstance() instanceof ServerConnectionApi)
-            mSendText.setChannelTypes(((ServerConnectionApi) mConnectionInfo.getApiInstance())
-                    .getServerConnectionData().getSupportList().getSupportedChannelTypes());
-        rootView.findViewById(R.id.suggestions_dismiss).setOnTouchListener((View view, MotionEvent motionEvent) -> {
-            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN)
-                mSendText.dismissDropDown();
-            return true;
-        });
-
-        ImageViewTintUtils.setTint(mSendIcon, 0x54000000);
-
-        mSendText.addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
-            int accentColor = getResources().getColor(R.color.colorAccent);
-            if (s.length() > 0)
-                ImageViewTintUtils.setTint(mSendIcon, accentColor);
-            else
-                ImageViewTintUtils.setTint(mSendIcon, 0x54000000);
-            mCommandErrorContainer.setVisibility(View.GONE); // hide the error
-        }));
-        mSendText.setOnEditorActionListener((TextView v, int actionId, KeyEvent event) -> {
-            if (actionId == EditorInfo.IME_ACTION_SEND)
-                sendMessage();
-            return false;
-        });
-        mSendIcon.setOnClickListener((View view) -> {
-            sendMessage();
-        });
-
-        mTabIcon.setOnClickListener((View v) -> {
-            mSendText.requestTabComplete();
-        });
-
-        mCommandErrorContainer = rootView.findViewById(R.id.command_error_card);
-        mCommandErrorText = rootView.findViewById(R.id.command_error_text);
-        mCommandErrorText.setMovementMethod(new LinkMovementMethod());
-        rootView.findViewById(R.id.command_error_close).setOnClickListener((View v) -> mCommandErrorContainer.setVisibility(View.GONE));
-
         rootView.addOnLayoutChangeListener((View v, int left, int top, int right, int bottom,
                                             int oldLeft, int oldTop, int oldRight, int oldBottom) -> {
             int height = bottom - top;
@@ -231,13 +167,15 @@ public class ChatFragment extends Fragment implements
             mTabLayout.setScrollPosition(mTabLayout.getSelectedTabPosition(), 0.f, false);
         });
 
+        mSendHelper = new ChatFragmentSendMessageHelper(this, rootView);
+
         SettingsHelper s = SettingsHelper.getInstance(getContext());
         s.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_APPBAR_COMPACT_MODE, this);
         s.addPreferenceChangeListener(SettingsHelper.PREF_NICK_AUTOCOMPLETE_SHOW_BUTTON, this);
         s.addPreferenceChangeListener(SettingsHelper.PREF_NICK_AUTOCOMPLETE_DOUBLE_TAP, this);
 
-        setTabButtonVisible(s.isNickAutocompleteButtonVisible());
-        setDoubleTapCompleteEnabled(s.isNickAutocompleteDoubleTapEnabled());
+        mSendHelper.setTabButtonVisible(s.isNickAutocompleteButtonVisible());
+        mSendHelper.setDoubleTapCompleteEnabled(s.isNickAutocompleteDoubleTapEnabled());
 
         return rootView;
     }
@@ -277,8 +215,8 @@ public class ChatFragment extends Fragment implements
         if (getView() != null) {
             updateToolbarCompactLayoutStatus(getView().getBottom() - getView().getTop());
             SettingsHelper s = SettingsHelper.getInstance(getContext());
-            setTabButtonVisible(s.isNickAutocompleteButtonVisible());
-            setDoubleTapCompleteEnabled(s.isNickAutocompleteDoubleTapEnabled());
+            mSendHelper.setTabButtonVisible(s.isNickAutocompleteButtonVisible());
+            mSendHelper.setDoubleTapCompleteEnabled(s.isNickAutocompleteDoubleTapEnabled());
         }
     }
 
@@ -316,88 +254,6 @@ public class ChatFragment extends Fragment implements
         mTabLayout.setVisibility(hidden ? View.GONE : View.VISIBLE);
     }
 
-    public void setFormatBarVisible(boolean visible) {
-        if (visible) {
-            mFormatBar.setVisibility(View.VISIBLE);
-            mFormatBarDivider.setVisibility(View.VISIBLE);
-        } else {
-            mFormatBar.setVisibility(View.GONE);
-            mFormatBarDivider.setVisibility(View.GONE);
-        }
-    }
-
-    public void setTabButtonVisible(boolean visible) {
-        RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams)
-                mSendText.getLayoutParams();
-        if (visible) {
-            MarginLayoutParamsCompat.setMarginStart(layoutParams, 0);
-            mTabIcon.setVisibility(View.VISIBLE);
-        } else {
-            MarginLayoutParamsCompat.setMarginStart(layoutParams,
-                    getResources().getDimensionPixelSize(R.dimen.message_edit_text_margin_left));
-            mTabIcon.setVisibility(View.GONE);
-        }
-        mSendText.setLayoutParams(layoutParams);
-    }
-
-    public void setDoubleTapCompleteEnabled(boolean enabled) {
-        if (enabled) {
-            GestureDetector detector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
-                @Override
-                public boolean onDoubleTap(MotionEvent e) {
-                    mSendText.requestTabComplete();
-                    return true;
-                }
-            });
-            mSendText.setOnTouchListener((View v, MotionEvent event) -> detector.onTouchEvent(event));
-        } else {
-            mSendText.setOnTouchListener(null);
-        }
-    }
-
-    public void sendMessage() {
-        String text = IRCColorUtils.convertSpannableToIRCString(getContext(), mSendText.getText());
-        if (text.length() == 0)
-            return;
-        String channel = mSectionsPagerAdapter.getChannel(mViewPager.getCurrentItem());
-        if (text.charAt(0) == '/') {
-            SimpleTextVariableList vars = new SimpleTextVariableList();
-            vars.set(CommandAliasManager.VAR_CHANNEL, channel);
-            vars.set(CommandAliasManager.VAR_MYNICK, mConnectionInfo.getUserNick());
-            try {
-                if (CommandAliasManager.getInstance(getContext()).processCommand((IRCConnection) mConnectionInfo.getApiInstance(), text.substring(1), vars)) {
-                    mSendText.setText("");
-                    return;
-                }
-            } catch (RuntimeException e) {
-                mCommandErrorText.setText(R.string.command_error_internal);
-                mCommandErrorContainer.setVisibility(View.VISIBLE);
-                mSendText.dismissDropDown();
-                return;
-            }
-            ColoredTextBuilder builder = new ColoredTextBuilder();
-            builder.append(getString(R.string.command_error_not_found));
-            builder.append("  ");
-            builder.append(getString(R.string.command_send_raw), new ClickableSpan() {
-                @Override
-                public void onClick(View view) {
-                    ((IRCConnection) mConnectionInfo.getApiInstance()).sendCommandRaw(text.substring(1), null, null);
-                    mCommandErrorContainer.setVisibility(View.GONE);
-                }
-            });
-            mCommandErrorText.setText(builder.getSpannable());
-            mCommandErrorContainer.setVisibility(View.VISIBLE);
-            mSendText.dismissDropDown();
-            return;
-        }
-        mSendText.setText("");
-        mConnectionInfo.getApiInstance().sendMessage(channel, text, null, null);
-    }
-
-    public boolean hasSendMessageTextSelection() {
-        return (mSendText != null && mSendText.getSelectionEnd() - mSendText.getSelectionStart() > 0);
-    }
-
     @Override
     public void onDestroyView() {
         mConnectionInfo.removeOnChannelListChangeListener(this);
@@ -419,7 +275,7 @@ public class ChatFragment extends Fragment implements
 
     public void setCurrentChannelMembers(List<NickWithPrefix> members) {
         mChannelMembersAdapter.setMembers(members);
-        mChannelMembersListAdapter.setMembers(members);
+        mSendHelper.setCurrentChannelMembers(members);
         if (members == null || members.size() == 0)
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         else
@@ -428,6 +284,10 @@ public class ChatFragment extends Fragment implements
 
     public String getCurrentChannel() {
         return mSectionsPagerAdapter.getChannel(mViewPager.getCurrentItem());
+    }
+
+    public ChatFragmentSendMessageHelper getSendMessageHelper() {
+        return mSendHelper;
     }
 
     @Override
@@ -450,37 +310,6 @@ public class ChatFragment extends Fragment implements
 
     public void closeDrawer() {
         mDrawerLayout.closeDrawer(GravityCompat.END, false);
-    }
-
-    private class FormatItemActionMode implements ActionMode.Callback {
-
-        private MenuItem mFormatMenuItem;
-
-        @Override
-        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-            mFormatMenuItem = menu.add(R.string.message_format)
-                    .setIcon(R.drawable.ic_text_format);
-            return true;
-        }
-
-        @Override
-        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            return false;
-        }
-
-        @Override
-        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            if (mFormatMenuItem == item) {
-                setFormatBarVisible(true);
-                return true;
-            }
-            return false;
-        }
-
-        @Override
-        public void onDestroyActionMode(ActionMode mode) {
-        }
-
     }
 
 }
