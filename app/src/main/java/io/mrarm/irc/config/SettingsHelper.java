@@ -239,10 +239,21 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     }
 
     public long getStorageLimitGlobal() {
-        return mPreferences.getLong(PREF_STORAGE_LIMIT_GLOBAL, StorageLimitsDialog.DEFAULT_LIMIT_GLOBAL);
+        return getLong(PREF_STORAGE_LIMIT_GLOBAL, StorageLimitsDialog.DEFAULT_LIMIT_GLOBAL);
     }
 
     public long getStorageLimitServer() {
-        return mPreferences.getLong(PREF_STORAGE_LIMIT_SERVER, StorageLimitsDialog.DEFAULT_LIMIT_SERVER);
+        return getLong(PREF_STORAGE_LIMIT_SERVER, StorageLimitsDialog.DEFAULT_LIMIT_SERVER);
     }
+
+    private long getLong(String key, long def) {
+        try {
+            return mPreferences.getLong(key, def);
+        } catch (Exception e) {
+            // We most likely got a ClassCastException and this situation happened after restoring
+            // from a backup, as in JSON we have no idea of differentiating longs from ints.
+            return mPreferences.contains(key) ? mPreferences.getInt(key, 0) : def;
+        }
+    }
+
 }
