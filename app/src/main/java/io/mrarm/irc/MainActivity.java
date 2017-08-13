@@ -271,10 +271,12 @@ public class MainActivity extends AppCompatActivity {
             if (connected != wasConnected) {
                 if (connected) {
                     menu.findItem(R.id.action_reconnect).setVisible(false);
+                    menu.findItem(R.id.action_close).setVisible(false);
                     menu.findItem(R.id.action_disconnect).setVisible(true);
                     menu.findItem(R.id.action_disconnect_and_close).setVisible(true);
                 } else {
                     menu.findItem(R.id.action_reconnect).setVisible(true);
+                    menu.findItem(R.id.action_close).setVisible(true);
                     menu.findItem(R.id.action_disconnect).setVisible(false);
                     menu.findItem(R.id.action_disconnect_and_close).setVisible(false);
                 }
@@ -347,7 +349,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         } else if (id == R.id.action_disconnect) {
             ((ChatFragment) getCurrentFragment()).getConnectionInfo().disconnect();
-        } else if (id == R.id.action_disconnect_and_close) {
+        } else if (id == R.id.action_disconnect_and_close || id == R.id.action_close) {
             ServerConnectionInfo info = ((ChatFragment) getCurrentFragment()).getConnectionInfo();
             info.disconnect();
             ServerConnectionManager.getInstance(this).removeConnection(info);

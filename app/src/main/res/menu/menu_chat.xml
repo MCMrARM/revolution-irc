@@ -32,6 +32,11 @@
         android:title="@string/action_disconnect_and_close"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_close"
+        android:title="@string/action_close"
+        android:visible="false"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_format"
         android:title="@string/message_format"
         android:visible="false"
