@@ -129,15 +129,16 @@ public class ChipsEditText extends FrameLayout {
         int editIndex = mItemEditText.mEditIndex;
         Log.d("ChipsEditText", "Finish Item Edit " + editIndex + "/" + mEditableLineStarts.size());
         if (editIndex != -1) {
-            mFlexbox.removeViewAt(editIndex);
             String text = getItemText(editIndex);
             mItemEditText.mEditIndex = -1;
             if (editIndex == mEditableLineStarts.size() - 1) {
+                mFlexbox.removeViewAt(editIndex);
                 if (text.length() > 0) {
                     addItem(text, mEditableLineStarts.size() - 1);
                     removeLastEditEntry();
                 }
             } else if (text.length() > 0) {
+                mFlexbox.removeViewAt(editIndex);
                 createChip(text, editIndex);
             } else {
                 removeItem(editIndex);
