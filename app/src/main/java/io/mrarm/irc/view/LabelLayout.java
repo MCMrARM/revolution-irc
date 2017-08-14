@@ -21,6 +21,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import io.mrarm.irc.R;
+import io.mrarm.irc.util.SimpleTextWatcher;
 
 public class LabelLayout extends FrameLayout {
 
@@ -121,7 +122,11 @@ public class LabelLayout extends FrameLayout {
         mChild = child;
         mInputFrame.addView(child, index, params);
         updateTopMargin();
-        if (child instanceof EditText) {
+        if (child instanceof ChipsEditText) {
+            ((ChipsEditText) child).addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
+                updateLabelExpandState(false);
+            }));
+        } else if (child instanceof EditText) {
             ((EditText) child).addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -133,18 +138,6 @@ public class LabelLayout extends FrameLayout {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    updateLabelExpandState(false);
-                }
-            });
-        } else if (child instanceof ChipsEditText) {
-            ((ChipsEditText) child).addChipListener(new ChipsEditText.ChipListener() {
-                @Override
-                public void onChipAdded(String text, int index) {
-                    updateLabelExpandState(false);
-                }
-
-                @Override
-                public void onChipRemoved(int index) {
                     updateLabelExpandState(false);
                 }
             });
@@ -172,10 +165,10 @@ public class LabelLayout extends FrameLayout {
     private boolean isChildEmpty() {
         if (mChild == null)
             return false;
+        if (mChild instanceof ChipsEditText)
+            return ((ChipsEditText) mChild).isEmpty();
         if (mChild instanceof TextView)
             return ((TextView) mChild).getText().length() == 0;
-        if (mChild instanceof ChipsEditText)
-            return ((ChipsEditText) mChild).getItemCount() == 0;
         return false;
     }
 

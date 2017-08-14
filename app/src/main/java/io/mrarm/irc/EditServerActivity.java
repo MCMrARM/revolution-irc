@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -286,7 +287,7 @@ public class EditServerActivity extends AppCompatActivity {
         mEditServer.address = mServerAddress.getText().toString();
         mEditServer.port = Integer.parseInt(mServerPort.getText().toString());
         mEditServer.ssl = mServerSSL.isChecked();
-        mEditServer.nicks = mServerNick.getItems();
+        mEditServer.nicks = Arrays.asList(mServerNick.getItems());
         if (mEditServer.nicks.size() == 0)
             mEditServer.nicks = null;
         mEditServer.user = mServerUser.getText().length() > 0 ? mServerUser.getText().toString() : null;
@@ -305,7 +306,7 @@ public class EditServerActivity extends AppCompatActivity {
         }
         if (mServerAuthPassReset.getVisibility() == View.GONE && authModePassword)
             mEditServer.authPass = mServerAuthPass.getText().length() > 0 ? mServerAuthPass.getText().toString() : null;
-        mEditServer.autojoinChannels = mServerChannels.getItems();
+        mEditServer.autojoinChannels = Arrays.asList(mServerChannels.getItems());
         mEditServer.rejoinChannels = mServerRejoinChannels.isChecked();
         try {
             ServerConfigManager.getInstance(this).saveServer(mEditServer);

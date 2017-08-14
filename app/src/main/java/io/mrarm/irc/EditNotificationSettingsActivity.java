@@ -19,6 +19,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -502,12 +503,12 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         public void unbind() {
             NotificationRule.AppliesToEntry entry = getEntry().mEntry;
             getEntry().mEntry.server = mSpinnerOptionUUIDs.get(mServerSpinner.getSelectedItemPosition());
-            if (mChannels.getItemCount() > 0)
-                getEntry().mEntry.channels = mChannels.getItems();
+            if (!mChannels.isEmpty())
+                getEntry().mEntry.channels = Arrays.asList(mChannels.getItems());
             else
                 getEntry().mEntry.channels = null;
-            if (mNicks.getItemCount() > 0)
-                getEntry().mEntry.nicks = mNicks.getItems();
+            if (!mNicks.isEmpty())
+                getEntry().mEntry.nicks = Arrays.asList(mNicks.getItems());
             else
                 getEntry().mEntry.nicks = null;
             entry.matchChannelMessages = mChannelMessages.isChecked();

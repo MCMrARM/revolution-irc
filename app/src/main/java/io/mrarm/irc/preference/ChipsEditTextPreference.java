@@ -45,14 +45,13 @@ public class ChipsEditTextPreference extends DialogPreference {
     protected void onBindDialogView(View view) {
         super.onBindDialogView(view);
         mEditText.setItems(getValue());
-        mEditText.startItemEdit();
     }
 
     @Override
     protected void onDialogClosed(boolean positiveResult) {
         if (positiveResult) {
             mEditText.clearFocus();
-            setValue(mEditText.getItems());
+            setValue(Arrays.asList(mEditText.getItems()));
         }
         mEditText = null;
     }

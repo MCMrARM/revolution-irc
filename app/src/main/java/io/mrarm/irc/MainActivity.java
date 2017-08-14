@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.WindowManager;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 import io.mrarm.chatlib.ChatApi;
@@ -315,14 +316,13 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_join_channel) {
             View v = LayoutInflater.from(this).inflate(R.layout.dialog_chip_edit_text, null);
             ChipsEditText editText = v.findViewById(R.id.chip_edit_text);
-            editText.startItemEdit();
             AlertDialog dialog = new AlertDialog.Builder(this)
                     .setTitle(R.string.action_join_channel)
                     .setView(v)
                     .setPositiveButton(R.string.action_ok, (DialogInterface d, int which) -> {
                         editText.clearFocus();
                         ChatApi api = ((ChatFragment) getCurrentFragment()).getConnectionInfo().getApiInstance();
-                        api.joinChannels(editText.getItems(), null, null);
+                        api.joinChannels(Arrays.asList(editText.getItems()), null, null);
                     })
                     .setNeutralButton(R.string.title_activity_channel_list, (DialogInterface d, int which) -> {
                         ServerConnectionInfo info = ((ChatFragment) getCurrentFragment()).getConnectionInfo();
