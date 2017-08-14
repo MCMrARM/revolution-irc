@@ -235,6 +235,8 @@ public class ChatFragmentSendMessageHelper {
             });
             return true;
         } else if (command[0].equalsIgnoreCase("NICK")) {
+            if (command.length > 1 && command[1].equals(connection.getServerConnectionData().getUserNick()))
+                return false;
             l.getHandler(NickCommandHandler.class).onRequested(command.length > 1 ? command[1] : null, (String nick) -> {
                 notifyCommandSuceeded();
             }, (String n, int i, String m) -> {
