@@ -61,6 +61,17 @@
             android:paddingRight="16dp"
             android:background="?selectableItemBackgroundBorderless"/>
 
+        <io.mrarm.irc.view.ProgressBar
+            android:id="@+id/send_progress"
+            style="?attr/progressBarStyle"
+            android:visibility="gone"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="14dp"
+            android:layout_centerVertical="true" />
+
         <View
             android:id="@+id/format_bar_divider"
             android:layout_below="@id/send_text"

@@ -20,6 +20,8 @@
     <dimen name="chip_edit_text_horizontal_padding">4dp</dimen>
     <dimen name="chip_edit_text_min_height">24dp</dimen>
 
+    <dimen name="progressbar_arc_thickness">4dp</dimen>
+
     <dimen name="simple_bar_chart_radius">2dp</dimen>
 
     <dimen name="bottom_sheet_min_height">196dp</dimen>

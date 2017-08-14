@@ -6,6 +6,8 @@ import android.support.v4.view.MarginLayoutParamsCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.view.ActionMode;
@@ -38,6 +40,7 @@ import io.mrarm.irc.util.ImageViewTintUtils;
 import io.mrarm.irc.util.SimpleTextVariableList;
 import io.mrarm.irc.util.SimpleTextWatcher;
 import io.mrarm.irc.view.ChatAutoCompleteEditText;
+import io.mrarm.irc.view.ProgressBar;
 import io.mrarm.irc.view.TextFormatBar;
 
 public class ChatFragmentSendMessageHelper {
@@ -49,6 +52,7 @@ public class ChatFragmentSendMessageHelper {
     private View mFormatBarDivider;
     private TextFormatBar mFormatBar;
     private ImageView mSendIcon;
+    private ProgressBar mSendProgressBar;
     private ImageView mTabIcon;
     private View mCommandErrorContainer;
     private TextView mCommandErrorText;
@@ -62,6 +66,7 @@ public class ChatFragmentSendMessageHelper {
         mFormatBarDivider = rootView.findViewById(R.id.format_bar_divider);
         mSendText = rootView.findViewById(R.id.send_text);
         mSendIcon = rootView.findViewById(R.id.send_button);
+        mSendProgressBar = rootView.findViewById(R.id.send_progress);
         mTabIcon = rootView.findViewById(R.id.tab_button);
 
         mSendText.setFormatBar(mFormatBar);
@@ -161,7 +166,7 @@ public class ChatFragmentSendMessageHelper {
 
     public void sendMessage() {
         String text = IRCColorUtils.convertSpannableToIRCString(mContext, mSendText.getText());
-        if (text.length() == 0)
+        if (text.length() == 0 || mSendProgressBar.getVisibility() == View.VISIBLE)
             return;
         String channel = mFragment.getCurrentChannel();
         if (text.charAt(0) == '/') {
@@ -174,15 +179,20 @@ public class ChatFragmentSendMessageHelper {
                         .getInstance(mContext).processCommand(conn.getServerConnectionData(),
                                 text.substring(1), vars);
                 if (result != null) {
+                    boolean doNotClear = false;
                     if (result.mode == CommandAliasManager.CommandAlias.MODE_RAW) {
-                        setupCommandResultHandler(conn, result.text.split(" "));
+                        if (setupCommandResultHandler(conn, result.text.split(" "))) {
+                            setSendingStatus(true);
+                            doNotClear = true;
+                        }
                         conn.sendCommandRaw(result.text, null, null);
                     } else if (result.mode == CommandAliasManager.CommandAlias.MODE_MESSAGE) {
                         conn.sendMessage(result.channel, result.text, null, null);
                     } else {
                         throw new RuntimeException();
                     }
-                    mSendText.setText("");
+                    if (!doNotClear)
+                        mSendText.setText("");
                     return;
                 }
             } catch (RuntimeException e) {
@@ -207,29 +217,56 @@ public class ChatFragmentSendMessageHelper {
         mFragment.getConnectionInfo().getApiInstance().sendMessage(channel, text, null, null);
     }
 
-    private void setupCommandResultHandler(IRCConnection connection, String[] command) {
+    private boolean setupCommandResultHandler(IRCConnection connection, String[] command) {
         if (command.length == 0)
-            return;
+            return false;
         CommandHandlerList l = connection.getServerConnectionData().getCommandHandlerList();
         if (command[0].equalsIgnoreCase("WHOIS")) {
             l.getHandler(WhoisCommandHandler.class).onRequested(command.length > 1 ? command[1] : null, (WhoisInfo whoisInfo) -> {
                 mFragment.getActivity().runOnUiThread(() -> {
+                    notifyCommandSuceeded();
                     UserBottomSheetDialog dialog = new UserBottomSheetDialog(mContext);
                     dialog.setData(whoisInfo);
                     dialog.show();
                 });
             }, (String n, int i, String m) -> {
                 mFragment.getActivity().runOnUiThread(() -> {
-                    setCommandError((n != null ? (n + ": ") : "") + m);
+                    notifyCommandFailed((n != null ? (n + ": ") : "") + m);
                 });
             });
+            return true;
         }
+        return false;
     }
 
     private void setCommandError(CharSequence message) {
         mCommandErrorText.setText(message);
         mCommandErrorContainer.setVisibility(View.VISIBLE);
         mSendText.dismissDropDown();
+    }
+
+    private void setSendingStatus(boolean sending) {
+        mSendProgressBar.setVisibility(sending ? View.VISIBLE : View.GONE);
+        if (sending) {
+            mSendText.setFilters(new InputFilter[]{
+                    (CharSequence src, int start, int end, Spanned dst, int dstart, int dend)
+                            -> dst.subSequence(dstart, dend)
+            });
+            mSendIcon.setVisibility(View.INVISIBLE);
+        } else {
+            mSendText.setFilters(new InputFilter[]{});
+            mSendIcon.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void notifyCommandSuceeded() {
+        setSendingStatus(false);
+        mSendText.setText("");
+    }
+
+    private void notifyCommandFailed(CharSequence message) {
+        setSendingStatus(false);
+        setCommandError(message);
     }
 
 
