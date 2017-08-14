@@ -29,6 +29,7 @@ import io.mrarm.chatlib.dto.WhoisInfo;
 import io.mrarm.chatlib.irc.CommandHandlerList;
 import io.mrarm.chatlib.irc.IRCConnection;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
+import io.mrarm.chatlib.irc.handlers.NickCommandHandler;
 import io.mrarm.chatlib.irc.handlers.WhoisCommandHandler;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
@@ -230,9 +231,14 @@ public class ChatFragmentSendMessageHelper {
                     dialog.show();
                 });
             }, (String n, int i, String m) -> {
-                mFragment.getActivity().runOnUiThread(() -> {
-                    notifyCommandFailed((n != null ? (n + ": ") : "") + m);
-                });
+                notifyCommandFailed((n != null ? (n + ": ") : "") + m);
+            });
+            return true;
+        } else if (command[0].equalsIgnoreCase("NICK")) {
+            l.getHandler(NickCommandHandler.class).onRequested(command.length > 1 ? command[1] : null, (String nick) -> {
+                notifyCommandSuceeded();
+            }, (String n, int i, String m) -> {
+                notifyCommandFailed((n != null ? (n + ": ") : "") + m);
             });
             return true;
         }
@@ -260,13 +266,21 @@ public class ChatFragmentSendMessageHelper {
     }
 
     private void notifyCommandSuceeded() {
-        setSendingStatus(false);
-        mSendText.setText("");
+        if (mFragment.getActivity() == null)
+            return;
+        mFragment.getActivity().runOnUiThread(() -> {
+            setSendingStatus(false);
+            mSendText.setText("");
+        });
     }
 
     private void notifyCommandFailed(CharSequence message) {
-        setSendingStatus(false);
-        setCommandError(message);
+        if (mFragment.getActivity() == null)
+            return;
+        mFragment.getActivity().runOnUiThread(() -> {
+            setSendingStatus(false);
+            setCommandError(message);
+        });
     }
 
 
