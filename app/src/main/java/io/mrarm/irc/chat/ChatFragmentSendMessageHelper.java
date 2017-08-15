@@ -1,13 +1,13 @@
 package io.mrarm.irc.chat;
 
-import android.app.Activity;
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.view.MarginLayoutParamsCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.Editable;
-import android.text.InputFilter;
-import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.view.ActionMode;
@@ -41,7 +41,6 @@ import io.mrarm.irc.util.ImageViewTintUtils;
 import io.mrarm.irc.util.SimpleTextVariableList;
 import io.mrarm.irc.util.SimpleTextWatcher;
 import io.mrarm.irc.view.ChatAutoCompleteEditText;
-import io.mrarm.irc.view.ProgressBar;
 import io.mrarm.irc.view.TextFormatBar;
 
 public class ChatFragmentSendMessageHelper {
@@ -53,10 +52,13 @@ public class ChatFragmentSendMessageHelper {
     private View mFormatBarDivider;
     private TextFormatBar mFormatBar;
     private ImageView mSendIcon;
-    private ProgressBar mSendProgressBar;
     private ImageView mTabIcon;
-    private View mCommandErrorContainer;
-    private TextView mCommandErrorText;
+    private View mClientCommandErrorContainer;
+    private TextView mClientCommandErrorText;
+    private View mServerMessagesContainer;
+    private View mServerMessagesCard;
+    private RecyclerView mServerMessagesList;
+    private ChatServerMessagesAdapter mServerMessagesListAdapter;
 
     public ChatFragmentSendMessageHelper(ChatFragment chatFragment, View rootView) {
         mContext = rootView.getContext();
@@ -67,7 +69,6 @@ public class ChatFragmentSendMessageHelper {
         mFormatBarDivider = rootView.findViewById(R.id.format_bar_divider);
         mSendText = rootView.findViewById(R.id.send_text);
         mSendIcon = rootView.findViewById(R.id.send_button);
-        mSendProgressBar = rootView.findViewById(R.id.send_progress);
         mTabIcon = rootView.findViewById(R.id.tab_button);
 
         mSendText.setFormatBar(mFormatBar);
@@ -101,7 +102,7 @@ public class ChatFragmentSendMessageHelper {
                 ImageViewTintUtils.setTint(mSendIcon, accentColor);
             else
                 ImageViewTintUtils.setTint(mSendIcon, 0x54000000);
-            mCommandErrorContainer.setVisibility(View.GONE); // hide the error
+            mClientCommandErrorContainer.setVisibility(View.GONE); // hide the error
         }));
         mSendText.setOnEditorActionListener((TextView v, int actionId, KeyEvent event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEND)
@@ -116,10 +117,29 @@ public class ChatFragmentSendMessageHelper {
             mSendText.requestTabComplete();
         });
 
-        mCommandErrorContainer = rootView.findViewById(R.id.command_error_card);
-        mCommandErrorText = rootView.findViewById(R.id.command_error_text);
-        mCommandErrorText.setMovementMethod(new LinkMovementMethod());
-        rootView.findViewById(R.id.command_error_close).setOnClickListener((View v) -> mCommandErrorContainer.setVisibility(View.GONE));
+        mClientCommandErrorContainer = rootView.findViewById(R.id.client_command_error_card);
+        mClientCommandErrorText = rootView.findViewById(R.id.client_command_error_text);
+        mClientCommandErrorText.setMovementMethod(new LinkMovementMethod());
+        rootView.findViewById(R.id.client_command_error_close).setOnClickListener((View v) -> mClientCommandErrorContainer.setVisibility(View.GONE));
+
+        mServerMessagesContainer = rootView.findViewById(R.id.server_messages_container);
+        mServerMessagesCard = rootView.findViewById(R.id.server_messages_card);
+        mServerMessagesList = rootView.findViewById(R.id.server_messages_list);
+        mServerMessagesList.setLayoutManager(new LinearLayoutManager(mContext));
+        mServerMessagesListAdapter = new ChatServerMessagesAdapter(mContext);
+        mServerMessagesList.setAdapter(mServerMessagesListAdapter);
+        mServerMessagesList.setItemAnimator(null);
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new MyItemTouchHelperCallback());
+        itemTouchHelper.attachToRecyclerView(mServerMessagesList);
+        BottomSheetBehavior.from(mServerMessagesCard).setBottomSheetCallback(mServerMessagesBottomSheetCallback);
+        rootView.findViewById(R.id.server_messages_dismiss).setOnTouchListener((View view, MotionEvent motionEvent) -> {
+            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                mServerMessagesContainer.setVisibility(View.GONE);
+                BottomSheetBehavior.from(mServerMessagesCard).setState(BottomSheetBehavior.STATE_COLLAPSED);
+                mServerMessagesListAdapter.clear();
+            }
+            return true;
+        });
     }
 
     public void setFormatBarVisible(boolean visible) {
@@ -167,7 +187,7 @@ public class ChatFragmentSendMessageHelper {
 
     public void sendMessage() {
         String text = IRCColorUtils.convertSpannableToIRCString(mContext, mSendText.getText());
-        if (text.length() == 0 || mSendProgressBar.getVisibility() == View.VISIBLE)
+        if (text.length() == 0)
             return;
         String channel = mFragment.getCurrentChannel();
         if (text.charAt(0) == '/') {
@@ -180,24 +200,19 @@ public class ChatFragmentSendMessageHelper {
                         .getInstance(mContext).processCommand(conn.getServerConnectionData(),
                                 text.substring(1), vars);
                 if (result != null) {
-                    boolean doNotClear = false;
                     if (result.mode == CommandAliasManager.CommandAlias.MODE_RAW) {
-                        if (setupCommandResultHandler(conn, result.text.split(" "))) {
-                            setSendingStatus(true);
-                            doNotClear = true;
-                        }
+                        setupCommandResultHandler(conn, text, result.text);
                         conn.sendCommandRaw(result.text, null, null);
                     } else if (result.mode == CommandAliasManager.CommandAlias.MODE_MESSAGE) {
                         conn.sendMessage(result.channel, result.text, null, null);
                     } else {
                         throw new RuntimeException();
                     }
-                    if (!doNotClear)
-                        mSendText.setText("");
+                    mSendText.setText("");
                     return;
                 }
             } catch (RuntimeException e) {
-                setCommandError(mContext.getString(R.string.command_error_internal));
+                setClientCommandError(mContext.getString(R.string.command_error_internal));
                 return;
             }
             ColoredTextBuilder builder = new ColoredTextBuilder();
@@ -208,80 +223,55 @@ public class ChatFragmentSendMessageHelper {
                 public void onClick(View view) {
                     ((IRCConnection) mFragment.getConnectionInfo().getApiInstance()).sendCommandRaw(
                             text.substring(1), null, null);
-                    mCommandErrorContainer.setVisibility(View.GONE);
+                    mClientCommandErrorContainer.setVisibility(View.GONE);
                 }
             });
-            setCommandError(builder.getSpannable());
+            setClientCommandError(builder.getSpannable());
             return;
         }
         mSendText.setText("");
         mFragment.getConnectionInfo().getApiInstance().sendMessage(channel, text, null, null);
     }
 
-    private boolean setupCommandResultHandler(IRCConnection connection, String[] command) {
-        if (command.length == 0)
-            return false;
+    private void setClientCommandError(CharSequence message) {
+        mClientCommandErrorText.setText(message);
+        mClientCommandErrorContainer.setVisibility(View.VISIBLE);
+        mSendText.dismissDropDown();
+    }
+
+    private void setupCommandResultHandler(IRCConnection connection, String clientCommand, String sentCommand) {
+        String[] params = sentCommand.split(" ");
+        if (params.length == 0)
+            return;
         CommandHandlerList l = connection.getServerConnectionData().getCommandHandlerList();
-        if (command[0].equalsIgnoreCase("WHOIS")) {
-            l.getHandler(WhoisCommandHandler.class).onRequested(command.length > 1 ? command[1] : null, (WhoisInfo whoisInfo) -> {
+        if (params[0].equalsIgnoreCase("WHOIS")) {
+            l.getHandler(WhoisCommandHandler.class).onRequested(params.length > 1 ? params[1] : null, (WhoisInfo whoisInfo) -> {
                 mFragment.getActivity().runOnUiThread(() -> {
-                    notifyCommandSuceeded();
                     UserBottomSheetDialog dialog = new UserBottomSheetDialog(mContext);
                     dialog.setData(whoisInfo);
                     dialog.show();
                 });
             }, (String n, int i, String m) -> {
-                notifyCommandFailed((n != null ? (n + ": ") : "") + m);
+                notifyCommandFailed(clientCommand, m);
             });
-            return true;
-        } else if (command[0].equalsIgnoreCase("NICK")) {
-            if (command.length > 1 && command[1].equals(connection.getServerConnectionData().getUserNick()))
-                return false;
-            l.getHandler(NickCommandHandler.class).onRequested(command.length > 1 ? command[1] : null, (String nick) -> {
-                notifyCommandSuceeded();
-            }, (String n, int i, String m) -> {
-                notifyCommandFailed((n != null ? (n + ": ") : "") + m);
+        } else if (params[0].equalsIgnoreCase("NICK")) {
+            if (params.length > 1 && params[1].equals(connection.getServerConnectionData().getUserNick()))
+                return;
+            l.getHandler(NickCommandHandler.class).onRequested(params.length > 1 ? params[1] : null, null, (String n, int i, String m) -> {
+                notifyCommandFailed(clientCommand, m);
             });
-            return true;
-        }
-        return false;
-    }
-
-    private void setCommandError(CharSequence message) {
-        mCommandErrorText.setText(message);
-        mCommandErrorContainer.setVisibility(View.VISIBLE);
-        mSendText.dismissDropDown();
-    }
-
-    private void setSendingStatus(boolean sending) {
-        mSendProgressBar.setVisibility(sending ? View.VISIBLE : View.GONE);
-        if (sending) {
-            mSendText.setFilters(new InputFilter[]{
-                    (CharSequence src, int start, int end, Spanned dst, int dstart, int dend)
-                            -> dst.subSequence(dstart, dend)
-            });
-            mSendIcon.setVisibility(View.INVISIBLE);
-        } else {
-            mSendText.setFilters(new InputFilter[]{});
-            mSendIcon.setVisibility(View.VISIBLE);
         }
     }
 
-    private void notifyCommandSuceeded() {
+    private void notifyCommandFailed(String command, CharSequence message) {
         if (mFragment.getActivity() == null)
             return;
         mFragment.getActivity().runOnUiThread(() -> {
-            setSendingStatus(false);
-            mSendText.setText("");
-        });
-    }
-
-    private void notifyCommandFailed(CharSequence message) {
-        if (mFragment.getActivity() == null)
-            return;
-        mFragment.getActivity().runOnUiThread(() -> {
-            setSendingStatus(false);
-            setCommandError(message);
+            mServerMessagesListAdapter.addItem(new ChatServerMessagesAdapter.CommandErrorItem(mServerMessagesListAdapter, command, message, mCommandErrorClickListener));
+            BottomSheetBehavior b = BottomSheetBehavior.from(mServerMessagesCard);
+            if (b.getState() != BottomSheetBehavior.STATE_EXPANDED)
+                b.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            mServerMessagesContainer.setVisibility(View.VISIBLE);
         });
     }
 
@@ -290,6 +280,29 @@ public class ChatFragmentSendMessageHelper {
         return (mSendText != null && mSendText.getSelectionEnd() - mSendText.getSelectionStart() > 0);
     }
 
+    private final BottomSheetBehavior.BottomSheetCallback mServerMessagesBottomSheetCallback = new BottomSheetBehavior.BottomSheetCallback() {
+
+        @Override
+        public void onStateChanged(@NonNull View bottomSheet, int newState) {
+            if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+                mServerMessagesContainer.setVisibility(View.GONE);
+                mServerMessagesListAdapter.clear();
+            }
+        }
+
+        @Override
+        public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+        }
+
+    };
+
+    private final ChatServerMessagesAdapter.CommandErrorItem.OnClickListener mCommandErrorClickListener = (ChatServerMessagesAdapter.CommandErrorItem i) -> {
+        mSendText.setText(i.getCommand());
+        mSendText.setSelection(i.getCommand().length());
+        mServerMessagesListAdapter.removeItem(i);
+        if (mServerMessagesListAdapter.getItemCount() == 0)
+            mServerMessagesContainer.setVisibility(View.GONE);
+    };
 
     private class FormatItemActionMode implements ActionMode.Callback {
 
@@ -318,6 +331,38 @@ public class ChatFragmentSendMessageHelper {
 
         @Override
         public void onDestroyActionMode(ActionMode mode) {
+        }
+
+    }
+
+    private class MyItemTouchHelperCallback extends ItemTouchHelper.Callback {
+
+        @Override
+        public boolean isLongPressDragEnabled() {
+            return false;
+        }
+
+        @Override
+        public boolean isItemViewSwipeEnabled() {
+            return true;
+        }
+
+        @Override
+        public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+            return makeMovementFlags(0, ItemTouchHelper.START | ItemTouchHelper.END);
+        }
+
+        @Override
+        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
+                              RecyclerView.ViewHolder target) {
+            return false;
+        }
+
+        @Override
+        public void onSwiped(RecyclerView.ViewHolder viewHolder, int i) {
+            mServerMessagesListAdapter.removeItem(viewHolder.getAdapterPosition());
+            if (mServerMessagesListAdapter.getItemCount() == 0)
+                mServerMessagesContainer.setVisibility(View.GONE);
         }
 
     }

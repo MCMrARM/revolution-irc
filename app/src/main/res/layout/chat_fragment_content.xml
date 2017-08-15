@@ -61,17 +61,6 @@
             android:paddingRight="16dp"
             android:background="?selectableItemBackgroundBorderless"/>
 
-        <io.mrarm.irc.view.ProgressBar
-            android:id="@+id/send_progress"
-            style="?attr/progressBarStyle"
-            android:visibility="gone"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="14dp"
-            android:layout_centerVertical="true" />
-
         <View
             android:id="@+id/format_bar_divider"
             android:layout_below="@id/send_text"
@@ -90,7 +79,7 @@
     </RelativeLayout>
 
     <android.support.v7.widget.CardView
-        android:id="@+id/command_error_card"
+        android:id="@+id/client_command_error_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@id/send_container"
@@ -101,27 +90,27 @@
             android:layout_height="wrap_content">
 
             <TextView
-                android:id="@+id/command_error_text"
+                android:id="@+id/client_command_error_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
-                android:layout_toLeftOf="@id/command_error_close"
-                android:layout_toStartOf="@id/command_error_close"
+                android:layout_toLeftOf="@id/client_command_error_close"
+                android:layout_toStartOf="@id/client_command_error_close"
                 android:paddingLeft="@dimen/message_edit_text_margin_left"
                 android:paddingRight="@dimen/message_edit_text_margin_left"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
             <ImageButton
-                android:id="@+id/command_error_close"
+                android:id="@+id/client_command_error_close"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 app:srcCompat="@drawable/ic_close"
                 android:tint="?android:attr/textColorPrimary"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentEnd="true"
-                android:layout_alignTop="@id/command_error_text"
-                android:layout_alignBottom="@id/command_error_text"
+                android:layout_alignTop="@id/client_command_error_text"
+                android:layout_alignBottom="@id/client_command_error_text"
                 android:padding="8dp"
                 android:layout_marginRight="8dp"
                 android:background="?attr/selectableItemBackgroundBorderless" />
@@ -134,7 +123,42 @@
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/command_error_card" />
+        android:layout_above="@id/client_command_error_card" />
+
+    <android.support.design.widget.CoordinatorLayout
+        android:id="@+id/server_messages_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/client_command_error_card"
+        android:visibility="gone">
+
+        <View
+            android:id="@+id/server_messages_dismiss"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/server_messages_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_behavior="@string/bottom_sheet_behavior"
+            app:behavior_hideable="true"
+            app:behavior_peekHeight="180dp">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/server_messages_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:divider="@null" />
+
+        </android.support.v7.widget.CardView>
+
+    </android.support.design.widget.CoordinatorLayout>
 
     <android.support.design.widget.CoordinatorLayout
         android:id="@+id/suggestions_container"
