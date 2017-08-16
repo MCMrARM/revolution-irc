@@ -429,7 +429,7 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
             Context ctx = mContext;
             if (mDeleteConfig) {
                 ServerConnectionManager.getInstance(ctx).disconnectAndRemoveAllConnections(true);
-                ServerConfigManager.getInstance(ctx).deleteAllServers();
+                ServerConfigManager.getInstance(ctx).deleteAllServers(true);
                 NotificationRuleManager.getUserRules(ctx).clear();
                 CommandAliasManager.getInstance(ctx).getUserAliases().clear();
                 SettingsHelper.getInstance(ctx).clear();

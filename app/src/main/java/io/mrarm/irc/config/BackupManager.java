@@ -26,7 +26,9 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -142,8 +144,11 @@ public class BackupManager {
             importPreferencesFromJson(context, reader);
             reader.close();
 
+            List<UUID> removeLogServers = new ArrayList<>();
             ServerConnectionManager.getInstance(context).disconnectAndRemoveAllConnections(true);
-            ServerConfigManager.getInstance(context).deleteAllServers();
+            for (ServerConfigData server : ServerConfigManager.getInstance(context).getServers())
+                removeLogServers.add(server.uuid);
+            ServerConfigManager.getInstance(context).deleteAllServers(false);
 
             for (Object header : zipFile.getFileHeaders()) {
                 if (!(header instanceof FileHeader))
@@ -157,6 +162,7 @@ public class BackupManager {
                             ServerConfigData.class);
                     reader.close();
                     ServerConfigManager.getInstance(context).saveServer(data);
+                    removeLogServers.remove(data.uuid);
                 }
                 if (fileHeader.getFileName().startsWith(BACKUP_SERVER_CERTS_PREFIX) &&
                         fileHeader.getFileName().endsWith(BACKUP_SERVER_CERTS_SUFFIX)) {
@@ -180,6 +186,16 @@ public class BackupManager {
                     zipFile.extractFile(fileHeader,
                             ListWithCustomPreference.getCustomFilesDir(context).getAbsolutePath(),
                             null, name);
+                }
+            }
+
+            for (UUID uuid : removeLogServers) {
+                File f = ServerConfigManager.getInstance(context).getServerChatLogDir(uuid);
+                File[] files = f.listFiles();
+                if (files != null) {
+                    for (File ff : files)
+                        ff.delete();
+                    f.delete();
                 }
             }
 

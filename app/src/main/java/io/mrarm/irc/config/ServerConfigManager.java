@@ -111,7 +111,7 @@ public class ServerConfigManager {
         }
     }
 
-    public void deleteServer(ServerConfigData data) {
+    public void deleteServer(ServerConfigData data, boolean deleteLogs) {
         ServerConnectionManager.getInstance(mContext).killDisconnectingConnection(data.uuid);
         synchronized (this) {
             mServers.remove(data);
@@ -122,11 +122,14 @@ public class ServerConfigManager {
             file.delete();
             file = getServerSSLCertsFile(data.uuid);
             file.delete();
-            file = getServerChatLogDir(data.uuid);
-            if (file.exists()) {
-                File[] files = file.listFiles();
-                for (File f : files)
-                    f.delete();
+            if (deleteLogs) {
+                file = getServerChatLogDir(data.uuid);
+                if (file.exists()) {
+                    File[] files = file.listFiles();
+                    for (File f : files)
+                        f.delete();
+                    file.delete();
+                }
             }
         }
         synchronized (mListeners) {
@@ -136,10 +139,14 @@ public class ServerConfigManager {
         NotificationCountStorage.getInstance(mContext).requestRemoveServerCounters(data.uuid);
     }
 
-    public void deleteAllServers() {
+    public void deleteServer(ServerConfigData data) {
+        deleteServer(data, true);
+    }
+
+    public void deleteAllServers(boolean deleteLogs) {
         synchronized (this) {
             while (mServers.size() > 0)
-                deleteServer(mServers.get(mServers.size() - 1));
+                deleteServer(mServers.get(mServers.size() - 1), deleteLogs);
         }
     }
 
