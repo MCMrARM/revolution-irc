@@ -12,6 +12,9 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+
+import io.mrarm.irc.util.SettableFuture;
 
 public class NotificationCountStorage {
 
@@ -61,10 +64,22 @@ public class NotificationCountStorage {
     }
 
     public void close() {
-        synchronized (mDatabaseLock) {
-            if (mDatabase != null)
-                mDatabase.close();
-            mDatabase = null;
+        SettableFuture<Void> s = new SettableFuture<>();
+        mHandler.post(() -> {
+            synchronized (mDatabaseLock) {
+                if (mDatabase != null)
+                    mDatabase.close();
+                mDatabase = null;
+                mGetNotificationCountStatement = null;
+                mIncrementNotificationCountStatement = null;
+                mIncrementNotificationCountStatement = null;
+            }
+            s.set(null);
+        });
+        try {
+            s.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
         }
     }
 
