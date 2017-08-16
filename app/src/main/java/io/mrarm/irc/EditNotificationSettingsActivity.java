@@ -4,9 +4,11 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,6 +31,7 @@ import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.util.EntryRecyclerViewAdapter;
 import io.mrarm.irc.util.SimpleCounter;
+import io.mrarm.irc.util.SimpleTextWatcher;
 import io.mrarm.irc.view.ChipsEditText;
 
 public class EditNotificationSettingsActivity extends AppCompatActivity {
@@ -202,7 +205,8 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         if (id == R.id.action_done || id == android.R.id.home) {
             if (id == R.id.action_done) {
                 mRecyclerView.clearFocus();
-                save();
+                if (!save())
+                    return true;
             }
 
             InputMethodManager manager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
@@ -213,7 +217,7 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void save(NotificationRule rule) {
+    public boolean save(NotificationRule rule) {
         // "unbind" all the items - this will in fact save their state instead
         for (int i = mRecyclerView.getChildCount() - 1; i >= 0; i--) {
             RecyclerView.ViewHolder holder = mRecyclerView.getChildViewHolder(mRecyclerView.getChildAt(i));
@@ -222,11 +226,20 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         }
 
         if (!mEditingDefaultRule) {
-            rule.setName(mBasicEntry.mName);
+            // validate
+            for (NotificationRule other : NotificationRuleManager.getUserRules(this)) {
+                if (other != rule && other.getName().equals(mBasicEntry.mName)) {
+                    mBasicEntry.setHasDuplicateError();
+                    mRecyclerView.scrollToPosition(mAdapter.getEntries().indexOf(mBasicEntry));
+                    return false;
+                }
+            }
+
             if (mMatchEntry.mMatchMode != MatchEntry.MODE_REGEX)
                 rule.setMatchText(mMatchEntry.mMatchText, (mMatchEntry.mMatchMode == MatchEntry.MODE_CONTAINS_WORD), !mMatchEntry.mCaseSensitive);
             else
                 rule.setRegex(mMatchEntry.mMatchText, !mMatchEntry.mCaseSensitive);
+            rule.setName(mBasicEntry.mName);
             List<NotificationRule.AppliesToEntry> appliesTo = new ArrayList<>();
             for (EntryRecyclerViewAdapter.Entry entry : mAdapter.getEntries()) {
                 if (entry instanceof RuleEntry)
@@ -250,17 +263,23 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         rule.settings.soundUri = null;
         if (soundUri != RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
             rule.settings.soundUri = soundUri.toString();
+        return true;
     }
 
-    public void save() {
+    public boolean save() {
         if (mEditingRule != null) {
-            save(mEditingRule);
+            if (!save(mEditingRule))
+                return false;
         } else {
             mEditingRule = new NotificationRule();
-            save(mEditingRule);
+            if (!save(mEditingRule)) {
+                mEditingRule = null;
+                return false;
+            }
             NotificationRuleManager.getUserRules(this).add(mEditingRule);
         }
         NotificationRuleManager.saveUserRuleSettings(this);
+        return true;
     }
 
     @Override
@@ -274,6 +293,12 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         private static final int sHolder = EntryRecyclerViewAdapter.registerViewHolder(BasicEntryHolder.class, R.layout.notification_settings_basic);
 
         String mName;
+        boolean mNameDuplicateError;
+
+        void setHasDuplicateError() {
+            mNameDuplicateError = true;
+            onUpdated();
+        }
 
         @Override
         public int getViewHolder() {
@@ -282,23 +307,40 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
 
     }
 
-    public static class BasicEntryHolder extends SettingsListAdapter.SettingsEntryHolder<BasicEntry> {
+    public static class BasicEntryHolder extends SettingsListAdapter.SettingsEntryHolder<BasicEntry>
+            implements SimpleTextWatcher.OnTextChangedListener {
 
         EditText mName;
+        TextInputLayout mNameCtr;
+        final SimpleTextWatcher mNameTextWatcher;
 
         public BasicEntryHolder(View itemView, SettingsListAdapter adapter) {
             super(itemView, adapter);
             mName = itemView.findViewById(R.id.entry_name);
+            mNameCtr = itemView.findViewById(R.id.entry_name_ctr);
+            mNameTextWatcher = new SimpleTextWatcher(this);
         }
 
         @Override
         public void bind(BasicEntry entry) {
+            mName.removeTextChangedListener(mNameTextWatcher);
             mName.setText(entry.mName);
+            mName.addTextChangedListener(mNameTextWatcher);
+            if (entry.mNameDuplicateError)
+                mNameCtr.setError(mNameCtr.getResources().getString(R.string.notification_rule_name_collision));
+            else
+                mNameCtr.setErrorEnabled(false);
         }
 
         @Override
         public void unbind() {
             getEntry().mName = mName.getText().toString();
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            getEntry().mNameDuplicateError = false;
+            mNameCtr.setErrorEnabled(false);
         }
     }
 
