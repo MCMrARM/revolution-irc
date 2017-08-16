@@ -149,14 +149,18 @@ public class ServerConnectionInfo {
         synchronized (this) {
             mUserDisconnectRequest = true;
             mDisconnecting = true;
-            String message = SettingsHelper.getInstance(mManager.getContext()).getDefaultQuitMessage();
-            mApi.quit(message, (Void v) -> {
-                mDisconnecting = false;
-                mManager.notifyConnectionFullyDisconnected(this);
-            }, (Exception e) -> {
-                mDisconnecting = false;
-                mManager.notifyConnectionFullyDisconnected(this);
-            });
+            if (!isConnected() && isConnecting()) {
+                ((IRCConnection) getApiInstance()).disconnect(true);
+            } else if (isConnected()) {
+                String message = SettingsHelper.getInstance(mManager.getContext()).getDefaultQuitMessage();
+                mApi.quit(message, (Void v) -> {
+                    mDisconnecting = false;
+                    mManager.notifyConnectionFullyDisconnected(this);
+                }, (Exception e) -> {
+                    mDisconnecting = false;
+                    mManager.notifyConnectionFullyDisconnected(this);
+                });
+            }
         }
     }
 

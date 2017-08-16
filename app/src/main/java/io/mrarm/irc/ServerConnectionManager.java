@@ -181,14 +181,14 @@ public class ServerConnectionManager {
     public void removeConnection(ServerConnectionInfo connection, boolean saveAutoconnect) {
         NotificationManager.getInstance().clearAllNotifications(mContext, connection);
         synchronized (this) {
-            if (connection.isConnecting() || connection.isConnected())
-                throw new RuntimeException("Trying to remove a non-disconnected connection");
             if (connection.isDisconnecting()) {
                 synchronized (mDisconnectingConnections) {
                     if (mDisconnectingConnections.containsKey(connection.getUUID()))
                         throw new RuntimeException("mDisconnectingConnections already contains a disconnecting connection with this UUID");
                     mDisconnectingConnections.put(connection.getUUID(), connection);
                 }
+            } else if (connection.isConnecting() || connection.isConnected()) {
+                throw new RuntimeException("Trying to remove a non-disconnected connection");
             }
             mConnections.remove(connection);
             mConnectionsMap.remove(connection.getUUID());
@@ -226,10 +226,15 @@ public class ServerConnectionManager {
         }
     }
 
-    public void removeAllConnections() {
+    public void disconnectAndRemoveAllConnections(boolean kill) {
         synchronized (this) {
-            while (mConnections.size() > 0)
-                removeConnection(mConnections.get(mConnections.size() - 1), false);
+            while (mConnections.size() > 0) {
+                ServerConnectionInfo connection = mConnections.get(mConnections.size() - 1);
+                connection.disconnect();
+                removeConnection(connection, false);
+                if (kill)
+                    killDisconnectingConnection(connection.getUUID());
+            }
             saveAutoconnectListAsync();
         }
     }

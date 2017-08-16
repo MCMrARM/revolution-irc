@@ -142,7 +142,7 @@ public class BackupManager {
             importPreferencesFromJson(context, reader);
             reader.close();
 
-            ServerConnectionManager.getInstance(context).removeAllConnections();
+            ServerConnectionManager.getInstance(context).disconnectAndRemoveAllConnections(true);
             ServerConfigManager.getInstance(context).deleteAllServers();
 
             for (Object header : zipFile.getFileHeaders()) {
