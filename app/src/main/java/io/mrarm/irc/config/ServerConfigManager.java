@@ -48,7 +48,6 @@ public class ServerConfigManager {
     public ServerConfigManager(Context context) {
         mContext = context;
         mServersPath = new File(context.getFilesDir(), SERVERS_PATH);
-        mServersPath.mkdirs();
         mServerLogsPath = new File(context.getExternalFilesDir(null), SERVER_LOGS_PATH);
         mServerLogsPath.mkdirs();
         loadServers();
@@ -96,6 +95,7 @@ public class ServerConfigManager {
             mServersMap.put(data.uuid, data);
         }
         synchronized (mIOLock) {
+            mServersPath.mkdirs();
             BufferedWriter writer = new BufferedWriter(new FileWriter(new File(mServersPath, SERVER_FILE_PREFIX + data.uuid.toString() + SERVER_FILE_SUFFIX)));
             SettingsHelper.getGson().toJson(data, writer);
             writer.close();
