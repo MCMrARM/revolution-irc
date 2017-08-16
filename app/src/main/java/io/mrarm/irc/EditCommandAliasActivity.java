@@ -1,8 +1,11 @@
 package io.mrarm.irc;
 
+import android.content.res.ColorStateList;
+import android.content.res.TypedArray;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.view.Menu;
@@ -115,6 +118,9 @@ public class EditCommandAliasActivity extends AppCompatActivity {
         editText.setKeyListener(null);
 
         editText.setBackgroundResource(R.drawable.edit_text_readonly);
+        TypedArray ta = editText.getContext().obtainStyledAttributes(new int[]{android.R.attr.textColorSecondary});
+        ViewCompat.setBackgroundTintList(editText, ColorStateList.valueOf(ta.getColor(0, 0)));
+        ta.recycle();
         ((ViewGroup) editText.getParent()).setAddStatesFromChildren(false);
     }
 
