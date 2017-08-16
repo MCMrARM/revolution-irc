@@ -156,6 +156,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         mNightModeHelper.onStart();
+        if (getCurrentFragment() instanceof ChatFragment && ServerConnectionManager
+                .getInstance(this).hasConnection(((ChatFragment) getCurrentFragment())
+                        .getConnectionInfo().getUUID())) {
+            openManageServers();
+        }
     }
 
     @Override
