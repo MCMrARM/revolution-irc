@@ -37,7 +37,7 @@ public class ChipsEditTextPreference extends DialogPreference {
     @Override
     protected View onCreateDialogView() {
         View v = LayoutInflater.from(getContext()).inflate(R.layout.dialog_chip_edit_text, null);
-        mEditText = (ChipsEditText) v.findViewById(R.id.chip_edit_text);
+        mEditText = v.findViewById(R.id.chip_edit_text);
         return v;
     }
 

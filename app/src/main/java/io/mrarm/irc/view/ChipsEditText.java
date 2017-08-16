@@ -99,12 +99,22 @@ public class ChipsEditText extends AppCompatEditText {
 
     public void setItems(Collection<String> items) {
         clearItems();
-        for (String item : items)
-            addItem(item);
+        if (items != null) {
+            for (String item : items)
+                addItem(item);
+            if (getText().length() > 0)
+                getText().append(SEPARATOR);
+        }
     }
 
     public String[] getItems() {
-        return getText().toString().split(String.valueOf(SEPARATOR));
+        String[] s = getText().toString().split(String.valueOf(SEPARATOR));
+        if (s.length > 0 && s[s.length - 1].isEmpty()) {
+            String[] ns = new String[s.length - 1];
+            System.arraycopy(s, 0, ns, 0, s.length - 1);
+            return ns;
+        }
+        return s;
     }
 
     public void addItem(String text) {
