@@ -195,7 +195,8 @@ public class ChatFragmentSendMessageHelper {
 
     public void sendMessage() {
         String text = IRCColorUtils.convertSpannableToIRCString(mContext, mSendText.getText());
-        if (text.length() == 0 || !mFragment.getConnectionInfo().isConnected())
+        if (text.length() == 0 || !mFragment.getConnectionInfo().isConnected() ||
+                mFragment.getCurrentChannel() == null)
             return;
         String channel = mFragment.getCurrentChannel();
         if (text.charAt(0) == '/') {
