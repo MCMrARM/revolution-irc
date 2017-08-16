@@ -56,6 +56,7 @@ import io.mrarm.irc.view.TextFormatBar;
 
 public class ChatFragment extends Fragment implements
         ServerConnectionInfo.ChannelListChangeListener,
+        ServerConnectionInfo.InfoChangeListener,
         NotificationManager.UnreadMessageCountCallback,
         SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -126,6 +127,7 @@ public class ChatFragment extends Fragment implements
         });
 
         mConnectionInfo.addOnChannelListChangeListener(this);
+        mConnectionInfo.addOnChannelInfoChangeListener(this);
 
         mTabLayout = rootView.findViewById(R.id.tabs);
         mTabLayout.setupWithViewPager(mViewPager, false);
@@ -257,6 +259,7 @@ public class ChatFragment extends Fragment implements
     @Override
     public void onDestroyView() {
         mConnectionInfo.removeOnChannelListChangeListener(this);
+        mConnectionInfo.removeOnChannelInfoChangeListener(this);
         mConnectionInfo.getNotificationManager().removeUnreadMessageCountCallback(this);
         SettingsHelper s = SettingsHelper.getInstance(getContext());
         s.removePreferenceChangeListener(SettingsHelper.PREF_CHAT_APPBAR_COMPACT_MODE, this);
@@ -288,6 +291,13 @@ public class ChatFragment extends Fragment implements
 
     public ChatFragmentSendMessageHelper getSendMessageHelper() {
         return mSendHelper;
+    }
+
+    @Override
+    public void onConnectionInfoChanged(ServerConnectionInfo connection) {
+        getActivity().runOnUiThread(() -> {
+            mSendHelper.updateVisibility();
+        });
     }
 
     @Override

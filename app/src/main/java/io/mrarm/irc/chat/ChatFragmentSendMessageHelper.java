@@ -47,6 +47,7 @@ public class ChatFragmentSendMessageHelper {
 
     private Context mContext;
     private ChatFragment mFragment;
+    private View mSendContainer;
     private ChatAutoCompleteEditText mSendText;
     private ChatSuggestionsAdapter mChannelMembersListAdapter;
     private View mFormatBarDivider;
@@ -67,6 +68,7 @@ public class ChatFragmentSendMessageHelper {
 
         mFormatBar = rootView.findViewById(R.id.format_bar);
         mFormatBarDivider = rootView.findViewById(R.id.format_bar_divider);
+        mSendContainer = rootView.findViewById(R.id.send_container);
         mSendText = rootView.findViewById(R.id.send_text);
         mSendIcon = rootView.findViewById(R.id.send_button);
         mTabIcon = rootView.findViewById(R.id.tab_button);
@@ -140,6 +142,8 @@ public class ChatFragmentSendMessageHelper {
             }
             return true;
         });
+
+        updateVisibility();
     }
 
     public void setFormatBarVisible(boolean visible) {
@@ -185,9 +189,13 @@ public class ChatFragmentSendMessageHelper {
         mChannelMembersListAdapter.setMembers(members);
     }
 
+    public void updateVisibility() {
+        mSendContainer.setVisibility(mFragment.getConnectionInfo().isConnected() ? View.VISIBLE : View.GONE);
+    }
+
     public void sendMessage() {
         String text = IRCColorUtils.convertSpannableToIRCString(mContext, mSendText.getText());
-        if (text.length() == 0)
+        if (text.length() == 0 || !mFragment.getConnectionInfo().isConnected())
             return;
         String channel = mFragment.getCurrentChannel();
         if (text.charAt(0) == '/') {
