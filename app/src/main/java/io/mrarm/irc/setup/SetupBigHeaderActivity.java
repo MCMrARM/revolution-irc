@@ -26,14 +26,14 @@ public class SetupBigHeaderActivity extends SetupActivity {
         else
             setContentView(R.layout.activity_setup_big_header);
 
-        AppBarLayout appBar = (AppBarLayout) findViewById(R.id.appbar);
+        AppBarLayout appBar = findViewById(R.id.appbar);
 
-        CollapsingToolbarLayout toolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
+        CollapsingToolbarLayout toolbarLayout = findViewById(R.id.toolbar_layout);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mLayout = (ViewGroup) findViewById(R.id.layout);
+        mLayout = findViewById(R.id.layout);
         mLayout.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
             int height = mLayout.getHeight();
             CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams)

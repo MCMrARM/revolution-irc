@@ -83,7 +83,7 @@ public class ColorPickerDialog {
     private View buildDialogView() {
         View view = LayoutInflater.from(mContext).inflate(R.layout.dialog_color_picker, null);
 
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.items);
+        RecyclerView recyclerView = view.findViewById(R.id.items);
         recyclerView.setLayoutManager(new GridLayoutManager(mContext, 4));
         recyclerView.setAdapter(new ColorListAdapter(this));
         ((SimpleItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
@@ -154,8 +154,8 @@ public class ColorPickerDialog {
                                 adapter.mDialog.mSelectedColor,
                                 adapter.mDialog.mColors[adapter.mDialog.mSelectedColor]);
                 });
-                mColor = (ImageView) view.findViewById(R.id.color);
-                mCheck = (ImageView) view.findViewById(R.id.check);
+                mColor = view.findViewById(R.id.color);
+                mCheck = view.findViewById(R.id.check);
             }
 
             public void bind(int color, boolean selected) {

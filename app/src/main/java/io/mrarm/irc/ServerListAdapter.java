@@ -266,7 +266,7 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         public HeaderHolder(View v) {
             super(v);
-            mText = (TextView) v.findViewById(R.id.server_list_header);
+            mText = v.findViewById(R.id.server_list_header);
         }
 
         public void bind(int stringId) {
@@ -284,7 +284,7 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         public ServerHolder(ServerListAdapter adapter, View v) {
             super(v);
             mIconBg = v.findViewById(R.id.server_icon_bg);
-            mName = (TextView) v.findViewById(R.id.server_name);
+            mName = v.findViewById(R.id.server_name);
 
             View mainView = v.findViewById(R.id.server_entry);
             mainView.setOnClickListener((View view) -> {
@@ -320,10 +320,10 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         public ConnectedServerHolder(ServerListAdapter adapter, View v) {
             super(v);
-            mIcon = (ImageView) v.findViewById(R.id.server_icon);
+            mIcon = v.findViewById(R.id.server_icon);
             mIconBg = v.findViewById(R.id.server_icon_bg);
-            mName = (TextView) v.findViewById(R.id.server_name);
-            mDesc = (TextView) v.findViewById(R.id.server_desc);
+            mName = v.findViewById(R.id.server_name);
+            mDesc = v.findViewById(R.id.server_desc);
 
             View mainView = v.findViewById(R.id.server_entry);
             mainView.setOnClickListener((View view) -> {

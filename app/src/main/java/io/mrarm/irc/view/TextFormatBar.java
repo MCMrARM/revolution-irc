@@ -58,11 +58,11 @@ public class TextFormatBar extends FrameLayout {
         mItalicButton = findViewById(R.id.format_italic);
         mUnderlineButton = findViewById(R.id.format_underline);
         mTextColorButton = findViewById(R.id.format_text_color);
-        mTextColorValue = (ImageView) findViewById(R.id.format_text_color_value);
+        mTextColorValue = findViewById(R.id.format_text_color_value);
         mFillColorButton = findViewById(R.id.format_fill_color);
-        mFillColorValue = (ImageView) findViewById(R.id.format_fill_color_value);
+        mFillColorValue = findViewById(R.id.format_fill_color_value);
         mClearButton = findViewById(R.id.format_clear);
-        mExtraButton = (ImageButton) findViewById(R.id.format_extra);
+        mExtraButton = findViewById(R.id.format_extra);
         mBoldButton.setOnClickListener((View v) -> {
             if (v.isSelected())
                 removeSpan(new StyleSpan(Typeface.BOLD));

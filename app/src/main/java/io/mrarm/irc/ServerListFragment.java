@@ -31,17 +31,17 @@ public class ServerListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.server_list_fragment, container, false);
 
-        Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.toolbar);
+        Toolbar toolbar = rootView.findViewById(R.id.toolbar);
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
 
         ((MainActivity) getActivity()).addActionBarDrawerToggle(toolbar);
 
-        FloatingActionButton addFab = (FloatingActionButton) rootView.findViewById(R.id.fab);
+        FloatingActionButton addFab = rootView.findViewById(R.id.fab);
         addFab.setOnClickListener((View view) -> {
             startActivity(new Intent(getContext(), EditServerActivity.class));
         });
 
-        RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.server_list);
+        RecyclerView recyclerView = rootView.findViewById(R.id.server_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         mAdapter = new ServerListAdapter(getActivity());

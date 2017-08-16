@@ -15,8 +15,8 @@ public class SetupProgressActivity extends SetupBigHeaderActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setSetupContentView(R.layout.activity_setup_progress_content);
-        mDescription = (TextView) findViewById(R.id.desc);
-        mProgressBar = (ProgressBar) findViewById(R.id.progress);
+        mDescription = findViewById(R.id.desc);
+        mProgressBar = findViewById(R.id.progress);
     }
 
     public ProgressBar getProgressBar() {

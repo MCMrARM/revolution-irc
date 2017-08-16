@@ -23,7 +23,7 @@ public class BackupPasswordActivity extends SetupBigHeaderActivity {
         super.onCreate(savedInstanceState);
         setSetupContentView(R.layout.activity_backup_password_content);
 
-        TextInputLayout layout = (TextInputLayout) findViewById(R.id.pass_ctr);
+        TextInputLayout layout = findViewById(R.id.pass_ctr);
 
         boolean restoreMode = getIntent().getBooleanExtra(ARG_RESTORE_MODE, false);
         if (restoreMode) {
@@ -33,7 +33,7 @@ public class BackupPasswordActivity extends SetupBigHeaderActivity {
                 layout.setError(getString(R.string.backup_restore_invalid_password));
         }
 
-        EditText userPassword = (EditText) findViewById(R.id.pass);
+        EditText userPassword = findViewById(R.id.pass);
 
         findViewById(R.id.next).setOnClickListener((View v) -> {
             if (restoreMode) {

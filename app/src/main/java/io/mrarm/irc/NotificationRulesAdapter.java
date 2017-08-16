@@ -164,8 +164,8 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<RecyclerView.
         public RuleHolder(NotificationRulesAdapter adapter, View itemView) {
             super(itemView);
             mAdapter = adapter;
-            mName = (TextView) itemView.findViewById(R.id.name);
-            mEnabled = (CheckBox) itemView.findViewById(R.id.enabled);
+            mName = itemView.findViewById(R.id.name);
+            mEnabled = itemView.findViewById(R.id.enabled);
             itemView.findViewById(R.id.enabled_area).setOnClickListener((View view) -> {
                 mEnabled.setChecked(!mEnabled.isChecked());
             });
@@ -248,7 +248,7 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<RecyclerView.
 
         public TipHolder(View view) {
             super(view);
-            mText = (TextView) view.findViewById(R.id.text);
+            mText = view.findViewById(R.id.text);
         }
 
         public void bind(int textId) {

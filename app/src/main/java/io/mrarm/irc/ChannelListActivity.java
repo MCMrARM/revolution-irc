@@ -56,23 +56,23 @@ public class ChannelListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_channel_list);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        Toolbar searchToolbar = (Toolbar) findViewById(R.id.search_toolbar);
+        Toolbar searchToolbar = findViewById(R.id.search_toolbar);
         searchToolbar.setNavigationOnClickListener((View v) -> {
             setSearchMode(false);
         });
 
         mMainAppBar = findViewById(R.id.appbar);
         mSearchAppBar = findViewById(R.id.search_appbar);
-        mSearchView = (SearchView) findViewById(R.id.search_view);
+        mSearchView = findViewById(R.id.search_view);
 
         UUID serverUUID = UUID.fromString(getIntent().getStringExtra(ARG_SERVER_UUID));
         mConnection = ServerConnectionManager.getInstance(this).getConnection(serverUUID);
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.list);
+        RecyclerView recyclerView = findViewById(R.id.list);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         mListAdapter = new ListAdapter();
         recyclerView.setAdapter(mListAdapter);
@@ -221,8 +221,8 @@ public class ChannelListActivity extends AppCompatActivity {
 
         public ListEntry(View itemView) {
             super(itemView);
-            mName = (TextView) itemView.findViewById(R.id.name);
-            mTopic = (TextView) itemView.findViewById(R.id.topic);
+            mName = itemView.findViewById(R.id.name);
+            mTopic = itemView.findViewById(R.id.topic);
             itemView.setOnClickListener((View view) -> {
                 List<String> channels = new ArrayList<>();
                 channels.add((String) mName.getTag());

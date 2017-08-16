@@ -102,7 +102,7 @@ public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerVi
 
         public MessageHolder(View v) {
             super(v);
-            mText = (TextView) v.findViewById(R.id.chat_message);
+            mText = v.findViewById(R.id.chat_message);
             mText.setMovementMethod(LinkMovementMethod.getInstance());
         }
 
@@ -133,9 +133,9 @@ public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerVi
         public ExpandableMessageHolder(View v, ServerStatusMessagesAdapter adapter) {
             super(v);
             mAdapter = adapter;
-            mText = (TextView) v.findViewById(R.id.chat_message);
-            mExpandedText = (TextView) v.findViewById(R.id.chat_expanded_message);
-            mExpandIcon = (ImageView) v.findViewById(R.id.expand_icon);
+            mText = v.findViewById(R.id.chat_message);
+            mExpandedText = v.findViewById(R.id.chat_expanded_message);
+            mExpandIcon = v.findViewById(R.id.expand_icon);
             //setExpanded(true);
 
             mExpandedText.setTypeface(Typeface.MONOSPACE);

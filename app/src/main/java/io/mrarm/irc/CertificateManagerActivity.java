@@ -39,7 +39,7 @@ public class CertificateManagerActivity extends AppCompatActivity {
             return;
         }
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.list);
+        RecyclerView recyclerView = findViewById(R.id.list);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         // recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         mAdapter = new CertificateListAdapter();
@@ -83,7 +83,7 @@ public class CertificateManagerActivity extends AppCompatActivity {
 
         public CertificateHolder(View itemView) {
             super(itemView);
-            mCertificateText = (TextView) itemView.findViewById(R.id.certificate);
+            mCertificateText = itemView.findViewById(R.id.certificate);
             itemView.findViewById(R.id.delete).setOnClickListener((View v) -> {
                 mHelper.removeCertificate(mAliases.get(getAdapterPosition()));
                 mAliases.remove(getAdapterPosition());

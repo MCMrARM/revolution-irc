@@ -71,7 +71,7 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit_notification_settings);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.list);
+        mRecyclerView = findViewById(R.id.list);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(layoutManager);
 
@@ -288,7 +288,7 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
 
         public BasicEntryHolder(View itemView, SettingsListAdapter adapter) {
             super(itemView, adapter);
-            mName = (EditText) itemView.findViewById(R.id.entry_name);
+            mName = itemView.findViewById(R.id.entry_name);
         }
 
         @Override
@@ -331,16 +331,16 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         public MatchEntryHolder(View itemView, SettingsListAdapter adapter) {
             super(itemView, adapter);
 
-            mMode = (Spinner) itemView.findViewById(R.id.match_mode);
+            mMode = itemView.findViewById(R.id.match_mode);
             ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(
                     itemView.getContext(), R.array.notification_match_modes,
                     android.R.layout.simple_spinner_item);
             spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             mMode.setAdapter(spinnerAdapter);
 
-            mText = (EditText) itemView.findViewById(R.id.match_text);
+            mText = itemView.findViewById(R.id.match_text);
 
-            mCaseSensitive = (CheckBox) itemView.findViewById(R.id.match_case);
+            mCaseSensitive = itemView.findViewById(R.id.match_case);
         }
 
         @Override
@@ -430,14 +430,14 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         public RuleEntryHolder(View itemView, SettingsListAdapter adapter) {
             super(itemView, adapter);
 
-            mServerSpinner = (Spinner) itemView.findViewById(R.id.server);
-            mChannels = (ChipsEditText) itemView.findViewById(R.id.channels);
-            mNicks = (ChipsEditText) itemView.findViewById(R.id.nicks);
+            mServerSpinner = itemView.findViewById(R.id.server);
+            mChannels = itemView.findViewById(R.id.channels);
+            mNicks = itemView.findViewById(R.id.nicks);
 
-            mChannelMessages = (CheckBox) itemView.findViewById(R.id.channel_messages);
-            mChannelNotices = (CheckBox) itemView.findViewById(R.id.channel_notices);
-            mDirectMessages = (CheckBox) itemView.findViewById(R.id.direct_messages);
-            mDirectNotices = (CheckBox) itemView.findViewById(R.id.direct_notices);
+            mChannelMessages = itemView.findViewById(R.id.channel_messages);
+            mChannelNotices = itemView.findViewById(R.id.channel_notices);
+            mDirectMessages = itemView.findViewById(R.id.direct_messages);
+            mDirectNotices = itemView.findViewById(R.id.direct_notices);
 
             mChannelsCtr = itemView.findViewById(R.id.channels_ctr);
             mChannelsCtr.setVisibility(View.GONE);
@@ -525,7 +525,7 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
 
         public CollapsedRuleEntryHolder(View itemView, SettingsListAdapter adapter) {
             super(itemView, adapter);
-            mDesc = (TextView) itemView.findViewById(R.id.desc);
+            mDesc = itemView.findViewById(R.id.desc);
             itemView.setOnClickListener((View view) -> {
                 mEntry.setCollapsed(false);
             });

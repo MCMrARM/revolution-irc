@@ -43,15 +43,15 @@ public class EditIgnoreEntryActivity extends AppCompatActivity {
         if (getIntent().hasExtra(ARG_ENTRY_INDEX))
             mEntry = mServer.ignoreList.get(getIntent().getIntExtra(ARG_ENTRY_INDEX, -1));
 
-        mNick = (EditText) findViewById(R.id.nick);
-        mUser = (EditText) findViewById(R.id.user);
-        mHost = (EditText) findViewById(R.id.host);
-        mComment = (EditText) findViewById(R.id.comment);
+        mNick = findViewById(R.id.nick);
+        mUser = findViewById(R.id.user);
+        mHost = findViewById(R.id.host);
+        mComment = findViewById(R.id.comment);
 
-        mChannelMessages = (CheckBox) findViewById(R.id.channel_messages);
-        mChannelNotices = (CheckBox) findViewById(R.id.channel_notices);
-        mDirectMessages = (CheckBox) findViewById(R.id.direct_messages);
-        mDirectNotices = (CheckBox) findViewById(R.id.direct_notices);
+        mChannelMessages = findViewById(R.id.channel_messages);
+        mChannelNotices = findViewById(R.id.channel_notices);
+        mDirectMessages = findViewById(R.id.direct_messages);
+        mDirectNotices = findViewById(R.id.direct_notices);
 
         if (mEntry != null) {
             mNick.setText(mEntry.nick);

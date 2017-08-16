@@ -35,7 +35,7 @@ public class IgnoreListActivity extends AppCompatActivity {
         }
         setTitle(getString(R.string.title_activity_ignore_list_network, mServer.name));
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.items);
+        RecyclerView recyclerView = findViewById(R.id.items);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         mAdapter = new IgnoreListAdapter(this, mServer);
