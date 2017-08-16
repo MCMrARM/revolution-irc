@@ -24,7 +24,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
+import io.mrarm.irc.config.CommandAliasManager;
 import io.mrarm.irc.config.NotificationRuleManager;
 import io.mrarm.irc.config.NotificationRule;
 import io.mrarm.irc.config.ServerConfigData;
@@ -234,6 +238,11 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
                     return false;
                 }
             }
+            if (mMatchEntry.mMatchMode == MatchEntry.MODE_REGEX && !MatchEntry.validateRegex(
+                    mMatchEntry.mMatchText, mMatchEntry.mCaseSensitive)) {
+                mRecyclerView.scrollToPosition(mAdapter.getEntries().indexOf(mMatchEntry));
+                return false;
+            }
 
             if (mMatchEntry.mMatchMode != MatchEntry.MODE_REGEX)
                 rule.setMatchText(mMatchEntry.mMatchText, (mMatchEntry.mMatchMode == MatchEntry.MODE_CONTAINS_WORD), !mMatchEntry.mCaseSensitive);
@@ -357,6 +366,20 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         int mMatchMode;
         boolean mCaseSensitive;
 
+        public static boolean validateRegex(String regex, boolean caseSensitive) {
+            Matcher matcher = CommandAliasManager.mMatchVariablesRegex.matcher(regex);
+            StringBuffer buf = new StringBuffer();
+            while (matcher.find())
+                matcher.appendReplacement(buf, Matcher.quoteReplacement(Pattern.quote("replacement")));
+            matcher.appendTail(buf);
+            try {
+                Pattern.compile(buf.toString(), caseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
+            } catch (PatternSyntaxException e) {
+                return false;
+            }
+            return true;
+        }
+
         @Override
         public int getViewHolder() {
             return sHolder;
@@ -364,10 +387,12 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
 
     }
 
-    public static class MatchEntryHolder extends SettingsListAdapter.SettingsEntryHolder<MatchEntry> {
+    public static class MatchEntryHolder extends SettingsListAdapter.SettingsEntryHolder<MatchEntry>
+            implements SimpleTextWatcher.OnTextChangedListener {
 
         Spinner mMode;
         EditText mText;
+        TextInputLayout mTextCtr;
         CheckBox mCaseSensitive;
 
         public MatchEntryHolder(View itemView, SettingsListAdapter adapter) {
@@ -381,8 +406,21 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
             mMode.setAdapter(spinnerAdapter);
 
             mText = itemView.findViewById(R.id.match_text);
+            mTextCtr = itemView.findViewById(R.id.match_text_ctr);
 
             mCaseSensitive = itemView.findViewById(R.id.match_case);
+
+            mText.addTextChangedListener(new SimpleTextWatcher(this));
+            mMode.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                    afterTextChanged(mText.getText());
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {
+                }
+            });
         }
 
         @Override
@@ -398,6 +436,16 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
             entry.mMatchMode = mMode.getSelectedItemPosition();
             entry.mCaseSensitive = mCaseSensitive.isChecked();
             entry.mMatchText = mText.getText().toString();
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (mMode.getSelectedItemPosition() != MatchEntry.MODE_REGEX ||
+                    MatchEntry.validateRegex(s.toString(), mCaseSensitive.isChecked())) {
+                mTextCtr.setErrorEnabled(false);
+            } else {
+                mTextCtr.setError(mTextCtr.getResources().getString(R.string.notification_rule_regex_invalid));
+            }
         }
 
     }

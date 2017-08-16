@@ -23,7 +23,7 @@ import io.mrarm.irc.util.SimpleTextVariableList;
 
 public class CommandAliasManager {
 
-    static Pattern mMatchVariablesRegex = Pattern.compile("(?<!\\\\)\\$\\{(.*?)\\}");
+    public static Pattern mMatchVariablesRegex = Pattern.compile("(?<!\\\\)\\$\\{(.*?)\\}");
 
     public static final String ALIASES_PATH = "command_aliases.json";
 
