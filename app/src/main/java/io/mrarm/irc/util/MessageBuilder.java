@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import io.mrarm.chatlib.dto.ChannelModeMessageInfo;
+import io.mrarm.chatlib.dto.HostInfoMessageInfo;
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.dto.NickChangeMessageInfo;
 import io.mrarm.chatlib.dto.StatusMessageInfo;
@@ -327,8 +328,41 @@ public class MessageBuilder {
         return buildMessage(message);
     }
 
-    public CharSequence buildStatusMessage(StatusMessageInfo message, CharSequence text) {
-        return processFormat(mMessageFormat, message.getDate(), message.getSender(),
+    public CharSequence buildStatusMessage(StatusMessageInfo message) {
+        CharSequence text;
+        String sender = message.getSender();
+        if (message.getType() == StatusMessageInfo.MessageType.HOST_INFO) {
+            HostInfoMessageInfo hostInfo = (HostInfoMessageInfo) message;
+            SpannableString str = new SpannableString(mContext.getString(
+                    R.string.message_host_info, hostInfo.getServerName(), hostInfo.getVersion(),
+                    hostInfo.getUserModes(), hostInfo.getChannelModes()));
+            str.setSpan(new ForegroundColorSpan(IRCColorUtils.getStatusTextColor(mContext)),
+                    0, str.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+            text = str;
+        } else if (message.getType() == StatusMessageInfo.MessageType.UNHANDLED_MESSAGE) {
+            String msg = message.getMessage();
+            if (msg.length() >= 1 && msg.charAt(0) == '@') {
+                int i = msg.indexOf(' ');
+                if (i != -1)
+                    msg = msg.substring(i + 1);
+            }
+            if (msg.length() >= 1 && msg.charAt(0) == ':') {
+                int i = msg.indexOf(' ');
+                if (i != -1) {
+                    sender = msg.substring(0, i);
+                    msg = msg.substring(i + 1);
+                }
+            }
+            text = IRCColorUtils.getFormattedString(mContext, msg);
+        } else if (message.getType() == StatusMessageInfo.MessageType.MOTD) {
+            SpannableString str = new SpannableString(mContext.getString(R.string.message_motd));
+            str.setSpan(new ForegroundColorSpan(mContext.getResources().getColor(
+                    R.color.motdColor)), 0, str.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+            text = str;
+        } else {
+            text = IRCColorUtils.getFormattedString(mContext, message.getMessage());
+        }
+        return processFormat(mMessageFormat, message.getDate(), sender,
                 IRCColorUtils.getStatusTextColor(mContext), LinkHelper.addLinks(text));
     }
 

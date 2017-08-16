@@ -117,19 +117,7 @@ public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerVi
                 mText.setText(MessageBuilder.getInstance(context).buildDisconnectWarning(message.getDate()));
                 return;
             }
-            CharSequence text;
-            if (message.getType() == StatusMessageInfo.MessageType.HOST_INFO) {
-                HostInfoMessageInfo hostInfo = (HostInfoMessageInfo) message;
-                SpannableString str = new SpannableString(context.getString(
-                        R.string.message_host_info, hostInfo.getServerName(), hostInfo.getVersion(),
-                        hostInfo.getUserModes(), hostInfo.getChannelModes()));
-                str.setSpan(new ForegroundColorSpan(IRCColorUtils.getStatusTextColor(context)),
-                        0, str.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-                text = str;
-            } else {
-                text = IRCColorUtils.getFormattedString(context, message.getMessage());
-            }
-            mText.setText(MessageBuilder.getInstance(context).buildStatusMessage(message, text));
+            mText.setText(MessageBuilder.getInstance(context).buildStatusMessage(message));
         }
 
     }
@@ -167,12 +155,7 @@ public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerVi
 
             this.mPosition = pos;
 
-            SpannableString str = new SpannableString(
-                    mText.getContext().getString(R.string.message_motd));
-            str.setSpan(new ForegroundColorSpan(
-                    mText.getContext().getResources().getColor(R.color.motdColor)),
-                    0, str.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-            mText.setText(MessageBuilder.getInstance(mText.getContext()).buildStatusMessage(message, str));
+            mText.setText(MessageBuilder.getInstance(mText.getContext()).buildStatusMessage(message));
 
             boolean expanded = mAdapter.mExpandedMessages.contains(message);
 
