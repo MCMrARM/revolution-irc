@@ -82,6 +82,8 @@ public class ServerConnectionInfo {
 
     public void connect() {
         synchronized (this) {
+            if (mDisconnecting)
+                throw new RuntimeException("Trying to connect with mDisconnecting set");
             if (mConnected || mConnecting)
                 return;
             mConnecting = true;
@@ -151,15 +153,16 @@ public class ServerConnectionInfo {
             mDisconnecting = true;
             if (!isConnected() && isConnecting()) {
                 ((IRCConnection) getApiInstance()).disconnect(true);
+                mManager.notifyConnectionFullyDisconnected(this);
             } else if (isConnected()) {
                 String message = SettingsHelper.getInstance(mManager.getContext()).getDefaultQuitMessage();
                 mApi.quit(message, (Void v) -> {
-                    mDisconnecting = false;
                     mManager.notifyConnectionFullyDisconnected(this);
                 }, (Exception e) -> {
-                    mDisconnecting = false;
                     mManager.notifyConnectionFullyDisconnected(this);
                 });
+            } else {
+                mManager.notifyConnectionFullyDisconnected(this);
             }
         }
     }
