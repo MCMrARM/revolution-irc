@@ -126,7 +126,7 @@ public class ChatLogStorageManager implements SharedPreferences.OnSharedPreferen
                 mGlobalTotalSize -= candidate.size;
                 File file = new File(candidate.server.mLogsDir, sFileNameFormat.format(candidate.dateMs));
                 size -= getFileSize(file);
-                file.delete();
+                SettingsHelper.deleteSQLiteDatabase(file);
                 deletedAnyFile = true;
                 iterator.remove();
                 if (size <= 0L) {
@@ -295,6 +295,7 @@ public class ChatLogStorageManager implements SharedPreferences.OnSharedPreferen
                     mGlobalTotalSize -= candidate.size;
                     File file = new File(candidate.server.mLogsDir, sFileNameFormat.format(candidate.dateMs));
                     size -= getFileSize(file);
+                    SettingsHelper.deleteSQLiteDatabase(file);
                     deletedAnyFile = true;
                     iterator.remove();
                     if (size <= 0L) {
