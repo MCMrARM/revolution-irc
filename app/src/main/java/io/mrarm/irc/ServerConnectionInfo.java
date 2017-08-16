@@ -150,13 +150,15 @@ public class ServerConnectionInfo {
     public void disconnect() {
         synchronized (this) {
             mUserDisconnectRequest = true;
-            mDisconnecting = true;
             if (!isConnected() && isConnecting()) {
+                mConnecting = false;
                 ((IRCConnection) getApiInstance()).disconnect(true);
                 mManager.notifyConnectionFullyDisconnected(this);
             } else if (isConnected()) {
+                mDisconnecting = true;
                 String message = SettingsHelper.getInstance(mManager.getContext()).getDefaultQuitMessage();
                 mApi.quit(message, (Void v) -> {
+                    mDisconnecting = false;
                     mManager.notifyConnectionFullyDisconnected(this);
                 }, (Exception e) -> {
                     mManager.notifyConnectionFullyDisconnected(this);
