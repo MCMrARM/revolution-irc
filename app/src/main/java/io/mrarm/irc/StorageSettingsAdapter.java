@@ -468,6 +468,7 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
 
         private void deleteChatLogDir(UUID uuid) {
             ServerConnectionManager connectionManager = ServerConnectionManager.getInstance(null);
+            connectionManager.killDisconnectingConnection(uuid);
             ServerConnectionInfo connection = connectionManager != null ? connectionManager.getConnection(uuid) : null;
             SQLiteMessageStorageApi storageApi = null;
             if (connection != null && connection.getApiInstance() != null &&

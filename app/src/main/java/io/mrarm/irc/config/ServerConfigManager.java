@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import io.mrarm.irc.ServerConnectionManager;
+
 public class ServerConfigManager {
 
     private static ServerConfigManager mInstance;
@@ -110,6 +112,7 @@ public class ServerConfigManager {
     }
 
     public void deleteServer(ServerConfigData data) {
+        ServerConnectionManager.getInstance(mContext).killDisconnectingConnection(data.uuid);
         synchronized (this) {
             mServers.remove(data);
             mServersMap.remove(data.uuid);

@@ -14,13 +14,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+import io.mrarm.chatlib.android.storage.SQLiteMessageStorageApi;
 import io.mrarm.chatlib.irc.IRCConnectionRequest;
+import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.chatlib.irc.cap.SASLOptions;
+import io.mrarm.chatlib.message.MessageStorageApi;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.config.ServerCertificateManager;
 import io.mrarm.irc.preference.ReconnectIntervalPreference;
 import io.mrarm.irc.config.SettingsHelper;
+import io.mrarm.irc.util.StubMessageStorageApi;
 
 public class ServerConnectionManager {
 
@@ -32,6 +36,7 @@ public class ServerConnectionManager {
     private final File mConnectedServersFile;
     private final HashMap<UUID, ServerConnectionInfo> mConnectionsMap = new HashMap<>();
     private final ArrayList<ServerConnectionInfo> mConnections = new ArrayList<>();
+    private final HashMap<UUID, ServerConnectionInfo> mDisconnectingConnections = new HashMap<>();
     private final List<ConnectionsListener> mListeners = new ArrayList<>();
     private final List<ServerConnectionInfo.ChannelListChangeListener> mChannelsListeners = new ArrayList<>();
     private final List<ServerConnectionInfo.InfoChangeListener> mInfoListeners = new ArrayList<>();
@@ -104,6 +109,8 @@ public class ServerConnectionManager {
 
     public void addConnection(ServerConnectionInfo connection, boolean saveAutoconnect) {
         synchronized (this) {
+            if (mConnectionsMap.containsKey(connection.getUUID()))
+                throw new RuntimeException("A connection with this UUID already exists");
             mConnectionsMap.put(connection.getUUID(), connection);
             mConnections.add(connection);
             if (saveAutoconnect)
@@ -121,6 +128,8 @@ public class ServerConnectionManager {
     }
 
     private ServerConnectionInfo createConnection(ServerConfigData data, List<String> joinChannels, boolean saveAutoconnect) {
+        killDisconnectingConnection(data.uuid);
+
         SettingsHelper settings = SettingsHelper.getInstance(mContext);
 
         IRCConnectionRequest request = new IRCConnectionRequest();
@@ -172,6 +181,15 @@ public class ServerConnectionManager {
     public void removeConnection(ServerConnectionInfo connection, boolean saveAutoconnect) {
         NotificationManager.getInstance().clearAllNotifications(mContext, connection);
         synchronized (this) {
+            if (connection.isConnecting() || connection.isConnected())
+                throw new RuntimeException("Trying to remove a non-disconnected connection");
+            if (connection.isDisconnecting()) {
+                synchronized (mDisconnectingConnections) {
+                    if (mDisconnectingConnections.containsKey(connection.getUUID()))
+                        throw new RuntimeException("mDisconnectingConnections already contains a disconnecting connection with this UUID");
+                    mDisconnectingConnections.put(connection.getUUID(), connection);
+                }
+            }
             mConnections.remove(connection);
             mConnectionsMap.remove(connection.getUUID());
             if (saveAutoconnect)
@@ -189,6 +207,23 @@ public class ServerConnectionManager {
 
     public void removeConnection(ServerConnectionInfo connection) {
         removeConnection(connection, true);
+    }
+
+    /**
+     * Stop keeping track of a disconnected connection. A call to this function is required if you
+     * want to do something with this server's logs to make sure they are properly released.
+     */
+    public void killDisconnectingConnection(UUID uuid) {
+        synchronized (mDisconnectingConnections) {
+            ServerConnectionInfo connection = mDisconnectingConnections.get(uuid);
+            if (connection == null)
+                return;
+            MessageStorageApi storageApi = ((ServerConnectionApi) connection.getApiInstance()).getServerConnectionData().getMessageStorageApi();
+            if (storageApi instanceof SQLiteMessageStorageApi)
+                ((SQLiteMessageStorageApi) storageApi).close();
+            ((ServerConnectionApi) connection.getApiInstance()).getServerConnectionData().setMessageStorageApi(new StubMessageStorageApi());
+            mDisconnectingConnections.remove(uuid);
+        }
     }
 
     public void removeAllConnections() {
@@ -274,6 +309,12 @@ public class ServerConnectionManager {
         synchronized (mChannelsListeners) {
             for (ServerConnectionInfo.ChannelListChangeListener listener : mChannelsListeners)
                 listener.onChannelListChanged(connection, newChannels);
+        }
+    }
+
+    void notifyConnectionFullyDisconnected(ServerConnectionInfo connection) {
+        synchronized (mDisconnectingConnections) {
+            mDisconnectingConnections.remove(connection.getUUID());
         }
     }
 

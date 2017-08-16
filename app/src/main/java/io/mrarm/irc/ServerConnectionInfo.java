@@ -34,6 +34,7 @@ public class ServerConnectionInfo {
     private boolean mExpandedInDrawer = true;
     private boolean mConnected = false;
     private boolean mConnecting = false;
+    private boolean mDisconnecting = false;
     private boolean mUserDisconnectRequest = false;
     private NotificationManager.ConnectionManager mNotificationData;
     private final List<InfoChangeListener> mInfoListeners = new ArrayList<>();
@@ -147,8 +148,15 @@ public class ServerConnectionInfo {
     public void disconnect() {
         synchronized (this) {
             mUserDisconnectRequest = true;
+            mDisconnecting = true;
             String message = SettingsHelper.getInstance(mManager.getContext()).getDefaultQuitMessage();
-            mApi.quit(message, null, null);
+            mApi.quit(message, (Void v) -> {
+                mDisconnecting = false;
+                mManager.notifyConnectionFullyDisconnected(this);
+            }, (Exception e) -> {
+                mDisconnecting = false;
+                mManager.notifyConnectionFullyDisconnected(this);
+            });
         }
     }
 
@@ -203,6 +211,12 @@ public class ServerConnectionInfo {
     public boolean isConnecting() {
         synchronized (this) {
             return mConnecting;
+        }
+    }
+
+    public boolean isDisconnecting() {
+        synchronized (this) {
+            return mDisconnecting;
         }
     }
 
