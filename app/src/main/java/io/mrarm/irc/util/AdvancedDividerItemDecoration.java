@@ -17,7 +17,6 @@
 package io.mrarm.irc.util;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -32,8 +31,9 @@ public class AdvancedDividerItemDecoration extends RecyclerView.ItemDecoration {
     private final Rect mBounds = new Rect();
 
     public AdvancedDividerItemDecoration(Context context) {
-        TypedArray ta = context.obtainStyledAttributes(new int[] { android.R.attr.listDivider });
-        mDivider = ta.getDrawable(0);
+        StyledAttributesHelper ta = StyledAttributesHelper.obtainStyledAttributes(context,
+                new int[] { android.R.attr.listDivider });
+        mDivider = ta.getDrawable(android.R.attr.listDivider);
         ta.recycle();
     }
 

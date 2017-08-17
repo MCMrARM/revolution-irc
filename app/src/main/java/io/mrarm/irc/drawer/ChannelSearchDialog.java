@@ -1,7 +1,6 @@
 package io.mrarm.irc.drawer;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.support.annotation.NonNull;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -20,6 +19,7 @@ import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
 import io.mrarm.irc.dialog.SearchDialog;
 import io.mrarm.irc.util.ClickableRecyclerViewAdapter;
+import io.mrarm.irc.util.StyledAttributesHelper;
 
 public class ChannelSearchDialog extends SearchDialog {
 
@@ -27,9 +27,10 @@ public class ChannelSearchDialog extends SearchDialog {
 
     public ChannelSearchDialog(@NonNull Context context) {
         super(context);
-        TypedArray ta = context.obtainStyledAttributes(new int[]{R.attr.colorBackgroundFloating, android.R.attr.textColorSecondary});
-        setBackgroundColor(ta.getColor(0, 0));
-        int secondaryTextColor = ta.getColor(1, 0);
+        StyledAttributesHelper ta = StyledAttributesHelper.obtainStyledAttributes(context,
+                new int[] { R.attr.colorBackgroundFloating, android.R.attr.textColorSecondary });
+        setBackgroundColor(ta.getColor(R.attr.colorBackgroundFloating, 0));
+        int secondaryTextColor = ta.getColor(android.R.attr.textColorSecondary, 0);
         ta.recycle();
         int highlightTextColor = context.getResources().getColor(R.color.searchColorHighlight);
 

@@ -1,7 +1,6 @@
 package io.mrarm.irc.chat;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableString;
@@ -20,6 +19,7 @@ import java.util.List;
 
 import io.mrarm.irc.R;
 import io.mrarm.irc.config.CommandAliasManager;
+import io.mrarm.irc.util.StyledAttributesHelper;
 
 public class CommandListSuggestionsAdapter extends RecyclerView.Adapter<CommandListSuggestionsAdapter.ItemHolder> implements Filterable {
 
@@ -33,10 +33,7 @@ public class CommandListSuggestionsAdapter extends RecyclerView.Adapter<CommandL
         mContext = context;
         mFilteredItems = null;
 
-        TypedArray ta = context.getTheme().obtainStyledAttributes(R.style.AppTheme,
-                new int[] { android.R.attr.textColorSecondary });
-        mSecondaryTextColor = ta.getColor(0, Color.BLACK);
-        ta.recycle();
+        mSecondaryTextColor = StyledAttributesHelper.getColor(context, 0, Color.BLACK);
     }
 
     public void setClickListener(ChatSuggestionsAdapter.OnItemClickListener listener) {

@@ -1,19 +1,16 @@
 package io.mrarm.irc.view;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.support.design.widget.TextInputLayout;
-import android.text.Editable;
 import android.text.TextPaint;
-import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import io.mrarm.irc.R;
+import io.mrarm.irc.util.StyledAttributesHelper;
 
 public class StaticLabelTextInputLayout extends TextInputLayout {
 
@@ -41,9 +38,10 @@ public class StaticLabelTextInputLayout extends TextInputLayout {
         mTextPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG | Paint.SUBPIXEL_TEXT_FLAG);
         mTextPaint.setTypeface(getTypeface());
         mTextPaint.setTextSize(getResources().getDimensionPixelSize(R.dimen.abc_text_size_caption_material));
-        TypedArray ta = context.obtainStyledAttributes(new int[] { android.R.attr.textColorHint, R.attr.colorAccent });
-        mTextColorUnfocused = ta.getColor(0, 0);
-        mTextColorFocused = ta.getColor(1, 0);
+        StyledAttributesHelper ta = StyledAttributesHelper.obtainStyledAttributes(context,
+                new int[] { android.R.attr.textColorHint, R.attr.colorAccent });
+        mTextColorUnfocused = ta.getColor(android.R.attr.textColorHint, 0);
+        mTextColorFocused = ta.getColor(R.attr.colorAccent, 0);
         ta.recycle();
         mTextPaint.setColor(mTextColorUnfocused);
     }

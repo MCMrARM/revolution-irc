@@ -1,20 +1,19 @@
 package io.mrarm.irc.chat;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
 import io.mrarm.irc.R;
 import io.mrarm.irc.util.ColoredTextBuilder;
+import io.mrarm.irc.util.StyledAttributesHelper;
 
 public class ChatServerMessagesAdapter extends RecyclerView.Adapter<ChatServerMessagesAdapter.ViewHolder> {
 
@@ -22,10 +21,7 @@ public class ChatServerMessagesAdapter extends RecyclerView.Adapter<ChatServerMe
     private int mSecondaryColor;
 
     public ChatServerMessagesAdapter(Context context) {
-        TypedArray ta = context.obtainStyledAttributes(R.style.AppTheme, new int[] {
-                android.R.attr.textColorSecondary });
-        mSecondaryColor = ta.getColor(0, Color.BLACK);
-        ta.recycle();
+        mSecondaryColor = StyledAttributesHelper.getColor(context, android.R.attr.textColorSecondary, Color.BLACK);
     }
 
     @Override

@@ -1,9 +1,7 @@
 package io.mrarm.irc.dialog;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.support.annotation.NonNull;
-import android.support.design.widget.BottomSheetDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -16,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.mrarm.irc.R;
+import io.mrarm.irc.util.StyledAttributesHelper;
 
 public class MenuBottomSheetDialog extends ProperHeightBottomSheetDialog {
 
@@ -31,9 +30,7 @@ public class MenuBottomSheetDialog extends ProperHeightBottomSheetDialog {
         content.setPadding(0, verticalPadding, 0, verticalPadding);
         setContentView(content);
 
-        TypedArray ta = context.obtainStyledAttributes(new int[] { R.attr.colorBackgroundFloating });
-        content.setBackgroundColor(ta.getColor(0, 0));
-        ta.recycle();
+        content.setBackgroundColor(StyledAttributesHelper.getColor(context, R.attr.colorBackgroundFloating, 0));
     }
 
     public void addHeader(CharSequence text) {

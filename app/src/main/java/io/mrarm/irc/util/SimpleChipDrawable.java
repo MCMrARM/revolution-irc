@@ -1,7 +1,6 @@
 package io.mrarm.irc.util;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
@@ -25,12 +24,12 @@ public class SimpleChipDrawable extends Drawable {
 
     public SimpleChipDrawable(Context ctx, String text, boolean transparent) {
         mText = text;
-        TypedArray ta = ctx.obtainStyledAttributes(new int[] { android.R.attr.textAppearance });
-        int resId = ta.getResourceId(0, 0);
+        StyledAttributesHelper ta = StyledAttributesHelper.obtainStyledAttributes(ctx, new int[] { android.R.attr.textAppearance });
+        int resId = ta.getResourceId(android.R.attr.textAppearance, 0);
         ta.recycle();
-        ta = ctx.obtainStyledAttributes(resId, new int[] { android.R.attr.textSize, android.R.attr.textColor });
-        int textSize = ta.getDimensionPixelSize(0, 0);
-        mDefaultTextColor = ta.getColor(1, 0);
+        ta = StyledAttributesHelper.obtainStyledAttributes(ctx, resId, new int[] { android.R.attr.textSize, android.R.attr.textColor });
+        int textSize = ta.getDimensionPixelSize(android.R.attr.textSize, 0);
+        mDefaultTextColor = ta.getColor(android.R.attr.textColor, 0);
         ta.recycle();
 
         mBackground = ctx.getResources().getDrawable(transparent ? R.drawable.transparent_chip_background : R.drawable.chip_background);

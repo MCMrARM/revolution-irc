@@ -2,7 +2,6 @@ package io.mrarm.irc;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.text.style.ForegroundColorSpan;
@@ -18,6 +17,7 @@ import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.dialog.MenuBottomSheetDialog;
 import io.mrarm.irc.util.ColoredTextBuilder;
+import io.mrarm.irc.util.StyledAttributesHelper;
 
 public class IgnoreListAdapter extends RecyclerView.Adapter<IgnoreListAdapter.ItemHolder> {
 
@@ -28,10 +28,7 @@ public class IgnoreListAdapter extends RecyclerView.Adapter<IgnoreListAdapter.It
     private int mTextColorHost;
 
     public IgnoreListAdapter(Context context, ServerConfigData server) {
-        TypedArray ta = context.obtainStyledAttributes(R.style.AppTheme,
-                new int[]{android.R.attr.textColorSecondary});
-        mTextColorSecondary = ta.getColor(0, Color.BLACK);
-        ta.recycle();
+        mTextColorSecondary = StyledAttributesHelper.getColor(context, android.R.attr.textColorSecondary, Color.BLACK);
         mTextColorNick = context.getResources().getColor(R.color.ignoreEntryNick);
         mTextColorUser = context.getResources().getColor(R.color.ignoreEntryUser);
         mTextColorHost = context.getResources().getColor(R.color.ignoreEntryHost);

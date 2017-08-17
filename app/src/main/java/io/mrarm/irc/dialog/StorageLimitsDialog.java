@@ -3,7 +3,6 @@ package io.mrarm.irc.dialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.TypedArray;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -18,6 +17,7 @@ import android.widget.TextView;
 
 import io.mrarm.irc.R;
 import io.mrarm.irc.config.SettingsHelper;
+import io.mrarm.irc.util.StyledAttributesHelper;
 
 public class StorageLimitsDialog extends Dialog {
 
@@ -101,9 +101,7 @@ public class StorageLimitsDialog extends Dialog {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
                 window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 
-                TypedArray ta = getContext().obtainStyledAttributes(new int[] { R.attr.colorPrimaryDark });
-                window.setStatusBarColor(ta.getColor(0, 0));
-                ta.recycle();
+                window.setStatusBarColor(StyledAttributesHelper.getColor(getContext(), R.attr.colorPrimaryDark, 0));
             }
             window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT);

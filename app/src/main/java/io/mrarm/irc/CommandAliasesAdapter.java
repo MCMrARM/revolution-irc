@@ -3,7 +3,6 @@ package io.mrarm.irc;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
@@ -18,6 +17,7 @@ import android.widget.TextView;
 import io.mrarm.irc.config.CommandAliasManager;
 import io.mrarm.irc.dialog.MenuBottomSheetDialog;
 import io.mrarm.irc.util.AdvancedDividerItemDecoration;
+import io.mrarm.irc.util.StyledAttributesHelper;
 
 public class CommandAliasesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -32,10 +32,7 @@ public class CommandAliasesAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public CommandAliasesAdapter(Context context) {
         mManager = CommandAliasManager.getInstance(context);
 
-        TypedArray ta = context.getTheme().obtainStyledAttributes(R.style.AppTheme,
-                new int[] { android.R.attr.textColorSecondary });
-        mSecondaryItemTextColor = ta.getColor(0, Color.BLACK);
-        ta.recycle();
+        mSecondaryItemTextColor = StyledAttributesHelper.getColor(context, android.R.attr.textColorSecondary, Color.BLACK);
     }
 
     public ItemDecoration createItemDecoration(Context context) {

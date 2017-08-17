@@ -1,6 +1,5 @@
 package io.mrarm.irc.chat;
 
-import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -19,9 +18,9 @@ import java.util.TreeSet;
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.irc.NotificationManager;
 import io.mrarm.irc.R;
-import io.mrarm.irc.config.NotificationRuleManager;
 import io.mrarm.irc.util.LongPressSelectTouchListener;
 import io.mrarm.irc.util.MessageBuilder;
+import io.mrarm.irc.util.StyledAttributesHelper;
 
 public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         implements LongPressSelectTouchListener.Listener {
@@ -40,9 +39,10 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     public ChatMessagesAdapter(ChatMessagesFragment fragment, List<MessageInfo> messages) {
         mFragment = fragment;
-        TypedArray ta = fragment.getContext().obtainStyledAttributes(new int[] { R.attr.selectableItemBackground, R.attr.colorControlHighlight });
-        mItemBackground = ta.getDrawable(0);
-        int color = ta.getColor(1, 0);
+        StyledAttributesHelper ta = StyledAttributesHelper.obtainStyledAttributes(fragment.getContext(),
+                new int[] { R.attr.selectableItemBackground, R.attr.colorControlHighlight });
+        mItemBackground = ta.getDrawable(R.attr.selectableItemBackground);
+        int color = ta.getColor(R.attr.colorControlHighlight, 0);
         //color = ColorUtils.setAlphaComponent(color, Color.alpha(color) / 2);
         mSelectedItemBackground = new ColorDrawable(color);
         ta.recycle();

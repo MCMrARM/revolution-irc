@@ -1,7 +1,6 @@
 package io.mrarm.irc.drawer;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -25,6 +24,7 @@ import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
 import io.mrarm.irc.util.ExpandIconStateHelper;
+import io.mrarm.irc.util.StyledAttributesHelper;
 
 public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -55,13 +55,14 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         mContext = context;
         notifyServerListChanged();
 
-        TypedArray ta = context.obtainStyledAttributes(new int[] { R.attr.selectableItemBackground, R.attr.colorControlHighlight, R.attr.colorAccent, android.R.attr.textColorPrimary });
-        mChannelBackground = ta.getDrawable(0);
-        int color = ta.getColor(1, 0);
+        StyledAttributesHelper ta = StyledAttributesHelper.obtainStyledAttributes(context,
+                new int[] { R.attr.selectableItemBackground, R.attr.colorControlHighlight, R.attr.colorAccent, android.R.attr.textColorPrimary });
+        mChannelBackground = ta.getDrawable(R.attr.selectableItemBackground);
+        int color = ta.getColor(R.attr.colorControlHighlight, 0);
         color = ColorUtils.setAlphaComponent(color, Color.alpha(color) / 2);
         mChannelSelectedBackground = new ColorDrawable(color);
-        mSelectedForegroundColor = ta.getColor(2, 0);
-        mDefaultForegroundColor = ta.getColor(3, 0);
+        mSelectedForegroundColor = ta.getColor(R.attr.colorAccent, 0);
+        mDefaultForegroundColor = ta.getColor(android.R.attr.textColorPrimary, 0);
         ta.recycle();
     }
 

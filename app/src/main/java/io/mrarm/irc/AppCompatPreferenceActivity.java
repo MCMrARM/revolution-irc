@@ -1,7 +1,6 @@
 package io.mrarm.irc;
 
 import android.content.res.Configuration;
-import android.content.res.TypedArray;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
@@ -18,6 +17,7 @@ import android.widget.ListAdapter;
 
 import io.mrarm.irc.util.ImageViewTintUtils;
 import io.mrarm.irc.util.ListAdapterWrapper;
+import io.mrarm.irc.util.StyledAttributesHelper;
 
 /**
  * A {@link android.preference.PreferenceActivity} which implements and proxies the necessary calls
@@ -49,11 +49,8 @@ public abstract class AppCompatPreferenceActivity extends PreferenceActivity {
     }
 
     public int getForegroundColor() {
-        if (mFgColor == 0) {
-            TypedArray ta = obtainStyledAttributes(new int[]{android.R.attr.colorForeground});
-            mFgColor = ta.getColor(0, 0);
-            ta.recycle();
-        }
+        if (mFgColor == 0)
+            mFgColor = StyledAttributesHelper.getColor(this, android.R.attr.colorForeground, 0);
         return mFgColor;
     }
 

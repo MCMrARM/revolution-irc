@@ -2,7 +2,6 @@ package io.mrarm.irc.view;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
@@ -22,6 +21,7 @@ import android.widget.TextView;
 
 import io.mrarm.irc.R;
 import io.mrarm.irc.util.SimpleTextWatcher;
+import io.mrarm.irc.util.StyledAttributesHelper;
 
 public class LabelLayout extends FrameLayout {
 
@@ -67,14 +67,13 @@ public class LabelLayout extends FrameLayout {
         mTextSizeExpanded = getResources().getDimensionPixelSize(R.dimen.abc_text_size_medium_material);
         mTextPaint.setTextSize(mTextSizeCollapsed);
 
-        TypedArray ta = context.getTheme().obtainStyledAttributes(attrs,
-                new int[] { R.attr.doNotExpand, android.R.attr.hint, android.R.attr.textColorHint, R.attr.colorAccent },
-                0, 0);
+        StyledAttributesHelper ta = StyledAttributesHelper.obtainStyledAttributes(context, attrs,
+                new int[] { R.attr.doNotExpand, android.R.attr.hint, android.R.attr.textColorHint, R.attr.colorAccent });
         try {
-            mDoNotExpand = ta.getBoolean(0, false);
-            mHint = ta.getString(1);
-            mTextColorUnfocused = ta.getColor(2, 0);
-            mTextColorFocused = ta.getColor(3, 0);
+            mDoNotExpand = ta.getBoolean(R.attr.doNotExpand, false);
+            mHint = ta.getString(android.R.attr.hint);
+            mTextColorUnfocused = ta.getColor(android.R.attr.textColorHint, 0);
+            mTextColorFocused = ta.getColor(R.attr.colorAccent, 0);
         } finally {
             ta.recycle();
         }

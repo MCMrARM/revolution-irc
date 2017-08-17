@@ -1,7 +1,6 @@
 package io.mrarm.irc;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -13,7 +12,6 @@ import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
-import android.text.TextWatcher;
 import android.text.style.CharacterStyle;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
@@ -25,12 +23,12 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import java.lang.reflect.Type;
 import java.util.Calendar;
 import java.util.Date;
 
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.dto.MessageSenderInfo;
+import io.mrarm.irc.util.StyledAttributesHelper;
 import io.mrarm.irc.view.FormattableEditText;
 import io.mrarm.irc.util.MessageBuilder;
 import io.mrarm.irc.util.SimpleTextWatcher;
@@ -115,10 +113,7 @@ public class MessageFormatSettingsActivity extends AppCompatActivity {
             String[] presets = getResources().getStringArray(R.array.time_format_presets);
             String[] presetsText = getResources().getStringArray(R.array.time_format_presets_desc);
 
-            TypedArray ta = getTheme().obtainStyledAttributes(R.style.AppTheme,
-                    new int[] { android.R.attr.textColorSecondary });
-            int secondaryColor = ta.getColor(0, Color.BLACK);
-            ta.recycle();
+            int secondaryColor = StyledAttributesHelper.getColor(this, android.R.attr.textColorSecondary, Color.BLACK);
 
             for (int i = 0; i < presets.length; i++) {
                 SpannableString s = new SpannableString(presets[i] + " " + presetsText[i]);

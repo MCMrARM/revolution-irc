@@ -2,7 +2,6 @@ package io.mrarm.irc;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -35,6 +34,7 @@ import io.mrarm.irc.dialog.ServerStorageLimitDialog;
 import io.mrarm.irc.dialog.StorageLimitsDialog;
 import io.mrarm.irc.util.ColoredTextBuilder;
 import io.mrarm.irc.util.StubMessageStorageApi;
+import io.mrarm.irc.util.StyledAttributesHelper;
 import io.mrarm.irc.view.SimpleBarChart;
 
 public class StorageSettingsAdapter extends RecyclerView.Adapter {
@@ -51,10 +51,7 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
     public StorageSettingsAdapter(Context context) {
         refreshServerLogs(context);
 
-        TypedArray ta = context.getTheme().obtainStyledAttributes(R.style.AppTheme,
-                new int[] { android.R.attr.textColorSecondary });
-        mSecondaryTextColor = ta.getColor(0, Color.BLACK);
-        ta.recycle();
+        mSecondaryTextColor = StyledAttributesHelper.getColor(context, android.R.attr.textColorSecondary, Color.BLACK);
     }
 
     private void refreshServerLogs(Context context) {

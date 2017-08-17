@@ -1,14 +1,10 @@
 package io.mrarm.irc.view;
 
 import android.animation.Animator;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.RectF;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -19,6 +15,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 
 import io.mrarm.irc.R;
+import io.mrarm.irc.util.StyledAttributesHelper;
 
 public class ProgressBar extends View {
 
@@ -54,9 +51,7 @@ public class ProgressBar extends View {
         setWillNotDraw(false);
 
         mPaint.setAntiAlias(true);
-        TypedArray ta = getContext().obtainStyledAttributes(new int[] { R.attr.colorAccent });
-        mPaint.setColor(ta.getColor(0, 0));
-        ta.recycle();
+        mPaint.setColor(StyledAttributesHelper.getColor(context, R.attr.colorAccent, 0));
         mStrokeWidth = context.getResources().getDimensionPixelSize(R.dimen.progressbar_arc_thickness);
 
         mRotationAnimator = ValueAnimator.ofFloat(0.f, 360.f);

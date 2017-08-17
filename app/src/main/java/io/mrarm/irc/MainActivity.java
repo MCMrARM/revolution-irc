@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.content.res.TypedArray;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
@@ -22,7 +21,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.view.WindowManager;
 
 import java.util.Arrays;
@@ -35,6 +33,7 @@ import io.mrarm.irc.dialog.UserSearchDialog;
 import io.mrarm.irc.drawer.DrawerHelper;
 import io.mrarm.irc.util.NightModeRecreateHelper;
 import io.mrarm.irc.config.SettingsHelper;
+import io.mrarm.irc.util.StyledAttributesHelper;
 import io.mrarm.irc.util.WarningHelper;
 import io.mrarm.irc.view.ChipsEditText;
 
@@ -112,9 +111,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        TypedArray ta = obtainStyledAttributes(new int[] { R.attr.actionBarSize });
+        StyledAttributesHelper ta = StyledAttributesHelper.obtainStyledAttributes(this,
+                new int[] { R.attr.actionBarSize });
         ViewGroup.LayoutParams params = mFakeToolbar.getLayoutParams();
-        params.height = ta.getDimensionPixelSize(0, 0);
+        params.height = ta.getDimensionPixelSize(R.attr.actionBarSize, 0);
         mFakeToolbar.setLayoutParams(params);
         ta.recycle();
         if (mToolbar != null) {

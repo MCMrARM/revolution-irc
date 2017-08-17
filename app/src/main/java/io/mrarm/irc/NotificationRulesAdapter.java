@@ -3,7 +3,6 @@ package io.mrarm.irc;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -31,6 +30,7 @@ import java.util.List;
 import io.mrarm.irc.config.NotificationRuleManager;
 import io.mrarm.irc.config.NotificationRule;
 import io.mrarm.irc.util.AdvancedDividerItemDecoration;
+import io.mrarm.irc.util.StyledAttributesHelper;
 
 public class NotificationRulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -56,10 +56,10 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<RecyclerView.
         mDefaultRules.add(NotificationRuleManager.sChannelNoticeRule);
         mDefaultRules.add(NotificationRuleManager.sZNCPlaybackRule);
 
-        TypedArray ta = context.getTheme().obtainStyledAttributes(R.style.AppTheme,
-                new int[] { android.R.attr.colorBackground, R.attr.colorBackgroundFloating });
-        mNormalBgColor = ta.getColor(0, Color.BLACK);
-        mDragItemBgColor = ta.getColor(1, Color.BLACK);
+        StyledAttributesHelper ta = StyledAttributesHelper.obtainStyledAttributes(context,
+                R.style.AppTheme, new int[] { android.R.attr.colorBackground, R.attr.colorBackgroundFloating });
+        mNormalBgColor = ta.getColor(android.R.attr.colorBackground, Color.BLACK);
+        mDragItemBgColor = ta.getColor(R.attr.colorBackgroundFloating, Color.BLACK);
         ta.recycle();
     }
 

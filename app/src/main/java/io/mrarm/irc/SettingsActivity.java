@@ -208,7 +208,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             super.onViewCreated(view, savedInstanceState);
             ((View) getView().getParent()).setPadding(0, 0, 0, 0);
         }
-        
+
     }
 
     public static class UserPreferenceFragment extends MyPreferenceFragment {
