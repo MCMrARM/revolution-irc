@@ -8,6 +8,8 @@
     <color name="colorPrimaryDark">#283593</color>
     <color name="colorAccent">#FF4081</color>
 
+    <color name="rippleColor">@color/ripple_material_dark</color>
+
     <color name="searchColorPrimary">#212121</color>
     <color name="searchColorPrimaryDark">#1A1A1A</color>
 
