@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="EditServerIcon" parent="Icon">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentStart">true</item>
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:layout_marginEnd">8dp</item>
+        <item name="android:padding">8dp</item>
+    </style>
+
+    <style name="EditServerTextInput" parent="Widget.Design.TextInputLayout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentStart">true</item>
+        <item name="android:layout_alignParentEnd">true</item>
+        <item name="android:layout_marginStart">56dp</item>
+        <item name="android:layout_marginEnd">16dp</item>
+    </style>
+
+    <style name="EditServerTextInput.ExtraAction" parent="EditServerTextInput">
+        <item name="android:layout_marginEnd">56dp</item>
+    </style>
+
+    <style name="EditServerExtraAction" parent="BaseEditServerExtraAction">
+        <item name="android:layout_alignParentEnd">true</item>
+    </style>
+
+    <style name="EditTextExpandIconButton" parent="Icon">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">-40dp</item>
+        <item name="android:layout_marginBottom">4dp</item>
+        <item name="android:layout_marginEnd">-4dp</item>
+        <item name="android:layout_gravity">end</item>
+        <item name="android:padding">4dp</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+    </style>
+
+    <style name="EditTextWithExpandIcon">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingEnd">32dp</item>
+    </style>
+
+</resources>

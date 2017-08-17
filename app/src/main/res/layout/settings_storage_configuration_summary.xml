@@ -20,7 +20,7 @@
         android:layout_marginTop="16dp"
         android:layout_below="@id/divider"
         app:srcCompat="@drawable/ic_storage"
-        android:tint="?android:attr/textColorPrimary" />
+        android:tint="@color/iconColorText" />
 
     <TextView
         android:id="@+id/title"

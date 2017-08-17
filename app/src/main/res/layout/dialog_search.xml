@@ -24,7 +24,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="end"
             app:srcCompat="@drawable/ic_close"
-            android:tint="?android:attr/textColorPrimary"
+            android:tint="@color/iconColorText"
             android:padding="16dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/action_close" />

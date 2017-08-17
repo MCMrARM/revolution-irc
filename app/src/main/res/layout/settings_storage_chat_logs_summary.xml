@@ -13,7 +13,7 @@
         android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
         app:srcCompat="@drawable/ic_history"
-        android:tint="?android:attr/textColorPrimary" />
+        android:tint="@color/iconColorText" />
 
     <TextView
         android:id="@+id/title"

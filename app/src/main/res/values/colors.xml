@@ -2,6 +2,7 @@
 <resources>
 
     <color name="iconColor">#89000000</color>
+    <color name="iconColorText">#000000</color>
 
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
