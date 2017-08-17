@@ -201,6 +201,16 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     }
 
+    public static class CustomViewPreferenceFragment extends PreferenceFragment {
+
+        @Override
+        public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+            super.onViewCreated(view, savedInstanceState);
+            ((View) getView().getParent()).setPadding(0, 0, 0, 0);
+        }
+        
+    }
+
     public static class UserPreferenceFragment extends MyPreferenceFragment {
         private ChipsEditTextPreference mDefaultNickPreference;
         private EditTextPreference mDefaultUserPreference;
@@ -334,7 +344,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         }
     }
 
-    public static class NotificationPreferenceFragment extends MyPreferenceFragment {
+    public static class NotificationPreferenceFragment extends CustomViewPreferenceFragment {
 
         private NotificationRulesAdapter mAdapter;
 
@@ -378,7 +388,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     }
 
-    public static class CommandPreferenceFragment extends MyPreferenceFragment {
+    public static class CommandPreferenceFragment extends CustomViewPreferenceFragment {
 
         private CommandAliasesAdapter mAdapter;
 
@@ -401,6 +411,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             addButton.setOnClickListener((View v) -> {
                 startActivity(new Intent(getActivity(), EditCommandAliasActivity.class));
             });
+            container.setPadding(0, 0 , 0,0 );
 
             return view;
         }
@@ -413,7 +424,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     }
 
-    public static class StoragePreferenceFragment extends MyPreferenceFragment {
+    public static class StoragePreferenceFragment extends CustomViewPreferenceFragment {
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
