@@ -58,12 +58,6 @@ public class ChatLogStorageManager implements SharedPreferences.OnSharedPreferen
     public ChatLogStorageManager(Context context) {
         mConnectionManager = ServerConnectionManager.getInstance(context);
         mServerConfigManager = ServerConfigManager.getInstance(context);
-        File chatLogDir = mServerConfigManager.getChatLogDir();
-        StatFs statFs = new StatFs(chatLogDir.getAbsolutePath());
-        if (Build.VERSION.SDK_INT >= 18)
-            mBlockSize = statFs.getBlockSizeLong();
-        else
-            mBlockSize = statFs.getBlockSize();
 
         SettingsHelper helper = SettingsHelper.getInstance(context);
         helper.addPreferenceChangeListener(SettingsHelper.PREF_STORAGE_LIMIT_GLOBAL, this);
@@ -170,8 +164,23 @@ public class ChatLogStorageManager implements SharedPreferences.OnSharedPreferen
         }
     }
 
+    private long getBlockSize() {
+        if (mBlockSize == 0L) {
+            File chatLogDir = mServerConfigManager.getChatLogDir();
+            if (!chatLogDir.exists())
+                return 0L;
+            StatFs statFs = new StatFs(chatLogDir.getAbsolutePath());
+            if (Build.VERSION.SDK_INT >= 18)
+                mBlockSize = statFs.getBlockSizeLong();
+            else
+                mBlockSize = statFs.getBlockSize();
+        }
+        return mBlockSize;
+    }
+
     private long getFileSize(File file) {
-        return (file.length() + mBlockSize - 1) / mBlockSize * mBlockSize;
+        long blockSize = getBlockSize();
+        return (file.length() + blockSize - 1) / blockSize * blockSize;
     }
 
     @Override
@@ -216,7 +225,7 @@ public class ChatLogStorageManager implements SharedPreferences.OnSharedPreferen
             File[] files = mLogsDir.listFiles();
             if (files == null)
                 return;
-            mTotalSize = mBlockSize;
+            mTotalSize = getBlockSize();
             int currentYear = mCurrentLogTime.get(Calendar.YEAR);
             int currentMonth = mCurrentLogTime.get(Calendar.MONTH);
             int currentDay = mCurrentLogTime.get(Calendar.DAY_OF_MONTH);
@@ -265,6 +274,7 @@ public class ChatLogStorageManager implements SharedPreferences.OnSharedPreferen
             mTotalSize += mCurrentLogSize;
             mGlobalTotalSize += mCurrentLogSize;
 
+            long blockSize = getBlockSize();
             while (currentYear > mCurrentLogTime.get(Calendar.YEAR) ||
                     currentMonth > mCurrentLogTime.get(Calendar.MONTH) ||
                     currentDay > mCurrentLogTime.get(Calendar.DAY_OF_MONTH)) {
@@ -277,7 +287,7 @@ public class ChatLogStorageManager implements SharedPreferences.OnSharedPreferen
 
                 mCurrentLogTime.add(Calendar.DAY_OF_MONTH, 1);
                 mCurrentLogFile = new File(mLogsDir, sFileNameFormat.format(mCurrentLogTime.getTime()));
-                mCurrentLogSize = (mCurrentLogFile.length() + mBlockSize - 1) / mBlockSize * mBlockSize;
+                mCurrentLogSize = (mCurrentLogFile.length() + blockSize - 1) / blockSize * blockSize;
                 mTotalSize += mCurrentLogSize;
                 mGlobalTotalSize += mCurrentLogSize;
             }
