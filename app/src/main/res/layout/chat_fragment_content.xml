@@ -113,6 +113,7 @@
                 android:layout_alignBottom="@id/client_command_error_text"
                 android:padding="8dp"
                 android:layout_marginRight="8dp"
+                android:layout_marginEnd="8dp"
                 android:background="?attr/selectableItemBackgroundBorderless" />
 
         </RelativeLayout>

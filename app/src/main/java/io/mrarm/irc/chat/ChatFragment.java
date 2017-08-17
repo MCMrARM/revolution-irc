@@ -11,6 +11,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MarginLayoutParamsCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.ImageViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -192,6 +193,7 @@ public class ChatFragment extends Fragment implements
             tab.setCustomView(R.layout.chat_tab);
             TextView textView = tab.getCustomView().findViewById(android.R.id.text1);
             textView.setTextColor(mTabLayout.getTabTextColors());
+            ImageViewCompat.setImageTintList(tab.getCustomView().findViewById(R.id.notification_icon), mTabLayout.getTabTextColors());
             updateTabLayoutTab(tab);
             mTabLayout.addTab(tab, false);
         }
