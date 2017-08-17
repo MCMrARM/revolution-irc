@@ -8,7 +8,6 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.MarginLayoutParamsCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.ImageViewCompat;
@@ -16,44 +15,22 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
-import android.view.ActionMode;
-import android.view.GestureDetector;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.List;
 import java.util.UUID;
 
 import io.mrarm.chatlib.dto.NickWithPrefix;
-import io.mrarm.chatlib.irc.IRCConnection;
-import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.irc.ChannelNotificationManager;
 import io.mrarm.irc.MainActivity;
 import io.mrarm.irc.NotificationManager;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
-import io.mrarm.irc.config.CommandAliasManager;
-import io.mrarm.irc.util.ColoredTextBuilder;
-import io.mrarm.irc.util.IRCColorUtils;
-import io.mrarm.irc.util.ImageViewTintUtils;
 import io.mrarm.irc.config.SettingsHelper;
-import io.mrarm.irc.util.SimpleTextVariableList;
-import io.mrarm.irc.util.SimpleTextWatcher;
-import io.mrarm.irc.view.ChatAutoCompleteEditText;
-import io.mrarm.irc.view.TextFormatBar;
 
 public class ChatFragment extends Fragment implements
         ServerConnectionInfo.ChannelListChangeListener,
