@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp">
 
     <io.mrarm.irc.view.LabelLayout
         android:id="@+id/match_mode_ctr"
         android:layout_marginLeft="@dimen/activity_horizontal_margin_s4"
         android:layout_marginStart="@dimen/activity_horizontal_margin_s4"
-        android:layout_marginTop="12dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:hint="@string/notification_match_mode">
@@ -46,7 +47,6 @@
         android:layout_marginRight="@dimen/activity_horizontal_margin_s4"
         android:layout_below="@+id/match_text_ctr"
         android:layout_marginTop="6dp"
-        android:layout_marginBottom="12dp"
         android:text="@string/notification_match_case" />
 
 </RelativeLayout>
