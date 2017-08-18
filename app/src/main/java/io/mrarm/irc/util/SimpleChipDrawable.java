@@ -34,6 +34,7 @@ public class SimpleChipDrawable extends Drawable {
 
         mBackground = ctx.getResources().getDrawable(transparent ? R.drawable.transparent_chip_background : R.drawable.chip_background);
         mPaint = new Paint();
+        mPaint.setAntiAlias(true);
         mPaint.setTextAlign(Paint.Align.CENTER);
         mPaint.setTextSize(textSize);
         mTextWidth = (int) mPaint.measureText(mText);
