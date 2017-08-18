@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -29,7 +30,6 @@ import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.util.ExpandIconStateHelper;
 import io.mrarm.irc.util.SimpleTextWatcher;
-import io.mrarm.irc.util.SpinnerNoPaddingArrayAdapter;
 import io.mrarm.irc.view.StaticLabelTextInputLayout;
 import io.mrarm.irc.view.ChipsEditText;
 
@@ -152,7 +152,9 @@ public class EditServerActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        SpinnerNoPaddingArrayAdapter<CharSequence> spinnerAdapter = new SpinnerNoPaddingArrayAdapter<>(this, android.R.layout.simple_spinner_item, getResources().getTextArray(R.array.server_auth_modes));
+        ArrayAdapter<CharSequence> spinnerAdapter = new ArrayAdapter<>(this,
+                R.layout.simple_spinner_item, android.R.id.text1,
+                getResources().getTextArray(R.array.server_auth_modes));
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mServerAuthMode.setAdapter(spinnerAdapter);
         mServerAuthMode.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {

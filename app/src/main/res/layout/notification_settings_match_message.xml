@@ -16,8 +16,9 @@
         <io.mrarm.irc.view.AutoResizeSpinner
             android:id="@+id/match_mode"
             android:layout_width="match_parent"
-            android:layout_height="45dp"
-            style="@style/Base.Widget.AppCompat.Spinner.Underlined" />
+            android:layout_height="wrap_content"
+            style="@style/AppTheme.Spinner"
+            android:paddingTop="10dp" />
 
     </io.mrarm.irc.view.LabelLayout>
 

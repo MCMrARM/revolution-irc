@@ -207,8 +207,9 @@ public class ReconnectIntervalPreference extends Preference {
                 super(v);
 
                 mReconnectDelaySpinner = (Spinner) v.findViewById(R.id.rule_duration_type);
-                ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(v.getContext(),
-                        R.array.duration_types, android.R.layout.simple_spinner_item);
+                ArrayAdapter<CharSequence> spinnerAdapter = new ArrayAdapter<>(itemView.getContext(),
+                        R.layout.simple_spinner_item, android.R.id.text1,
+                        itemView.getResources().getStringArray(R.array.duration_types));
                 spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 mReconnectDelaySpinner.setAdapter(spinnerAdapter);
 

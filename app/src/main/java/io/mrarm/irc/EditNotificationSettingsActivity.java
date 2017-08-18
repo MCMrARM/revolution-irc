@@ -403,9 +403,9 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
             super(itemView, adapter);
 
             mMode = itemView.findViewById(R.id.match_mode);
-            ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(
-                    itemView.getContext(), R.array.notification_match_modes,
-                    android.R.layout.simple_spinner_item);
+            ArrayAdapter<CharSequence> spinnerAdapter = new ArrayAdapter<>(itemView.getContext(),
+                    R.layout.simple_spinner_item, android.R.id.text1,
+                    itemView.getResources().getStringArray(R.array.notification_match_modes));
             spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             mMode.setAdapter(spinnerAdapter);
 
@@ -572,8 +572,8 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
                 options.add(data.name);
                 mSpinnerOptionUUIDs.add(data.uuid);
             }
-            ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
-                    mServerSpinner.getContext(), android.R.layout.simple_spinner_item, options);
+            ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(mServerSpinner.getContext(),
+                    R.layout.simple_spinner_item, android.R.id.text1, options);
             spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             mServerSpinner.setAdapter(spinnerAdapter);
         }

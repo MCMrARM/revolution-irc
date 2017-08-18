@@ -57,7 +57,7 @@
             android:id="@+id/server"
             android:layout_width="match_parent"
             android:layout_height="45dp"
-            style="@style/Base.Widget.AppCompat.Spinner.Underlined" />
+            style="@style/AppTheme.Spinner" />
 
     </io.mrarm.irc.view.LabelLayout>
 

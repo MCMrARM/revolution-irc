@@ -70,8 +70,9 @@ public class EditCommandAliasActivity extends AppCompatActivity {
         mChannelCtr = findViewById(R.id.channel_ctr);
         mText = findViewById(R.id.text);
 
-        ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(this,
-                R.array.edit_command_alias_types, android.R.layout.simple_spinner_item);
+        ArrayAdapter<CharSequence> spinnerAdapter = new ArrayAdapter<>(this,
+                R.layout.simple_spinner_item, android.R.id.text1,
+                getResources().getStringArray(R.array.edit_command_alias_types));
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mTypeSpinner.setAdapter(spinnerAdapter);
 

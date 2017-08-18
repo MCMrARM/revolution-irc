@@ -155,7 +155,7 @@
                     android:id="@+id/server_auth_mode"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    style="@style/Base.Widget.AppCompat.Spinner.Underlined" />
+                    style="@style/AppTheme.Spinner" />
 
             </io.mrarm.irc.view.LabelLayout>
 

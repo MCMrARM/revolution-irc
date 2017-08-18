@@ -31,6 +31,9 @@
         <item name="android:textColor">#fff</item>
     </style>
 
+    <style name="AppTheme.Spinner" parent="Widget.AppCompat.EditText">
+    </style>
+
     <style name="Icon">
         <item name="android:tint">@color/iconColor</item>
         <item name="tintMode">src_in</item>
