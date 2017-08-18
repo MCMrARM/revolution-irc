@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:hint="@string/notification_match_mode">
 
-        <io.mrarm.irc.util.AutoResizeSpinner
+        <io.mrarm.irc.view.AutoResizeSpinner
             android:id="@+id/match_mode"
             android:layout_width="match_parent"
             android:layout_height="45dp"
