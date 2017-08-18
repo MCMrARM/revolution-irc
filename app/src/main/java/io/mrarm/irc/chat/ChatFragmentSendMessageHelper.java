@@ -195,8 +195,7 @@ public class ChatFragmentSendMessageHelper {
 
     public void sendMessage() {
         String text = IRCColorUtils.convertSpannableToIRCString(mContext, mSendText.getText());
-        if (text.length() == 0 || !mFragment.getConnectionInfo().isConnected() ||
-                mFragment.getCurrentChannel() == null)
+        if (text.length() == 0 || !mFragment.getConnectionInfo().isConnected())
             return;
         String channel = mFragment.getCurrentChannel();
         if (text.charAt(0) == '/') {
@@ -213,6 +212,8 @@ public class ChatFragmentSendMessageHelper {
                         setupCommandResultHandler(conn, text, result.text);
                         conn.sendCommandRaw(result.text, null, null);
                     } else if (result.mode == CommandAliasManager.CommandAlias.MODE_MESSAGE) {
+                        if (channel == null)
+                            throw new RuntimeException();
                         conn.sendMessage(result.channel, result.text, null, null);
                     } else {
                         throw new RuntimeException();
@@ -238,6 +239,8 @@ public class ChatFragmentSendMessageHelper {
             setClientCommandError(builder.getSpannable());
             return;
         }
+        if (channel == null)
+            return;
         mSendText.setText("");
         mFragment.getConnectionInfo().getApiInstance().sendMessage(channel, text, null, null);
     }

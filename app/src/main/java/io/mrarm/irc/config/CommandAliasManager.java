@@ -152,7 +152,7 @@ public class CommandAliasManager {
             if (replaceWith == null)
                 replaceWith = sDefaultVariables.get(text);
             if (replaceWith == null)
-                replaceWith = "";
+                throw new RuntimeException("Unknown variable: " + text);
             matcher.appendReplacement(buf, Matcher.quoteReplacement(replaceWith));
         }
         matcher.appendTail(buf);
