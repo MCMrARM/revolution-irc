@@ -3,6 +3,7 @@ package io.mrarm.irc.dialog;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -83,12 +84,8 @@ public abstract class SearchDialog extends AppCompatDialog {
             }
             window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT);
-            window.setBackgroundDrawable(null);
-
-            WindowManager.LayoutParams params = window.getAttributes();
-            params.flags = params.flags & (~WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-            window.setAttributes(params);
-
+            window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
             window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
             window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
         }
