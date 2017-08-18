@@ -10,6 +10,7 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.Editable;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
@@ -107,9 +108,8 @@ public class ChatFragmentSendMessageHelper {
             mClientCommandErrorContainer.setVisibility(View.GONE); // hide the error
         }));
         mSendText.setOnEditorActionListener((TextView v, int actionId, KeyEvent event) -> {
-            if (actionId == EditorInfo.IME_ACTION_SEND)
-                sendMessage();
-            return false;
+            sendMessage();
+            return true;
         });
         mSendIcon.setOnClickListener((View view) -> {
             sendMessage();
