@@ -110,8 +110,8 @@ public class RecyclerViewScrollbar extends View {
         } else if (event.getAction() == MotionEvent.ACTION_MOVE && isPressed()) {
             float pos = (event.getY() - getPaddingTop() - mScrollDragOffset);
             pos /= (getHeight() - getPaddingTop() - getPaddingBottom() - getScrollbarHeight());
-            pos *= mItemCount - mBottomItemsHeight - 1;
-            pos = Math.min(Math.max(pos, 0.f), mItemCount - mBottomItemsHeight - 1);
+            pos *= mItemCount - getBottomViewCount() - 1;
+            pos = Math.min(Math.max(pos, 0.f), mItemCount - getBottomViewCount() - 1);
             ((LinearLayoutManager) mRecyclerView.getLayoutManager()).scrollToPositionWithOffset((int) pos, 0);
             mScrollPos = pos;
             invalidate();
@@ -203,6 +203,8 @@ public class RecyclerViewScrollbar extends View {
     }
 
     private float getBottomViewCount() {
+        if (mBottomItemsHeight != -1.f)
+            return mBottomItemsHeight;
         int itemCount = mRecyclerView.getAdapter().getItemCount();
         int totalHeight = 0;
         int maxHeight = mRecyclerView.getHeight();
@@ -220,17 +222,18 @@ public class RecyclerViewScrollbar extends View {
             if (totalHeight >= maxHeight)
                 return itemCount - 1 - i - (float) (totalHeight - maxHeight) / holder.itemView.getMeasuredHeight();
         }
+        mBottomItemsHeight = itemCount;
         return itemCount;
     }
 
     private int getScrollbarHeight() {
         float scrollbarHeight = getHeight() - getPaddingTop() - getPaddingBottom();
-        scrollbarHeight /= (mItemCount - mBottomItemsHeight);
+        scrollbarHeight /= (mItemCount - getBottomViewCount());
         return Math.max((int) scrollbarHeight, mMinScrollbarHeight);
     }
 
     private int getScrollbarTop() {
-        return (int) (mScrollPos / (mItemCount - mBottomItemsHeight - 1) *
+        return (int) (mScrollPos / (mItemCount - getBottomViewCount() - 1) *
                 (getHeight() - getPaddingTop() - getPaddingBottom() - getScrollbarHeight()));
     }
 
@@ -239,9 +242,7 @@ public class RecyclerViewScrollbar extends View {
         super.draw(canvas);
         if (mItemCount == 0)
             return;
-        if (mBottomItemsHeight == -1)
-            mBottomItemsHeight = getBottomViewCount();
-        if (mBottomItemsHeight >= mItemCount)
+        if (getBottomViewCount() >= mItemCount)
             return;
         int scrollbarHeight = getScrollbarHeight();
         int scrollbarTop = getScrollbarTop();
