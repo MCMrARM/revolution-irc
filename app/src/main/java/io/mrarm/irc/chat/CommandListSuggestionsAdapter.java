@@ -33,7 +33,7 @@ public class CommandListSuggestionsAdapter extends RecyclerView.Adapter<CommandL
         mContext = context;
         mFilteredItems = null;
 
-        mSecondaryTextColor = StyledAttributesHelper.getColor(context, 0, Color.BLACK);
+        mSecondaryTextColor = StyledAttributesHelper.getColor(context, android.R.attr.textColorSecondary, Color.BLACK);
     }
 
     public void setClickListener(ChatSuggestionsAdapter.OnItemClickListener listener) {
