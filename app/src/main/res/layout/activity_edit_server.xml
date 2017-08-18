@@ -40,6 +40,7 @@
         <RelativeLayout style="@style/EditServerItemContainer">
 
             <ImageView
+                android:id="@+id/test"
                 app:srcCompat="@drawable/ic_server_address"
                 style="@style/EditServerIcon.TextInput" />
 
@@ -114,7 +115,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 app:srcCompat="@drawable/ic_settings"
-                android:tint="@color/iconColorText"
+                app:tint="@color/iconColorText"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"

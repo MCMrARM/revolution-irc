@@ -19,7 +19,7 @@
         android:paddingTop="16dp"
         android:paddingBottom="16dp"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:tint="?android:attr/colorForeground"
+        app:tint="?android:attr/colorForeground"
         app:srcCompat="@drawable/ic_expand"
         android:contentDescription="@string/action_expand" />
 

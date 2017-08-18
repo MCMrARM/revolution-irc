@@ -35,7 +35,7 @@
     </style>
 
     <style name="Icon">
-        <item name="android:tint">@color/iconColor</item>
+        <item name="tint">@color/iconColor</item>
         <item name="tintMode">src_in</item>
     </style>
 
@@ -140,7 +140,7 @@
         <item name="android:padding">8dp</item>
         <item name="android:layout_marginRight">2dp</item>
         <item name="android:background">@drawable/format_item_background</item>
-        <item name="android:tint">@color/iconColorText</item>
+        <item name="tint">@color/iconColorText</item>
     </style>
 
     <style name="RecyclerViewScrollbar">

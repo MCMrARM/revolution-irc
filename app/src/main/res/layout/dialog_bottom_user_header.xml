@@ -61,7 +61,7 @@
         android:layout_alignParentEnd="true"
         android:padding="16dp"
         android:background="?attr/actionBarItemBackground"
-        android:tint="@color/iconColorText"
+        app:tint="?android:attr/textColorPrimary"
         app:srcCompat="@drawable/ic_message" />
 
 

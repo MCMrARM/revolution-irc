@@ -21,7 +21,7 @@
         android:paddingBottom="16dp"
         android:rotation="180"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:tint="?android:attr/colorForeground"
+        app:tint="?android:attr/colorForeground"
         app:srcCompat="@drawable/ic_expand"
         android:contentDescription="@string/action_expand" />
 

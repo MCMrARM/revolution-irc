@@ -2,7 +2,7 @@
 <resources>
 
     <style name="Icon">
-        <item name="android:tint">@color/iconColor</item>
+        <item name="tint">@color/iconColor</item>
         <item name="android:alpha">1</item>
     </style>
 

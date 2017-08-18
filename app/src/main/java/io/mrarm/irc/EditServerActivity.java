@@ -2,7 +2,10 @@ package io.mrarm.irc;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.PorterDuff;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.widget.ImageViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -112,6 +115,9 @@ public class EditServerActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_edit_server);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        ImageViewCompat.setImageTintMode(findViewById(R.id.test), PorterDuff.Mode.SRC_IN);
+        ImageViewCompat.setImageTintList(findViewById(R.id.test), ColorStateList.valueOf(0x89000000));
 
         mServerName = findViewById(R.id.server_name);
         mServerNameCtr = findViewById(R.id.server_name_ctr);

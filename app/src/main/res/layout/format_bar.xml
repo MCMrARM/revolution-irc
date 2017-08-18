@@ -38,13 +38,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:srcCompat="@drawable/ic_format_color_text"
-            android:tint="@color/iconColorText" />
+            app:tint="@color/iconColorText" />
 
         <ImageView
             android:id="@+id/format_text_color_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:tint="@color/formatDefaultColorIndicator"
+            app:tint="@color/formatDefaultColorIndicator"
             app:srcCompat="@drawable/ic_format_color_color" />
 
     </FrameLayout>
@@ -59,14 +59,14 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:tint="@color/iconColorText"
+            app:tint="@color/iconColorText"
             app:srcCompat="@drawable/ic_format_color_fill" />
 
         <ImageView
             android:id="@+id/format_fill_color_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:tint="@color/formatDefaultColorIndicator"
+            app:tint="@color/formatDefaultColorIndicator"
             app:srcCompat="@drawable/ic_format_color_color" />
 
     </RelativeLayout>

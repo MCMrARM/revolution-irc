@@ -22,6 +22,6 @@
         android:layout_marginStart="2dp"
         android:layout_marginTop="1dp"
         app:srcCompat="@drawable/chat_tab_notification_icon"
-        android:tintMode="src_in" />
+        app:tintMode="src_in" />
 
 </RelativeLayout>
