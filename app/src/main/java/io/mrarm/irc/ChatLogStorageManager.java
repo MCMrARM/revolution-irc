@@ -278,7 +278,7 @@ public class ChatLogStorageManager implements SharedPreferences.OnSharedPreferen
             while (currentYear > mCurrentLogTime.get(Calendar.YEAR) ||
                     currentMonth > mCurrentLogTime.get(Calendar.MONTH) ||
                     currentDay > mCurrentLogTime.get(Calendar.DAY_OF_MONTH)) {
-                if (mCurrentLogFile.exists()) {
+                if (mCurrentLogFile != null && mCurrentLogFile.exists()) {
                     DeletionCandidate candidate = new DeletionCandidate(this, mCurrentLogSize,
                             mCurrentLogTime.getTimeInMillis());
                     addDeletionCandidate(candidate);
