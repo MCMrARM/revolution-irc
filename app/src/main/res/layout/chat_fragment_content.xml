@@ -12,58 +12,63 @@
         android:background="?attr/colorBackgroundFloating"
         android:elevation="4dp">
 
-        <ImageButton
-            android:id="@+id/tab_button"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            app:srcCompat="@drawable/ic_keyboard_tab"
-            style="@style/Icon"
-            android:visibility="gone"
-            android:layout_alignBottom="@+id/send_text"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignTop="@id/send_text"
-            android:layout_above="@id/send_text"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:background="?selectableItemBackgroundBorderless"/>
-
-        <io.mrarm.irc.view.ChatAutoCompleteEditText
+        <RelativeLayout
+            android:id="@+id/send_main_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginLeft="@dimen/message_edit_text_margin_left"
-            android:layout_marginStart="@dimen/message_edit_text_margin_left"
-            android:imeOptions="flagNoExtractUi|actionSend"
-            android:inputType="text"
-            android:id="@+id/send_text"
-            android:hint="@string/message_hint"
-            android:layout_toRightOf="@id/tab_button"
-            android:layout_toEndOf="@id/tab_button"
-            android:layout_toLeftOf="@+id/send_button"
-            android:layout_toStartOf="@+id/send_button"
             android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:background="@null"/>
+            android:paddingBottom="8dp">
 
-        <ImageButton
-            android:id="@+id/send_button"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            app:srcCompat="@drawable/ic_send"
-            android:layout_alignBottom="@+id/send_text"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignTop="@id/send_text"
-            android:layout_above="@id/send_text"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:background="?selectableItemBackgroundBorderless"/>
+            <ImageButton
+                android:id="@+id/tab_button"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignTop="@id/send_text"
+                android:layout_alignBottom="@id/send_text"
+                app:srcCompat="@drawable/ic_keyboard_tab"
+                style="@style/Icon"
+                android:visibility="gone"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:background="?selectableItemBackgroundBorderless"/>
+
+            <io.mrarm.irc.view.ChatAutoCompleteEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/message_edit_text_margin_left"
+                android:layout_marginStart="@dimen/message_edit_text_margin_left"
+                android:imeOptions="flagNoExtractUi|actionSend"
+                android:inputType="text"
+                android:id="@+id/send_text"
+                android:hint="@string/message_hint"
+                android:layout_toRightOf="@id/tab_button"
+                android:layout_toEndOf="@id/tab_button"
+                android:layout_toLeftOf="@+id/send_button"
+                android:layout_toStartOf="@+id/send_button"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:background="@null"/>
+
+            <ImageButton
+                android:id="@+id/send_button"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignTop="@id/send_text"
+                android:layout_alignBottom="@id/send_text"
+                app:srcCompat="@drawable/ic_send"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:background="?selectableItemBackgroundBorderless"/>
+
+        </RelativeLayout>
 
         <View
             android:id="@+id/format_bar_divider"
-            android:layout_below="@id/send_text"
+            android:layout_below="@id/send_main_container"
             android:layout_width="match_parent"
             android:layout_height="@dimen/divider_height"
             android:visibility="gone"
