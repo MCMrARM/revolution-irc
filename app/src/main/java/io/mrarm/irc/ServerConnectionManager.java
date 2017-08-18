@@ -188,7 +188,7 @@ public class ServerConnectionManager {
                             throw new RuntimeException("mDisconnectingConnections already contains a disconnecting connection with this UUID");
                         mDisconnectingConnections.put(connection.getUUID(), connection);
                     }
-                } else if (connection.isConnecting() || connection.isConnected()) {
+                } else if (connection.isConnecting() || connection.isConnected() || !connection.hasUserDisconnectRequest()) {
                     throw new RuntimeException("Trying to remove a non-disconnected connection");
                 }
             }

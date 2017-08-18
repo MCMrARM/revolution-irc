@@ -16,6 +16,7 @@ import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.chatlib.irc.cap.SASLCapability;
 import io.mrarm.chatlib.irc.cap.SASLOptions;
 import io.mrarm.chatlib.irc.filters.ZNCPlaybackMessageFilter;
+import io.mrarm.chatlib.message.MessageStorageApi;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.util.IgnoreListMessageFilter;
@@ -152,27 +153,32 @@ public class ServerConnectionInfo {
             mUserDisconnectRequest = true;
             if (!isConnected() && isConnecting()) {
                 mConnecting = false;
+                mDisconnecting = true;
                 ((IRCConnection) getApiInstance()).disconnect(true);
-                mManager.notifyConnectionFullyDisconnected(this);
             } else if (isConnected()) {
                 mDisconnecting = true;
                 String message = SettingsHelper.getInstance(mManager.getContext()).getDefaultQuitMessage();
-                mApi.quit(message, (Void v) -> {
-                    mDisconnecting = false;
-                    mManager.notifyConnectionFullyDisconnected(this);
-                }, (Exception e) -> {
-                    mManager.notifyConnectionFullyDisconnected(this);
+                mApi.quit(message, null, (Exception e) -> {
+                    ((IRCConnection) getApiInstance()).disconnect(true);
                 });
             } else {
-                mManager.notifyConnectionFullyDisconnected(this);
+                notifyFullyDisconnected();
             }
         }
     }
 
     private void notifyDisconnected() {
+        if (isDisconnecting()) {
+            notifyFullyDisconnected();
+            return;
+        }
         synchronized (this) {
             setConnected(false);
             mConnecting = false;
+            if (mDisconnecting) {
+                notifyFullyDisconnected();
+                return;
+            }
             if (mUserDisconnectRequest)
                 return;
         }
@@ -188,6 +194,20 @@ public class ServerConnectionInfo {
                 return;
             this.connect();
         }, reconnectDelay);
+    }
+
+    private void notifyFullyDisconnected() {
+        synchronized (this) {
+            setConnected(false);
+            mConnecting = false;
+            mDisconnecting = false;
+            if (getApiInstance() != null) {
+                MessageStorageApi m = getApiInstance().getMessageStorageApi();
+                if (m != null && m instanceof SQLiteMessageStorageApi)
+                    ((SQLiteMessageStorageApi) m).close();
+            }
+        }
+        mManager.notifyConnectionFullyDisconnected(this);
     }
 
     public UUID getUUID() {
@@ -226,6 +246,12 @@ public class ServerConnectionInfo {
     public boolean isDisconnecting() {
         synchronized (this) {
             return mDisconnecting;
+        }
+    }
+
+    public boolean hasUserDisconnectRequest() {
+        synchronized (this) {
+            return mUserDisconnectRequest;
         }
     }
 
