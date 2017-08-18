@@ -2,6 +2,7 @@ package io.mrarm.irc.view;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
@@ -29,7 +30,7 @@ public class LabelLayout extends FrameLayout {
     private View mChild;
     private CharSequence mHint;
     private Paint mTextPaint;
-    private int mTextColorUnfocused;
+    private ColorStateList mTextColorUnfocused;
     private int mTextColorFocused;
     private boolean mChildWasFocused;
     private float mTextX = 0.f;
@@ -72,12 +73,12 @@ public class LabelLayout extends FrameLayout {
         try {
             mDoNotExpand = ta.getBoolean(R.attr.doNotExpand, false);
             mHint = ta.getString(android.R.attr.hint);
-            mTextColorUnfocused = ta.getColor(android.R.attr.textColorHint, 0);
+            mTextColorUnfocused = ta.getColorStateList(android.R.attr.textColorHint);
             mTextColorFocused = ta.getColor(R.attr.colorAccent, 0);
         } finally {
             ta.recycle();
         }
-        mTextPaint.setColor(mTextColorUnfocused);
+        mTextPaint.setColor(mTextColorUnfocused.getColorForState(getDrawableState(), mTextColorUnfocused.getDefaultColor()));
 
         mAnimator = ValueAnimator.ofFloat(0.f, 1.f);
         mAnimator.setInterpolator(new LinearInterpolator());
@@ -176,12 +177,12 @@ public class LabelLayout extends FrameLayout {
         super.drawableStateChanged();
         if (mChild != null) {
             boolean focused = hasFocusedChild(this);
+            if (focused)
+                mTextPaint.setColor(mTextColorFocused);
+            else
+                mTextPaint.setColor(mTextColorUnfocused.getColorForState(getDrawableState(), mTextColorUnfocused.getDefaultColor()));
             if (mChildWasFocused != focused) {
                 mChildWasFocused = focused;
-                if (focused)
-                    mTextPaint.setColor(mTextColorFocused);
-                else
-                    mTextPaint.setColor(mTextColorUnfocused);
                 updateLabelExpandState(true);
                 invalidate();
             }

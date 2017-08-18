@@ -1,8 +1,10 @@
 package io.mrarm.irc.util;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.support.v7.content.res.AppCompatResources;
 import android.util.AttributeSet;
 
 import java.util.Arrays;
@@ -11,20 +13,28 @@ public class StyledAttributesHelper {
 
     public static StyledAttributesHelper obtainStyledAttributes(Context ctx, int[] attributes) {
         Arrays.sort(attributes);
-        return new StyledAttributesHelper(ctx.obtainStyledAttributes(attributes), attributes);
+        return new StyledAttributesHelper(ctx, ctx.obtainStyledAttributes(attributes), attributes);
     }
 
     public static StyledAttributesHelper obtainStyledAttributes(
             Context ctx, AttributeSet attributeSet, int[] attributes) {
         Arrays.sort(attributes);
-        return new StyledAttributesHelper(ctx.obtainStyledAttributes(attributeSet, attributes),
+        return new StyledAttributesHelper(ctx, ctx.obtainStyledAttributes(attributeSet, attributes),
                 attributes);
+    }
+
+    public static StyledAttributesHelper obtainStyledAttributes(
+            Context ctx, AttributeSet attributeSet, int[] attributes, int defStyleAttr,
+            int defStyleRes) {
+        Arrays.sort(attributes);
+        return new StyledAttributesHelper(ctx, ctx.obtainStyledAttributes(attributeSet, attributes,
+                defStyleAttr, defStyleRes), attributes);
     }
 
     public static StyledAttributesHelper obtainStyledAttributes(Context ctx, int resid,
                                                                 int[] attributes) {
         Arrays.sort(attributes);
-        return new StyledAttributesHelper(ctx.obtainStyledAttributes(resid, attributes),
+        return new StyledAttributesHelper(ctx, ctx.obtainStyledAttributes(resid, attributes),
                 attributes);
     }
 
@@ -35,10 +45,12 @@ public class StyledAttributesHelper {
         return ret;
     }
 
+    private Context mContext;
     private TypedArray mArray;
     private int[] mAttributes;
 
-    public StyledAttributesHelper(TypedArray ta, int[] attributes) {
+    public StyledAttributesHelper(Context context, TypedArray ta, int[] attributes) {
+        mContext = context;
         mArray = ta;
         mAttributes = attributes;
     }
@@ -78,6 +90,17 @@ public class StyledAttributesHelper {
 
     public int getDimensionPixelSize(int attr, int def) {
         return mArray.getDimensionPixelSize(getAttributeIndex(attr), def);
+    }
+
+    public ColorStateList getColorStateList(int attr) {
+        int index = getAttributeIndex(attr);
+        int res = mArray.getResourceId(index, 0);
+        if (res != 0) {
+            ColorStateList v = AppCompatResources.getColorStateList(mContext, res);
+            if (v != null)
+                return v;
+        }
+        return mArray.getColorStateList(index);
     }
 
 }

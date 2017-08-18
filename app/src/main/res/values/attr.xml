@@ -5,6 +5,7 @@
     <attr name="recyclerViewScrollbarStyle" type="reference" />
 
     <declare-styleable name="LabelLayout">
+        <attr name="android:textColorHint" format="color" />
         <attr name="doNotExpand" format="boolean" />
     </declare-styleable>
 
