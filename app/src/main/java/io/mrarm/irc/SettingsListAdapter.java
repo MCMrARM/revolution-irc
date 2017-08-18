@@ -1,6 +1,6 @@
 package io.mrarm.irc;
 
-import android.app.*;
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -8,6 +8,7 @@ import android.graphics.PorterDuff;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.CheckBox;
@@ -103,7 +104,7 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
         public HeaderEntryHolder(View itemView, SettingsListAdapter adapter) {
             super(itemView, adapter);
 
-            mTitle = (TextView) itemView.findViewById(R.id.title);
+            mTitle = itemView.findViewById(R.id.title);
         }
 
         @Override
@@ -171,8 +172,8 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
         public SimpleEntryHolder(View itemView, SettingsListAdapter adapter) {
             super(itemView, adapter);
 
-            mName = (TextView) itemView.findViewById(R.id.name);
-            mValue = (TextView) itemView.findViewById(R.id.value);
+            mName = itemView.findViewById(R.id.name);
+            mValue = itemView.findViewById(R.id.value);
             itemView.setOnClickListener(this);
         }
 
@@ -236,7 +237,7 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
 
         public CheckBoxEntryHolder(View itemView, SettingsListAdapter adapter) {
             super(itemView, adapter);
-            mCheckBox = (CheckBox) itemView.findViewById(R.id.check);
+            mCheckBox = itemView.findViewById(R.id.check);
         }
 
         @Override
@@ -455,7 +456,7 @@ public class SettingsListAdapter extends EntryRecyclerViewAdapter {
 
         public ColorEntryHolder(View itemView, SettingsListAdapter adapter) {
             super(itemView, adapter);
-            mColor = (ImageView) itemView.findViewById(R.id.color);
+            mColor = itemView.findViewById(R.id.color);
         }
 
         @Override
