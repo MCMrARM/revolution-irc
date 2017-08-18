@@ -1,11 +1,14 @@
 package io.mrarm.irc;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -15,6 +18,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -532,11 +536,16 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
             mChannelsCtr = itemView.findViewById(R.id.channels_ctr);
             mChannelsCtr.setVisibility(View.GONE);
 
+            Button deleteButton = itemView.findViewById(R.id.delete);
+            Drawable d = AppCompatResources.getDrawable(itemView.getContext(), R.drawable.ic_delete).mutate();
+            DrawableCompat.setTint(d, deleteButton.getTextColors().getDefaultColor());
+            deleteButton.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null);
+
             itemView.findViewById(R.id.expand).setOnClickListener((View view) -> {
                 itemView.clearFocus();
                 getEntry().setCollapsed(true);
             });
-            itemView.findViewById(R.id.delete).setOnClickListener((View view) -> {
+            deleteButton.setOnClickListener((View view) -> {
                 itemView.clearFocus();
                 adapter.remove(getAdapterPosition());
             });

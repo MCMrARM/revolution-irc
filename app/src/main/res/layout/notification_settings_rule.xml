@@ -35,12 +35,11 @@
         android:layout_alignBottom="@id/expand"
         android:layout_marginLeft="@dimen/activity_horizontal_margin_s12"
         android:layout_marginStart="@dimen/activity_horizontal_margin_s12"
-        android:drawableLeft="@drawable/ic_delete"
-        android:drawableStart="@drawable/ic_delete"
-        android:drawableTint="?android:attr/colorForeground"
         android:drawablePadding="8dp"
         android:paddingRight="12dp"
         android:paddingLeft="12dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
         android:text="@string/action_delete" />
 
 
