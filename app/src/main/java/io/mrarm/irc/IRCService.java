@@ -1,6 +1,7 @@
 package io.mrarm.irc;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -12,6 +13,7 @@ import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
 import io.mrarm.chatlib.dto.MessageInfo;
@@ -24,9 +26,11 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
     public static final int IDLE_NOTIFICATION_ID = 100;
     public static final String ACTION_START_FOREGROUND = "start_foreground";
 
-    private static final String IDLE_NOTIFICATION_CHANNEL = "Idle Notification";
+    private static final String IDLE_NOTIFICATION_CHANNEL = "IdleNotification";
 
     private ConnectivityChangeReceiver mConnectivityReceiver = new ConnectivityChangeReceiver();
+
+    private boolean mCreatedChannel = false;
 
     public static void start(Context context) {
         Intent intent = new Intent(context, IRCService.class);
@@ -68,6 +72,13 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
         if (action == null)
             return START_STICKY;
         if (action.equals(ACTION_START_FOREGROUND)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !mCreatedChannel) {
+                NotificationChannel channel = new NotificationChannel(IDLE_NOTIFICATION_CHANNEL, getString(R.string.notification_channel_idle), android.app.NotificationManager.IMPORTANCE_MIN);
+                android.app.NotificationManager mgr = (android.app.NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                mgr.createNotificationChannel(channel);
+                mCreatedChannel = true;
+            }
+
             Intent mainIntent = MainActivity.getLaunchIntent(this, null, null);
             int connectionCount = ServerConnectionManager.getInstance(this).getConnections().size();
             NotificationCompat.Builder notification = new NotificationCompat.Builder(this, IDLE_NOTIFICATION_CHANNEL)

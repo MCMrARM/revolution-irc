@@ -108,6 +108,8 @@
 
     <string name="notification_action_required">User action required</string>
 
+    <string name="notification_channel_idle">Status Notification</string>
+
     <!-- Server list -->
 
     <string name="server_list_header_active">Active</string>
