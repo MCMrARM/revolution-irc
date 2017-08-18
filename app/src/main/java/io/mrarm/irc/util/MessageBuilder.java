@@ -359,6 +359,10 @@ public class MessageBuilder {
             str.setSpan(new ForegroundColorSpan(mContext.getResources().getColor(
                     R.color.motdColor)), 0, str.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
             text = str;
+        } else if (message.getType() == StatusMessageInfo.MessageType.CTCP_PING) {
+            text = mContext.getString(R.string.message_ctcp_ping);
+        } else if (message.getType() == StatusMessageInfo.MessageType.CTCP_VERSION) {
+            text = mContext.getString(R.string.message_ctcp_version);
         } else {
             text = IRCColorUtils.getFormattedString(mContext, message.getMessage());
         }

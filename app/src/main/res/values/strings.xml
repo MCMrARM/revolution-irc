@@ -40,6 +40,9 @@
     <string name="message_mode_nick_half_op">channel half-operator status</string>
     <string name="message_mode_nick_voice">voice</string>
 
+    <string name="message_ctcp_ping">Received a CTCP ping</string>
+    <string name="message_ctcp_version">Received a CTCP version</string>
+
     <string name="command_error_not_found">No such command was found.</string>
     <string name="command_error_internal">An internal error occurred when trying to process the command.</string>
 

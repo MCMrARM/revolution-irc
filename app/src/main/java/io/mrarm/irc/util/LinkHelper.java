@@ -1,6 +1,7 @@
 package io.mrarm.irc.util;
 
 import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ClickableSpan;
 import android.text.util.Linkify;
@@ -23,6 +24,8 @@ public class LinkHelper {
     private static final Pattern sChannelLinksPattern = Pattern.compile("(^| )(#[a-zA-Z]*)(?=$| |,)");
 
     public static CharSequence addLinks(CharSequence spannable) {
+        if (!(spannable instanceof Spannable))
+            spannable = new SpannableString(spannable);
         Linkify.addLinks((Spannable) spannable, Linkify.WEB_URLS);
         Matcher matcher = sChannelLinksPattern.matcher(spannable);
         while (matcher.find()) {
