@@ -67,7 +67,7 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/divider_height"
             android:visibility="gone"
-            android:background="?attr/dividerHorizontal" />
+            android:background="?android:attr/dividerHorizontal" />
 
         <io.mrarm.irc.view.TextFormatBar
             android:id="@+id/format_bar"
