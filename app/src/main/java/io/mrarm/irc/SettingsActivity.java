@@ -135,11 +135,13 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (super.onOptionsItemSelected(item))
+            return true;
         if (item.getItemId() == android.R.id.home) {
             finish();
             return true;
         }
-        return super.onOptionsItemSelected(item);
+        return false;
     }
 
     @Override
