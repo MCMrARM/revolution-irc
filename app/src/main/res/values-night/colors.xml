@@ -32,4 +32,6 @@
     <color name="memberVoice">#03A9F4</color>
     <color name="memberNormal">#fff</color>
 
+    <color name="formatDefaultColorIndicator">#5CFFFFFF</color>
+
 </resources>
