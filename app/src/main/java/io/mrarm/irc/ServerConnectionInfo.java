@@ -158,7 +158,11 @@ public class ServerConnectionInfo {
             if (!isConnected() && isConnecting()) {
                 mConnecting = false;
                 mDisconnecting = true;
-                ((IRCConnection) getApiInstance()).disconnect(true);
+                Thread disconnectThread = new Thread(() -> {
+                    ((IRCConnection) getApiInstance()).disconnect(true);
+                });
+                disconnectThread.setName("Disconnect Thread");
+                disconnectThread.start();
             } else if (isConnected()) {
                 mDisconnecting = true;
                 String message = SettingsHelper.getInstance(mManager.getContext()).getDefaultQuitMessage();
