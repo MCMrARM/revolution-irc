@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -60,6 +61,8 @@ public class ChipsEditTextPreference extends DialogPreference {
         String ret = getPersistedString(null);
         if (ret == null)
             return null;
+        if (ret.equals(""))
+            return new ArrayList<>();
         return Arrays.asList(ret.split("\n"));
     }
 
