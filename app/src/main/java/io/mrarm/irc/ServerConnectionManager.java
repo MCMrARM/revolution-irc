@@ -3,6 +3,7 @@ package io.mrarm.irc;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -61,8 +62,12 @@ public class ServerConnectionManager {
             ServerConfigManager configManager = ServerConfigManager.getInstance(context);
             for (ConnectedServerInfo server : servers.servers) {
                 ServerConfigData configData = configManager.findServer(server.uuid);
-                if (configData != null)
-                    createConnection(configData, server.channels, false);
+                if (configData != null) {
+                    try {
+                        createConnection(configData, server.channels, false);
+                    } catch (NickNotSetException ignored) {
+                    }
+                }
             }
         }
     }
@@ -141,19 +146,21 @@ public class ServerConnectionManager {
         } else {
             for (String nick : settings.getDefaultNicks())
                 request.addNick(nick);
+            if (request.getNickList() == null)
+                throw new NickNotSetException();
         }
         if (data.user != null)
             request.setUser(data.user);
         else if (settings.getDefaultUser() != null && settings.getDefaultUser().length() > 0)
             request.setUser(settings.getDefaultUser());
         else
-            request.setUser(settings.getDefaultPrimaryNick());
+            request.setUser(request.getNickList().get(0));
         if (data.realname != null)
             request.setRealName(data.realname);
         else if (settings.getDefaultRealname() != null && settings.getDefaultRealname().length() > 0)
             request.setRealName(settings.getDefaultRealname());
         else
-            request.setRealName(settings.getDefaultPrimaryNick());
+            request.setRealName(request.getNickList().get(0));
 
         SASLOptions saslOptions = null;
         if (data.authMode != null) {
@@ -176,6 +183,16 @@ public class ServerConnectionManager {
 
     public ServerConnectionInfo createConnection(ServerConfigData data) {
         return createConnection(data, null, true);
+    }
+
+    public void tryCreateConnection(ServerConfigData data, Context activity) {
+        if (ServerConnectionManager.getInstance(getContext()).hasConnection(data.uuid))
+            return;
+        try {
+            createConnection(data);
+        } catch (NickNotSetException e) {
+            Toast.makeText(activity, R.string.connection_error_no_nick, Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void removeConnection(ServerConnectionInfo connection, boolean saveAutoconnect) {
@@ -362,6 +379,9 @@ public class ServerConnectionManager {
 
         public List<ConnectedServerInfo> servers;
 
+    }
+
+    public class NickNotSetException extends RuntimeException {
     }
 
 }

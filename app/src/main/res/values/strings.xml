@@ -113,6 +113,10 @@
 
     <string name="notification_channel_idle">Status Notification</string>
 
+    <!-- Connection errors -->
+
+    <string name="connection_error_no_nick">No nick set</string>
+
     <!-- Server list -->
 
     <string name="server_list_header_active">Active</string>

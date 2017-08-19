@@ -129,8 +129,8 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
 
     public String[] getDefaultNicks() {
         String s = mPreferences.getString(PREF_DEFAULT_NICKS, null);
-        if (s == null)
-            return null;
+        if (s == null || s.equals(""))
+            return new String[0];
         return s.split("\n");
     }
 

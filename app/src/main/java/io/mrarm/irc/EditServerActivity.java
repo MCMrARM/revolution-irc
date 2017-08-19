@@ -326,7 +326,7 @@ public class EditServerActivity extends AppCompatActivity {
             return false;
         }
         if (addConnection) {
-            ServerConnectionManager.getInstance(this).createConnection(mEditServer);
+            ServerConnectionManager.getInstance(this).tryCreateConnection(mEditServer, this);
         }
         return true;
     }

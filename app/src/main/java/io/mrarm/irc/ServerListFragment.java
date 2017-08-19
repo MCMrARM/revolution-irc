@@ -74,14 +74,12 @@ public class ServerListFragment extends Fragment {
             menu.show();
         });
         mAdapter.setInactiveServerClickListener((ServerConfigData data) -> {
-            ServerConnectionManager.getInstance(getContext()).createConnection(data);
+            ServerConnectionManager.getInstance(getContext()).tryCreateConnection(data, getActivity());
         });
         mAdapter.setInactiveServerLongClickListener((ServerConfigData data) -> {
             MenuBottomSheetDialog menu = new MenuBottomSheetDialog(getContext());
             menu.addItem(R.string.action_connect, R.drawable.ic_server_connected, (MenuBottomSheetDialog.Item item) -> {
-                if (ServerConnectionManager.getInstance(getContext()).hasConnection(data.uuid))
-                    return;
-                ServerConnectionManager.getInstance(getContext()).createConnection(data);
+                ServerConnectionManager.getInstance(getContext()).tryCreateConnection(data, getActivity());
                 return true;
             });
             menu.addItem(R.string.action_edit, R.drawable.ic_edit, (MenuBottomSheetDialog.Item item) -> {
