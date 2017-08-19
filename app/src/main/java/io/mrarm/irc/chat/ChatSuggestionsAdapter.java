@@ -11,7 +11,9 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.mrarm.chatlib.dto.ModeList;
 import io.mrarm.chatlib.dto.NickWithPrefix;
+import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 
@@ -133,7 +135,11 @@ public class ChatSuggestionsAdapter extends RecyclerView.Adapter<ChatSuggestions
                 }
             }
             if (areChannelsEnabled()) {
+                ModeList channelTypes = ((ServerConnectionApi) mConnection.getApiInstance())
+                        .getServerConnectionData().getSupportList().getSupportedChannelTypes();
                 for (String channel : mConnection.getChannels()) {
+                    if (channel.length() == 0 || !channelTypes.contains(channel.charAt(0)))
+                        continue;
                     if (channel.regionMatches(true, 0, str, 0, str.length()))
                         list.add(channel);
                 }
