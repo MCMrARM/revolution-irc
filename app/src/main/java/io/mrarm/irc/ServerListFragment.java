@@ -79,6 +79,8 @@ public class ServerListFragment extends Fragment {
         mAdapter.setInactiveServerLongClickListener((ServerConfigData data) -> {
             MenuBottomSheetDialog menu = new MenuBottomSheetDialog(getContext());
             menu.addItem(R.string.action_connect, R.drawable.ic_server_connected, (MenuBottomSheetDialog.Item item) -> {
+                if (ServerConnectionManager.getInstance(getContext()).hasConnection(data.uuid))
+                    return;
                 ServerConnectionManager.getInstance(getContext()).createConnection(data);
                 return true;
             });
