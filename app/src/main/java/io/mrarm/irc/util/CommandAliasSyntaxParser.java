@@ -107,14 +107,20 @@ public class CommandAliasSyntaxParser {
                 vars.set(el.varName, Arrays.asList(vaargs), " ");
                 break;
             }
-            if (!el.required && optargi == 0)
+            if (!el.required && optargi == 0) {
+                if (vars.get(el.varName) == null)
+                    vars.set(el.varName, "");
                 continue;
+            }
             boolean matches = el.checkArgumentMatches(connection, args[argi]);
             if (!matches)
                 continue;
             vars.set(el.varName, args[argi]);
-            if (!el.required)
+            if (!el.required) {
+                if (vars.get(el.varName) == null)
+                    vars.set(el.varName, "");
                 optargi--;
+            }
             argi++;
         }
     }
