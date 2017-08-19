@@ -110,10 +110,12 @@ public class ChatSuggestionsAdapter extends RecyclerView.Adapter<ChatSuggestions
 
         public void bind(Object item) {
             itemView.setTag(item);
-            if (item instanceof NickWithPrefix)
+            if (item instanceof NickWithPrefix) {
                 ChannelMembersAdapter.MemberHolder.bindText(mText, (NickWithPrefix) item);
-            else
+            } else {
                 mText.setText(item.toString());
+                mText.setTextColor(mText.getContext().getResources().getColor(R.color.memberNormal));
+            }
         }
 
     }
