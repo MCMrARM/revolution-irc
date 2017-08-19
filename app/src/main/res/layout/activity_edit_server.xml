@@ -40,7 +40,6 @@
         <RelativeLayout style="@style/EditServerItemContainer">
 
             <ImageView
-                android:id="@+id/test"
                 app:srcCompat="@drawable/ic_server_address"
                 style="@style/EditServerIcon.TextInput" />
 

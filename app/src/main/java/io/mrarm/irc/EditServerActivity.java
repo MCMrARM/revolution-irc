@@ -116,9 +116,6 @@ public class EditServerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit_server);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        ImageViewCompat.setImageTintMode(findViewById(R.id.test), PorterDuff.Mode.SRC_IN);
-        ImageViewCompat.setImageTintList(findViewById(R.id.test), ColorStateList.valueOf(0x89000000));
-
         mServerName = findViewById(R.id.server_name);
         mServerNameCtr = findViewById(R.id.server_name_ctr);
         mServerAddress = findViewById(R.id.server_address_name);
