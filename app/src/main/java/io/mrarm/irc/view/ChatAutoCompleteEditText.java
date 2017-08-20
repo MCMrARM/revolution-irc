@@ -8,6 +8,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.method.QwertyKeyListener;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Filter;
 
@@ -258,6 +259,16 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
         int end = findTokenEnd();
         QwertyKeyListener.markAsReplaced(getText(), start, end, TextUtils.substring(getText(), start, end));
         getText().replace(findTokenStart(), findTokenEnd(), val);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (event.getKeyCode() == KeyEvent.KEYCODE_TAB) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN)
+                requestTabComplete();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     public int findTokenStart() {
