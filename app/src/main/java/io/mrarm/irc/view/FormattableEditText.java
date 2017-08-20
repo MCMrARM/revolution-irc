@@ -83,12 +83,12 @@ public class FormattableEditText extends AppCompatEditText {
                 if (mSettingText)
                     return;
                 for (SpanData span : mBackedUpSpans) {
-                    if (span.start >= s.length())
+                    if (span.start >= s.length() || span.end < 0)
                         continue;
                     int spanPointFlags = span.flags & Spanned.SPAN_POINT_MARK_MASK;
                     if (span.start == span.end && (spanPointFlags == Spanned.SPAN_EXCLUSIVE_EXCLUSIVE || spanPointFlags == Spanned.SPAN_INCLUSIVE_EXCLUSIVE))
                         continue;
-                    s.setSpan(span.span, span.start, Math.min(span.end, s.length()), span.flags);
+                    s.setSpan(span.span, Math.max(span.start, 0), Math.min(span.end, s.length()), span.flags);
                 }
                 mBackedUpSpans.clear();
             }
