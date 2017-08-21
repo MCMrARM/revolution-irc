@@ -25,6 +25,8 @@ import io.mrarm.irc.config.SettingsHelper;
 
 public class ServerConnectionInfo {
 
+    private static final int HISTORY_MAX_COUNT = 24;
+
     private static Handler mReconnectHandler = new Handler();
 
     private ServerConnectionManager mManager;
@@ -43,6 +45,7 @@ public class ServerConnectionInfo {
     private final List<ChannelListChangeListener> mChannelsListeners = new ArrayList<>();
     private int mCurrentReconnectAttempt = -1;
     int mChatLogStorageUpdateCounter = 0;
+    private final List<CharSequence> mSentMessageHistory = new ArrayList<>();
 
     public ServerConnectionInfo(ServerConnectionManager manager, ServerConfigData config,
                                 IRCConnectionRequest connectionRequest, SASLOptions saslOptions,
@@ -299,6 +302,18 @@ public class ServerConnectionInfo {
 
     public String getUserNick() {
         return ((ServerConnectionApi) getApiInstance()).getServerConnectionData().getUserNick();
+    }
+
+    // Should be called only from main thread
+    public List<CharSequence> getSentMessageHistory() {
+        return mSentMessageHistory;
+    }
+
+    // Should be called only from main thread
+    public void addHistoryMessage(CharSequence msg) {
+        mSentMessageHistory.add(msg);
+        if (mSentMessageHistory.size() >= HISTORY_MAX_COUNT)
+            mSentMessageHistory.remove(0);
     }
 
     public void addOnChannelInfoChangeListener(InfoChangeListener listener) {

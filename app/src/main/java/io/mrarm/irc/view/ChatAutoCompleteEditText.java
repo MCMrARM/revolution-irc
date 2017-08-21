@@ -11,6 +11,7 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Filter;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,8 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
 
     private static final int THRESHOLD = 2;
 
+    private static final int MAX_HISTORY_ITEMS = 24;
+
     private boolean mDoThresholdSuggestions;
     private boolean mDoAtSuggestions;
     private boolean mAtSuggestionsRemoveAt;
@@ -47,6 +50,8 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
     private CommandListSuggestionsAdapter mCommandAdapter;
     private ModeList mChannelTypes;
     private List<CommandAliasManager.CommandAlias> mCompletingCommands;
+    private List<CharSequence> mHistory;
+    private int mHistoryIndex;
 
     public ChatAutoCompleteEditText(Context context) {
         super(context);
@@ -110,6 +115,10 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
 
     public void setChannelTypes(ModeList channelTypes) {
         mChannelTypes = channelTypes;
+    }
+
+    public void setHistory(List<CharSequence> mHistory) {
+        this.mHistory = mHistory;
     }
 
     public void requestTabComplete() {
@@ -268,7 +277,33 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
                 requestTabComplete();
             return true;
         }
+        if (event.getKeyCode() == KeyEvent.KEYCODE_DPAD_UP ||
+                event.getKeyCode() == KeyEvent.KEYCODE_DPAD_DOWN) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                int i = mHistoryIndex;
+                if (event.getKeyCode() == KeyEvent.KEYCODE_DPAD_DOWN) {
+                    if (i == -1)
+                        return true;
+                    i--;
+                } else {
+                    i = Math.min(i + 1, mHistory.size() - 1);
+                }
+                if (i == -1)
+                    setText("");
+                else
+                    setText(mHistory.get(mHistory.size() - 1 - i));
+                setSelection(getText().length());
+                mHistoryIndex = i;
+            }
+            return true;
+        }
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void setText(CharSequence text, BufferType type) {
+        super.setText(text, type);
+        mHistoryIndex = -1;
     }
 
     public int findTokenStart() {

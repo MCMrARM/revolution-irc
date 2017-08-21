@@ -8,6 +8,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.Editable;
+import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.util.Log;
@@ -88,6 +89,7 @@ public class ChatFragmentSendMessageHelper {
         mSendText.setAdapter(mChannelMembersListAdapter);
         mSendText.setCommandListAdapter(new CommandListSuggestionsAdapter(mContext));
         mSendText.setConnectionContext(connectionInfo);
+        mSendText.setHistory(connectionInfo.getSentMessageHistory());
         if (connectionInfo.getApiInstance() instanceof ServerConnectionApi)
             mSendText.setChannelTypes(((ServerConnectionApi) connectionInfo.getApiInstance())
                     .getServerConnectionData().getSupportList().getSupportedChannelTypes());
@@ -218,6 +220,7 @@ public class ChatFragmentSendMessageHelper {
                     } else {
                         throw new RuntimeException();
                     }
+                    mFragment.getConnectionInfo().addHistoryMessage(new SpannableString(mSendText.getText()));
                     mSendText.setText("");
                     return;
                 }
@@ -241,6 +244,7 @@ public class ChatFragmentSendMessageHelper {
         }
         if (channel == null)
             return;
+        mFragment.getConnectionInfo().addHistoryMessage(new SpannableString(mSendText.getText()));
         mSendText.setText("");
         mFragment.getConnectionInfo().getApiInstance().sendMessage(channel, text, null, null);
     }
