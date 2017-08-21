@@ -1,6 +1,6 @@
 package io.mrarm.irc.chat;
 
-import android.support.v7.widget.RecyclerView;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,8 +16,9 @@ import io.mrarm.chatlib.dto.NickWithPrefix;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
+import io.mrarm.irc.util.SelectableRecyclerViewAdapter;
 
-public class ChatSuggestionsAdapter extends RecyclerView.Adapter<ChatSuggestionsAdapter.ItemHolder> implements Filterable {
+public class ChatSuggestionsAdapter extends SelectableRecyclerViewAdapter<ChatSuggestionsAdapter.ItemHolder> implements Filterable {
 
     private ServerConnectionInfo mConnection;
     private List<NickWithPrefix> mMembers;
@@ -28,7 +29,8 @@ public class ChatSuggestionsAdapter extends RecyclerView.Adapter<ChatSuggestions
     private MyFilter mFilter;
     private OnItemClickListener mClickListener;
 
-    public ChatSuggestionsAdapter(ServerConnectionInfo connection, List<NickWithPrefix> members) {
+    public ChatSuggestionsAdapter(Context context, ServerConnectionInfo connection, List<NickWithPrefix> members) {
+        super(context);
         mConnection = connection;
         mMembers = members;
         mFilteredItems = null;
@@ -81,6 +83,7 @@ public class ChatSuggestionsAdapter extends RecyclerView.Adapter<ChatSuggestions
 
     @Override
     public void onBindViewHolder(ItemHolder holder, int position) {
+        super.onBindViewHolder(holder, position);
         holder.bind(mFilteredItems.get(position));
     }
 
@@ -96,7 +99,7 @@ public class ChatSuggestionsAdapter extends RecyclerView.Adapter<ChatSuggestions
         return mFilter;
     }
 
-    public class ItemHolder extends RecyclerView.ViewHolder {
+    public class ItemHolder extends SelectableRecyclerViewAdapter.ViewHolder {
 
         private TextView mText;
 

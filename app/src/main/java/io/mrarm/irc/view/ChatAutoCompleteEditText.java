@@ -26,6 +26,7 @@ import io.mrarm.irc.chat.CommandListSuggestionsAdapter;
 import io.mrarm.irc.config.CommandAliasManager;
 import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.util.CommandAliasSyntaxParser;
+import io.mrarm.irc.util.SelectableRecyclerViewAdapter;
 import io.mrarm.irc.util.SimpleTextWatcher;
 
 public class ChatAutoCompleteEditText extends FormattableEditText implements
@@ -33,8 +34,6 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
         ChatSuggestionsAdapter.OnItemClickListener {
 
     private static final int THRESHOLD = 2;
-
-    private static final int MAX_HISTORY_ITEMS = 24;
 
     private boolean mDoThresholdSuggestions;
     private boolean mDoAtSuggestions;
@@ -44,7 +43,6 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
     private View mSuggestionsContainer;
     private View mSuggestionsCard;
     private RecyclerView mSuggestionsList;
-    private boolean mCurrentCommandAdapter = false;
     private ServerConnectionInfo mConnection;
     private ChatSuggestionsAdapter mAdapter;
     private CommandListSuggestionsAdapter mCommandAdapter;
@@ -89,8 +87,6 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
     public void setAdapter(ChatSuggestionsAdapter adapter) {
         mAdapter = adapter;
         mAdapter.setClickListener(this);
-        mSuggestionsList.setAdapter(adapter);
-        mCurrentCommandAdapter = false;
         mAdapter.setEnabledSuggestions(true, mDoChannelSuggestions, false);
     }
 
@@ -104,13 +100,10 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
     }
 
     private void setCurrentCommandAdapter(boolean command) {
-        if (mCurrentCommandAdapter == command)
-            return;
-        if (command)
+        if (command && mSuggestionsList.getAdapter() != mCommandAdapter)
             mSuggestionsList.setAdapter(mCommandAdapter);
-        else
+        else if (!command && mSuggestionsList.getAdapter() != mAdapter)
             mSuggestionsList.setAdapter(mAdapter);
-        mCurrentCommandAdapter = command;
     }
 
     public void setChannelTypes(ModeList channelTypes) {
@@ -127,6 +120,9 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
 
     public void dismissDropDown() {
         mSuggestionsContainer.setVisibility(View.GONE);
+        if (mSuggestionsList.getAdapter() instanceof SelectableRecyclerViewAdapter)
+            ((SelectableRecyclerViewAdapter) mSuggestionsList.getAdapter()).setSelection(-1);
+        mSuggestionsList.setAdapter(null);
         BottomSheetBehavior.from(mSuggestionsCard).setState(BottomSheetBehavior.STATE_COLLAPSED);
     }
 
@@ -273,13 +269,37 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (event.getKeyCode() == KeyEvent.KEYCODE_TAB) {
-            if (event.getAction() == KeyEvent.ACTION_DOWN)
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                if (mSuggestionsList.getAdapter() != null &&
+                        mSuggestionsList.getAdapter() instanceof SelectableRecyclerViewAdapter) {
+                    int i = ((SelectableRecyclerViewAdapter) mSuggestionsList.getAdapter()).
+                            getSelection();
+                    if (i != -1) {
+                        if (mSuggestionsList.getAdapter() == mAdapter)
+                            onItemClick(mAdapter.getItem(i));
+                        else if (mSuggestionsList.getAdapter() == mCommandAdapter)
+                            onItemClick(mCommandAdapter.getItem(i));
+                    }
+                    return true;
+                }
+                mAdapter.setSelection(0);
                 requestTabComplete();
+            }
             return true;
         }
         if (event.getKeyCode() == KeyEvent.KEYCODE_DPAD_UP ||
                 event.getKeyCode() == KeyEvent.KEYCODE_DPAD_DOWN) {
             if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                if (mSuggestionsList.getAdapter() != null &&
+                        mSuggestionsList.getAdapter() instanceof SelectableRecyclerViewAdapter) {
+                    SelectableRecyclerViewAdapter adapter = (SelectableRecyclerViewAdapter)
+                            mSuggestionsList.getAdapter();
+                    if (event.getKeyCode() == KeyEvent.KEYCODE_DPAD_DOWN)
+                        adapter.setSelection(Math.min(adapter.getSelection() + 1, adapter.getItemCount() - 1));
+                    else
+                        adapter.setSelection(Math.max(adapter.getSelection() - 1, 0));
+                    return true;
+                }
                 int i = mHistoryIndex;
                 if (event.getKeyCode() == KeyEvent.KEYCODE_DPAD_DOWN) {
                     if (i == -1)

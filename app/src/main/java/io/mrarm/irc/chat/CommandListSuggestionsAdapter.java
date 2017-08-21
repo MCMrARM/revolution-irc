@@ -2,7 +2,6 @@ package io.mrarm.irc.chat;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.support.v7.widget.RecyclerView;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
@@ -19,9 +18,10 @@ import java.util.List;
 
 import io.mrarm.irc.R;
 import io.mrarm.irc.config.CommandAliasManager;
+import io.mrarm.irc.util.SelectableRecyclerViewAdapter;
 import io.mrarm.irc.util.StyledAttributesHelper;
 
-public class CommandListSuggestionsAdapter extends RecyclerView.Adapter<CommandListSuggestionsAdapter.ItemHolder> implements Filterable {
+public class CommandListSuggestionsAdapter extends SelectableRecyclerViewAdapter<CommandListSuggestionsAdapter.ItemHolder> implements Filterable {
 
     private Context mContext;
     private List<CommandAliasManager.CommandAlias> mFilteredItems;
@@ -30,6 +30,8 @@ public class CommandListSuggestionsAdapter extends RecyclerView.Adapter<CommandL
     private ChatSuggestionsAdapter.OnItemClickListener mClickListener;
 
     public CommandListSuggestionsAdapter(Context context) {
+        super(context);
+
         mContext = context;
         mFilteredItems = null;
 
@@ -53,6 +55,7 @@ public class CommandListSuggestionsAdapter extends RecyclerView.Adapter<CommandL
 
     @Override
     public void onBindViewHolder(ItemHolder holder, int position) {
+        super.onBindViewHolder(holder, position);
         holder.bind(mFilteredItems.get(position));
     }
 
@@ -68,7 +71,7 @@ public class CommandListSuggestionsAdapter extends RecyclerView.Adapter<CommandL
         return mFilter;
     }
 
-    public class ItemHolder extends RecyclerView.ViewHolder {
+    public class ItemHolder extends SelectableRecyclerViewAdapter.ViewHolder {
 
         private TextView mText;
 

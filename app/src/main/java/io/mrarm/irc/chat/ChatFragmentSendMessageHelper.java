@@ -84,7 +84,7 @@ public class ChatFragmentSendMessageHelper {
 
         RecyclerView suggestionsRecyclerView = rootView.findViewById(R.id.suggestions_list);
         suggestionsRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
-        mChannelMembersListAdapter = new ChatSuggestionsAdapter(connectionInfo, null);
+        mChannelMembersListAdapter = new ChatSuggestionsAdapter(mContext, connectionInfo, null);
         mSendText.setSuggestionsListView(rootView.findViewById(R.id.suggestions_container), rootView.findViewById(R.id.suggestions_card), suggestionsRecyclerView);
         mSendText.setAdapter(mChannelMembersListAdapter);
         mSendText.setCommandListAdapter(new CommandListSuggestionsAdapter(mContext));
