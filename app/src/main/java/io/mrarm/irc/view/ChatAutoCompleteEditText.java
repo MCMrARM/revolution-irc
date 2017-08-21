@@ -11,7 +11,6 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Filter;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -298,6 +297,7 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
                         adapter.setSelection(Math.min(adapter.getSelection() + 1, adapter.getItemCount() - 1));
                     else
                         adapter.setSelection(Math.max(adapter.getSelection() - 1, 0));
+                    mSuggestionsList.scrollToPosition(adapter.getSelection());
                     return true;
                 }
                 int i = mHistoryIndex;
