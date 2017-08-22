@@ -15,7 +15,7 @@ import io.mrarm.irc.util.SimpleChipSpan;
 
 public class ChipsEditText extends AppCompatEditText {
 
-    private static final char SEPARATOR = ' ';
+    public static final char SEPARATOR = ' ';
 
     private boolean mIsDirectlyEditing = false;
 

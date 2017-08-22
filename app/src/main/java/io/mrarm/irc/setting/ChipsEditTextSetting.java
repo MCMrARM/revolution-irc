@@ -1,9 +1,12 @@
 package io.mrarm.irc.setting;
 
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
+
+import java.util.Arrays;
 
 import io.mrarm.irc.R;
 import io.mrarm.irc.view.ChipsEditText;
@@ -22,8 +25,27 @@ public class ChipsEditTextSetting extends SimpleSetting {
         mDefaultText = defaultText;
     }
 
+    public ChipsEditTextSetting linkPreference(SharedPreferences prefs, String pref) {
+        String itms = prefs.getString(pref, null);
+        if (itms != null && itms.length() > 0)
+            setItems(itms.split(String.valueOf(ChipsEditText.SEPARATOR)));
+        setAssociatedPreference(prefs, pref);
+        return this;
+    }
+
     public void setItems(String[] items) {
         mItems = items;
+        if (hasAssociatedPreference()) {
+            StringBuilder b = new StringBuilder();
+            for (String item : items) {
+                if (b.length() > 0)
+                    b.append(ChipsEditText.SEPARATOR);
+                b.append(item);
+            }
+            mPreferences.edit()
+                    .putString(mPreferenceName, b.toString())
+                    .apply();
+        }
         onUpdated();
     }
 
@@ -68,6 +90,8 @@ public class ChipsEditTextSetting extends SimpleSetting {
             ChipsEditTextSetting entry = getEntry();
             View view = LayoutInflater.from(v.getContext()).inflate(R.layout.dialog_chip_edit_text, null);
             ChipsEditText text = view.findViewById(R.id.chip_edit_text);
+            text.setItems(Arrays.asList(entry.mItems));
+            text.setHint(entry.mDefaultText);
             new AlertDialog.Builder(v.getContext())
                     .setTitle(entry.mName)
                     .setView(view)

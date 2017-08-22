@@ -1,6 +1,7 @@
 package io.mrarm.irc.setting;
 
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.support.v7.app.AlertDialog;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -25,8 +26,18 @@ public class FontSizeSetting extends SimpleSetting {
         setFontSize(value);
     }
 
+    public FontSizeSetting linkPreference(SharedPreferences prefs, String pref) {
+        setFontSize(prefs.getInt(pref, mFontSize));
+        setAssociatedPreference(prefs, pref);
+        return this;
+    }
+
     public void setFontSize(int value) {
         mFontSize = value;
+        if (hasAssociatedPreference())
+            mPreferences.edit()
+                    .putInt(mPreferenceName, mFontSize)
+                    .apply();
         onUpdated();
     }
 
@@ -49,7 +60,7 @@ public class FontSizeSetting extends SimpleSetting {
         public void bind(FontSizeSetting entry) {
             super.bind(entry);
 
-            setValueText(entry.getFontSize() >= 0 ? String.valueOf(entry.getFontSize()) :
+            setValueText(entry.getFontSize() >= 0 ? String.valueOf(entry.getFontSize()) + "sp" :
                     itemView.getContext().getString(R.string.value_default));
         }
 

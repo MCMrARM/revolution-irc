@@ -1,5 +1,6 @@
 package io.mrarm.irc.setting;
 
+import android.content.SharedPreferences;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -23,8 +24,18 @@ public class CheckBoxSetting extends SimpleSetting {
         mChecked = checked;
     }
 
+    public CheckBoxSetting linkPreference(SharedPreferences prefs, String pref) {
+        setChecked(prefs.getBoolean(pref, mChecked));
+        setAssociatedPreference(prefs, pref);
+        return this;
+    }
+
     public void setChecked(boolean checked) {
         mChecked = checked;
+        if (hasAssociatedPreference())
+            mPreferences.edit()
+                    .putBoolean(mPreferenceName, checked)
+                    .apply();
         onUpdated();
     }
 

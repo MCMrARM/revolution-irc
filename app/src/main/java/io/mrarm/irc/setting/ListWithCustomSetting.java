@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
@@ -73,9 +74,28 @@ public class ListWithCustomSetting extends ListSetting implements
         mCustomFilesDir = getCustomFilesDir(adapter.getActivity());
     }
 
+    public ListWithCustomSetting(SettingsListAdapter adapter, String name, String[] options,
+                                 String[] optionValues, String selectedOption,
+                                 String internalFileName, int customValueType) {
+        super(name, options, optionValues, selectedOption);
+        mInternalFileName = internalFileName;
+        mCustomValueType = customValueType;
+        mRequestCode = adapter.getRequestCodeCounter().next();
+        mCustomFilesDir = getCustomFilesDir(adapter.getActivity());
+    }
+
     public ListWithCustomSetting(String name, String[] options, int selectedOption,
                                  int customValueType) {
         super(name, options, selectedOption);
+        mCustomValueType = customValueType;
+    }
+
+    @Override
+    public ListSetting linkPreference(SharedPreferences prefs, String pref) {
+        String s = prefs.getString(pref, null);
+        if (isPrefCustomValue(s))
+            setCustomValue(getPrefCustomValue(s));
+        return super.linkPreference(prefs, pref);
     }
 
     @Override
@@ -98,6 +118,10 @@ public class ListWithCustomSetting extends ListSetting implements
 
     public void setCustomValue(String value) {
         mCustomValue = value;
+        if (value != null && hasAssociatedPreference())
+            mPreferences.edit()
+                    .putString(mPreferenceName, CUSTOM_VALUE_PREFIX + value)
+                    .apply();
         setSelectedOption(-1);
     }
 

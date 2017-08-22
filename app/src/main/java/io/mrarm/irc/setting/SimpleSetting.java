@@ -1,5 +1,6 @@
 package io.mrarm.irc.setting;
 
+import android.content.SharedPreferences;
 import android.view.View;
 import android.widget.TextView;
 
@@ -19,6 +20,9 @@ public class SimpleSetting extends SettingsListAdapter.Entry {
     protected boolean mEnabled = true;
     private List<SettingsListAdapter.SettingChangedListener> mListeners = new ArrayList<>();
 
+    protected SharedPreferences mPreferences;
+    protected String mPreferenceName;
+
     public SimpleSetting(String name, String value) {
         mName = name;
         mValue = value;
@@ -30,6 +34,15 @@ public class SimpleSetting extends SettingsListAdapter.Entry {
             setEnabled(((CheckBoxSetting) entry).isChecked());
         });
         return this;
+    }
+
+    protected void setAssociatedPreference(SharedPreferences prefs, String pref) {
+        mPreferences = prefs;
+        mPreferenceName = pref;
+    }
+
+    protected boolean hasAssociatedPreference() {
+        return mPreferences != null;
     }
 
     public boolean isEnabled() {

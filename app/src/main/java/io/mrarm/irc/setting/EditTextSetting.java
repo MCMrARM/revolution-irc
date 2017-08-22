@@ -1,6 +1,7 @@
 package io.mrarm.irc.setting;
 
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,8 +23,18 @@ public class EditTextSetting extends SimpleSetting {
         mDefaultText = defaultText;
     }
 
+    public EditTextSetting linkPreference(SharedPreferences prefs, String pref) {
+        setText(prefs.getString(pref, mText));
+        setAssociatedPreference(prefs, pref);
+        return this;
+    }
+
     public void setText(String text) {
         mText = text;
+        if (hasAssociatedPreference())
+            mPreferences.edit()
+                    .putString(mPreferenceName, text)
+                    .apply();
         onUpdated();
     }
 
@@ -58,6 +69,7 @@ public class EditTextSetting extends SimpleSetting {
             EditTextSetting entry = getEntry();
             View view = LayoutInflater.from(v.getContext()).inflate(R.layout.dialog_edit_text, null);
             EditText text = view.findViewById(R.id.edit_text);
+            text.setText(entry.mText);
             text.setHint(entry.mDefaultText);
             new AlertDialog.Builder(v.getContext())
                     .setTitle(entry.mName)

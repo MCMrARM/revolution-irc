@@ -1,6 +1,8 @@
 package io.mrarm.irc.setting.fragment;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.view.View;
 
 import io.mrarm.irc.MessageFormatSettingsActivity;
@@ -25,15 +27,23 @@ public class InterfaceSettingsFragment extends SettingsListFragment
     @Override
     public SettingsListAdapter createAdapter() {
         SettingsListAdapter a = new SettingsListAdapter(this);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         a.setRequestCodeCounter(((SettingsActivity) getActivity()).getRequestCodeCounter());
         a.add(new CheckBoxSetting(getString(R.string.pref_title_dark_theme),
-                getString(R.string.pref_summary_dark_theme), false));
+                getString(R.string.pref_summary_dark_theme), false)
+                .linkPreference(prefs, SettingsHelper.PREF_DARK_THEME));
         a.add(new ListWithCustomSetting(a, getString(R.string.pref_title_font),
-                getResources().getStringArray(R.array.pref_entries_font), 0,
-                SettingsHelper.PREF_CHAT_FONT, ListWithCustomSetting.TYPE_FONT));
-        a.add(new FontSizeSetting(getString(R.string.pref_title_font_size), -1));
+                getResources().getStringArray(R.array.pref_entries_font),
+                getResources().getStringArray(R.array.pref_entry_values_font), "default",
+                SettingsHelper.PREF_CHAT_FONT, ListWithCustomSetting.TYPE_FONT)
+                .linkPreference(prefs, SettingsHelper.PREF_CHAT_FONT));
+        a.add(new FontSizeSetting(getString(R.string.pref_title_font_size), -1)
+                .linkPreference(prefs, SettingsHelper.PREF_CHAT_FONT_SIZE));
         a.add(new ListSetting(getString(R.string.pref_title_appbar_compact_mode),
-                getResources().getStringArray(R.array.pref_entries_appbar_compact_mode), 0));
+                getResources().getStringArray(R.array.pref_entries_appbar_compact_mode),
+                getResources().getStringArray(R.array.pref_entry_values_appbar_compact_mode),
+                SettingsHelper.COMPACT_MODE_AUTO)
+                .linkPreference(prefs, SettingsHelper.PREF_CHAT_APPBAR_COMPACT_MODE));
         a.add(new ClickableSetting(getString(R.string.pref_title_message_format), null)
                 .setIntent(new Intent(getActivity(), MessageFormatSettingsActivity.class)));
         a.add(new ClickableSetting(getString(R.string.pref_title_nick_autocomplete), null)

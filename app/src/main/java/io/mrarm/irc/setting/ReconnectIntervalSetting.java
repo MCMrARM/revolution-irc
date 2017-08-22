@@ -2,7 +2,7 @@ package io.mrarm.irc.setting;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.PorterDuff;
+import android.content.SharedPreferences;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -65,6 +65,28 @@ public class ReconnectIntervalSetting extends SimpleSetting {
     public ReconnectIntervalSetting(String name, List<Rule> rules) {
         super(name, null);
         mRules = rules;
+    }
+
+    public ReconnectIntervalSetting(String name) {
+        super(name, null);
+        mRules = getDefaultValue();
+    }
+
+    public ReconnectIntervalSetting linkPreference(SharedPreferences prefs, String pref) {
+        List<Rule> rules = parseRules(prefs.getString(pref, null));
+        if (rules != null)
+            setRules(rules);
+        setAssociatedPreference(prefs, pref);
+        return this;
+    }
+
+    public void setRules(List<Rule> rules) {
+        mRules = rules;
+        if (hasAssociatedPreference())
+            mPreferences.edit()
+                    .putString(mPreferenceName, SettingsHelper.getGson().toJson(rules))
+                    .apply();
+        onUpdated();
     }
 
     @Override
@@ -322,38 +344,25 @@ public class ReconnectIntervalSetting extends SimpleSetting {
             setValueText(builder.length() > 0 ? builder.toString() : null);
         }
 
-        private View buildDialogView(RulesAdapter rules) {
-            View view = LayoutInflater.from(itemView.getContext()).inflate(
-                    R.layout.settings_reconnect_dialog, null);
-
-            RecyclerView recyclerView = view.findViewById(R.id.rules);
-            recyclerView.setLayoutManager(new LinearLayoutManager(itemView.getContext()));
-
-            recyclerView.setAdapter(rules);
-
-            return view;
-        }
-
         @Override
         public void onClick(View v) {
             List<Rule> rules = new ArrayList<>(getEntry().mRules);
             if (rules.size() == 0)
                 rules.add(new Rule());
 
-            RulesAdapter adapter = new RulesAdapter(rules);
+            View view = LayoutInflater.from(itemView.getContext()).inflate(
+                    R.layout.settings_reconnect_dialog, null);
 
-            View dialogView = buildDialogView(adapter);
+            RecyclerView recyclerView = view.findViewById(R.id.rules);
+            RulesAdapter adapter = new RulesAdapter(rules);
+            recyclerView.setLayoutManager(new LinearLayoutManager(itemView.getContext()));
+            recyclerView.setAdapter(adapter);
 
             AlertDialog dialog = new AlertDialog.Builder(itemView.getContext())
                     .setPositiveButton(R.string.action_ok, (DialogInterface dialogInterface, int which) -> {
-                        String newValue = SettingsHelper.getGson().toJson(rules);
-                        /* TODO: Persist?
-                        if (callChangeListener(newValue)) {
-                            persistString(newValue);
-                            notifyChanged();
-                        } */
+                        getEntry().setRules(rules);
                     })
-                    .setView(dialogView)
+                    .setView(view)
                     .setTitle(getEntry().mName)
                     .create();
             dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
