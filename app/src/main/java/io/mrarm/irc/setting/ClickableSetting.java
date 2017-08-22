@@ -16,6 +16,11 @@ public class ClickableSetting extends SimpleSetting {
         super(name, desc);
     }
 
+    public void setDescription(CharSequence desc) {
+        mValue = desc;
+        onUpdated();
+    }
+
     public ClickableSetting setOnClickListener(View.OnClickListener listener) {
         mListener = listener;
         return this;

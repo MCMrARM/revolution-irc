@@ -6,6 +6,10 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatDelegate;
 import android.view.View;
 
+import java.util.Date;
+
+import io.mrarm.chatlib.dto.MessageInfo;
+import io.mrarm.chatlib.dto.MessageSenderInfo;
 import io.mrarm.irc.MessageFormatSettingsActivity;
 import io.mrarm.irc.R;
 import io.mrarm.irc.SettingsActivity;
@@ -17,9 +21,14 @@ import io.mrarm.irc.setting.ListSetting;
 import io.mrarm.irc.setting.ListWithCustomSetting;
 import io.mrarm.irc.setting.SettingsListAdapter;
 import io.mrarm.irc.util.EntryRecyclerViewAdapter;
+import io.mrarm.irc.util.MessageBuilder;
 
 public class InterfaceSettingsFragment extends SettingsListFragment
         implements NamedSettingsFragment {
+
+    private ClickableSetting mMessageFormatItem;
+    private MessageInfo mSampleMessage;
+    private ClickableSetting mAutocompleteItem;
 
     @Override
     public String getName() {
@@ -51,14 +60,52 @@ public class InterfaceSettingsFragment extends SettingsListFragment
                 getResources().getStringArray(R.array.pref_entry_values_appbar_compact_mode),
                 SettingsHelper.COMPACT_MODE_AUTO)
                 .linkPreference(prefs, SettingsHelper.PREF_CHAT_APPBAR_COMPACT_MODE));
-        a.add(new ClickableSetting(getString(R.string.pref_title_message_format), null)
-                .setIntent(new Intent(getActivity(), MessageFormatSettingsActivity.class)));
-        a.add(new ClickableSetting(getString(R.string.pref_title_nick_autocomplete), null)
+        mMessageFormatItem = new ClickableSetting(getString(R.string.pref_title_message_format), null)
+                .setIntent(new Intent(getActivity(), MessageFormatSettingsActivity.class));
+        a.add(mMessageFormatItem);
+        mAutocompleteItem = new ClickableSetting(getString(R.string.pref_title_nick_autocomplete), null)
                 .setOnClickListener((View v) -> {
                     ((SettingsActivity) getActivity()).setFragment(
                             new AutocompletePreferenceFragment());
-                }));
+                });
+        a.add(mAutocompleteItem);
+
+        MessageSenderInfo testSender = new MessageSenderInfo(
+                getString(R.string.message_example_sender), "", "", null, null);
+        Date date = MessageFormatSettingsActivity.getSampleMessageTime();
+        mSampleMessage = new MessageInfo(testSender, date,
+                getString(R.string.message_example_message), MessageInfo.MessageType.NORMAL);
         return a;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mMessageFormatItem.setDescription(MessageBuilder.getInstance(getActivity())
+                .buildMessage(mSampleMessage));
+
+        SettingsHelper settingsHelper = SettingsHelper.getInstance(getActivity());
+        StringBuilder builder = new StringBuilder();
+        if (settingsHelper.isNickAutocompleteButtonVisible())
+            appendString(builder, getString(R.string.pref_title_nick_autocomplete_show_button));
+        if (settingsHelper.isNickAutocompleteDoubleTapEnabled())
+            appendString(builder, getString(R.string.pref_title_nick_autocomplete_double_tap));
+        if (settingsHelper.shouldShowNickAutocompleteSuggestions())
+            appendString(builder, getString(R.string.pref_title_nick_autocomplete_suggestions));
+        if (settingsHelper.shouldShowNickAutocompleteAtSuggestions())
+            appendString(builder, getString(R.string.pref_title_nick_autocomplete_at_suggestions));
+        if (settingsHelper.shouldShowChannelAutocompleteSuggestions())
+            appendString(builder, getString(R.string.pref_title_channel_autocomplete_suggestions));
+        mAutocompleteItem.setDescription(builder.toString());
+    }
+
+    private void appendString(StringBuilder builder, String str) {
+        if (builder.length() > 0) {
+            builder.append(getString(R.string.text_comma));
+            builder.append(str.substring(0, 1).toLowerCase() + str.substring(1));
+        } else {
+            builder.append(str);
+        }
     }
 
 }

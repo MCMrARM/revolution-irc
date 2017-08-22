@@ -16,14 +16,14 @@ public class SimpleSetting extends SettingsListAdapter.Entry {
             R.layout.settings_list_entry);
 
     protected String mName;
-    protected String mValue;
+    protected CharSequence mValue;
     protected boolean mEnabled = true;
     private List<SettingsListAdapter.SettingChangedListener> mListeners = new ArrayList<>();
 
     protected SharedPreferences mPreferences;
     protected String mPreferenceName;
 
-    public SimpleSetting(String name, String value) {
+    public SimpleSetting(String name, CharSequence value) {
         mName = name;
         mValue = value;
     }
@@ -98,7 +98,7 @@ public class SimpleSetting extends SettingsListAdapter.Entry {
             setValueText(entry.mValue);
         }
 
-        protected void setValueText(String text) {
+        protected void setValueText(CharSequence text) {
             mValue.setVisibility(text == null ? View.GONE : View.VISIBLE);
             mValue.setText(text);
         }
