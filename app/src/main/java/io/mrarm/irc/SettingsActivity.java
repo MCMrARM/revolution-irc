@@ -36,9 +36,11 @@ public class SettingsActivity extends AppCompatActivity {
         getSupportFragmentManager().addOnBackStackChangedListener(() -> {
             updateTitle();
         });
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.content_frame, CategoriesFragment.newInstance())
-                .commit();
+        if (getSupportFragmentManager().findFragmentById(R.id.content_frame) == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, CategoriesFragment.newInstance())
+                    .commit();
+        }
     }
 
     public SimpleCounter getRequestCodeCounter() {
