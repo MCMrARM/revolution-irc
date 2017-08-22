@@ -22,9 +22,8 @@ import io.mrarm.chatlib.irc.cap.SASLOptions;
 import io.mrarm.chatlib.message.MessageStorageApi;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
-import io.mrarm.irc.config.ServerCertificateManager;
-import io.mrarm.irc.preference.ReconnectIntervalPreference;
 import io.mrarm.irc.config.SettingsHelper;
+import io.mrarm.irc.setting.ReconnectIntervalSetting;
 import io.mrarm.irc.util.StubMessageStorageApi;
 
 public class ServerConnectionManager {
@@ -274,11 +273,11 @@ public class ServerConnectionManager {
         SettingsHelper settings = SettingsHelper.getInstance(mContext);
         if (!settings.isReconnectEnabled())
             return -1;
-        List<ReconnectIntervalPreference.Rule> rules = SettingsHelper.getInstance(mContext).getReconnectIntervalRules();
+        List<ReconnectIntervalSetting.Rule> rules = SettingsHelper.getInstance(mContext).getReconnectIntervalRules();
         if (rules.size() == 0)
             return -1;
         int att = 0;
-        for (ReconnectIntervalPreference.Rule rule : rules) {
+        for (ReconnectIntervalSetting.Rule rule : rules) {
             att += rule.repeatCount;
             if (attemptNumber < att)
                 return rule.reconnectDelay;

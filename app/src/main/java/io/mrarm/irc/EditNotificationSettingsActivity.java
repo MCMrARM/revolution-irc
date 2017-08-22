@@ -37,6 +37,12 @@ import io.mrarm.irc.config.NotificationRuleManager;
 import io.mrarm.irc.config.NotificationRule;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
+import io.mrarm.irc.setting.CheckBoxSetting;
+import io.mrarm.irc.setting.ColorSetting;
+import io.mrarm.irc.setting.ListSetting;
+import io.mrarm.irc.setting.RingtoneSetting;
+import io.mrarm.irc.setting.SettingsHeader;
+import io.mrarm.irc.setting.SettingsListAdapter;
 import io.mrarm.irc.util.EntryRecyclerViewAdapter;
 import io.mrarm.irc.util.SimpleCounter;
 import io.mrarm.irc.util.SimpleTextWatcher;
@@ -56,12 +62,12 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
     RecyclerView mRecyclerView;
     BasicEntry mBasicEntry;
     MatchEntry mMatchEntry;
-    SettingsListAdapter.CheckBoxEntry mShowNotificationEntry;
-    SettingsListAdapter.RingtoneEntry mSoundEntry;
-    SettingsListAdapter.ListEntry mVibrationEntry;
+    CheckBoxSetting mShowNotificationEntry;
+    RingtoneSetting mSoundEntry;
+    ListSetting mVibrationEntry;
     int[] mVibrationOptions;
-    SettingsListAdapter.ListEntry mPriorityEntry;
-    SettingsListAdapter.ColorEntry mColorEntry;
+    ListSetting mPriorityEntry;
+    ColorSetting mColorEntry;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,14 +98,14 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
 
         mBasicEntry = new BasicEntry();
         mMatchEntry = new MatchEntry();
-        mShowNotificationEntry = new SettingsListAdapter.CheckBoxEntry(getString(R.string.notification_show), true);
-        mSoundEntry = new SettingsListAdapter.RingtoneEntry(mAdapter, getString(R.string.notification_sound), RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+        mShowNotificationEntry = new CheckBoxSetting(getString(R.string.notification_show), true);
+        mSoundEntry = new RingtoneSetting(mAdapter, getString(R.string.notification_sound), RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
         mVibrationOptions = getResources().getIntArray(R.array.notification_vibration_option_values);
-        mVibrationEntry = new SettingsListAdapter.ListEntry(getString(R.string.notification_vibration), getResources().getStringArray(R.array.notification_vibration_options), 0);
-        mPriorityEntry = new SettingsListAdapter.ListEntry(getString(R.string.notification_priority), getResources().getStringArray(R.array.notification_priority_options), 1);
+        mVibrationEntry = new ListSetting(getString(R.string.notification_vibration), getResources().getStringArray(R.array.notification_vibration_options), 0);
+        mPriorityEntry = new ListSetting(getString(R.string.notification_priority), getResources().getStringArray(R.array.notification_priority_options), 1);
         String[] colorNames = getResources().getStringArray(R.array.color_picker_color_names);
         colorNames[0] = getString(R.string.value_none);
-        mColorEntry = new SettingsListAdapter.ColorEntry(getString(R.string.notification_color), getResources().getIntArray(R.array.colorPickerColors), colorNames, -1);
+        mColorEntry = new ColorSetting(getString(R.string.notification_color), getResources().getIntArray(R.array.colorPickerColors), colorNames, -1);
         mColorEntry.setHasDefaultOption(true);
 
         if (mEditingRule != null) {
@@ -151,9 +157,9 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
 
         if (!mEditingDefaultRule) {
             mAdapter.add(mBasicEntry);
-            mAdapter.add(new SettingsListAdapter.HeaderEntry(getString(R.string.notification_header_match)));
+            mAdapter.add(new SettingsHeader(getString(R.string.notification_header_match)));
             mAdapter.add(mMatchEntry);
-            mAdapter.add(new SettingsListAdapter.HeaderEntry(getString(R.string.notification_header_applies_to)));
+            mAdapter.add(new SettingsHeader(getString(R.string.notification_header_applies_to)));
             if (mEditingRule == null) {
                 mAdapter.add(new RuleEntry(NotificationRule.AppliesToEntry.channelEvents()));
             } else {
@@ -162,7 +168,7 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
             }
             mAdapter.add(new AddRuleEntry());
         }
-        mAdapter.add(new SettingsListAdapter.HeaderEntry(getString(R.string.notification_header_options)));
+        mAdapter.add(new SettingsHeader(getString(R.string.notification_header_options)));
         mAdapter.add(mShowNotificationEntry);
         mAdapter.add(mSoundEntry);
         mAdapter.add(mVibrationEntry);

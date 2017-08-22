@@ -12,10 +12,8 @@ public class StorageSettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.simple_list_with_fab);
+        setContentView(R.layout.simple_list);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        findViewById(R.id.add).setVisibility(View.GONE);
 
         RecyclerView recyclerView = findViewById(R.id.items);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);

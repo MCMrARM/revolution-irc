@@ -1,17 +1,14 @@
-package io.mrarm.irc.preference;
+package io.mrarm.irc.setting;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.os.Build;
-import android.preference.Preference;
+import android.graphics.PorterDuff;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
-import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -34,7 +31,10 @@ import io.mrarm.irc.R;
 import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.util.SimpleTextWatcher;
 
-public class ReconnectIntervalPreference extends Preference {
+public class ReconnectIntervalSetting extends SimpleSetting {
+
+    private static final int sHolder = SettingsListAdapter.registerViewHolder(Holder.class,
+            R.layout.settings_list_entry);
 
     private static List<Rule> sDefaultValue;
     public static final Type sListRuleType = new TypeToken<List<Rule>>(){}.getType();
@@ -50,24 +50,6 @@ public class ReconnectIntervalPreference extends Preference {
         return sDefaultValue;
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public ReconnectIntervalPreference(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-    }
-
-    public ReconnectIntervalPreference(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-    }
-
-    public ReconnectIntervalPreference(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public ReconnectIntervalPreference(Context context) {
-        this(context, null);
-    }
-
     public static List<Rule> parseRules(String value) {
         try {
             List<Rule> ret = SettingsHelper.getGson().fromJson(value, sListRuleType);
@@ -78,39 +60,16 @@ public class ReconnectIntervalPreference extends Preference {
         return new ArrayList<>(getDefaultValue());
     }
 
-    @Override
-    protected void onClick() {
-        final List<Rule> rules = parseRules(getPersistedString(null));
-        RulesAdapter adapter = new RulesAdapter(rules);
+    private List<Rule> mRules;
 
-        View dialogView = buildDialogView(adapter);
-
-        AlertDialog dialog = new AlertDialog.Builder(getContext())
-                .setPositiveButton(R.string.action_ok, (DialogInterface dialogInterface, int which) -> {
-                    String newValue = SettingsHelper.getGson().toJson(rules);
-                    if (callChangeListener(newValue)) {
-                        persistString(newValue);
-                        notifyChanged();
-                    }
-                })
-                .setView(dialogView)
-                .setTitle(getTitle())
-                .create();
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-        adapter.setDialog(dialog);
-        dialog.show();
-        dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+    public ReconnectIntervalSetting(String name, List<Rule> rules) {
+        super(name, null);
+        mRules = rules;
     }
 
-    private View buildDialogView(RulesAdapter rules) {
-        View view = LayoutInflater.from(getContext()).inflate(R.layout.settings_reconnect_dialog, null);
-
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.rules);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        recyclerView.setAdapter(rules);
-
-        return view;
+    @Override
+    public int getViewHolder() {
+        return sHolder;
     }
 
     public static class Rule {
@@ -206,15 +165,15 @@ public class ReconnectIntervalPreference extends Preference {
             public RuleViewHolder(View v, RulesAdapter adapter) {
                 super(v);
 
-                mReconnectDelaySpinner = (Spinner) v.findViewById(R.id.rule_duration_type);
+                mReconnectDelaySpinner = v.findViewById(R.id.rule_duration_type);
                 ArrayAdapter<CharSequence> spinnerAdapter = new ArrayAdapter<>(itemView.getContext(),
                         R.layout.simple_spinner_item, android.R.id.text1,
                         itemView.getResources().getStringArray(R.array.duration_types));
                 spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 mReconnectDelaySpinner.setAdapter(spinnerAdapter);
 
-                mReconnectDelayText = (EditText) v.findViewById(R.id.rule_interval);
-                mRepeatCountText = (EditText) v.findViewById(R.id.rule_repeat_times);
+                mReconnectDelayText = v.findViewById(R.id.rule_interval);
+                mRepeatCountText = v.findViewById(R.id.rule_repeat_times);
 
                 View more = v.findViewById(R.id.rule_more);
                 more.setOnClickListener((View view) -> {
@@ -332,6 +291,75 @@ public class ReconnectIntervalPreference extends Preference {
                 mRepeatCountText.setText(rule.repeatCount == -1 ? "" : String.valueOf(rule.repeatCount));
             }
 
+        }
+
+    }
+
+    public static class Holder extends SimpleSetting.Holder<ReconnectIntervalSetting> {
+
+
+        public Holder(View itemView, SettingsListAdapter adapter) {
+            super(itemView, adapter);
+        }
+
+        @Override
+        public void bind(ReconnectIntervalSetting entry) {
+            super.bind(entry);
+
+            StringBuilder builder = new StringBuilder();
+            boolean first = true;
+            Context context = itemView.getContext();
+            String delim = context.getString(R.string.text_comma);
+            for (Rule rule : getEntry().mRules) {
+                if (first)
+                    first = false;
+                else
+                    builder.append(delim);
+                builder.append(rule.getReconnectDelayAsString(context));
+                if (rule.repeatCount != -1)
+                    builder.append(context.getResources().getQuantityString(R.plurals.reconnect_desc_tries, rule.repeatCount, rule.repeatCount));
+            }
+            setValueText(builder.length() > 0 ? builder.toString() : null);
+        }
+
+        private View buildDialogView(RulesAdapter rules) {
+            View view = LayoutInflater.from(itemView.getContext()).inflate(
+                    R.layout.settings_reconnect_dialog, null);
+
+            RecyclerView recyclerView = view.findViewById(R.id.rules);
+            recyclerView.setLayoutManager(new LinearLayoutManager(itemView.getContext()));
+
+            recyclerView.setAdapter(rules);
+
+            return view;
+        }
+
+        @Override
+        public void onClick(View v) {
+            List<Rule> rules = new ArrayList<>(getEntry().mRules);
+            if (rules.size() == 0)
+                rules.add(new Rule());
+
+            RulesAdapter adapter = new RulesAdapter(rules);
+
+            View dialogView = buildDialogView(adapter);
+
+            AlertDialog dialog = new AlertDialog.Builder(itemView.getContext())
+                    .setPositiveButton(R.string.action_ok, (DialogInterface dialogInterface, int which) -> {
+                        String newValue = SettingsHelper.getGson().toJson(rules);
+                        /* TODO: Persist?
+                        if (callChangeListener(newValue)) {
+                            persistString(newValue);
+                            notifyChanged();
+                        } */
+                    })
+                    .setView(dialogView)
+                    .setTitle(getEntry().mName)
+                    .create();
+            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+            adapter.setDialog(dialog);
+            dialog.show();
+            dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
         }
 
     }

@@ -34,7 +34,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import io.mrarm.irc.ServerConnectionManager;
-import io.mrarm.irc.preference.ListWithCustomPreference;
+import io.mrarm.irc.setting.ListWithCustomSetting;
 
 public class BackupManager {
 
@@ -184,7 +184,7 @@ public class BackupManager {
                     if (iof != -1)
                         name = name.substring(iof + 1);
                     zipFile.extractFile(fileHeader,
-                            ListWithCustomPreference.getCustomFilesDir(context).getAbsolutePath(),
+                            ListWithCustomSetting.getCustomFilesDir(context).getAbsolutePath(),
                             null, name);
                 }
             }
@@ -216,7 +216,7 @@ public class BackupManager {
             SettingsHelper.deleteSQLiteDatabase(NotificationCountStorage.getFile(context));
             try {
                 zipFile.extractFile(NOTIFICATION_COUNT_DB_PATH,
-                        ListWithCustomPreference.getCustomFilesDir(context).getAbsolutePath(),
+                        ListWithCustomSetting.getCustomFilesDir(context).getAbsolutePath(),
                         null, NotificationCountStorage.getFile(context).getAbsolutePath());
             } catch (ZipException ignored) {
             }

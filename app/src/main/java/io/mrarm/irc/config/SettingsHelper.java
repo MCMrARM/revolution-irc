@@ -15,8 +15,8 @@ import java.util.Map;
 
 import io.mrarm.irc.R;
 import io.mrarm.irc.dialog.StorageLimitsDialog;
-import io.mrarm.irc.preference.ListWithCustomPreference;
-import io.mrarm.irc.preference.ReconnectIntervalPreference;
+import io.mrarm.irc.setting.ListWithCustomSetting;
+import io.mrarm.irc.setting.ReconnectIntervalSetting;
 
 public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -77,7 +77,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
 
     private Context mContext;
     private SharedPreferences mPreferences;
-    private List<ReconnectIntervalPreference.Rule> mCachedIntervalRules;
+    private List<ReconnectIntervalSetting.Rule> mCachedIntervalRules;
     private Map<String, List<SharedPreferences.OnSharedPreferenceChangeListener>> mListeners = new HashMap<>();
     private Typeface mCachedFont;
 
@@ -90,8 +90,8 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     public List<File> getCustomFiles() {
         List<File> ret = new ArrayList<>();
         String font = mPreferences.getString(PREF_CHAT_FONT, "default");
-        if (ListWithCustomPreference.isCustomValue(font))
-            ret.add(ListWithCustomPreference.getCustomFile(mContext, PREF_CHAT_FONT, font));
+        if (ListWithCustomSetting.isPrefCustomValue(font))
+            ret.add(ListWithCustomSetting.getCustomFile(mContext, PREF_CHAT_FONT, font));
         return ret;
     }
 
@@ -169,11 +169,11 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         return mPreferences.getBoolean(PREF_RECONNECT_CONNCHG, true);
     }
 
-    public List<ReconnectIntervalPreference.Rule> getReconnectIntervalRules() {
+    public List<ReconnectIntervalSetting.Rule> getReconnectIntervalRules() {
         if (mCachedIntervalRules == null) {
-            mCachedIntervalRules = ReconnectIntervalPreference.getDefaultValue();
+            mCachedIntervalRules = ReconnectIntervalSetting.getDefaultValue();
             try {
-                List<ReconnectIntervalPreference.Rule> rules = getGson().fromJson(mPreferences.getString(PREF_RECONNECT_INTERVAL, null), ReconnectIntervalPreference.sListRuleType);
+                List<ReconnectIntervalSetting.Rule> rules = getGson().fromJson(mPreferences.getString(PREF_RECONNECT_INTERVAL, null), ReconnectIntervalSetting.sListRuleType);
                 if (rules != null)
                     mCachedIntervalRules = rules;
             } catch (Exception ignored) {
@@ -190,8 +190,8 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         if (mCachedFont != null)
             return mCachedFont;
         String font = mPreferences.getString(PREF_CHAT_FONT, "default");
-        if (ListWithCustomPreference.isCustomValue(font)) {
-            File file = ListWithCustomPreference.getCustomFile(mContext, PREF_CHAT_FONT, font);
+        if (ListWithCustomSetting.isPrefCustomValue(font)) {
+            File file = ListWithCustomSetting.getCustomFile(mContext, PREF_CHAT_FONT, font);
             try {
                 mCachedFont = Typeface.createFromFile(file);
                 return mCachedFont;
