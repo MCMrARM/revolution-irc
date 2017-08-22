@@ -280,7 +280,7 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         Uri soundUri = mSoundEntry.getValue();
         rule.settings.soundEnabled = (soundUri != null);
         rule.settings.soundUri = null;
-        if (soundUri != RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+        if (soundUri != null && soundUri != RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
             rule.settings.soundUri = soundUri.toString();
         return true;
     }
