@@ -54,8 +54,9 @@ public class SimpleSetting extends SettingsListAdapter.Entry {
         onUpdated();
     }
 
-    public void addListener(SettingsListAdapter.SettingChangedListener listener) {
+    public SimpleSetting addListener(SettingsListAdapter.SettingChangedListener listener) {
         mListeners.add(listener);
+        return this;
     }
 
     public void removeListener(SettingsListAdapter.SettingChangedListener listener) {

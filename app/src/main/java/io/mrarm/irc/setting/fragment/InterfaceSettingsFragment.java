@@ -3,6 +3,7 @@ package io.mrarm.irc.setting.fragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AppCompatDelegate;
 import android.view.View;
 
 import io.mrarm.irc.MessageFormatSettingsActivity;
@@ -15,6 +16,7 @@ import io.mrarm.irc.setting.FontSizeSetting;
 import io.mrarm.irc.setting.ListSetting;
 import io.mrarm.irc.setting.ListWithCustomSetting;
 import io.mrarm.irc.setting.SettingsListAdapter;
+import io.mrarm.irc.util.EntryRecyclerViewAdapter;
 
 public class InterfaceSettingsFragment extends SettingsListFragment
         implements NamedSettingsFragment {
@@ -31,7 +33,12 @@ public class InterfaceSettingsFragment extends SettingsListFragment
         a.setRequestCodeCounter(((SettingsActivity) getActivity()).getRequestCodeCounter());
         a.add(new CheckBoxSetting(getString(R.string.pref_title_dark_theme),
                 getString(R.string.pref_summary_dark_theme), false)
-                .linkPreference(prefs, SettingsHelper.PREF_DARK_THEME));
+                .linkPreference(prefs, SettingsHelper.PREF_DARK_THEME)
+                .addListener((EntryRecyclerViewAdapter.Entry entry) -> {
+                    AppCompatDelegate.setDefaultNightMode(((CheckBoxSetting) entry).isChecked()
+                            ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
+                    getActivity().recreate();
+                }));
         a.add(new ListWithCustomSetting(a, getString(R.string.pref_title_font),
                 getResources().getStringArray(R.array.pref_entries_font),
                 getResources().getStringArray(R.array.pref_entry_values_font), "default",
