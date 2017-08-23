@@ -56,7 +56,7 @@ public class CommandAliasManager {
         sDefaultAliases.add(CommandAlias.message("msg", "<target> <message...>", "${target}", "${message}"));
         sDefaultAliases.add(CommandAlias.message("me", "<message...>", "${channel}", "${ctcp_delim}ACTION ${message}${ctcp_delim}"));
         sDefaultAliases.add(CommandAlias.raw("kick", "[channel] <member> [message...]", "KICK ${channel} ${member} :${message}"));
-        sDefaultAliases.add(CommandAlias.raw("mode", "[channel] <modes> [args...]", "MODE ${channel} ${modes} ${args}"));
+        sDefaultAliases.add(CommandAlias.raw("mode", "<target> <modes> [args...]", "MODE ${target} ${modes} ${args}"));
         sDefaultAliases.add(CommandAlias.raw("whois", "<user>", "WHOIS ${user}"));
         sDefaultAliases.add(CommandAlias.raw("quit", "[message...]", "QUIT :${message}"));
     }
