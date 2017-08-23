@@ -24,11 +24,14 @@ public class MaterialColorPicker extends View {
     private int[] mColors;
     private int[] mExtraColors;
     private int[] mColorVariants;
+    private int[] mColorAccentVariants;
     private int[] mExtraColorVariants;
     private int mDisplayedColorVariantColor = -1;
     private int[] mDisplayedColorVariants;
+    private int[] mDisplayedColorAccentVariants;
     private int mColorColumnCount = 4;
     private int mColorVariantsColumnCount = 3;
+    private int mColorAccentVariantsColumnCount = 4;
     private Paint mPaint;
 
     private int mAnimExpandIndex = -1;
@@ -39,6 +42,8 @@ public class MaterialColorPicker extends View {
     private ValueAnimator mFadeInAnimator = null;
     private float mAnimFadeOutProgress = 0.f;
     private ValueAnimator mFadeOutAnimator = null;
+    private float mAnimFadeOutAccentProgress = 0.f;
+    private ValueAnimator mFadeOutAccentAnimator = null;
 
     public MaterialColorPicker(@NonNull Context context) {
         this(context, null);
@@ -56,6 +61,11 @@ public class MaterialColorPicker extends View {
         mColorVariants = new int[ta.length()];
         for (int i = 0; i < mColorVariants.length; i++)
             mColorVariants[i] = ta.getResourceId(i, 0);
+        ta.recycle();
+        ta = context.getResources().obtainTypedArray(R.array.color_picker_variants_main_accent);
+        mColorAccentVariants = new int[ta.length()];
+        for (int i = 0; i < mColorAccentVariants.length; i++)
+            mColorAccentVariants[i] = ta.getResourceId(i, 0);
         ta.recycle();
         ta = context.getResources().obtainTypedArray(R.array.color_picker_variants_extra);
         mExtraColorVariants = new int[ta.length()];
@@ -92,6 +102,8 @@ public class MaterialColorPicker extends View {
             mFadeInAnimator.cancel();
         if (mFadeOutAnimator != null && mFadeOutAnimator.isRunning())
             mFadeOutAnimator.cancel();
+        if (mFadeOutAccentAnimator != null && mFadeOutAccentAnimator.isRunning())
+            mFadeOutAccentAnimator.cancel();
 
         if (mExpandAnimator == null) {
             mExpandAnimator = ValueAnimator.ofFloat(0.f, 1.f);
@@ -106,20 +118,24 @@ public class MaterialColorPicker extends View {
         }
         mAnimExpandIndex = index;
         mDisplayedColorVariants = null;
+        mDisplayedColorAccentVariants = null;
         mDisplayedColorVariantColor = -1;
         mExpandAnimator.start();
     }
 
     private void expandColor(int index, boolean subAnimate) {
-        if (index >= mColors.length)
+        if (index >= mColors.length) {
             mDisplayedColorVariants = getResources().getIntArray(mExtraColorVariants[index - mColors.length]);
-        else
+            mDisplayedColorAccentVariants = null;
+        } else {
             mDisplayedColorVariants = getResources().getIntArray(mColorVariants[index]);
+            mDisplayedColorAccentVariants = getResources().getIntArray(mColorAccentVariants[index]);
+        }
         mDisplayedColorVariantColor = index;
         if (subAnimate) {
             if (mFadeInAnimator == null) {
-                mFadeInAnimator = ValueAnimator.ofFloat(0.f, 9.f);
-                mFadeInAnimator.setDuration(500L);
+                mFadeInAnimator = ValueAnimator.ofFloat(0.f, 9.f + 4.f);
+                mFadeInAnimator.setDuration(750L);
                 mFadeInAnimator.setInterpolator(new LinearInterpolator());
                 mFadeInAnimator.addUpdateListener((ValueAnimator valueAnimator) -> {
                     mAnimFadeProgress = (Float) valueAnimator.getAnimatedValue();
@@ -128,6 +144,7 @@ public class MaterialColorPicker extends View {
             }
             mAnimFadeProgress = 0.f;
             mAnimFadeOutProgress = 0.f;
+            mAnimFadeOutAccentProgress = 0.f;
             if (mFadeOutAnimator != null)
                 mFadeOutAnimator.cancel();
             if (!mFadeInAnimator.isRunning())
@@ -149,6 +166,17 @@ public class MaterialColorPicker extends View {
             });
         }
         mFadeOutAnimator.start();
+
+        if (mFadeOutAccentAnimator == null) {
+            mFadeOutAccentAnimator = ValueAnimator.ofFloat(0.f, 4.f);
+            mFadeOutAccentAnimator.setDuration(200L);
+            mFadeOutAccentAnimator.setInterpolator(new LinearInterpolator());
+            mFadeOutAccentAnimator.addUpdateListener((ValueAnimator valueAnimator) -> {
+                mAnimFadeOutAccentProgress = (Float) valueAnimator.getAnimatedValue();
+                invalidate();
+            });
+        }
+        mFadeOutAccentAnimator.start();
 
         mAnimExpandIndex = mDisplayedColorVariantColor;
         if (mCollapseAnimator == null) {
@@ -198,8 +226,23 @@ public class MaterialColorPicker extends View {
             float my = y + (j / mColorVariantsColumnCount) * tileSize;
             canvas.drawRect(mx, my, mx + tileSize, my + tileSize, mPaint);
         }
-        mPaint.setAlpha(255);
         canvas.restore();
+        if (mDisplayedColorAccentVariants != null) {
+            y += ((mDisplayedColorVariants.length - 1) / mColorVariantsColumnCount + 1) * tileSize
+                    + getWidth() / mColorColumnCount / 2.f;
+            tileSize = w / mColorAccentVariantsColumnCount;
+
+            for (int i = 0; i < mDisplayedColorAccentVariants.length; i++) {
+                mPaint.setColor(mDisplayedColorAccentVariants[i]);
+                int j = i + mDisplayedColorVariants.length;
+                mPaint.setAlpha(Math.max(0, Math.min((int) ((mAnimFadeProgress - j) * 255.f),
+                        255 - Math.max(0, (int) ((mAnimFadeOutAccentProgress - i) * 255.f)))));
+                float mx = x + (i % mColorAccentVariantsColumnCount) * tileSize;
+                float my = y + (i / mColorAccentVariantsColumnCount) * tileSize;
+                canvas.drawRect(mx, my, mx + tileSize, my + tileSize, mPaint);
+            }
+        }
+        mPaint.setAlpha(255);
     }
 
     @Override
