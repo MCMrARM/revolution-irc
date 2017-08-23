@@ -250,6 +250,21 @@ public class MaterialColorPicker extends View {
     }
 
     @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        int mode = MeasureSpec.getMode(heightMeasureSpec);
+        int baseTileSize = getWidth() / mColorColumnCount;
+        float height = ((mColors.length - 1) / mColorColumnCount + 1) * baseTileSize;
+        height += baseTileSize / 2.f;
+        height += ((mExtraColors.length - 1) / mColorColumnCount + 1) * baseTileSize;
+        if (mode == MeasureSpec.AT_MOST) {
+            setMeasuredDimension(getMeasuredWidth(), Math.min((int) height, MeasureSpec.getSize(heightMeasureSpec)));
+        } else if (mode == MeasureSpec.UNSPECIFIED) {
+            setMeasuredDimension(getMeasuredWidth(), (int) height);
+        }
+    }
+
+    @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
         if (mAnimExpandIndex == -1 && mDisplayedColorVariants != null) {

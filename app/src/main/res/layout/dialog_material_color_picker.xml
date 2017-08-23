@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="?attr/dialogPreferredPadding"
+        android:layout_marginRight="?attr/dialogPreferredPadding"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:id="@+id/title_with_back">
+
+        <android.support.v7.widget.AppCompatImageButton
+            android:id="@+id/back"
+            style="@style/Icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:srcCompat="?attr/homeAsUpIndicator"
+            app:tint="@color/iconColorText"
+            android:layout_marginLeft="-8dp"
+            android:layout_marginStart="-8dp"
+            android:padding="8dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"
+            android:contentDescription="@string/action_back"
+            android:visibility="invisible" />
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/back"
+            android:text="@string/color_picker_title"
+            android:layout_centerVertical="true"
+            style="@style/TextAppearance.AppCompat.Title" />
+
+    </RelativeLayout>
+
+    <io.mrarm.irc.view.MaterialColorPicker
+        android:id="@+id/picker"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/title_with_back"
+        android:layout_marginLeft="?attr/dialogPreferredPadding"
+        android:layout_marginRight="?attr/dialogPreferredPadding"
+        android:layout_marginBottom="?attr/dialogPreferredPadding" />
+
+</RelativeLayout>

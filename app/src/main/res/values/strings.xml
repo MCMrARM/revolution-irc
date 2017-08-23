@@ -60,9 +60,10 @@
     <string name="action_connect">Connect</string>
     <string name="action_disconnect">Disconnect</string>
     <string name="action_reconnect">Reconnect</string>
+    <string name="action_open">Open</string>
+    <string name="action_back">Back</string>
     <string name="action_close">Close</string>
     <string name="action_disconnect_and_close">Disconnect and close</string>
-    <string name="action_open">Open</string>
     <string name="action_servers">Manage servers</string>
     <string name="action_add_below">Add below</string>
     <string name="action_add_rule">Add rule</string>
@@ -497,7 +498,9 @@
     <string name="user_account">Account</string>
     <string name="user_away">Away message</string>
 
-    <!-- Color names -->
+    <!-- Color picker -->
+
+    <string name="color_picker_title">Pick a color</string>
 
     <string-array name="color_picker_color_names">
         <item>Black</item>
