@@ -20,6 +20,12 @@
         <item>@color/material_deep_orange_500</item>
     </array>
 
+    <array name="color_picker_colors_extra">
+        <item>@color/material_brown_500</item>
+        <item>@color/material_grey_500</item>
+        <item>@color/material_blue_grey_500</item>
+    </array>
+
     <array name="color_picker_variants_main">
         <item>@array/color_picker_colors_red</item>
         <item>@array/color_picker_colors_pink</item>
@@ -37,6 +43,12 @@
         <item>@array/color_picker_colors_amber</item>
         <item>@array/color_picker_colors_orange</item>
         <item>@array/color_picker_colors_deep_orange</item>
+    </array>
+
+    <array name="color_picker_variants_extra">
+        <item>@array/color_picker_colors_brown</item>
+        <item>@array/color_picker_colors_grey</item>
+        <item>@array/color_picker_colors_blue_grey</item>
     </array>
 
     <array name="color_picker_colors_red">
@@ -229,6 +241,42 @@
         <item>@color/material_deep_orange_700</item>
         <item>@color/material_deep_orange_800</item>
         <item>@color/material_deep_orange_900</item>
+    </array>
+
+    <array name="color_picker_colors_brown">
+        <item>@color/material_brown_100</item>
+        <item>@color/material_brown_200</item>
+        <item>@color/material_brown_300</item>
+        <item>@color/material_brown_400</item>
+        <item>@color/material_brown_500</item>
+        <item>@color/material_brown_600</item>
+        <item>@color/material_brown_700</item>
+        <item>@color/material_brown_800</item>
+        <item>@color/material_brown_900</item>
+    </array>
+    
+    <array name="color_picker_colors_blue_grey">
+        <item>@color/material_blue_grey_100</item>
+        <item>@color/material_blue_grey_200</item>
+        <item>@color/material_blue_grey_300</item>
+        <item>@color/material_blue_grey_400</item>
+        <item>@color/material_blue_grey_500</item>
+        <item>@color/material_blue_grey_600</item>
+        <item>@color/material_blue_grey_700</item>
+        <item>@color/material_blue_grey_800</item>
+        <item>@color/material_blue_grey_900</item>
+    </array>
+
+    <array name="color_picker_colors_grey">
+        <item>@color/material_grey_100</item>
+        <item>@color/material_grey_200</item>
+        <item>@color/material_grey_300</item>
+        <item>@color/material_grey_400</item>
+        <item>@color/material_grey_500</item>
+        <item>@color/material_grey_600</item>
+        <item>@color/material_grey_700</item>
+        <item>@color/material_grey_800</item>
+        <item>@color/material_grey_900</item>
     </array>
 
 </resources>

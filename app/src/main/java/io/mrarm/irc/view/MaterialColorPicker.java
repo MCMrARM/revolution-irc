@@ -22,7 +22,9 @@ public class MaterialColorPicker extends View {
     private static final int[] VARIANT_ORDERING = new int[] { 6, 7, 8, 5, 4, 3, 0, 1, 2 };
 
     private int[] mColors;
+    private int[] mExtraColors;
     private int[] mColorVariants;
+    private int[] mExtraColorVariants;
     private int mDisplayedColorVariantColor = -1;
     private int[] mDisplayedColorVariants;
     private int mColorColumnCount = 4;
@@ -49,21 +51,36 @@ public class MaterialColorPicker extends View {
     public MaterialColorPicker(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mColors = context.getResources().getIntArray(R.array.color_picker_colors_main);
+        mExtraColors = context.getResources().getIntArray(R.array.color_picker_colors_extra);
         TypedArray ta = context.getResources().obtainTypedArray(R.array.color_picker_variants_main);
         mColorVariants = new int[ta.length()];
         for (int i = 0; i < mColorVariants.length; i++)
             mColorVariants[i] = ta.getResourceId(i, 0);
+        ta.recycle();
+        ta = context.getResources().obtainTypedArray(R.array.color_picker_variants_extra);
+        mExtraColorVariants = new int[ta.length()];
+        for (int i = 0; i < mExtraColorVariants.length; i++)
+            mExtraColorVariants[i] = ta.getResourceId(i, 0);
         ta.recycle();
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
         invalidate();
     }
 
-    private int getMainColorIndexAt(float x, float y) {
+    private int getColorIndexAt(int x, int y) {
         int baseTileSize = getWidth() / mColorColumnCount;
-        int xx = Math.max(0, Math.min(mColorColumnCount, (int) x / baseTileSize));
-        int yy = Math.max(0, Math.min((mColors.length - 1) / mColorColumnCount, (int) y / baseTileSize));
-        return Math.min(mColors.length - 1, yy * mColorColumnCount + xx);
+        int maxY = baseTileSize * ((mColors.length - 1) / mColorColumnCount + 1);
+        if (x >= 0 && x < baseTileSize * mColorColumnCount && y >= 0 && y < maxY)
+            return Math.min(mColors.length - 1,
+                    y / baseTileSize * mColorColumnCount + x / baseTileSize);
+
+        int minY = maxY + baseTileSize / 2;
+        maxY = minY + baseTileSize * ((mExtraColors.length - 1) / mColorColumnCount + 1);
+        if (x >= 0 && x < baseTileSize * mColorColumnCount && y >= minY && y < maxY)
+            return mColors.length + Math.min(mExtraColors.length - 1,
+                    (y - minY) / baseTileSize * mColorColumnCount + x / baseTileSize);
+
+        return -1;
     }
 
     private void animateExpandColor(int index) {
@@ -94,7 +111,10 @@ public class MaterialColorPicker extends View {
     }
 
     private void expandColor(int index, boolean subAnimate) {
-        mDisplayedColorVariants = getResources().getIntArray(mColorVariants[index]);
+        if (index >= mColors.length)
+            mDisplayedColorVariants = getResources().getIntArray(mExtraColorVariants[index - mColors.length]);
+        else
+            mDisplayedColorVariants = getResources().getIntArray(mColorVariants[index]);
         mDisplayedColorVariantColor = index;
         if (subAnimate) {
             if (mFadeInAnimator == null) {
@@ -150,7 +170,9 @@ public class MaterialColorPicker extends View {
         } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
             return true;
         } else if (event.getAction() == MotionEvent.ACTION_UP) {
-            animateExpandColor(getMainColorIndexAt(event.getX(), event.getY()));
+            int i = getColorIndexAt((int) event.getX(), (int) event.getY());
+            if (i != -1)
+                animateExpandColor(i);
             return true;
         }
         return false;
@@ -161,7 +183,10 @@ public class MaterialColorPicker extends View {
         canvas.save();
         canvas.clipRect(x, y, x + tileSize * mColorVariantsColumnCount, y + tileSize * mColorVariantsColumnCount);
 
-        mPaint.setColor(mColors[mDisplayedColorVariantColor]);
+        if (mDisplayedColorVariantColor >= mColors.length)
+            mPaint.setColor(mExtraColors[mDisplayedColorVariantColor - mColors.length]);
+        else
+            mPaint.setColor(mColors[mDisplayedColorVariantColor]);
         canvas.drawRect(x, y, x + tileSize * mColorVariantsColumnCount, y + tileSize * mColorVariantsColumnCount, mPaint);
 
         for (int i = 0; i < mDisplayedColorVariants.length; i++) {
@@ -185,6 +210,7 @@ public class MaterialColorPicker extends View {
             return;
         }
 
+        canvas.save();
         int baseTileSize = getWidth() / mColorColumnCount;
         canvas.clipRect(0, 0, baseTileSize * mColorColumnCount, baseTileSize * mColorColumnCount);
         float normalTileSize = baseTileSize * (mAnimExpandIndex == -1 ? 1.f : (1.f - mAnimExpandProgress));
@@ -204,15 +230,39 @@ public class MaterialColorPicker extends View {
                 my = expandingTileSize * (i / mColorColumnCount) + (normalTileSize - expandingTileSize) * (mAnimExpandIndex / mColorColumnCount);
             canvas.drawRect(mx, my, mx + size, my + size, mPaint);
             x += size;
-            if ((i + 1) % mColorColumnCount == 0) {
+            if ((i + 1) % mColorColumnCount == 0 || i == mColors.length - 1) {
                 x = 0;
                 y += isExpandingRow ? expandingTileSize : normalTileSize;
             }
         }
+        canvas.restore();
+
+        float extraTileSize = (mAnimExpandIndex >= mColors.length ? expandingTileSize : baseTileSize);
+        float extraPadding = (mAnimExpandIndex >= mColors.length ? normalTileSize : baseTileSize) / 2.f;
+        y += extraPadding;
+        for (int i = 0; i < mExtraColors.length; i++) {
+            mPaint.setColor(mExtraColors[i]);
+            if (mAnimExpandIndex >= 0 && mAnimExpandIndex < mColors.length)
+                mPaint.setAlpha((int) (255.f * (1.f - mAnimExpandProgress)));
+            boolean isExpandingRow = mAnimExpandIndex >= mColors.length &&
+                    i / mColorColumnCount == (mAnimExpandIndex - mColors.length) / mColorColumnCount;
+            float mx = x;
+            if (isExpandingRow)
+                mx += (normalTileSize - expandingTileSize) * (mAnimExpandIndex % mColorColumnCount);
+            canvas.drawRect(mx, y, mx + extraTileSize, y + extraTileSize, mPaint);
+            x += extraTileSize;
+            if ((i + 1) % mColorColumnCount == 0) {
+                x = 0;
+                y += extraTileSize;
+            }
+        }
+        mPaint.setAlpha(255);
 
         if (mDisplayedColorVariants != null) {
             float mx = normalTileSize * (mAnimExpandIndex % mColorColumnCount);
             float my = normalTileSize * (mAnimExpandIndex / mColorColumnCount);
+            if (mAnimExpandIndex >= mColors.length)
+                my += extraPadding;
             drawColorVariants(canvas, mx, my, expandingTileSize);
         }
     }
