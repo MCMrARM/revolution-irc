@@ -23,7 +23,7 @@ public class MaterialColorPicker extends View {
 
     private int[] mColors;
     private int[] mColorVariants;
-    private int mDisplayedColorVariantsBg;
+    private int mDisplayedColorVariantColor = -1;
     private int[] mDisplayedColorVariants;
     private int mColorColumnCount = 4;
     private int mColorVariantsColumnCount = 3;
@@ -31,7 +31,12 @@ public class MaterialColorPicker extends View {
 
     private int mAnimExpandIndex = -1;
     private float mAnimExpandProgress = 0.f;
+    private ValueAnimator mExpandAnimator = null;
+    private ValueAnimator mCollapseAnimator = null;
     private float mAnimFadeProgress = 0.f;
+    private ValueAnimator mFadeInAnimator = null;
+    private float mAnimFadeOutProgress = 0.f;
+    private ValueAnimator mFadeOutAnimator = null;
 
     public MaterialColorPicker(@NonNull Context context) {
         this(context, null);
@@ -62,37 +67,80 @@ public class MaterialColorPicker extends View {
     }
 
     private void animateExpandColor(int index) {
-        ValueAnimator va = ValueAnimator.ofFloat(0.f, 1.f);
-        va.setDuration(750L);
-        va.setInterpolator(new DecelerateInterpolator());
+        if (mExpandAnimator != null && mExpandAnimator.isRunning())
+            mExpandAnimator.cancel();
+        if (mCollapseAnimator != null && mCollapseAnimator.isRunning())
+            mCollapseAnimator.cancel();
+        if (mFadeInAnimator != null && mFadeInAnimator.isRunning())
+            mFadeInAnimator.cancel();
+        if (mFadeOutAnimator != null && mFadeOutAnimator.isRunning())
+            mFadeOutAnimator.cancel();
+
+        if (mExpandAnimator == null) {
+            mExpandAnimator = ValueAnimator.ofFloat(0.f, 1.f);
+            mExpandAnimator.setDuration(750L);
+            mExpandAnimator.setInterpolator(new DecelerateInterpolator());
+            mExpandAnimator.addUpdateListener((ValueAnimator valueAnimator) -> {
+                mAnimExpandProgress = (Float) valueAnimator.getAnimatedValue();
+                invalidate();
+                if (valueAnimator.getAnimatedFraction() >= 0.7f)
+                    expandColor(mAnimExpandIndex, true);
+            });
+        }
         mAnimExpandIndex = index;
-        va.addUpdateListener((ValueAnimator valueAnimator) -> {
-            mAnimExpandProgress = (Float) valueAnimator.getAnimatedValue();
-            invalidate();
-            if (valueAnimator.getAnimatedFraction() >= 0.7f && mDisplayedColorVariantsBg == 0) {
-                expandColor(index, true);
-            }
-        });
-        va.start();
+        mDisplayedColorVariants = null;
+        mDisplayedColorVariantColor = -1;
+        mExpandAnimator.start();
     }
 
     private void expandColor(int index, boolean subAnimate) {
         mDisplayedColorVariants = getResources().getIntArray(mColorVariants[index]);
-        mDisplayedColorVariantsBg = mColors[index];
-        //mAnimExpandIndex = -1;
+        mDisplayedColorVariantColor = index;
         if (subAnimate) {
-            ValueAnimator va = ValueAnimator.ofFloat(0.f, 9.f);
-            va.setDuration(500L);
-            va.setInterpolator(new LinearInterpolator());
-            va.addUpdateListener((ValueAnimator valueAnimator) -> {
-                mAnimFadeProgress = (Float) valueAnimator.getAnimatedValue();
-                invalidate();
-            });
-            va.start();
+            if (mFadeInAnimator == null) {
+                mFadeInAnimator = ValueAnimator.ofFloat(0.f, 9.f);
+                mFadeInAnimator.setDuration(500L);
+                mFadeInAnimator.setInterpolator(new LinearInterpolator());
+                mFadeInAnimator.addUpdateListener((ValueAnimator valueAnimator) -> {
+                    mAnimFadeProgress = (Float) valueAnimator.getAnimatedValue();
+                    invalidate();
+                });
+            }
+            mAnimFadeProgress = 0.f;
+            mAnimFadeOutProgress = 0.f;
+            if (mFadeOutAnimator != null)
+                mFadeOutAnimator.cancel();
+            if (!mFadeInAnimator.isRunning())
+                mFadeInAnimator.start();
         } else {
             mAnimExpandProgress = 9.f;
             invalidate();
         }
+    }
+
+    public void closeColor() {
+        if (mFadeOutAnimator == null) {
+            mFadeOutAnimator = ValueAnimator.ofFloat(0.f, 9.f);
+            mFadeOutAnimator.setDuration(500L);
+            mFadeOutAnimator.setInterpolator(new LinearInterpolator());
+            mFadeOutAnimator.addUpdateListener((ValueAnimator valueAnimator) -> {
+                mAnimFadeOutProgress = (Float) valueAnimator.getAnimatedValue();
+                invalidate();
+            });
+        }
+        mFadeOutAnimator.start();
+
+        mAnimExpandIndex = mDisplayedColorVariantColor;
+        if (mCollapseAnimator == null) {
+            mCollapseAnimator = ValueAnimator.ofFloat(1.f, 0.f);
+            mCollapseAnimator.setDuration(750L);
+            mCollapseAnimator.setInterpolator(new AccelerateInterpolator());
+            mCollapseAnimator.addUpdateListener((ValueAnimator valueAnimator) -> {
+                mAnimExpandProgress = (Float) valueAnimator.getAnimatedValue();
+                invalidate();
+            });
+        }
+        mCollapseAnimator.start();
     }
 
     @Override
@@ -113,13 +161,14 @@ public class MaterialColorPicker extends View {
         canvas.save();
         canvas.clipRect(x, y, x + tileSize * mColorVariantsColumnCount, y + tileSize * mColorVariantsColumnCount);
 
-        mPaint.setColor(mDisplayedColorVariantsBg);
+        mPaint.setColor(mColors[mDisplayedColorVariantColor]);
         canvas.drawRect(x, y, x + tileSize * mColorVariantsColumnCount, y + tileSize * mColorVariantsColumnCount, mPaint);
 
         for (int i = 0; i < mDisplayedColorVariants.length; i++) {
             int j = VARIANT_ORDERING[i];
             mPaint.setColor(mDisplayedColorVariants[i]);
-            mPaint.setAlpha(Math.max(0, Math.min((int) ((mAnimFadeProgress - i) * 255.f), 255)));
+            mPaint.setAlpha(Math.max(0, Math.min((int) ((mAnimFadeProgress - i) * 255.f),
+                    255 - Math.max(0, (int) ((mAnimFadeOutProgress - i) * 255.f)))));
             float mx = x + (j % mColorVariantsColumnCount) * tileSize;
             float my = y + (j / mColorVariantsColumnCount) * tileSize;
             canvas.drawRect(mx, my, mx + tileSize, my + tileSize, mPaint);
