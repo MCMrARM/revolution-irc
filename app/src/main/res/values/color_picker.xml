@@ -20,4 +20,215 @@
         <item>@color/material_deep_orange_500</item>
     </array>
 
+    <array name="color_picker_variants_main">
+        <item>@array/color_picker_colors_red</item>
+        <item>@array/color_picker_colors_pink</item>
+        <item>@array/color_picker_colors_purple</item>
+        <item>@array/color_picker_colors_deep_purple</item>
+        <item>@array/color_picker_colors_indigo</item>
+        <item>@array/color_picker_colors_blue</item>
+        <item>@array/color_picker_colors_light_blue</item>
+        <item>@array/color_picker_colors_cyan</item>
+        <item>@array/color_picker_colors_teal</item>
+        <item>@array/color_picker_colors_green</item>
+        <item>@array/color_picker_colors_light_green</item>
+        <item>@array/color_picker_colors_lime</item>
+        <item>@array/color_picker_colors_yellow</item>
+        <item>@array/color_picker_colors_amber</item>
+        <item>@array/color_picker_colors_orange</item>
+        <item>@array/color_picker_colors_deep_orange</item>
+    </array>
+
+    <array name="color_picker_colors_red">
+        <item>@color/material_red_100</item>
+        <item>@color/material_red_200</item>
+        <item>@color/material_red_300</item>
+        <item>@color/material_red_400</item>
+        <item>@color/material_red_500</item>
+        <item>@color/material_red_600</item>
+        <item>@color/material_red_700</item>
+        <item>@color/material_red_800</item>
+        <item>@color/material_red_900</item>
+    </array>
+
+    <array name="color_picker_colors_pink">
+        <item>@color/material_pink_100</item>
+        <item>@color/material_pink_200</item>
+        <item>@color/material_pink_300</item>
+        <item>@color/material_pink_400</item>
+        <item>@color/material_pink_500</item>
+        <item>@color/material_pink_600</item>
+        <item>@color/material_pink_700</item>
+        <item>@color/material_pink_800</item>
+        <item>@color/material_pink_900</item>
+    </array>
+
+    <array name="color_picker_colors_purple">
+        <item>@color/material_purple_100</item>
+        <item>@color/material_purple_200</item>
+        <item>@color/material_purple_300</item>
+        <item>@color/material_purple_400</item>
+        <item>@color/material_purple_500</item>
+        <item>@color/material_purple_600</item>
+        <item>@color/material_purple_700</item>
+        <item>@color/material_purple_800</item>
+        <item>@color/material_purple_900</item>
+    </array>
+
+    <array name="color_picker_colors_deep_purple">
+        <item>@color/material_deep_purple_100</item>
+        <item>@color/material_deep_purple_200</item>
+        <item>@color/material_deep_purple_300</item>
+        <item>@color/material_deep_purple_400</item>
+        <item>@color/material_deep_purple_500</item>
+        <item>@color/material_deep_purple_600</item>
+        <item>@color/material_deep_purple_700</item>
+        <item>@color/material_deep_purple_800</item>
+        <item>@color/material_deep_purple_900</item>
+    </array>
+
+    <array name="color_picker_colors_indigo">
+        <item>@color/material_indigo_100</item>
+        <item>@color/material_indigo_200</item>
+        <item>@color/material_indigo_300</item>
+        <item>@color/material_indigo_400</item>
+        <item>@color/material_indigo_500</item>
+        <item>@color/material_indigo_600</item>
+        <item>@color/material_indigo_700</item>
+        <item>@color/material_indigo_800</item>
+        <item>@color/material_indigo_900</item>
+    </array>
+
+    <array name="color_picker_colors_blue">
+        <item>@color/material_blue_100</item>
+        <item>@color/material_blue_200</item>
+        <item>@color/material_blue_300</item>
+        <item>@color/material_blue_400</item>
+        <item>@color/material_blue_500</item>
+        <item>@color/material_blue_600</item>
+        <item>@color/material_blue_700</item>
+        <item>@color/material_blue_800</item>
+        <item>@color/material_blue_900</item>
+    </array>
+
+    <array name="color_picker_colors_light_blue">
+        <item>@color/material_light_blue_100</item>
+        <item>@color/material_light_blue_200</item>
+        <item>@color/material_light_blue_300</item>
+        <item>@color/material_light_blue_400</item>
+        <item>@color/material_light_blue_500</item>
+        <item>@color/material_light_blue_600</item>
+        <item>@color/material_light_blue_700</item>
+        <item>@color/material_light_blue_800</item>
+        <item>@color/material_light_blue_900</item>
+    </array>
+
+    <array name="color_picker_colors_cyan">
+        <item>@color/material_cyan_100</item>
+        <item>@color/material_cyan_200</item>
+        <item>@color/material_cyan_300</item>
+        <item>@color/material_cyan_400</item>
+        <item>@color/material_cyan_500</item>
+        <item>@color/material_cyan_600</item>
+        <item>@color/material_cyan_700</item>
+        <item>@color/material_cyan_800</item>
+        <item>@color/material_cyan_900</item>
+    </array>
+
+    <array name="color_picker_colors_teal">
+        <item>@color/material_teal_100</item>
+        <item>@color/material_teal_200</item>
+        <item>@color/material_teal_300</item>
+        <item>@color/material_teal_400</item>
+        <item>@color/material_teal_500</item>
+        <item>@color/material_teal_600</item>
+        <item>@color/material_teal_700</item>
+        <item>@color/material_teal_800</item>
+        <item>@color/material_teal_900</item>
+    </array>
+
+    <array name="color_picker_colors_green">
+        <item>@color/material_green_100</item>
+        <item>@color/material_green_200</item>
+        <item>@color/material_green_300</item>
+        <item>@color/material_green_400</item>
+        <item>@color/material_green_500</item>
+        <item>@color/material_green_600</item>
+        <item>@color/material_green_700</item>
+        <item>@color/material_green_800</item>
+        <item>@color/material_green_900</item>
+    </array>
+
+    <array name="color_picker_colors_light_green">
+        <item>@color/material_light_green_100</item>
+        <item>@color/material_light_green_200</item>
+        <item>@color/material_light_green_300</item>
+        <item>@color/material_light_green_400</item>
+        <item>@color/material_light_green_500</item>
+        <item>@color/material_light_green_600</item>
+        <item>@color/material_light_green_700</item>
+        <item>@color/material_light_green_800</item>
+        <item>@color/material_light_green_900</item>
+    </array>
+
+    <array name="color_picker_colors_lime">
+        <item>@color/material_lime_100</item>
+        <item>@color/material_lime_200</item>
+        <item>@color/material_lime_300</item>
+        <item>@color/material_lime_400</item>
+        <item>@color/material_lime_500</item>
+        <item>@color/material_lime_600</item>
+        <item>@color/material_lime_700</item>
+        <item>@color/material_lime_800</item>
+        <item>@color/material_lime_900</item>
+    </array>
+
+    <array name="color_picker_colors_yellow">
+        <item>@color/material_yellow_100</item>
+        <item>@color/material_yellow_200</item>
+        <item>@color/material_yellow_300</item>
+        <item>@color/material_yellow_400</item>
+        <item>@color/material_yellow_500</item>
+        <item>@color/material_yellow_600</item>
+        <item>@color/material_yellow_700</item>
+        <item>@color/material_yellow_800</item>
+        <item>@color/material_yellow_900</item>
+    </array>
+
+    <array name="color_picker_colors_amber">
+        <item>@color/material_amber_100</item>
+        <item>@color/material_amber_200</item>
+        <item>@color/material_amber_300</item>
+        <item>@color/material_amber_400</item>
+        <item>@color/material_amber_500</item>
+        <item>@color/material_amber_600</item>
+        <item>@color/material_amber_700</item>
+        <item>@color/material_amber_800</item>
+        <item>@color/material_amber_900</item>
+    </array>
+
+    <array name="color_picker_colors_orange">
+        <item>@color/material_orange_100</item>
+        <item>@color/material_orange_200</item>
+        <item>@color/material_orange_300</item>
+        <item>@color/material_orange_400</item>
+        <item>@color/material_orange_500</item>
+        <item>@color/material_orange_600</item>
+        <item>@color/material_orange_700</item>
+        <item>@color/material_orange_800</item>
+        <item>@color/material_orange_900</item>
+    </array>
+
+    <array name="color_picker_colors_deep_orange">
+        <item>@color/material_deep_orange_100</item>
+        <item>@color/material_deep_orange_200</item>
+        <item>@color/material_deep_orange_300</item>
+        <item>@color/material_deep_orange_400</item>
+        <item>@color/material_deep_orange_500</item>
+        <item>@color/material_deep_orange_600</item>
+        <item>@color/material_deep_orange_700</item>
+        <item>@color/material_deep_orange_800</item>
+        <item>@color/material_deep_orange_900</item>
+    </array>
+
 </resources>
