@@ -1,5 +1,7 @@
 package io.mrarm.irc.view;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -45,6 +47,7 @@ public class MaterialColorPicker extends View {
     private ValueAnimator mFadeOutAccentAnimator = null;
 
     private BackButtonVisibilityCallback mBackButtonVisibilityCallback;
+    private ColorPickCallback mColorPickCallback;
 
     public MaterialColorPicker(@NonNull Context context) {
         this(context, null);
@@ -82,6 +85,10 @@ public class MaterialColorPicker extends View {
         mBackButtonVisibilityCallback = cb;
     }
 
+    public void setColorPickListener(ColorPickCallback cb) {
+        mColorPickCallback = cb;
+    }
+
     private int getColorIndexAt(int x, int y) {
         int baseTileSize = getWidth() / mColorColumnCount;
         int maxY = baseTileSize * ((mColors.length - 1) / mColorColumnCount + 1);
@@ -94,6 +101,25 @@ public class MaterialColorPicker extends View {
         if (x >= 0 && x < baseTileSize * mColorColumnCount && y >= minY && y < maxY)
             return mColors.length + Math.min(mExtraColors.length - 1,
                     (y - minY) / baseTileSize * mColorColumnCount + x / baseTileSize);
+
+        return -1;
+    }
+
+    private int getColorVariantIndexAt(int x, int y) {
+        int baseTileSize = getWidth() / mColorVariantsColumnCount;
+        int maxY = baseTileSize * ((mDisplayedColorVariants.length - 1) / mColorVariantsColumnCount + 1);
+        if (x >= 0 && x < baseTileSize * mColorVariantsColumnCount && y >= 0 && y < maxY)
+            return Math.min(mDisplayedColorVariants.length - 1,
+                    y / baseTileSize * mColorVariantsColumnCount + x / baseTileSize);
+
+        int minY = maxY + getWidth() / mColorColumnCount / 2;
+        baseTileSize = getWidth() / mColorAccentVariantsColumnCount;
+        maxY = minY + baseTileSize * ((mDisplayedColorAccentVariants.length - 1) /
+                mColorAccentVariantsColumnCount + 1);
+        if (x >= 0 && x < baseTileSize * mColorAccentVariantsColumnCount && y >= minY && y < maxY)
+            return mDisplayedColorVariants.length + Math.min(
+                    mDisplayedColorAccentVariants.length - 1,
+                    (y - minY) / baseTileSize * mColorAccentVariantsColumnCount + x / baseTileSize);
 
         return -1;
     }
@@ -122,6 +148,12 @@ public class MaterialColorPicker extends View {
                 invalidate();
                 if (valueAnimator.getAnimatedFraction() >= 0.7f)
                     expandColor(mAnimExpandIndex, true);
+            });
+            mExpandAnimator.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mAnimExpandIndex = -1;
+                }
             });
         }
         mAnimExpandIndex = index;
@@ -199,6 +231,14 @@ public class MaterialColorPicker extends View {
                 mAnimExpandProgress = (Float) valueAnimator.getAnimatedValue();
                 invalidate();
             });
+            mCollapseAnimator.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mAnimExpandIndex = -1;
+                    mDisplayedColorVariants = null;
+                    mDisplayedColorAccentVariants = null;
+                }
+            });
         }
         mCollapseAnimator.start();
 
@@ -213,6 +253,19 @@ public class MaterialColorPicker extends View {
         } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
             return true;
         } else if (event.getAction() == MotionEvent.ACTION_UP) {
+            if (mAnimExpandIndex != -1)
+                return true;
+            if (mDisplayedColorVariants != null) {
+                int i = getColorVariantIndexAt((int) event.getX(), (int) event.getY());
+                if (i != -1 && mColorPickCallback != null) {
+                    if (i >= mDisplayedColorVariants.length)
+                        mColorPickCallback.onColorPicked(mDisplayedColorAccentVariants[i -
+                                mDisplayedColorVariants.length]);
+                    else
+                        mColorPickCallback.onColorPicked(mDisplayedColorVariants[i]);
+                }
+                return true;
+            }
             int i = getColorIndexAt((int) event.getX(), (int) event.getY());
             if (i != -1)
                 animateExpandColor(i);
@@ -343,6 +396,12 @@ public class MaterialColorPicker extends View {
     public interface BackButtonVisibilityCallback {
 
         void onBackButtonVisiblityChanged(boolean visible);
+
+    }
+
+    public interface ColorPickCallback {
+
+        void onColorPicked(int color);
 
     }
 
