@@ -1,6 +1,5 @@
 package io.mrarm.irc.view;
 
-import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -45,6 +44,8 @@ public class MaterialColorPicker extends View {
     private float mAnimFadeOutAccentProgress = 0.f;
     private ValueAnimator mFadeOutAccentAnimator = null;
 
+    private BackButtonVisibilityCallback mBackButtonVisibilityCallback;
+
     public MaterialColorPicker(@NonNull Context context) {
         this(context, null);
     }
@@ -75,6 +76,10 @@ public class MaterialColorPicker extends View {
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
         invalidate();
+    }
+
+    public void setBackButtonVisibilityCallback(BackButtonVisibilityCallback cb) {
+        mBackButtonVisibilityCallback = cb;
     }
 
     private int getColorIndexAt(int x, int y) {
@@ -124,6 +129,9 @@ public class MaterialColorPicker extends View {
         mDisplayedColorAccentVariants = null;
         mDisplayedColorVariantColor = -1;
         mExpandAnimator.start();
+
+        if (mBackButtonVisibilityCallback != null)
+            mBackButtonVisibilityCallback.onBackButtonVisiblityChanged(true);
     }
 
     private void expandColor(int index, boolean subAnimate) {
@@ -193,6 +201,9 @@ public class MaterialColorPicker extends View {
             });
         }
         mCollapseAnimator.start();
+
+        if (mBackButtonVisibilityCallback != null)
+            mBackButtonVisibilityCallback.onBackButtonVisiblityChanged(false);
     }
 
     @Override
@@ -327,6 +338,12 @@ public class MaterialColorPicker extends View {
                 my += extraPadding;
             drawColorVariants(canvas, mx, my, expandingTileSize);
         }
+    }
+
+    public interface BackButtonVisibilityCallback {
+
+        void onBackButtonVisiblityChanged(boolean visible);
+
     }
 
 }
