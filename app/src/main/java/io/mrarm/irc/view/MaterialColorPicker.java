@@ -93,7 +93,7 @@ public class MaterialColorPicker extends View {
         return -1;
     }
 
-    private void animateExpandColor(int index) {
+    private void cancelAllAnimations() {
         if (mExpandAnimator != null && mExpandAnimator.isRunning())
             mExpandAnimator.cancel();
         if (mCollapseAnimator != null && mCollapseAnimator.isRunning())
@@ -104,7 +104,10 @@ public class MaterialColorPicker extends View {
             mFadeOutAnimator.cancel();
         if (mFadeOutAccentAnimator != null && mFadeOutAccentAnimator.isRunning())
             mFadeOutAccentAnimator.cancel();
+    }
 
+    private void animateExpandColor(int index) {
+        cancelAllAnimations();
         if (mExpandAnimator == null) {
             mExpandAnimator = ValueAnimator.ofFloat(0.f, 1.f);
             mExpandAnimator.setDuration(750L);
@@ -156,6 +159,7 @@ public class MaterialColorPicker extends View {
     }
 
     public void closeColor() {
+        cancelAllAnimations();
         if (mFadeOutAnimator == null) {
             mFadeOutAnimator = ValueAnimator.ofFloat(0.f, 9.f);
             mFadeOutAnimator.setDuration(500L);
