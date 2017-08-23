@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <array name="color_picker_colors_main">
+        <item>@color/material_red_500</item>
+        <item>@color/material_pink_500</item>
+        <item>@color/material_purple_500</item>
+        <item>@color/material_deep_purple_500</item>
+        <item>@color/material_indigo_500</item>
+        <item>@color/material_blue_500</item>
+        <item>@color/material_light_blue_500</item>
+        <item>@color/material_cyan_500</item>
+        <item>@color/material_teal_500</item>
+        <item>@color/material_green_500</item>
+        <item>@color/material_light_green_500</item>
+        <item>@color/material_lime_500</item>
+        <item>@color/material_yellow_500</item>
+        <item>@color/material_amber_500</item>
+        <item>@color/material_orange_500</item>
+        <item>@color/material_deep_orange_500</item>
+    </array>
+
+</resources>
