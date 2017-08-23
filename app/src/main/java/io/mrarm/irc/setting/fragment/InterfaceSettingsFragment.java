@@ -19,6 +19,7 @@ import io.mrarm.irc.setting.ClickableSetting;
 import io.mrarm.irc.setting.FontSizeSetting;
 import io.mrarm.irc.setting.ListSetting;
 import io.mrarm.irc.setting.ListWithCustomSetting;
+import io.mrarm.irc.setting.MaterialColorSetting;
 import io.mrarm.irc.setting.SettingsListAdapter;
 import io.mrarm.irc.util.EntryRecyclerViewAdapter;
 import io.mrarm.irc.util.MessageBuilder;
@@ -48,6 +49,8 @@ public class InterfaceSettingsFragment extends SettingsListFragment
                             ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
                     getActivity().recreate();
                 }));
+        a.add(new MaterialColorSetting(getString(R.string.pref_title_primary_color)));
+        a.add(new MaterialColorSetting(getString(R.string.pref_title_accent_color)));
         a.add(new ListWithCustomSetting(a, getString(R.string.pref_title_font),
                 getResources().getStringArray(R.array.pref_entries_font),
                 getResources().getStringArray(R.array.pref_entry_values_font), "default",

@@ -7,6 +7,7 @@ import android.support.v7.app.AlertDialog;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.TextView;
 
 import io.mrarm.irc.R;
 import io.mrarm.irc.view.MaterialColorPicker;
@@ -14,9 +15,19 @@ import io.mrarm.irc.view.MaterialColorPicker;
 public class MaterialColorPickerDialog {
 
     private Context mContext;
+    private CharSequence mTitle;
+    private MaterialColorPicker.ColorPickCallback mCallback;
 
     public MaterialColorPickerDialog(Context ctx) {
         mContext = ctx;
+    }
+
+    public void setTitle(CharSequence title) {
+        mTitle = title;
+    }
+
+    public void setColorPickListener(MaterialColorPicker.ColorPickCallback callback) {
+        mCallback = callback;
     }
 
     public void show() {
@@ -24,7 +35,9 @@ public class MaterialColorPickerDialog {
                 .inflate(R.layout.dialog_material_color_picker, null);
         MaterialColorPicker picker = view.findViewById(R.id.picker);
         View backButton = view.findViewById(R.id.back);
-        View title = view.findViewById(R.id.title);
+        TextView title = view.findViewById(R.id.title);
+        if (mTitle != null)
+            title.setText(mTitle);
         backButton.setOnClickListener((View v) -> {
             picker.closeColor();
         });
@@ -51,6 +64,8 @@ public class MaterialColorPickerDialog {
                 .show();
         picker.setColorPickListener((int color) -> {
             dialog.cancel();
+            if (mCallback != null)
+                mCallback.onColorPicked(color);
         });
     }
 
