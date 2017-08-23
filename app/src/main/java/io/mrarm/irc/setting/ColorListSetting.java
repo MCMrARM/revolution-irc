@@ -6,9 +6,9 @@ import android.view.View;
 import android.widget.ImageView;
 
 import io.mrarm.irc.R;
-import io.mrarm.irc.dialog.ColorPickerDialog;
+import io.mrarm.irc.dialog.ColorListPickerDialog;
 
-public class ColorSetting extends SimpleSetting {
+public class ColorListSetting extends SimpleSetting {
 
     private static final int sHolder = SettingsListAdapter.registerViewHolder(Holder.class,
             R.layout.settings_list_entry_color);
@@ -18,7 +18,7 @@ public class ColorSetting extends SimpleSetting {
     private int mSelectedIndex;
     private boolean mHasDefaultOption = false;
 
-    public ColorSetting(String name, int[] colors, String[] colorNames, int selectedIndex) {
+    public ColorListSetting(String name, int[] colors, String[] colorNames, int selectedIndex) {
         super(name, null);
         mColors = colors;
         mColorNames = colorNames;
@@ -59,7 +59,7 @@ public class ColorSetting extends SimpleSetting {
         return sHolder;
     }
 
-    public static class Holder extends SimpleSetting.Holder<ColorSetting> {
+    public static class Holder extends SimpleSetting.Holder<ColorListSetting> {
 
         private ImageView mColor;
 
@@ -69,7 +69,7 @@ public class ColorSetting extends SimpleSetting {
         }
 
         @Override
-        public void bind(ColorSetting entry) {
+        public void bind(ColorListSetting entry) {
             super.bind(entry);
             if (entry.mSelectedIndex == -1) {
                 mColor.setColorFilter(0x00000000, PorterDuff.Mode.MULTIPLY);
@@ -82,8 +82,8 @@ public class ColorSetting extends SimpleSetting {
 
         @Override
         public void onClick(View v) {
-            ColorSetting entry = getEntry();
-            ColorPickerDialog dialog = new ColorPickerDialog(v.getContext());
+            ColorListSetting entry = getEntry();
+            ColorListPickerDialog dialog = new ColorListPickerDialog(v.getContext());
             dialog.setTitle(entry.mName);
             dialog.setColors(entry.mColors, entry.mSelectedIndex);
             dialog.setPositiveButton(R.string.action_cancel, null);
@@ -91,7 +91,7 @@ public class ColorSetting extends SimpleSetting {
                 entry.setSelectedColorIndex(-1);
                 dialog.cancel();
             });
-            dialog.setOnColorChangeListener((ColorPickerDialog d, int colorIndex, int color) -> {
+            dialog.setOnColorChangeListener((ColorListPickerDialog d, int colorIndex, int color) -> {
                 entry.setSelectedColorIndex(colorIndex);
                 dialog.cancel();
             });

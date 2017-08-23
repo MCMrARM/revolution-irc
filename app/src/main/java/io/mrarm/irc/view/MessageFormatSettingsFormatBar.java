@@ -6,7 +6,7 @@ import android.support.annotation.Nullable;
 import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
 
-import io.mrarm.irc.dialog.ColorPickerDialog;
+import io.mrarm.irc.dialog.ColorListPickerDialog;
 import io.mrarm.irc.R;
 import io.mrarm.irc.util.IRCColorUtils;
 import io.mrarm.irc.util.MessageBuilder;
@@ -26,8 +26,8 @@ public class MessageFormatSettingsFormatBar extends TextFormatBar {
     }
 
     @Override
-    protected ColorPickerDialog createColorPicker(boolean fillColor, int selectedColor) {
-        ColorPickerDialog ret = super.createColorPicker(fillColor, selectedColor);
+    protected ColorListPickerDialog createColorPicker(boolean fillColor, int selectedColor) {
+        ColorListPickerDialog ret = super.createColorPicker(fillColor, selectedColor);
         if (!fillColor) {
             ret.setColors(getResources().getIntArray(R.array.formatTextColors), -1);
             ret.setSelectedColor(selectedColor);
@@ -36,7 +36,7 @@ public class MessageFormatSettingsFormatBar extends TextFormatBar {
                         setSpan(new MessageBuilder.MetaForegroundColorSpan(getContext(),
                                 MessageBuilder.MetaForegroundColorSpan.COLOR_SENDER));
                     });
-            ret.setOnColorChangeListener((ColorPickerDialog d, int newColorIndex, int color) -> {
+            ret.setOnColorChangeListener((ColorListPickerDialog d, int newColorIndex, int color) -> {
                 removeSpan(ForegroundColorSpan.class);
                 if (color == IRCColorUtils.getStatusTextColor(getContext()))
                     setSpan(new MessageBuilder.MetaForegroundColorSpan(getContext(), MessageBuilder.MetaForegroundColorSpan.COLOR_STATUS));

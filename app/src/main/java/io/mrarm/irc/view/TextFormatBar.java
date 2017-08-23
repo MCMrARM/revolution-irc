@@ -23,7 +23,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import io.mrarm.irc.dialog.ColorPickerDialog;
+import io.mrarm.irc.dialog.ColorListPickerDialog;
 import io.mrarm.irc.R;
 import io.mrarm.irc.util.SpannableStringHelper;
 
@@ -196,8 +196,8 @@ public class TextFormatBar extends FrameLayout {
         notifyChange();
     }
 
-    protected ColorPickerDialog createColorPicker(boolean fillColor, int selectedColor) {
-        ColorPickerDialog dialog = new ColorPickerDialog(getContext());
+    protected ColorListPickerDialog createColorPicker(boolean fillColor, int selectedColor) {
+        ColorListPickerDialog dialog = new ColorListPickerDialog(getContext());
         if (!fillColor) {
             dialog.setTitle(R.string.format_text_color);
         } else {
@@ -205,7 +205,7 @@ public class TextFormatBar extends FrameLayout {
         }
         dialog.setSelectedColor(selectedColor);
         dialog.setPositiveButton(R.string.action_cancel, null);
-        dialog.setOnColorChangeListener((ColorPickerDialog d, int newColorIndex, int color) -> {
+        dialog.setOnColorChangeListener((ColorListPickerDialog d, int newColorIndex, int color) -> {
             if (!fillColor) {
                 removeSpan(ForegroundColorSpan.class);
                 setSpan(new ForegroundColorSpan(color));

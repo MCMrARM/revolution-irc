@@ -38,7 +38,7 @@ import io.mrarm.irc.config.NotificationRule;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.setting.CheckBoxSetting;
-import io.mrarm.irc.setting.ColorSetting;
+import io.mrarm.irc.setting.ColorListSetting;
 import io.mrarm.irc.setting.ListSetting;
 import io.mrarm.irc.setting.RingtoneSetting;
 import io.mrarm.irc.setting.SettingsHeader;
@@ -67,7 +67,7 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
     ListSetting mVibrationEntry;
     int[] mVibrationOptions;
     ListSetting mPriorityEntry;
-    ColorSetting mColorEntry;
+    ColorListSetting mColorEntry;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,7 +105,7 @@ public class EditNotificationSettingsActivity extends AppCompatActivity {
         mPriorityEntry = new ListSetting(getString(R.string.notification_priority), getResources().getStringArray(R.array.notification_priority_options), 1);
         String[] colorNames = getResources().getStringArray(R.array.color_picker_color_names);
         colorNames[0] = getString(R.string.value_none);
-        mColorEntry = new ColorSetting(getString(R.string.notification_color), getResources().getIntArray(R.array.colorPickerColors), colorNames, -1);
+        mColorEntry = new ColorListSetting(getString(R.string.notification_color), getResources().getIntArray(R.array.colorPickerColors), colorNames, -1);
         mColorEntry.setHasDefaultOption(true);
 
         if (mEditingRule != null) {

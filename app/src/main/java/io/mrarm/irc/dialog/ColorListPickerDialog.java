@@ -15,7 +15,7 @@ import android.widget.ImageView;
 
 import io.mrarm.irc.R;
 
-public class ColorPickerDialog {
+public class ColorListPickerDialog {
 
     private Context mContext;
     private String mTitle;
@@ -30,17 +30,17 @@ public class ColorPickerDialog {
     private DialogInterface.OnClickListener mNeutralButtonListener;
     private AlertDialog mDialog;
 
-    public ColorPickerDialog(Context context) {
+    public ColorListPickerDialog(Context context) {
         mContext = context;
         mColors = context.getResources().getIntArray(R.array.colorPickerColors);
     }
 
-    public ColorPickerDialog setTitle(int titleId) {
+    public ColorListPickerDialog setTitle(int titleId) {
         mTitle = mContext.getString(titleId);
         return this;
     }
 
-    public ColorPickerDialog setTitle(String title) {
+    public ColorListPickerDialog setTitle(String title) {
         mTitle = title;
         return this;
     }
@@ -59,7 +59,7 @@ public class ColorPickerDialog {
         }
     }
 
-    public ColorPickerDialog setOnColorChangeListener(OnColorChangeListener listener) {
+    public ColorListPickerDialog setOnColorChangeListener(OnColorChangeListener listener) {
         mListener = listener;
         return this;
     }
@@ -113,9 +113,9 @@ public class ColorPickerDialog {
 
     private static class ColorListAdapter extends RecyclerView.Adapter<ColorListAdapter.ViewHolder> {
 
-        private ColorPickerDialog mDialog;
+        private ColorListPickerDialog mDialog;
 
-        public ColorListAdapter(ColorPickerDialog dialog) {
+        public ColorListAdapter(ColorListPickerDialog dialog) {
             mDialog = dialog;
         }
 
@@ -176,7 +176,7 @@ public class ColorPickerDialog {
 
     public interface OnColorChangeListener {
 
-        void onColorChanged(ColorPickerDialog dialog, int newColorIndex, int color);
+        void onColorChanged(ColorListPickerDialog dialog, int newColorIndex, int color);
 
     }
 
