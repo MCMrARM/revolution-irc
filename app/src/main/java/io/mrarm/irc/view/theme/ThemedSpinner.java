@@ -6,7 +6,6 @@ import android.support.v7.widget.AppCompatSpinner;
 import android.util.AttributeSet;
 import android.widget.Spinner;
 
-import io.mrarm.irc.util.ColorFilterWorkaroundDrawable;
 import io.mrarm.irc.util.ThemeHelper;
 
 public class ThemedSpinner extends AppCompatSpinner {
@@ -44,7 +43,6 @@ public class ThemedSpinner extends AppCompatSpinner {
     public static void install(Spinner spinner) {
         if (ThemeHelper.hasCustomPrimaryColor(spinner.getContext())) {
             int accentColor = ThemeHelper.getAccentColor(spinner.getContext());
-            spinner.setBackground(new ColorFilterWorkaroundDrawable(spinner.getBackground()));
             ThemedEditText.setBackgroundActiveColor(spinner, accentColor);
         }
     }

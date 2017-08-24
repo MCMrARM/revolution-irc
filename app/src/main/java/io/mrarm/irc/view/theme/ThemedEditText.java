@@ -54,7 +54,6 @@ public class ThemedEditText extends AppCompatEditText {
     public static void install(EditText editText) {
         if (ThemeHelper.hasCustomPrimaryColor(editText.getContext())) {
             int accentColor = ThemeHelper.getAccentColor(editText.getContext());
-            editText.setBackground(new ColorFilterWorkaroundDrawable(editText.getBackground()));
             setBackgroundActiveColor(editText, accentColor);
             setCursorDrawableColor(editText, accentColor);
         }
@@ -76,6 +75,7 @@ public class ThemedEditText extends AppCompatEditText {
                 accentColor
         };
         ColorStateList list = new ColorStateList(states, colors);
+        editText.setBackground(new ColorFilterWorkaroundDrawable(editText.getBackground()));
         ViewCompat.setBackgroundTintList(editText, list);
     }
 

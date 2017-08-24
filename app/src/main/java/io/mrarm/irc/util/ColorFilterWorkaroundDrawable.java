@@ -1,8 +1,10 @@
 // This file is under the public domain. If you want to use it in your project, go ahead.
 package io.mrarm.irc.util;
 
+import android.content.res.Resources;
 import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 
@@ -23,20 +25,39 @@ import android.support.annotation.NonNull;
 public class ColorFilterWorkaroundDrawable extends DrawableWrapper {
 
     private Drawable mOriginalDrawable;
+    private Drawable mMutatedDrawable;
 
     public ColorFilterWorkaroundDrawable(Drawable drawable) {
         super(drawable);
         mOriginalDrawable = drawable;
+        mMutatedDrawable = drawable.getConstantState().newDrawable().mutate();
     }
 
     private void beforeFilterSet(boolean hasFilter) {
         if (hasFilter) {
-            if (getWrappedDrawable() == mOriginalDrawable)
-                setWrappedDrawable(mOriginalDrawable.getConstantState().newDrawable().mutate());
+            if (getWrappedDrawable() == mOriginalDrawable) {
+                mMutatedDrawable.setBounds(mOriginalDrawable.getBounds());
+                mMutatedDrawable.setState(mOriginalDrawable.getState());
+                mMutatedDrawable.setVisible(mOriginalDrawable.isVisible(), true);
+                mOriginalDrawable.setVisible(false, false);
+                setWrappedDrawable(mMutatedDrawable);
+                invalidateSelf();
+            }
         } else {
-            if (getWrappedDrawable() != mOriginalDrawable)
+            if (getWrappedDrawable() != mOriginalDrawable) {
+                mOriginalDrawable.setBounds(mMutatedDrawable.getBounds());
+                mOriginalDrawable.setState(mMutatedDrawable.getState());
+                mOriginalDrawable.setVisible(mMutatedDrawable.isVisible(), true);
+                mMutatedDrawable.setVisible(false, false);
                 setWrappedDrawable(mOriginalDrawable);
+            }
         }
+    }
+
+    @Override
+    public void setAlpha(int alpha) {
+        mOriginalDrawable.setAlpha(alpha);
+        mMutatedDrawable.setAlpha(alpha);
     }
 
     @Override

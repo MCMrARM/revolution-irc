@@ -82,11 +82,6 @@ public class DrawableWrapper extends Drawable implements Drawable.Callback {
         return mDrawable.isFilterBitmap();
     }
 
-    @Override
-    public Drawable.Callback getCallback() {
-        return mDrawable.getCallback();
-    }
-
     @TargetApi(Build.VERSION_CODES.M)
     @Override
     public int getLayoutDirection() {
