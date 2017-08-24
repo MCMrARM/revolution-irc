@@ -89,7 +89,7 @@
                 app:srcCompat="@drawable/ic_server_ssl"
                 style="@style/EditServerIcon" />
 
-            <io.mrarm.irc.view.theme.ThemedCheckBox
+            <CheckBox
                 android:id="@+id/server_ssl_checkbox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -292,7 +292,7 @@
 
             </io.mrarm.irc.view.LabelLayout>
 
-            <io.mrarm.irc.view.theme.ThemedCheckBox
+            <CheckBox
                 android:id="@+id/server_rejoin_channels"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
