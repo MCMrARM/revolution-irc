@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.dialog.MenuBottomSheetDialog;
+import io.mrarm.irc.dialog.ThemedAlertDialog;
 
 public class ServerListFragment extends Fragment {
 
@@ -91,7 +92,7 @@ public class ServerListFragment extends Fragment {
                 return true;
             });
             menu.addItem(R.string.action_delete, R.drawable.ic_delete, (MenuBottomSheetDialog.Item item) -> {
-                AlertDialog.Builder builder2 = new AlertDialog.Builder(getContext());
+                AlertDialog.Builder builder2 = new ThemedAlertDialog.Builder(getContext());
                 builder2.setTitle(R.string.action_delete_confirm_title);
                 builder2.setMessage(getString(R.string.action_delete_confirm_body, data.name));
                 builder2.setPositiveButton(R.string.action_delete, (DialogInterface dialog2, int which2) -> {

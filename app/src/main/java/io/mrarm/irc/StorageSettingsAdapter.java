@@ -32,6 +32,7 @@ import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.dialog.MenuBottomSheetDialog;
 import io.mrarm.irc.dialog.ServerStorageLimitDialog;
 import io.mrarm.irc.dialog.StorageLimitsDialog;
+import io.mrarm.irc.dialog.ThemedAlertDialog;
 import io.mrarm.irc.util.ColoredTextBuilder;
 import io.mrarm.irc.util.StubMessageStorageApi;
 import io.mrarm.irc.util.StyledAttributesHelper;
@@ -143,7 +144,7 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
                 dialog.show();
             });
             view.findViewById(R.id.clear_chat_logs).setOnClickListener((View v) -> {
-                new AlertDialog.Builder(v.getContext())
+                new ThemedAlertDialog.Builder(v.getContext())
                         .setTitle(R.string.pref_storage_clear_all_chat_logs)
                         .setMessage(R.string.pref_storage_clear_all_chat_logs_confirm)
                         .setPositiveButton(R.string.action_delete, (DialogInterface di, int i) -> {
@@ -282,7 +283,7 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
             super(view);
             mTotal = view.findViewById(R.id.total_value);
             view.findViewById(R.id.reset).setOnClickListener((View v) -> {
-                new AlertDialog.Builder(v.getContext())
+                new ThemedAlertDialog.Builder(v.getContext())
                         .setTitle(R.string.pref_storage_reset_configuration)
                         .setMessage(R.string.pref_storage_reset_configuration_confirm)
                         .setPositiveButton(R.string.action_reset, (DialogInterface di, int i) -> {
@@ -415,7 +416,7 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
             mContext = context;
             mDeleteConfig = deleteConfig;
             mDeleteServerLogs = deleteOnlyServerLogs;
-            mAlertDialog = new AlertDialog.Builder(context)
+            mAlertDialog = new ThemedAlertDialog.Builder(context)
                     .setCancelable(false)
                     .setView(R.layout.dialog_please_wait)
                     .show();

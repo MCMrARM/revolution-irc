@@ -28,6 +28,7 @@ import java.util.UUID;
 import io.mrarm.chatlib.ChatApi;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.irc.chat.ChatFragment;
+import io.mrarm.irc.dialog.ThemedAlertDialog;
 import io.mrarm.irc.dialog.UserSearchDialog;
 import io.mrarm.irc.drawer.DrawerHelper;
 import io.mrarm.irc.util.NightModeRecreateHelper;
@@ -320,7 +321,7 @@ public class MainActivity extends ThemedActivity {
         if (id == R.id.action_join_channel) {
             View v = LayoutInflater.from(this).inflate(R.layout.dialog_chip_edit_text, null);
             ChipsEditText editText = v.findViewById(R.id.chip_edit_text);
-            AlertDialog dialog = new AlertDialog.Builder(this)
+            AlertDialog dialog = new ThemedAlertDialog.Builder(this)
                     .setTitle(R.string.action_join_channel)
                     .setView(v)
                     .setPositiveButton(R.string.action_ok, (DialogInterface d, int which) -> {
