@@ -42,6 +42,7 @@ import io.mrarm.irc.util.IRCColorUtils;
 import io.mrarm.irc.util.ImageViewTintUtils;
 import io.mrarm.irc.util.SimpleTextVariableList;
 import io.mrarm.irc.util.SimpleTextWatcher;
+import io.mrarm.irc.util.ThemeHelper;
 import io.mrarm.irc.view.ChatAutoCompleteEditText;
 import io.mrarm.irc.view.TextFormatBar;
 
@@ -102,9 +103,8 @@ public class ChatFragmentSendMessageHelper {
         ImageViewTintUtils.setTint(mSendIcon, 0x54000000);
 
         mSendText.addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
-            int accentColor = mContext.getResources().getColor(R.color.colorAccent);
             if (s.length() > 0)
-                ImageViewTintUtils.setTint(mSendIcon, accentColor);
+                ImageViewTintUtils.setTint(mSendIcon, ThemeHelper.getAccentColor(mFragment.getContext()));
             else
                 ImageViewTintUtils.setTint(mSendIcon, 0x54000000);
             mClientCommandErrorContainer.setVisibility(View.GONE); // hide the error

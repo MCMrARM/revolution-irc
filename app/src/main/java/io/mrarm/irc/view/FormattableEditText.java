@@ -12,7 +12,9 @@ import android.util.AttributeSet;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FormattableEditText extends AppCompatEditText {
+import io.mrarm.irc.view.theme.ThemedEditText;
+
+public class FormattableEditText extends ThemedEditText {
 
     private TextFormatBar mFormatBar;
     private boolean mSettingText = false;

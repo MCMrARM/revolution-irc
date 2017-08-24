@@ -11,7 +11,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatDelegate;
@@ -37,7 +36,7 @@ import io.mrarm.irc.util.StyledAttributesHelper;
 import io.mrarm.irc.util.WarningHelper;
 import io.mrarm.irc.view.ChipsEditText;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends ThemedActivity {
 
     private static boolean sDoReconnectOnOpen = false;
 

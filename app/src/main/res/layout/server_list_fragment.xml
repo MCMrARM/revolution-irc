@@ -34,7 +34,7 @@
         android:paddingBottom="8dp"
         android:clipToPadding="false" />
 
-    <android.support.design.widget.FloatingActionButton
+    <io.mrarm.irc.view.theme.ThemedFloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

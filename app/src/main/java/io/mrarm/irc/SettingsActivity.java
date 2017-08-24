@@ -1,6 +1,7 @@
 package io.mrarm.irc;
 
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -23,7 +24,7 @@ import io.mrarm.irc.setting.fragment.UserSettingsFragment;
 import io.mrarm.irc.setup.BackupActivity;
 import io.mrarm.irc.util.SimpleCounter;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends ThemedActivity {
 
     private SimpleCounter mRequestCodeCounter = new SimpleCounter(1);
 

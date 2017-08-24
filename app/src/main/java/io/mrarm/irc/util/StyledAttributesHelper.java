@@ -45,6 +45,13 @@ public class StyledAttributesHelper {
         return ret;
     }
 
+    public static float getFloat(Context ctx, int attribute, float def) {
+        TypedArray ta = ctx.obtainStyledAttributes(new int[] { attribute });
+        float ret = ta.getFloat(0, def);
+        ta.recycle();
+        return ret;
+    }
+
     private Context mContext;
     private TypedArray mArray;
     private int[] mAttributes;

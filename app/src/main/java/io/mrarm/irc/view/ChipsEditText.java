@@ -12,8 +12,9 @@ import android.util.AttributeSet;
 import java.util.Collection;
 
 import io.mrarm.irc.util.SimpleChipSpan;
+import io.mrarm.irc.view.theme.ThemedEditText;
 
-public class ChipsEditText extends AppCompatEditText {
+public class ChipsEditText extends ThemedEditText {
 
     public static final char SEPARATOR = ' ';
 
