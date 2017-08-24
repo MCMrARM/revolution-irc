@@ -1,5 +1,6 @@
 package io.mrarm.irc.setting;
 
+import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.view.View;
 import android.widget.ImageView;
@@ -25,6 +26,13 @@ public class MaterialColorSetting extends SimpleSetting {
         mSelectedColor = selectedColor;
     }
 
+    public MaterialColorSetting linkPreference(SharedPreferences prefs, String pref) {
+        if (prefs.contains(pref))
+            setSelectedColor(prefs.getInt(pref, 0));
+        setAssociatedPreference(prefs, pref);
+        return this;
+    }
+
     public boolean hasSelectedColor() {
         return mHasSelectedColor;
     }
@@ -32,6 +40,10 @@ public class MaterialColorSetting extends SimpleSetting {
     public void setSelectedColor(int color) {
         mSelectedColor = color;
         mHasSelectedColor = true;
+        if (hasAssociatedPreference())
+            mPreferences.edit()
+                    .putInt(mPreferenceName, color)
+                    .apply();
         onUpdated();
     }
 

@@ -49,8 +49,10 @@ public class InterfaceSettingsFragment extends SettingsListFragment
                             ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
                     getActivity().recreate();
                 }));
-        a.add(new MaterialColorSetting(getString(R.string.pref_title_primary_color)));
-        a.add(new MaterialColorSetting(getString(R.string.pref_title_accent_color)));
+        a.add(new MaterialColorSetting(getString(R.string.pref_title_primary_color))
+                .linkPreference(prefs, SettingsHelper.PREF_COLOR_PRIAMRY));
+        a.add(new MaterialColorSetting(getString(R.string.pref_title_accent_color))
+                .linkPreference(prefs, SettingsHelper.PREF_COLOR_ACCENT));
         a.add(new ListWithCustomSetting(a, getString(R.string.pref_title_font),
                 getResources().getStringArray(R.array.pref_entries_font),
                 getResources().getStringArray(R.array.pref_entry_values_font), "default",

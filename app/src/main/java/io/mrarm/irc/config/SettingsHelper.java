@@ -31,6 +31,8 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     public static final String PREF_RECONNECT_INTERVAL = "reconnect_interval";
     public static final String PREF_RECONNECT_REJOIN_CHANNELS = "reconnect_rejoin_channels";
     public static final String PREF_DARK_THEME = "dark_theme";
+    public static final String PREF_COLOR_PRIAMRY = "color_primary";
+    public static final String PREF_COLOR_ACCENT = "color_accent";
     public static final String PREF_CHAT_FONT = "chat_font";
     public static final String PREF_CHAT_FONT_SIZE = "chat_font_size";
     public static final String PREF_CHAT_APPBAR_COMPACT_MODE = "chat_appbar_compact_mode";
