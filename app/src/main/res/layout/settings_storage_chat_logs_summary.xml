@@ -74,7 +74,7 @@
         android:layout_below="@id/chart"
         app:flexWrap="wrap">
 
-        <Button
+        <io.mrarm.irc.view.theme.ThemedButton
             android:id="@+id/set_limits"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -83,7 +83,7 @@
             android:paddingLeft="24dp"
             android:paddingRight="24dp" />
 
-        <Button
+        <io.mrarm.irc.view.theme.ThemedButton
             android:id="@+id/clear_chat_logs"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

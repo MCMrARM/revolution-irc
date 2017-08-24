@@ -27,8 +27,10 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-    <style name="AppTheme.Widget.Button.Colored" parent="Widget.AppCompat.Button.Colored">
+    <style name="AppTheme.Widget.Button.Colored" parent="Widget.AppCompat.Button">
+        <item name="android:background">@drawable/colored_button</item>
         <item name="android:textColor">#fff</item>
+        <item name="android:enabled">true</item>
     </style>
 
     <style name="AppTheme.Spinner" parent="Widget.AppCompat.EditText">
