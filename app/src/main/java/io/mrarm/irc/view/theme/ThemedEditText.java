@@ -14,6 +14,7 @@ import android.widget.TextView;
 import java.lang.reflect.Field;
 
 import io.mrarm.irc.R;
+import io.mrarm.irc.util.ColorFilterWorkaroundDrawable;
 import io.mrarm.irc.util.StyledAttributesHelper;
 import io.mrarm.irc.util.ThemeHelper;
 
@@ -52,6 +53,7 @@ public class ThemedEditText extends AppCompatEditText {
     public static void install(EditText editText) {
         if (ThemeHelper.hasCustomPrimaryColor(editText.getContext())) {
             int accentColor = ThemeHelper.getAccentColor(editText.getContext());
+            editText.setBackground(new ColorFilterWorkaroundDrawable(editText.getBackground()));
             setBackgroundActiveColor(editText, accentColor);
             setCursorDrawableColor(editText, accentColor);
         }
