@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 import io.mrarm.irc.R;
@@ -18,14 +17,12 @@ public class ThemedView {
     public static void setupBackground(View view, AttributeSet attrs) {
         StyledAttributesHelper r = StyledAttributesHelper.obtainStyledAttributes(view.getContext(), attrs, ATTRS_BG);
         int bgResId = r.getResourceId(android.R.attr.background, 0);
-        Log.e("Test", "T" + bgResId + " " + R.attr.colorAccent);
-        if (r.getResourceId(android.R.attr.background, 0) == R.color.colorPrimary)
+        if (bgResId == R.color.colorPrimary)
             view.setBackgroundColor(ThemeHelper.getPrimaryColor(view.getContext()));
-        else if (r.getResourceId(android.R.attr.background, 0) == R.color.colorAccent)
+        else if (bgResId == R.color.colorAccent)
             view.setBackgroundColor(ThemeHelper.getAccentColor(view.getContext()));
-        else if (r.getResourceId(android.R.attr.background, 0) == R.drawable.colored_button) {
+        else if (bgResId == R.drawable.colored_button)
             ViewCompat.setBackgroundTintList(view, createColoredButtonColorStateList(view.getContext()));
-        }
         r.recycle();
     }
 

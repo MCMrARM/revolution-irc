@@ -5,7 +5,7 @@ import android.support.v7.widget.AppCompatButton;
 import android.util.AttributeSet;
 import android.widget.Button;
 
-public class ThemedButton extends Button {
+public class ThemedButton extends AppCompatButton {
 
     public ThemedButton(Context context) {
         super(context);
@@ -23,6 +23,7 @@ public class ThemedButton extends Button {
 
     public static void install(Button button, AttributeSet attrs) {
         ThemedView.setupBackground(button, attrs);
+        ThemedTextView.setupTextColor(button, attrs);
     }
 
 }

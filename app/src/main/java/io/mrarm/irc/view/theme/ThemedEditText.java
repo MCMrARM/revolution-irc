@@ -38,20 +38,22 @@ public class ThemedEditText extends AppCompatEditText {
 
     public ThemedEditText(Context context) {
         super(context);
-        install(this);
+        install(this, null);
     }
 
     public ThemedEditText(Context context, AttributeSet attrs) {
         super(context, attrs);
-        install(this);
+        install(this, attrs);
     }
 
     public ThemedEditText(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        install(this);
+        install(this, attrs);
     }
 
-    public static void install(EditText editText) {
+    public static void install(EditText editText, AttributeSet attrs) {
+        ThemedView.setupBackground(editText, attrs);
+        ThemedTextView.setupTextColor(editText, attrs);
         if (ThemeHelper.hasCustomPrimaryColor(editText.getContext())) {
             int accentColor = ThemeHelper.getAccentColor(editText.getContext());
             setBackgroundActiveColor(editText, accentColor);

@@ -2,12 +2,12 @@ package io.mrarm.irc.setting;
 
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 
 import io.mrarm.irc.R;
+import io.mrarm.irc.dialog.ThemedAlertDialog;
 
 public class EditTextSetting extends SimpleSetting {
 
@@ -71,7 +71,7 @@ public class EditTextSetting extends SimpleSetting {
             EditText text = view.findViewById(R.id.edit_text);
             text.setText(entry.mText);
             text.setHint(entry.mDefaultText);
-            new AlertDialog.Builder(v.getContext())
+            new ThemedAlertDialog.Builder(v.getContext())
                     .setTitle(entry.mName)
                     .setView(view)
                     .setPositiveButton(R.string.action_ok, (DialogInterface di, int i) -> {
