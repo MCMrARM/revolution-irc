@@ -23,17 +23,17 @@
                 app:srcCompat="@drawable/ic_server_name"
                 style="@style/EditServerIcon.TextInput" />
 
-            <io.mrarm.irc.view.theme.ThemedTextInputLayout
+            <android.support.design.widget.TextInputLayout
                 android:id="@+id/server_name_ctr"
                 style="@style/EditServerTextInput">
 
-                <io.mrarm.irc.view.theme.ThemedTextInputEditText
+                <android.support.design.widget.TextInputEditText
                     android:id="@+id/server_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/entry_name"/>
 
-            </io.mrarm.irc.view.theme.ThemedTextInputLayout>
+            </android.support.design.widget.TextInputLayout>
 
         </RelativeLayout>
 
@@ -43,7 +43,7 @@
                 app:srcCompat="@drawable/ic_server_address"
                 style="@style/EditServerIcon.TextInput" />
 
-            <io.mrarm.irc.view.theme.ThemedTextInputLayout
+            <android.support.design.widget.TextInputLayout
                 android:id="@+id/server_address_port_ctr"
                 android:layout_width="80dp"
                 android:layout_height="wrap_content"
@@ -52,16 +52,16 @@
                 android:layout_marginRight="16dp"
                 android:layout_marginEnd="16dp">
 
-                <io.mrarm.irc.view.theme.ThemedTextInputEditText
+                <android.support.design.widget.TextInputEditText
                     android:id="@+id/server_address_port"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="text|numberSigned"
                     android:hint="@string/server_port"/>
 
-            </io.mrarm.irc.view.theme.ThemedTextInputLayout>
+            </android.support.design.widget.TextInputLayout>
 
-            <io.mrarm.irc.view.theme.ThemedTextInputLayout
+            <android.support.design.widget.TextInputLayout
                 style="@style/EditServerTextInput"
                 android:id="@+id/server_address_name_ctr"
                 android:layout_alignParentRight="false"
@@ -71,14 +71,14 @@
                 android:layout_toLeftOf="@id/server_address_port_ctr"
                 android:layout_toStartOf="@id/server_address_port_ctr">
 
-                <io.mrarm.irc.view.theme.ThemedTextInputEditText
+                <android.support.design.widget.TextInputEditText
                     android:id="@+id/server_address_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textUri"
                     android:hint="@string/server_address"/>
 
-            </io.mrarm.irc.view.theme.ThemedTextInputLayout>
+            </android.support.design.widget.TextInputLayout>
 
         </RelativeLayout>
 
@@ -151,7 +151,7 @@
                 android:hint="@string/server_authentication_mode"
                 style="@style/EditServerTextInput">
 
-                <io.mrarm.irc.view.theme.ThemedSpinner
+                <Spinner
                     android:id="@+id/server_auth_mode"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -159,20 +159,20 @@
 
             </io.mrarm.irc.view.LabelLayout>
 
-            <io.mrarm.irc.view.theme.ThemedTextInputLayout
+            <android.support.design.widget.TextInputLayout
                 android:id="@+id/server_username_ctr"
                 android:layout_below="@+id/server_auth_mode_ctr"
                 android:layout_marginTop="8dp"
                 android:visibility="gone"
                 style="@style/EditServerTextInput">
 
-                <io.mrarm.irc.view.theme.ThemedTextInputEditText
+                <android.support.design.widget.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/server_username"
                     android:hint="@string/entry_username" />
 
-            </io.mrarm.irc.view.theme.ThemedTextInputLayout>
+            </android.support.design.widget.TextInputLayout>
 
             <RelativeLayout
                 android:id="@+id/server_password_main_ctr"
@@ -190,7 +190,7 @@
                     app:passwordToggleEnabled="true"
                     style="@style/EditServerTextInput">
 
-                    <io.mrarm.irc.view.theme.ThemedTextInputEditText
+                    <android.support.design.widget.TextInputEditText
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:id="@+id/server_password"
@@ -242,34 +242,34 @@
             android:id="@+id/server_user_expand_content"
             android:visibility="gone">
 
-            <io.mrarm.irc.view.theme.ThemedTextInputLayout
+            <android.support.design.widget.TextInputLayout
                 android:id="@+id/server_user_ctr"
                 style="@style/EditServerTextInput"
                 android:layout_marginRight="56dp"
                 android:layout_marginEnd="56dp">
 
-                <io.mrarm.irc.view.theme.ThemedTextInputEditText
+                <android.support.design.widget.TextInputEditText
                     android:id="@+id/server_user"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/server_user"/>
 
-            </io.mrarm.irc.view.theme.ThemedTextInputLayout>
+            </android.support.design.widget.TextInputLayout>
 
-            <io.mrarm.irc.view.theme.ThemedTextInputLayout
+            <android.support.design.widget.TextInputLayout
                 style="@style/EditServerTextInput"
                 android:layout_marginRight="56dp"
                 android:layout_marginEnd="56dp"
                 android:layout_below="@+id/server_user_ctr"
                 android:layout_marginTop="8dp">
 
-                <io.mrarm.irc.view.theme.ThemedTextInputEditText
+                <android.support.design.widget.TextInputEditText
                     android:id="@+id/server_realname"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/server_realname"/>
 
-            </io.mrarm.irc.view.theme.ThemedTextInputLayout>
+            </android.support.design.widget.TextInputLayout>
 
         </RelativeLayout>
 
