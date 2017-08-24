@@ -60,6 +60,8 @@ public class ThemedEditText extends AppCompatEditText {
     }
 
     public static void setBackgroundActiveColor(View editText, int accentColor) {
+        if (editText.getBackground() == null)
+            return;
         int normalColor = StyledAttributesHelper.getColor(editText.getContext(),
                 R.attr.colorControlNormal, 0);
         int disabledColor = ColorUtils.setAlphaComponent(normalColor, (int) (255.f *
