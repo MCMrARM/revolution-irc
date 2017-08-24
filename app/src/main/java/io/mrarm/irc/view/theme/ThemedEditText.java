@@ -72,7 +72,8 @@ public class ThemedEditText extends AppCompatEditText {
                 normalColor,
                 accentColor
         };
-        ViewCompat.setBackgroundTintList(editText, new ColorStateList(states, colors));
+        ColorStateList list = new ColorStateList(states, colors);
+        ViewCompat.setBackgroundTintList(editText, list);
     }
 
     // https://stackoverflow.com/questions/11554078/set-textcursordrawable-programmatically/#26544231

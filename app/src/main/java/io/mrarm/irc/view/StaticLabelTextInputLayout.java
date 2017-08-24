@@ -11,8 +11,10 @@ import android.widget.LinearLayout;
 
 import io.mrarm.irc.R;
 import io.mrarm.irc.util.StyledAttributesHelper;
+import io.mrarm.irc.util.ThemeHelper;
+import io.mrarm.irc.view.theme.ThemedTextInputLayout;
 
-public class StaticLabelTextInputLayout extends TextInputLayout {
+public class StaticLabelTextInputLayout extends ThemedTextInputLayout {
 
     private boolean mForceShowHint = false;
     private boolean mWasHintEnabled = false;
@@ -39,10 +41,10 @@ public class StaticLabelTextInputLayout extends TextInputLayout {
         mTextPaint.setTypeface(getTypeface());
         mTextPaint.setTextSize(getResources().getDimensionPixelSize(R.dimen.abc_text_size_caption_material));
         StyledAttributesHelper ta = StyledAttributesHelper.obtainStyledAttributes(context,
-                new int[] { android.R.attr.textColorHint, R.attr.colorAccent });
+                new int[] { android.R.attr.textColorHint });
         mTextColorUnfocused = ta.getColor(android.R.attr.textColorHint, 0);
-        mTextColorFocused = ta.getColor(R.attr.colorAccent, 0);
         ta.recycle();
+        mTextColorFocused = ThemeHelper.getAccentColor(context);
         mTextPaint.setColor(mTextColorUnfocused);
     }
 

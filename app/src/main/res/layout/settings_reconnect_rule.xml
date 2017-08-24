@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
-    <EditText
+    <io.mrarm.irc.view.theme.ThemedEditText
         android:id="@+id/rule_interval"
         android:layout_marginLeft="?attr/dialogPreferredPadding"
         android:layout_marginStart="?attr/dialogPreferredPadding"
@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         style="@style/AppTheme.Spinner" />
 
-    <EditText
+    <io.mrarm.irc.view.theme.ThemedEditText
         android:id="@+id/rule_repeat_times"
         android:layout_width="50dp"
         android:layout_height="wrap_content"

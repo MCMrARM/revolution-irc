@@ -2,11 +2,7 @@ package io.mrarm.irc;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.ColorStateList;
-import android.graphics.PorterDuff;
 import android.support.design.widget.TextInputLayout;
-import android.support.v4.widget.ImageViewCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -36,7 +32,7 @@ import io.mrarm.irc.util.SimpleTextWatcher;
 import io.mrarm.irc.view.StaticLabelTextInputLayout;
 import io.mrarm.irc.view.ChipsEditText;
 
-public class EditServerActivity extends AppCompatActivity {
+public class EditServerActivity extends ThemedActivity {
 
     private static String TAG = "EditServerActivity";
 
