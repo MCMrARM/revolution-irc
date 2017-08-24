@@ -1,7 +1,6 @@
 package io.mrarm.irc;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,7 +13,7 @@ import java.util.UUID;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 
-public class IgnoreListActivity extends AppCompatActivity {
+public class IgnoreListActivity extends ThemedActivity {
 
     public static final String ARG_SERVER_UUID = "server_uuid";
 

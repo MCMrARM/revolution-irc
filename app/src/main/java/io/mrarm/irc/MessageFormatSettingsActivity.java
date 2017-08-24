@@ -6,7 +6,6 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.view.GravityCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.text.Editable;
 import android.text.Spannable;
@@ -34,7 +33,7 @@ import io.mrarm.irc.util.MessageBuilder;
 import io.mrarm.irc.util.SimpleTextWatcher;
 import io.mrarm.irc.view.TextFormatBar;
 
-public class MessageFormatSettingsActivity extends AppCompatActivity {
+public class MessageFormatSettingsActivity extends ThemedActivity {
 
     private MessageBuilder mMessageBuilder;
 

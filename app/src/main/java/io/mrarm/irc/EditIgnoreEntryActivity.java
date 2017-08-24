@@ -1,6 +1,5 @@
 package io.mrarm.irc;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,7 +15,7 @@ import java.util.UUID;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 
-public class EditIgnoreEntryActivity extends AppCompatActivity {
+public class EditIgnoreEntryActivity extends ThemedActivity {
 
     public static final String ARG_SERVER_UUID = "server_uuid";
     public static final String ARG_ENTRY_INDEX = "edit_index";

@@ -3,7 +3,6 @@ package io.mrarm.irc;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.v4.view.ViewCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,7 +18,7 @@ import android.widget.Toast;
 import io.mrarm.irc.config.CommandAliasManager;
 import io.mrarm.irc.util.StyledAttributesHelper;
 
-public class EditCommandAliasActivity extends AppCompatActivity {
+public class EditCommandAliasActivity extends ThemedActivity {
 
     public static final String ARG_ALIAS_NAME = "alias_name";
     public static final String ARG_ALIAS_SYNTAX = "alias_syntax";

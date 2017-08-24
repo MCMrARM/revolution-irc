@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.graphics.drawable.DrawableCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -48,7 +47,7 @@ import io.mrarm.irc.util.SimpleCounter;
 import io.mrarm.irc.util.SimpleTextWatcher;
 import io.mrarm.irc.view.ChipsEditText;
 
-public class EditNotificationSettingsActivity extends AppCompatActivity {
+public class EditNotificationSettingsActivity extends ThemedActivity {
 
     public static final String ARG_USER_RULE_INDEX = "rule_index";
     public static final String ARG_DEFAULT_RULE_INDEX = "default_rule_index";
