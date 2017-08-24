@@ -52,8 +52,7 @@ public class ThemedEditText extends AppCompatEditText {
     }
 
     public static void install(EditText editText, AttributeSet attrs) {
-        ThemedView.setupBackground(editText, attrs);
-        ThemedTextView.setupTextColor(editText, attrs);
+        ThemedTextView.install(editText, attrs);
         if (ThemeHelper.hasCustomPrimaryColor(editText.getContext())) {
             int accentColor = ThemeHelper.getAccentColor(editText.getContext());
             setBackgroundActiveColor(editText, accentColor);

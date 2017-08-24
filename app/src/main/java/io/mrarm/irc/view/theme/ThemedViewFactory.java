@@ -24,6 +24,8 @@ public class ThemedViewFactory implements LayoutInflater.Factory2 {
             return new ThemedCheckBox(context, attrs);
         if (name.equals("Spinner"))
             return new ThemedSpinner(context, attrs);
+        if (name.equals("TextView"))
+            return new ThemedTextView(context, attrs);
         if (name.equals("android.support.design.widget.TextInputLayout"))
             return new ThemedTextInputLayout(context, attrs);
         if (name.equals("android.support.design.widget.TextInputEditText"))

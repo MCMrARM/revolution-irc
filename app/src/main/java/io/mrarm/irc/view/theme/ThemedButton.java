@@ -22,8 +22,7 @@ public class ThemedButton extends AppCompatButton {
     }
 
     public static void install(Button button, AttributeSet attrs) {
-        ThemedView.setupBackground(button, attrs);
-        ThemedTextView.setupTextColor(button, attrs);
+        ThemedTextView.install(button, attrs);
     }
 
 }
