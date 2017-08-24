@@ -151,7 +151,7 @@
                 android:hint="@string/server_authentication_mode"
                 style="@style/EditServerTextInput">
 
-                <Spinner
+                <io.mrarm.irc.view.theme.ThemedSpinner
                     android:id="@+id/server_auth_mode"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

@@ -8,6 +8,7 @@ import android.support.v4.graphics.ColorUtils;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.AppCompatEditText;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -59,7 +60,7 @@ public class ThemedEditText extends AppCompatEditText {
         }
     }
 
-    public static void setBackgroundActiveColor(EditText editText, int accentColor) {
+    public static void setBackgroundActiveColor(View editText, int accentColor) {
         int normalColor = StyledAttributesHelper.getColor(editText.getContext(),
                 R.attr.colorControlNormal, 0);
         int disabledColor = ColorUtils.setAlphaComponent(normalColor, (int) (255.f *
