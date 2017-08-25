@@ -39,7 +39,7 @@ public class ListWithCustomSetting extends ListSetting implements
     public static final int TYPE_FONT = 3;
 
     public static boolean isPrefCustomValue(String value) {
-        return value.startsWith(CUSTOM_VALUE_PREFIX);
+        return value != null && value.startsWith(CUSTOM_VALUE_PREFIX);
     }
 
     public static String getPrefCustomValue(String value) {
