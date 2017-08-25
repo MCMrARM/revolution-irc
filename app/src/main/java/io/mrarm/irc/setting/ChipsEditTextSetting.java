@@ -90,7 +90,8 @@ public class ChipsEditTextSetting extends SimpleSetting {
             ChipsEditTextSetting entry = getEntry();
             View view = LayoutInflater.from(v.getContext()).inflate(R.layout.dialog_chip_edit_text, null);
             ChipsEditText text = view.findViewById(R.id.chip_edit_text);
-            text.setItems(Arrays.asList(entry.mItems));
+            if (entry.mItems != null)
+                text.setItems(Arrays.asList(entry.mItems));
             text.setHint(entry.mDefaultText);
             new ThemedAlertDialog.Builder(v.getContext())
                     .setTitle(entry.mName)
