@@ -8,10 +8,10 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
-import android.util.Log;
 import android.view.ActionMode;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
@@ -19,7 +19,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -185,6 +184,14 @@ public class ChatFragmentSendMessageHelper {
         } else {
             mSendText.setOnTouchListener(null);
         }
+    }
+
+    public void setAutocorrectEnabled(boolean enabled) {
+        if (enabled)
+            mSendText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
+                    | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        else
+            mSendText.setInputType(InputType.TYPE_CLASS_TEXT);
     }
 
     public void setCurrentChannelMembers(List<NickWithPrefix> members) {

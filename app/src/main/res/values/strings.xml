@@ -253,6 +253,8 @@
     <string name="pref_title_accent_color">Accent color</string>
     <string name="pref_title_font">Font</string>
     <string name="pref_title_font_size">Font size</string>
+    <string name="pref_title_autocorrect">Enable text auto-correct</string>
+    <string name="pref_summary_autocorrect">Enable the keyboard-provided auto-correct</string>
     <string name="pref_title_appbar_compact_mode">Hide the network name header</string>
     <string name="pref_title_message_format">Message format</string>
     <string name="pref_title_nick_autocomplete">Nick/channel autocomplete</string>

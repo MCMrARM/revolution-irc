@@ -151,11 +151,13 @@ public class ChatFragment extends Fragment implements
 
         SettingsHelper s = SettingsHelper.getInstance(getContext());
         s.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_APPBAR_COMPACT_MODE, this);
+        s.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_TEXT_AUTOCORRECT, this);
         s.addPreferenceChangeListener(SettingsHelper.PREF_NICK_AUTOCOMPLETE_SHOW_BUTTON, this);
         s.addPreferenceChangeListener(SettingsHelper.PREF_NICK_AUTOCOMPLETE_DOUBLE_TAP, this);
 
         mSendHelper.setTabButtonVisible(s.isNickAutocompleteButtonVisible());
         mSendHelper.setDoubleTapCompleteEnabled(s.isNickAutocompleteDoubleTapEnabled());
+        mSendHelper.setAutocorrectEnabled(s.isChatAutocorrectEnabled());
 
         return rootView;
     }
@@ -198,6 +200,7 @@ public class ChatFragment extends Fragment implements
             SettingsHelper s = SettingsHelper.getInstance(getContext());
             mSendHelper.setTabButtonVisible(s.isNickAutocompleteButtonVisible());
             mSendHelper.setDoubleTapCompleteEnabled(s.isNickAutocompleteDoubleTapEnabled());
+            mSendHelper.setAutocorrectEnabled(s.isChatAutocorrectEnabled());
         }
     }
 
@@ -242,6 +245,7 @@ public class ChatFragment extends Fragment implements
         mConnectionInfo.getNotificationManager().removeUnreadMessageCountCallback(this);
         SettingsHelper s = SettingsHelper.getInstance(getContext());
         s.removePreferenceChangeListener(SettingsHelper.PREF_CHAT_APPBAR_COMPACT_MODE, this);
+        s.removePreferenceChangeListener(SettingsHelper.PREF_CHAT_TEXT_AUTOCORRECT, this);
         s.removePreferenceChangeListener(SettingsHelper.PREF_NICK_AUTOCOMPLETE_SHOW_BUTTON, this);
         s.removePreferenceChangeListener(SettingsHelper.PREF_NICK_AUTOCOMPLETE_DOUBLE_TAP, this);
         super.onDestroyView();

@@ -40,7 +40,7 @@
                 android:layout_marginLeft="@dimen/message_edit_text_margin_left"
                 android:layout_marginStart="@dimen/message_edit_text_margin_left"
                 android:imeOptions="flagNoExtractUi|actionSend"
-                android:inputType="text"
+                android:inputType="text|textAutoCorrect|textCapSentences"
                 android:id="@+id/send_text"
                 android:hint="@string/message_hint"
                 android:layout_toRightOf="@id/tab_button"

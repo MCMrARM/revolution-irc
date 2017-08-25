@@ -36,6 +36,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     public static final String PREF_COLOR_ACCENT = PREF_COLOR_PREFIX + "accent";
     public static final String PREF_CHAT_FONT = "chat_font";
     public static final String PREF_CHAT_FONT_SIZE = "chat_font_size";
+    public static final String PREF_CHAT_TEXT_AUTOCORRECT = "chat_text_autocorrect";
     public static final String PREF_CHAT_APPBAR_COMPACT_MODE = "chat_appbar_compact_mode";
     public static final String PREF_MESSAGE_FORMAT = "message_format";
     public static final String PREF_MESSAGE_FORMAT_MENTION = "message_format_mention";
@@ -211,6 +212,10 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
 
     public int getChatFontSize() {
         return mPreferences.getInt(PREF_CHAT_FONT_SIZE, -1);
+    }
+
+    public boolean isChatAutocorrectEnabled() {
+        return mPreferences.getBoolean(PREF_CHAT_TEXT_AUTOCORRECT, true);
     }
 
     public String getChatAppbarCompactMode() {
