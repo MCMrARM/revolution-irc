@@ -50,9 +50,11 @@ public class InterfaceSettingsFragment extends SettingsListFragment
                     getActivity().recreate();
                 }));
         a.add(new MaterialColorSetting(getString(R.string.pref_title_primary_color))
-                .linkPreference(prefs, SettingsHelper.PREF_COLOR_PRIMARY));
+                .linkPreference(prefs, SettingsHelper.PREF_COLOR_PRIMARY)
+                .addListener((EntryRecyclerViewAdapter.Entry entry) -> getActivity().recreate() ));
         a.add(new MaterialColorSetting(getString(R.string.pref_title_accent_color))
-                .linkPreference(prefs, SettingsHelper.PREF_COLOR_ACCENT));
+                .linkPreference(prefs, SettingsHelper.PREF_COLOR_ACCENT)
+                .addListener((EntryRecyclerViewAdapter.Entry entry) -> getActivity().recreate() ));
         a.add(new ListWithCustomSetting(a, getString(R.string.pref_title_font),
                 getResources().getStringArray(R.array.pref_entries_font),
                 getResources().getStringArray(R.array.pref_entry_values_font), "default",

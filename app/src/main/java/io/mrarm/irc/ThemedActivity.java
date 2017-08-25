@@ -19,11 +19,24 @@ import io.mrarm.irc.view.theme.ThemedViewFactory;
 
 public class ThemedActivity extends AppCompatActivity {
 
+    private int mCurrentPrimaryColor;
+    private int mCurrentAccentColor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         LayoutInflaterCompat.setFactory2(getLayoutInflater(), new ThemedViewFactory(this));
+        mCurrentPrimaryColor = ThemeHelper.getPrimaryColor(this);
+        mCurrentAccentColor = ThemeHelper.getAccentColor(this);
         super.onCreate(savedInstanceState);
         applyStatusBarColor();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (ThemeHelper.getPrimaryColor(this) != mCurrentPrimaryColor ||
+                ThemeHelper.getAccentColor(this) != mCurrentAccentColor)
+            recreate();
     }
 
     @Override
