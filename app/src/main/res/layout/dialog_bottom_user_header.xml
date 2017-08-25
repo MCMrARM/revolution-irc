@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="@dimen/dialog_bottom_user_header_height"
-    android:theme="@style/Theme.AppCompat"
+    app:theme="@style/Theme.AppCompat"
     android:background="@color/colorPrimary">
 
     <TextView
@@ -18,7 +18,7 @@
         android:layout_marginStart="16dp"
         android:text="Nick placeholder"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-        android:textColor="?android:attr/textColorPrimary" />
+        android:textColor="@color/abc_primary_text_material_dark" />
 
     <TextView
         android:id="@+id/user"
@@ -31,7 +31,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginRight="16dp"
         android:layout_marginEnd="16dp"
-        android:textColor="?android:attr/textColorSecondary"
+        android:textColor="@color/abc_secondary_text_material_dark"
         android:text="User placeholder"
         android:layout_alignRight="@+id/message_button"
         android:layout_alignEnd="@+id/message_button" />
@@ -48,7 +48,7 @@
         android:layout_marginStart="16dp"
         android:text="Realname placeholder"
         android:textAppearance="@style/TextAppearance.AppCompat.Title"
-        android:textColor="?android:attr/textColorPrimary"
+        android:textColor="@color/abc_primary_text_material_dark"
         android:layout_toLeftOf="@+id/message_button"
         android:layout_toStartOf="@+id/message_button" />
 
@@ -61,7 +61,7 @@
         android:layout_alignParentEnd="true"
         android:padding="16dp"
         android:background="?attr/actionBarItemBackground"
-        app:tint="?android:attr/textColorPrimary"
+        app:tint="@color/abc_primary_text_material_dark"
         app:srcCompat="@drawable/ic_message" />
 
 
