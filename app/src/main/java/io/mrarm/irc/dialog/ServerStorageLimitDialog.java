@@ -1,10 +1,10 @@
 package io.mrarm.irc.dialog;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -16,7 +16,7 @@ import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.config.SettingsHelper;
 
-public class ServerStorageLimitDialog extends AlertDialog {
+public class ServerStorageLimitDialog extends ThemedAlertDialog {
 
     private ServerConfigData mServer;
     private SeekBar mSeekBar;

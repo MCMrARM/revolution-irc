@@ -3,12 +3,33 @@ package io.mrarm.irc.dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.widget.Button;
 
 import io.mrarm.irc.util.ThemeHelper;
 
-public class ThemedAlertDialog {
+public class ThemedAlertDialog extends AlertDialog {
+
+    protected ThemedAlertDialog(@NonNull Context context) {
+        super(context);
+    }
+
+    protected ThemedAlertDialog(@NonNull Context context, int themeResId) {
+        super(context, themeResId);
+    }
+
+    protected ThemedAlertDialog(@NonNull Context context, boolean cancelable, @Nullable OnCancelListener cancelListener) {
+        super(context, cancelable, cancelListener);
+    }
+
+    @Override
+    public void show() {
+        super.show();
+        themeButton(getButton(AlertDialog.BUTTON_POSITIVE));
+        themeButton(getButton(AlertDialog.BUTTON_NEGATIVE));
+        themeButton(getButton(AlertDialog.BUTTON_NEUTRAL));
+    }
 
     public static class Builder extends AlertDialog.Builder {
 
