@@ -99,7 +99,6 @@ public class ListSetting extends SimpleSetting {
                                 listEntry.setSelectedOption(which);
                                 i.cancel();
                             })
-                    .setPositiveButton(R.string.action_cancel, null)
                     .show();
         }
 
