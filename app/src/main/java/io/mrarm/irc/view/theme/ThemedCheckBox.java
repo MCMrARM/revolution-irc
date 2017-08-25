@@ -6,7 +6,7 @@ import android.support.v4.graphics.ColorUtils;
 import android.support.v4.widget.CompoundButtonCompat;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.util.AttributeSet;
-import android.widget.CheckBox;
+import android.widget.CompoundButton;
 
 import io.mrarm.irc.R;
 import io.mrarm.irc.util.StyledAttributesHelper;
@@ -29,7 +29,7 @@ public class ThemedCheckBox extends AppCompatCheckBox {
         install(this, attrs);
     }
 
-    public static void install(CheckBox checkBox, AttributeSet attrs) {
+    public static void install(CompoundButton checkBox, AttributeSet attrs) {
         ThemedView.setupBackground(checkBox, attrs);
         if (ThemeHelper.hasCustomAccentColor(checkBox.getContext())) {
             CompoundButtonCompat.setButtonTintList(checkBox,
@@ -37,7 +37,7 @@ public class ThemedCheckBox extends AppCompatCheckBox {
         }
     }
 
-    private static ColorStateList createCheckBoxTintStateList(Context ctx) {
+    static ColorStateList createCheckBoxTintStateList(Context ctx) {
         int accentColor = ThemeHelper.getAccentColor(ctx);
         int normalColor = StyledAttributesHelper.getColor(ctx, R.attr.colorControlNormal, 0);
         int disabledColor = ColorUtils.setAlphaComponent(normalColor, (int) (255.f *

@@ -22,10 +22,14 @@ public class ThemedViewFactory implements LayoutInflater.Factory2 {
             return new ThemedEditText(context, attrs);
         if (name.equals("CheckBox"))
             return new ThemedCheckBox(context, attrs);
+        if (name.equals("RadioButton"))
+            return new ThemedRadioButton(context, attrs);
         if (name.equals("Spinner"))
             return new ThemedSpinner(context, attrs);
         if (name.equals("TextView"))
             return new ThemedTextView(context, attrs);
+        if (name.equals("CheckedTextView"))
+            return new ThemedCheckedTextView(context, attrs);
         if (name.equals("SeekBar"))
             return new ThemedSeekBar(context, attrs);
         if (name.equals("android.support.design.widget.TextInputLayout"))
