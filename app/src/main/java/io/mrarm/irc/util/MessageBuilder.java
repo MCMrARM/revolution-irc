@@ -50,6 +50,7 @@ public class MessageBuilder {
 
     private Context mContext;
     private SimpleDateFormat mMessageTimeFormat;
+    private boolean mMessageTimeFixedWidth = true;
     private CharSequence mMessageFormat;
     private CharSequence mMentionMessageFormat;
     private CharSequence mActionMessageFormat;
@@ -247,13 +248,21 @@ public class MessageBuilder {
         mEventMessageFormat = format;
     }
 
-    public void appendTimestamp(ColoredTextBuilder builder, Date date) {
-        builder.append(mMessageTimeFormat.format(date), new ForegroundColorSpan(mContext.getResources().getColor(R.color.messageTimestamp)));
+    public CharSequence createTimestamp(Date date, boolean addDefaultColorSpan) {
+        String ds = getMessageTimeFormat().format(date);
+        if (!mMessageTimeFixedWidth && !addDefaultColorSpan)
+            return ds;
+        SpannableString ret = new SpannableString(ds + " ");
+        if (mMessageTimeFixedWidth)
+            ret.setSpan(new FixedWidthTimestampSpan(ds.length()), ds.length(), ret.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        if (addDefaultColorSpan)
+            ret.setSpan(new ForegroundColorSpan(mContext.getResources().getColor(R.color.messageTimestamp)), 0, ret.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return ret;
     }
 
     public CharSequence buildDisconnectWarning(Date date) {
         ColoredTextBuilder builder = new ColoredTextBuilder();
-        appendTimestamp(builder, date);
+        builder.append(createTimestamp(date, true));
         builder.append(" Disconnected", new ForegroundColorSpan(mContext.getResources().getColor(R.color.messageDisconnected)));
         return builder.getSpannable();
     }
@@ -539,7 +548,7 @@ public class MessageBuilder {
             else if (span.mType == MetaChipSpan.TYPE_MESSAGE)
                 replacement = message;
             else if (span.mType == MetaChipSpan.TYPE_TIME)
-                replacement = getMessageTimeFormat().format(date);
+                replacement = createTimestamp(date, false);
             if (replacement != null)
                 builder.replace(builder.getSpanStart(span), builder.getSpanEnd(span), replacement);
             builder.removeSpan(span);
