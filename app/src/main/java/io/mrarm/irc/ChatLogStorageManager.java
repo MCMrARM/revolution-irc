@@ -20,10 +20,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.concurrent.Executor;
 
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.config.SettingsHelper;
+import io.mrarm.irc.util.PoolSerialExecutor;
 
 public class ChatLogStorageManager implements SharedPreferences.OnSharedPreferenceChangeListener, ServerConfigManager.ConnectionsListener {
 
@@ -52,8 +54,7 @@ public class ChatLogStorageManager implements SharedPreferences.OnSharedPreferen
     private long mGlobalTotalSize = 0L;
     private long mGlobalLimit;
     private long mDefaultServerLimit;
-    private HandlerThread mUpdateThread;
-    private Handler mUpdateThreadHandler;
+    private Executor mExecutor;
 
     public ChatLogStorageManager(Context context) {
         mConnectionManager = ServerConnectionManager.getInstance(context);
@@ -64,13 +65,11 @@ public class ChatLogStorageManager implements SharedPreferences.OnSharedPreferen
         helper.addPreferenceChangeListener(SettingsHelper.PREF_STORAGE_LIMIT_SERVER, this);
         onSharedPreferenceChanged(null, null);
 
-        mUpdateThread = new HandlerThread("ChatLogStorageManager");
-        mUpdateThread.start();
-        mUpdateThreadHandler = new Handler(mUpdateThread.getLooper());
+        mExecutor = new PoolSerialExecutor();
 
         mServerConfigManager.addListener(this);
         List<ServerConfigData> servers = mServerConfigManager.getServers();
-        mUpdateThreadHandler.post(() -> {
+        mExecutor.execute(() -> {
             for (ServerConfigData data : servers)
                 mServerManagers.put(data.uuid, new ServerManager(data));
             performUpdate(null);
@@ -85,11 +84,11 @@ public class ChatLogStorageManager implements SharedPreferences.OnSharedPreferen
     }
 
     public void requestUpdate(UUID serverUUID) {
-        mUpdateThreadHandler.post(() -> performUpdate(serverUUID));
+        mExecutor.execute(() -> performUpdate(serverUUID));
     }
 
     public void requestUpdate(UUID serverUUID, Runnable callback) {
-        mUpdateThreadHandler.post(() -> {
+        mExecutor.execute(() -> {
             performUpdate(serverUUID);
             callback.run();
         });
@@ -185,14 +184,14 @@ public class ChatLogStorageManager implements SharedPreferences.OnSharedPreferen
 
     @Override
     public void onConnectionAdded(ServerConfigData data) {
-        mUpdateThreadHandler.post(() -> {
+        mExecutor.execute(() -> {
             mServerManagers.put(data.uuid, new ServerManager(data));
         });
     }
 
     @Override
     public void onConnectionRemoved(ServerConfigData data) {
-        mUpdateThreadHandler.post(() -> {
+        mExecutor.execute(() -> {
             mServerManagers.get(data.uuid).remove();
             mServerManagers.remove(data.uuid);
         });
