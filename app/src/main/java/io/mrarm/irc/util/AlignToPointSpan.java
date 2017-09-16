@@ -8,13 +8,13 @@ import android.text.Spannable;
 import android.text.style.LeadingMarginSpan;
 import android.widget.TextView;
 
-public class AlignToThisPointSpan implements LeadingMarginSpan, NoCopySpan {
+public class AlignToPointSpan implements LeadingMarginSpan, NoCopySpan {
 
-    private int mOffset = 0;
+    private Anchor mAnchor;
     private int mMargin = 0;
 
-    public AlignToThisPointSpan(int referToOffset) {
-        mOffset = referToOffset;
+    public AlignToPointSpan(Anchor anchor) {
+        mAnchor = anchor;
     }
 
     @Override
@@ -29,14 +29,17 @@ public class AlignToThisPointSpan implements LeadingMarginSpan, NoCopySpan {
         // stub
     }
 
+    public static class Anchor {
+    }
+
     public static CharSequence apply(TextView textView, CharSequence text) {
         if (text == null || !(text instanceof Spannable))
             return text;
         Spannable s = (Spannable) text;
-        for (AlignToThisPointSpan span : s.getSpans(0, text.length(),
-                AlignToThisPointSpan.class)) {
-            span.mMargin = (int) Layout.getDesiredWidth(text, 0, s.getSpanStart(span) +
-                            span.mOffset, textView.getPaint());
+        for (AlignToPointSpan span : s.getSpans(0, text.length(),
+                AlignToPointSpan.class)) {
+            span.mMargin = (int) Layout.getDesiredWidth(text, 0, s.getSpanStart(span.mAnchor),
+                    textView.getPaint());
         }
         return text;
     }

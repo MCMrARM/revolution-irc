@@ -18,7 +18,7 @@ import java.util.TreeSet;
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.irc.NotificationManager;
 import io.mrarm.irc.R;
-import io.mrarm.irc.util.AlignToThisPointSpan;
+import io.mrarm.irc.util.AlignToPointSpan;
 import io.mrarm.irc.util.LongPressSelectTouchListener;
 import io.mrarm.irc.util.MessageBuilder;
 import io.mrarm.irc.util.StyledAttributesHelper;
@@ -179,9 +179,9 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
             setSelected(selected, false);
             if (NotificationManager.getInstance().doesMessageTriggerNotitification(mFragment.getConnectionInfo(), mFragment.getChannelName(), message))
-                mText.setText(AlignToThisPointSpan.apply(mText, MessageBuilder.getInstance(mText.getContext()).buildMessageWithMention(message)));
+                mText.setText(AlignToPointSpan.apply(mText, MessageBuilder.getInstance(mText.getContext()).buildMessageWithMention(message)));
             else
-                mText.setText(AlignToThisPointSpan.apply(mText, MessageBuilder.getInstance(mText.getContext()).buildMessage(message)));
+                mText.setText(AlignToPointSpan.apply(mText, MessageBuilder.getInstance(mText.getContext()).buildMessage(message)));
         }
 
     }

@@ -2,8 +2,6 @@ package io.mrarm.irc.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.preference.PreferenceManager;
 import android.text.Spannable;
@@ -556,18 +554,20 @@ public class MessageBuilder {
         SpannableStringBuilder builder = new SpannableStringBuilder(format);
         for (MetaChipSpan span : builder.getSpans(0, builder.length(), MetaChipSpan.class)) {
             CharSequence replacement = null;
-            if (span.mType == MetaChipSpan.TYPE_SENDER)
+            if (span.mType == MetaChipSpan.TYPE_SENDER) {
                 replacement = sender;
-            else if (span.mType == MetaChipSpan.TYPE_MESSAGE)
+            } else if (span.mType == MetaChipSpan.TYPE_MESSAGE) {
                 replacement = message;
-            else if (span.mType == MetaChipSpan.TYPE_TIME)
+            } else if (span.mType == MetaChipSpan.TYPE_TIME) {
                 replacement = createTimestamp(date, false);
-            else if (span.mType == MetaChipSpan.TYPE_WRAP_ANCHOR)
-                replacement = "";
+            } else if (span.mType == MetaChipSpan.TYPE_WRAP_ANCHOR) {
+                replacement = new SpannableString("");
+                AlignToPointSpan.Anchor anchor = new AlignToPointSpan.Anchor();
+                ((Spannable) replacement).setSpan(anchor, 0, 0, Spannable.SPAN_POINT_POINT);
+                builder.setSpan(new AlignToPointSpan(anchor), 0, builder.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+            }
             if (replacement != null)
                 builder.replace(builder.getSpanStart(span), builder.getSpanEnd(span), replacement);
-            if (span.mType == MetaChipSpan.TYPE_WRAP_ANCHOR)
-                builder.setSpan(new AlignToThisPointSpan(builder.getSpanStart(span)), 0, builder.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
             builder.removeSpan(span);
         }
         for (MetaForegroundColorSpan span : builder.getSpans(0, builder.length(), MetaForegroundColorSpan.class)) {

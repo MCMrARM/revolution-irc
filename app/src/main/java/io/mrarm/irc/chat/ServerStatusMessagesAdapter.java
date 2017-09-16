@@ -3,10 +3,7 @@ package io.mrarm.irc.chat;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
-import android.text.SpannableString;
-import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
-import android.text.style.ForegroundColorSpan;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,11 +14,10 @@ import android.widget.TextView;
 import java.util.HashSet;
 import java.util.Set;
 
-import io.mrarm.chatlib.dto.HostInfoMessageInfo;
 import io.mrarm.chatlib.dto.StatusMessageInfo;
 import io.mrarm.chatlib.dto.StatusMessageList;
 import io.mrarm.irc.R;
-import io.mrarm.irc.util.AlignToThisPointSpan;
+import io.mrarm.irc.util.AlignToPointSpan;
 import io.mrarm.irc.util.ColoredTextBuilder;
 import io.mrarm.irc.util.IRCColorUtils;
 import io.mrarm.irc.util.MessageBuilder;
@@ -115,11 +111,11 @@ public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerVi
 
             Context context = mText.getContext();
             if (message.getType() == StatusMessageInfo.MessageType.DISCONNECT_WARNING) {
-                mText.setText(AlignToThisPointSpan.apply(mText, MessageBuilder.getInstance(context)
+                mText.setText(AlignToPointSpan.apply(mText, MessageBuilder.getInstance(context)
                         .buildDisconnectWarning(message.getDate())));
                 return;
             }
-            mText.setText(AlignToThisPointSpan.apply(mText,
+            mText.setText(AlignToPointSpan.apply(mText,
                     MessageBuilder.getInstance(context).buildStatusMessage(message)));
         }
 
@@ -158,7 +154,7 @@ public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerVi
 
             this.mPosition = pos;
 
-            mText.setText(AlignToThisPointSpan.apply(mText,
+            mText.setText(AlignToPointSpan.apply(mText,
                     MessageBuilder.getInstance(mText.getContext()).buildStatusMessage(message)));
 
             boolean expanded = mAdapter.mExpandedMessages.contains(message);
