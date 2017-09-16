@@ -230,9 +230,9 @@ public class MessageFormatSettingsActivity extends ThemedActivity {
         global.setMessageTimeFormat(mMessageBuilder.getMessageTimeFormat().toPattern());
         global.setMessageTimeFixedWidth(mMessageBuilder.isMessageTimeFixedWidth());
         global.setMessageFormat(mMessageBuilder.getMessageFormat());
-        global.setMentionMessageFormat(mMessageBuilder.getMessageFormat());
+        global.setMentionMessageFormat(mMessageBuilder.getMentionMessageFormat());
         global.setActionMessageFormat(mMessageBuilder.getActionMessageFormat());
-        global.setActionMentionMessageFormat(mMessageBuilder.getActionMessageFormat());
+        global.setActionMentionMessageFormat(mMessageBuilder.getActionMentionMessageFormat());
         global.setNoticeMessageFormat(mMessageBuilder.getNoticeMessageFormat());
         global.setEventMessageFormat(mMessageBuilder.getEventMessageFormat());
         global.saveFormats();
