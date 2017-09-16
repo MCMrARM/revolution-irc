@@ -45,6 +45,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     public static final String PREF_MESSAGE_FORMAT_NOTICE = "message_format_notice";
     public static final String PREF_MESSAGE_FORMAT_EVENT = "message_format_event";
     public static final String PREF_MESSAGE_TIME_FORMAT = "message_time_format";
+    public static final String PREF_MESSAGE_TIME_FIXED_WIDTH = "message_time_fixed_width";
     public static final String PREF_NICK_AUTOCOMPLETE_SHOW_BUTTON = "nick_autocomplete_show_button";
     public static final String PREF_NICK_AUTOCOMPLETE_DOUBLE_TAP = "nick_autocomplete_double_tap";
     public static final String PREF_NICK_AUTOCOMPLETE_SUGGESTIONS = "nick_autocomplete_suggestions";

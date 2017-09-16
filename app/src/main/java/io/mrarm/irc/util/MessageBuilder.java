@@ -151,6 +151,7 @@ public class MessageBuilder {
                     SettingsHelper.PREF_MESSAGE_TIME_FORMAT, DEFAULT_TIME_FORMAT), Locale.getDefault());
         } catch (Exception ignored) {
         }
+        mMessageTimeFixedWidth = mgr.getBoolean(SettingsHelper.PREF_MESSAGE_TIME_FIXED_WIDTH, mMessageTimeFixedWidth);
         mMessageFormat = getMessageFormat(mgr, SettingsHelper.PREF_MESSAGE_FORMAT);
         if (mMessageFormat == null)
             mMessageFormat = buildDefaultMessageFormat(context);
@@ -174,6 +175,7 @@ public class MessageBuilder {
     public void saveFormats() {
         SharedPreferences.Editor mgr = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
         mgr.putString(SettingsHelper.PREF_MESSAGE_TIME_FORMAT, mMessageTimeFormat.toPattern());
+        mgr.putBoolean(SettingsHelper.PREF_MESSAGE_TIME_FIXED_WIDTH, mMessageTimeFixedWidth);
         mgr.putString(SettingsHelper.PREF_MESSAGE_FORMAT, SettingsHelper.getGson().toJson(spannableToJson(mMessageFormat)));
         mgr.putString(SettingsHelper.PREF_MESSAGE_FORMAT_MENTION, SettingsHelper.getGson().toJson(spannableToJson(mMentionMessageFormat)));
         mgr.putString(SettingsHelper.PREF_MESSAGE_FORMAT_ACTION, SettingsHelper.getGson().toJson(spannableToJson(mActionMessageFormat)));
@@ -201,6 +203,14 @@ public class MessageBuilder {
 
     public void setMessageTimeFormat(String format) {
         mMessageTimeFormat = new SimpleDateFormat(format, Locale.getDefault());
+    }
+
+    public boolean isMessageTimeFixedWidth() {
+        return mMessageTimeFixedWidth;
+    }
+
+    public void setMessageTimeFixedWidth(boolean fixedWidth) {
+        mMessageTimeFixedWidth = fixedWidth;
     }
 
     public CharSequence getMessageFormat() {
@@ -255,7 +265,7 @@ public class MessageBuilder {
         String ds = getMessageTimeFormat().format(date);
         if (!mMessageTimeFixedWidth && !addDefaultColorSpan)
             return ds;
-        SpannableString ret = new SpannableString(ds + " ");
+        SpannableString ret = new SpannableString(ds + (mMessageTimeFixedWidth ? " " : ""));
         if (mMessageTimeFixedWidth)
             ret.setSpan(new FixedWidthTimestampSpan(ds.length()), ds.length(), ret.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         if (addDefaultColorSpan)

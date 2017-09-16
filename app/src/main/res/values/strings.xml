@@ -292,6 +292,7 @@
     <string name="message_format">Format</string>
 
     <string name="message_format_date">Time format</string>
+    <string name="message_format_date_fixed_width">Fixed-width</string>
     <string name="message_format_normal">Message format</string>
     <string name="message_format_normal_mention">Message with mention format</string>
     <string name="message_format_action">Action (me) message format</string>

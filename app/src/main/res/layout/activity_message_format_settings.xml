@@ -41,9 +41,19 @@
 
             </android.support.design.widget.TextInputLayout>
 
+            <CheckBox
+                android:id="@+id/date_fixed_width"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/message_format_date_fixed_width"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin_s4"
+                android:layout_marginRight="@dimen/activity_horizontal_margin_s4" />
+
+            <View style="@style/MessageFormatSettingsDivider"
+                android:layout_marginTop="8dp" />
+
             <android.support.design.widget.TextInputLayout
-                style="@style/MessageFormatSettingsTextInputLayout"
-                android:layout_marginTop="8dp">
+                style="@style/MessageFormatSettingsTextInputLayout">
 
                 <io.mrarm.irc.view.FormattableEditText
                     android:id="@+id/message_format_normal"
