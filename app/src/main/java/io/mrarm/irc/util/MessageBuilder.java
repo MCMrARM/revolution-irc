@@ -278,14 +278,15 @@ public class MessageBuilder {
         return builder.getSpannable();
     }
 
-    private CharSequence buildColoredMessage(String msg, int color) {
+    private CharSequence buildColoredMessage(CharSequence msg, int color, boolean priority) {
         SpannableString spannable = new SpannableString(msg);
-        spannable.setSpan(new ForegroundColorSpan(color), 0, msg.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannable.setSpan(new ForegroundColorSpan(color), 0, msg.length(),
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE | (priority ? Spanned.SPAN_PRIORITY : 0));
         return spannable;
     }
 
     private CharSequence buildColoredNick(String nick) {
-        return buildColoredMessage(nick, IRCColorUtils.getNickColor(mContext, nick));
+        return buildColoredMessage(nick, IRCColorUtils.getNickColor(mContext, nick), false);
     }
 
     public CharSequence buildMessage(MessageInfo message) {
@@ -324,10 +325,12 @@ public class MessageBuilder {
                 if (message.getSender() == null)
                     return processFormat(mEventMessageFormat, message.getDate(), null,
                             SpannableStringHelper.getText(mContext, R.string.message_topic,
-                                    buildColoredMessage(message.getMessage(), IRCColorUtils.getTopicTextColor(mContext))));
+                                    buildColoredMessage(IRCColorUtils.getFormattedString(mContext,
+                                            message.getMessage()), IRCColorUtils.getTopicTextColor(mContext), true)));
                 return processFormat(mEventMessageFormat, message.getDate(), null,
                         SpannableStringHelper.getText(mContext, R.string.message_topic_by,
-                                buildColoredMessage(message.getMessage(), IRCColorUtils.getTopicTextColor(mContext)),
+                                buildColoredMessage(IRCColorUtils.getFormattedString(mContext,
+                                        message.getMessage()), IRCColorUtils.getTopicTextColor(mContext), true),
                                 buildColoredNick(senderNick)));
             case DISCONNECT_WARNING:
                 return buildDisconnectWarning(message.getDate());
@@ -500,7 +503,7 @@ public class MessageBuilder {
         for (Map.Entry<Character, Set<String>> mode : modes.entrySet()) {
             for (String val : mode.getValue()) {
                 if (mode.getKey() == 'b')
-                    appendDelim(builder, SpannableStringHelper.getText(mContext, R.string.message_mode_channel_ban, buildColoredMessage(val, IRCColorUtils.getBanMaskColor(mContext))));
+                    appendDelim(builder, SpannableStringHelper.getText(mContext, R.string.message_mode_channel_ban, buildColoredMessage(val, IRCColorUtils.getBanMaskColor(mContext), false)));
                 else
                     appendDelim(builder, SpannableStringHelper.getText(mContext, R.string.message_mode_channel_value, String.valueOf(mode.getKey()), val));
             }
