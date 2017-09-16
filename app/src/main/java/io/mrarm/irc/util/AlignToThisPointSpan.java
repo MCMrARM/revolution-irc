@@ -3,11 +3,12 @@ package io.mrarm.irc.util;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.text.Layout;
+import android.text.NoCopySpan;
 import android.text.Spannable;
 import android.text.style.LeadingMarginSpan;
 import android.widget.TextView;
 
-public class AlignToThisPointSpan implements LeadingMarginSpan {
+public class AlignToThisPointSpan implements LeadingMarginSpan, NoCopySpan {
 
     private int mOffset = 0;
     private int mMargin = 0;

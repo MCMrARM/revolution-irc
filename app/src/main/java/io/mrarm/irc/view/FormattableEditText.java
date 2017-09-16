@@ -8,6 +8,7 @@ import android.text.NoCopySpan;
 import android.text.Spanned;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,12 +86,15 @@ public class FormattableEditText extends ThemedEditText {
                 if (mSettingText)
                     return;
                 for (SpanData span : mBackedUpSpans) {
-                    if (span.start >= s.length() || span.end < 0)
-                        continue;
+                    span.start = Math.max(span.start, 0);
+                    span.end = Math.min(span.end, s.length());
                     int spanPointFlags = span.flags & Spanned.SPAN_POINT_MARK_MASK;
-                    if (span.start == span.end && (spanPointFlags == Spanned.SPAN_EXCLUSIVE_EXCLUSIVE || spanPointFlags == Spanned.SPAN_INCLUSIVE_EXCLUSIVE))
+                    if (span.start >= s.length() || span.end < 0 || span.start > span.end ||
+                            (span.start == span.end && (spanPointFlags == Spanned.SPAN_EXCLUSIVE_EXCLUSIVE || spanPointFlags == Spanned.SPAN_INCLUSIVE_EXCLUSIVE))) {
+                        s.removeSpan(span);
                         continue;
-                    s.setSpan(span.span, Math.max(span.start, 0), Math.min(span.end, s.length()), span.flags);
+                    }
+                    s.setSpan(span.span, span.start, span.end, span.flags);
                 }
                 mBackedUpSpans.clear();
             }
