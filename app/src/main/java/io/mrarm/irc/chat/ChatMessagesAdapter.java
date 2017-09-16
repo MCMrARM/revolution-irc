@@ -179,10 +179,9 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
             setSelected(selected, false);
             if (NotificationManager.getInstance().doesMessageTriggerNotitification(mFragment.getConnectionInfo(), mFragment.getChannelName(), message))
-                mText.setText(MessageBuilder.getInstance(mText.getContext()).buildMessageWithMention(message));
+                mText.setText(AlignToThisPointSpan.apply(mText, MessageBuilder.getInstance(mText.getContext()).buildMessageWithMention(message)));
             else
-                mText.setText(MessageBuilder.getInstance(mText.getContext()).buildMessage(message));
-            AlignToThisPointSpan.apply(mText);
+                mText.setText(AlignToThisPointSpan.apply(mText, MessageBuilder.getInstance(mText.getContext()).buildMessage(message)));
         }
 
     }

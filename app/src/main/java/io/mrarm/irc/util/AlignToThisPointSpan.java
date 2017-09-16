@@ -28,15 +28,16 @@ public class AlignToThisPointSpan implements LeadingMarginSpan {
         // stub
     }
 
-    public static void apply(TextView textView) {
-        if (textView.getText() == null || !(textView.getText() instanceof Spannable))
-            return;
-        Spannable text = (Spannable) textView.getText();
-        for (AlignToThisPointSpan span : text.getSpans(0, text.length(),
+    public static CharSequence apply(TextView textView, CharSequence text) {
+        if (text == null || !(text instanceof Spannable))
+            return text;
+        Spannable s = (Spannable) text;
+        for (AlignToThisPointSpan span : s.getSpans(0, text.length(),
                 AlignToThisPointSpan.class)) {
-            span.mMargin = (int) Layout.getDesiredWidth(text, 0, text.getSpanStart(span) +
+            span.mMargin = (int) Layout.getDesiredWidth(text, 0, s.getSpanStart(span) +
                             span.mOffset, textView.getPaint());
         }
+        return text;
     }
 
 }
