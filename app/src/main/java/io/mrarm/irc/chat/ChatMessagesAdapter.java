@@ -18,6 +18,7 @@ import java.util.TreeSet;
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.irc.NotificationManager;
 import io.mrarm.irc.R;
+import io.mrarm.irc.util.AlignToThisPointSpan;
 import io.mrarm.irc.util.LongPressSelectTouchListener;
 import io.mrarm.irc.util.MessageBuilder;
 import io.mrarm.irc.util.StyledAttributesHelper;
@@ -181,6 +182,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 mText.setText(MessageBuilder.getInstance(mText.getContext()).buildMessageWithMention(message));
             else
                 mText.setText(MessageBuilder.getInstance(mText.getContext()).buildMessage(message));
+            AlignToThisPointSpan.apply(mText);
         }
 
     }

@@ -17,13 +17,15 @@ public class SimpleChipDrawable extends Drawable {
     private final String mText;
     private final Paint mPaint;
     private final Drawable mBackground;
+    private final Drawable mContentDrawable;
     private int mTextWidth;
     private int mTextHeight;
     private int mDefaultTextColor;
     private Rect mTempRect = new Rect();
 
-    public SimpleChipDrawable(Context ctx, String text, boolean transparent) {
+    public SimpleChipDrawable(Context ctx, String text, Drawable content, boolean transparent) {
         mText = text;
+        mContentDrawable = content;
         StyledAttributesHelper ta = StyledAttributesHelper.obtainStyledAttributes(ctx, new int[] { android.R.attr.textAppearance });
         int resId = ta.getResourceId(android.R.attr.textAppearance, 0);
         ta.recycle();
@@ -37,8 +39,13 @@ public class SimpleChipDrawable extends Drawable {
         mPaint.setAntiAlias(true);
         mPaint.setTextAlign(Paint.Align.CENTER);
         mPaint.setTextSize(textSize);
-        mTextWidth = (int) mPaint.measureText(mText);
+        if (mText != null)
+            mTextWidth = (int) mPaint.measureText(mText);
         mTextHeight = (int) (mPaint.descent() - mPaint.ascent());
+    }
+
+    public SimpleChipDrawable(Context ctx, String text, boolean transparent) {
+        this(ctx, text, null, transparent);
     }
 
     public Paint getPaint() {
@@ -52,32 +59,47 @@ public class SimpleChipDrawable extends Drawable {
     @Override
     public int getIntrinsicWidth() {
         mBackground.getPadding(mTempRect);
-        return mBackground.getMinimumWidth() + mTempRect.left + mTempRect.right + mTextWidth;
+        return mBackground.getMinimumWidth() + mTempRect.left + mTempRect.right +
+                Math.max(mTextWidth,
+                        (mContentDrawable != null ? mContentDrawable.getIntrinsicWidth() : 0));
     }
 
     @Override
     public int getIntrinsicHeight() {
         mBackground.getPadding(mTempRect);
-        return mBackground.getMinimumHeight() + mTempRect.top + mTempRect.bottom + mTextHeight;
+        return mBackground.getMinimumHeight() + mTempRect.top + mTempRect.bottom +
+                Math.max(mTextHeight,
+                        (mContentDrawable != null ? mContentDrawable.getIntrinsicHeight() : 0));
     }
 
     @Override
     public void draw(@NonNull Canvas canvas) {
         Rect bounds = getBounds();
         mBackground.draw(canvas);
-        canvas.drawText(mText, bounds.centerX(), bounds.centerY() - (mPaint.descent() + mPaint.ascent()) / 2, mPaint);
+        if (mText != null)
+            canvas.drawText(mText, bounds.centerX(), bounds.centerY() - (mPaint.descent() + mPaint.ascent()) / 2, mPaint);
+        if (mContentDrawable != null) {
+            int cw = mContentDrawable.getIntrinsicWidth();
+            int ch = mContentDrawable.getIntrinsicHeight();
+            int cx = bounds.centerX() - cw / 2;
+            int cy = bounds.centerY() - ch / 2;
+            mContentDrawable.setBounds(cx, cy, cx + cw, cy + ch);
+            mContentDrawable.draw(canvas);
+        }
     }
 
     @Override
     public void setAlpha(int alpha) {
         mBackground.setAlpha(alpha);
-        mPaint.setAlpha(alpha);
+        if (mPaint != null)
+            mPaint.setAlpha(alpha);
     }
 
     @Override
     public void setColorFilter(@Nullable ColorFilter colorFilter) {
         mBackground.setColorFilter(colorFilter);
-        mPaint.setColorFilter(colorFilter);
+        if (mPaint != null)
+            mPaint.setColorFilter(colorFilter);
     }
 
     @Override

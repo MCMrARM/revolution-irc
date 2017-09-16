@@ -2,6 +2,9 @@ package io.mrarm.irc.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -549,8 +552,12 @@ public class MessageBuilder {
                 replacement = message;
             else if (span.mType == MetaChipSpan.TYPE_TIME)
                 replacement = createTimestamp(date, false);
+            else if (span.mType == MetaChipSpan.TYPE_WRAP_ANCHOR)
+                replacement = "";
             if (replacement != null)
                 builder.replace(builder.getSpanStart(span), builder.getSpanEnd(span), replacement);
+            if (span.mType == MetaChipSpan.TYPE_WRAP_ANCHOR)
+                builder.setSpan(new AlignToThisPointSpan(builder.getSpanStart(span)), 0, builder.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
             builder.removeSpan(span);
         }
         for (MetaForegroundColorSpan span : builder.getSpans(0, builder.length(), MetaForegroundColorSpan.class)) {
@@ -569,6 +576,7 @@ public class MessageBuilder {
         public static final int TYPE_SENDER = 0;
         public static final int TYPE_MESSAGE = 1;
         public static final int TYPE_TIME = 2;
+        public static final int TYPE_WRAP_ANCHOR = 3;
 
         public static String getTextFor(Context context, int type) {
             String text = null;
@@ -581,10 +589,16 @@ public class MessageBuilder {
             return text;
         }
 
+        public static Drawable getDrawableFor(Context ctx, int type) {
+            if (type == TYPE_WRAP_ANCHOR)
+                return ctx.getResources().getDrawable(R.drawable.ic_format_indent);
+            return null;
+        }
+
         private int mType;
 
         public MetaChipSpan(Context context, int type) {
-            super(context, getTextFor(context, type), true);
+            super(context, getTextFor(context, type), getDrawableFor(context, type), true);
             mType = type;
         }
 

@@ -86,6 +86,8 @@ public class MessageFormatSettingsActivity extends ThemedActivity {
                             insertChip(MessageBuilder.MetaChipSpan.TYPE_SENDER, " ");
                         else if (id == R.id.message_format_message)
                             insertChip(MessageBuilder.MetaChipSpan.TYPE_MESSAGE, " ");
+                        else if (id == R.id.message_format_wrap_anchor)
+                            insertChip(MessageBuilder.MetaChipSpan.TYPE_WRAP_ANCHOR, " ");
                         return false;
                     });
                     menu.show();
@@ -257,15 +259,16 @@ public class MessageFormatSettingsActivity extends ThemedActivity {
 
     public static SpannableString buildPresetMessageFormat(Context context, int preset, boolean mention) {
         if (preset == 0) {
-            SpannableString spannable = new SpannableString("   :  ");
+            SpannableString spannable = new SpannableString("  | :  ");
             spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_TIMESTAMP), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
-            spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_SENDER), 2, 4, MessageBuilder.FORMAT_SPAN_FLAGS);
+            spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_SENDER), 3, 5, MessageBuilder.FORMAT_SPAN_FLAGS);
             spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_TIME), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
-            spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_SENDER), 2, 3, MessageBuilder.FORMAT_SPAN_FLAGS);
-            spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_MESSAGE), 5, 6, MessageBuilder.FORMAT_SPAN_FLAGS);
+            spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_SENDER), 3, 4, MessageBuilder.FORMAT_SPAN_FLAGS);
+            spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_MESSAGE), 6, 7, MessageBuilder.FORMAT_SPAN_FLAGS);
+            spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_WRAP_ANCHOR), 2, 3, MessageBuilder.FORMAT_SPAN_FLAGS);
             if (mention) {
-                spannable.setSpan(new StyleSpan(Typeface.BOLD), 2, 3, MessageBuilder.FORMAT_SPAN_FLAGS);
-                spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_SENDER),  5, 6, MessageBuilder.FORMAT_SPAN_FLAGS);
+                spannable.setSpan(new StyleSpan(Typeface.BOLD), 3, 4, MessageBuilder.FORMAT_SPAN_FLAGS);
+                spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_SENDER),  6, 7, MessageBuilder.FORMAT_SPAN_FLAGS);
             }
             return spannable;
         }

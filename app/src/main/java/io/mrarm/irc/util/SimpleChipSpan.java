@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.text.Spanned;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
@@ -14,6 +15,11 @@ public class SimpleChipSpan extends ImageSpan {
 
     public SimpleChipSpan(Context context, String text, boolean transparent) {
         super(new SimpleChipDrawable(context, text, transparent));
+        getDrawable().setBounds(0, 0, getDrawable().getIntrinsicWidth(), getDrawable().getIntrinsicHeight());
+    }
+
+    public SimpleChipSpan(Context context, String text, Drawable drawable, boolean transparent) {
+        super(new SimpleChipDrawable(context, text, drawable, transparent));
         getDrawable().setBounds(0, 0, getDrawable().getIntrinsicWidth(), getDrawable().getIntrinsicHeight());
     }
 
@@ -44,11 +50,13 @@ public class SimpleChipSpan extends ImageSpan {
                     style |= ((StyleSpan) o).getStyle();
                 }
             }
-            if (fgColor != -1)
-                myPaint.setColor(fgColor);
-            else
-                chipDrawable.setDefaultTextColor();
-            myPaint.setTypeface(Typeface.create(Typeface.DEFAULT, style));
+            if (myPaint != null) {
+                if (fgColor != -1)
+                    myPaint.setColor(fgColor);
+                else
+                    chipDrawable.setDefaultTextColor();
+                myPaint.setTypeface(Typeface.create(Typeface.DEFAULT, style));
+            }
         }
         super.draw(canvas, text, start, end, x, top, y, bottom, paint);
     }
