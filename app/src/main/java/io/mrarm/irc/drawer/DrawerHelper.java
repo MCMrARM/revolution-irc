@@ -4,23 +4,20 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.OnApplyWindowInsetsListener;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.view.WindowInsetsCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import io.mrarm.irc.MainActivity;
 import io.mrarm.irc.NotificationManager;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
 import io.mrarm.irc.SettingsActivity;
+import io.mrarm.irc.dialog.ChannelSearchDialog;
 
 public class DrawerHelper implements ServerConnectionManager.ConnectionsListener,
         ServerConnectionInfo.InfoChangeListener, ServerConnectionInfo.ChannelListChangeListener,
@@ -48,7 +45,8 @@ public class DrawerHelper implements ServerConnectionManager.ConnectionsListener
 
         mSearchItem = new DrawerMenuItem(r.getString(R.string.action_search), R.drawable.ic_search_white);
         mSearchItem.setOnClickListener((View view) -> {
-            ChannelSearchDialog dialog = new ChannelSearchDialog(activity);
+            ChannelSearchDialog dialog = new ChannelSearchDialog(activity,
+                    ((MainActivity) activity)::openServer);
             dialog.show();
             mDrawerLayout.closeDrawers();
         });

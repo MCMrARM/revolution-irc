@@ -202,6 +202,10 @@ public class ChatFragmentSendMessageHelper {
         mSendContainer.setVisibility(mFragment.getConnectionInfo().isConnected() ? View.VISIBLE : View.GONE);
     }
 
+    public void setMessageText(String text) {
+        mSendText.setText(text);
+    }
+
     public void sendMessage() {
         String text = IRCColorUtils.convertSpannableToIRCString(mContext, mSendText.getText());
         if (text.length() == 0 || !mFragment.getConnectionInfo().isConnected())

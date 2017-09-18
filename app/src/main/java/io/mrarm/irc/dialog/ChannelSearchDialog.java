@@ -1,4 +1,4 @@
-package io.mrarm.irc.drawer;
+package io.mrarm.irc.dialog;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -25,7 +25,7 @@ public class ChannelSearchDialog extends SearchDialog {
 
     private SuggestionsAdapter mAdapter;
 
-    public ChannelSearchDialog(@NonNull Context context) {
+    public ChannelSearchDialog(@NonNull Context context, ChannelSelectedListener listener) {
         super(context);
         StyledAttributesHelper ta = StyledAttributesHelper.obtainStyledAttributes(context,
                 new int[] { R.attr.colorBackgroundFloating, android.R.attr.textColorSecondary });
@@ -36,7 +36,8 @@ public class ChannelSearchDialog extends SearchDialog {
 
         mAdapter = new SuggestionsAdapter(secondaryTextColor, highlightTextColor);
         mAdapter.setItemClickListener((int index, Pair<ServerConnectionInfo, String> value) ->{
-            ((MainActivity) getOwnerActivity()).openServer(value.first, value.second);
+            if (listener != null)
+                listener.onChannelSelected(value.first, value.second);
             dismiss();
         });
         setSuggestionsAdapter(mAdapter);
@@ -100,6 +101,12 @@ public class ChannelSearchDialog extends SearchDialog {
                 mText.setText(str);
             }
         }
+
+    }
+
+    public interface ChannelSelectedListener {
+
+        void onChannelSelected(ServerConnectionInfo server, String channel);
 
     }
 

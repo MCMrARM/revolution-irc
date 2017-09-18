@@ -30,6 +30,7 @@ import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.irc.chat.ChatFragment;
 import io.mrarm.irc.dialog.ThemedAlertDialog;
 import io.mrarm.irc.dialog.UserSearchDialog;
+import io.mrarm.irc.dialog.ChannelSearchDialog;
 import io.mrarm.irc.drawer.DrawerHelper;
 import io.mrarm.irc.util.NightModeRecreateHelper;
 import io.mrarm.irc.config.SettingsHelper;
@@ -98,6 +99,22 @@ public class MainActivity extends ThemedActivity {
 
         if (savedInstanceState != null && savedInstanceState.getString(ARG_SERVER_UUID) != null)
             return;
+
+        if (Intent.ACTION_SEND.equals(getIntent().getAction()) && "text/plain".equals(
+                getIntent().getType())) {
+            final String text = getIntent().getStringExtra(Intent.EXTRA_TEXT);
+            new ChannelSearchDialog(this, (ServerConnectionInfo server, String channel) -> {
+                ChatFragment fragment = openServer(server, channel);
+                if (fragment.getSendMessageHelper() != null) {
+                    fragment.getSendMessageHelper().setMessageText(text);
+                } else {
+                    Bundle bundle = fragment.getArguments();
+                    bundle.putString(ChatFragment.ARG_SEND_MESSAGE_TEXT, text);
+                    fragment.setArguments(bundle);
+                }
+            }).show();
+            return;
+        }
 
         String serverUUID = getIntent().getStringExtra(ARG_SERVER_UUID);
         if (serverUUID != null) {
@@ -210,24 +227,28 @@ public class MainActivity extends ThemedActivity {
         toggle.onDrawerClosed(mDrawerLayout);
     }
 
-    public void openServer(ServerConnectionInfo server, String channel, boolean fromServerList) {
+    public ChatFragment openServer(ServerConnectionInfo server, String channel, boolean fromServerList) {
+        ChatFragment fragment;
         if (getCurrentFragment() instanceof ChatFragment &&
                 ((ChatFragment) getCurrentFragment()).getConnectionInfo() == server) {
-            ((ChatFragment) getCurrentFragment()).setCurrentChannel(channel);
-            ((ChatFragment) getCurrentFragment()).closeDrawer();
+            fragment = (ChatFragment) getCurrentFragment();
+            fragment.setCurrentChannel(channel);
+            fragment.closeDrawer();
         } else {
+            fragment = ChatFragment.newInstance(server, channel);
             getSupportFragmentManager().beginTransaction()
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                    .replace(R.id.content_frame, ChatFragment.newInstance(server, channel))
+                    .replace(R.id.content_frame, fragment)
                     .commit();
         }
         mDrawerHelper.setSelectedChannel(server, channel);
         if (fromServerList)
             mBackReturnToServerList = true;
+        return fragment;
     }
 
-    public void openServer(ServerConnectionInfo server, String channel) {
-        openServer(server, channel, false);
+    public ChatFragment openServer(ServerConnectionInfo server, String channel) {
+        return openServer(server, channel, false);
     }
 
     public void openManageServers() {

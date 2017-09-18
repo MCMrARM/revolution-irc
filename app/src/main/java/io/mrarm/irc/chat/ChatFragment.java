@@ -38,8 +38,9 @@ public class ChatFragment extends Fragment implements
         NotificationManager.UnreadMessageCountCallback,
         SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private static final String ARG_SERVER_UUID = "server_uuid";
-    private static final String ARG_CHANNEL_NAME = "channel";
+    public static final String ARG_SERVER_UUID = "server_uuid";
+    public static final String ARG_CHANNEL_NAME = "channel";
+    public static final String ARG_SEND_MESSAGE_TEXT = "message_text";
 
     private ServerConnectionInfo mConnectionInfo;
 
@@ -148,6 +149,9 @@ public class ChatFragment extends Fragment implements
         });
 
         mSendHelper = new ChatFragmentSendMessageHelper(this, rootView);
+        String sendText = getArguments().getString(ARG_SEND_MESSAGE_TEXT);
+        if (sendText != null)
+            mSendHelper.setMessageText(sendText);
 
         SettingsHelper s = SettingsHelper.getInstance(getContext());
         s.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_APPBAR_COMPACT_MODE, this);
