@@ -23,13 +23,15 @@ public class IRCChooserTargetService extends ChooserTargetService {
     private static long sSetTime;
 
     public static void setChannel(UUID server, String channel) {
+        if (channel == null)
+            return;
         sServer = server;
         sChannel = channel;
         sSetTime = System.currentTimeMillis();
     }
 
     public static void unsetChannel(UUID server, String channel) {
-        if (server == sServer && channel.equals(sChannel)) {
+        if (server == sServer && channel != null && channel.equals(sChannel)) {
             sServer = null;
             sChannel = channel;
         }

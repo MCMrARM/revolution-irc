@@ -216,6 +216,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         super.onResume();
         if (getUserVisibleHint())
             mConnection.getNotificationManager().getChannelManager(mChannelName, true).setOpened(getContext(), true);
+        if (mConnection != null && getUserVisibleHint())
+            IRCChooserTargetService.setChannel(mConnection.getUUID(), mChannelName);
     }
 
     @Override
@@ -223,6 +225,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         super.onPause();
         if (getUserVisibleHint())
             mConnection.getNotificationManager().getChannelManager(mChannelName, true).setOpened(getContext(), false);
+        if (mConnection != null && getUserVisibleHint())
+            IRCChooserTargetService.setChannel(mConnection.getUUID(), mChannelName);
     }
 
     @Override
