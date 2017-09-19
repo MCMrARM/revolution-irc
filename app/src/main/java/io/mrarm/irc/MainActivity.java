@@ -100,28 +100,38 @@ public class MainActivity extends ThemedActivity {
         if (savedInstanceState != null && savedInstanceState.getString(ARG_SERVER_UUID) != null)
             return;
 
+        String serverUUID = getIntent().getStringExtra(ARG_SERVER_UUID);
+        ChatFragment fragment = null;
+        if (serverUUID != null) {
+            ServerConnectionInfo server = ServerConnectionManager.getInstance(this).getConnection(UUID.fromString(serverUUID));
+            fragment = openServer(server, getIntent().getStringExtra(ARG_CHANNEL_NAME));
+        }
+
         if (Intent.ACTION_SEND.equals(getIntent().getAction()) && "text/plain".equals(
                 getIntent().getType())) {
             final String text = getIntent().getStringExtra(Intent.EXTRA_TEXT);
+            if (fragment != null) {
+                setFragmentShareText(fragment, text);
+                return;
+            }
             new ChannelSearchDialog(this, (ServerConnectionInfo server, String channel) -> {
-                ChatFragment fragment = openServer(server, channel);
-                if (fragment.getSendMessageHelper() != null) {
-                    fragment.getSendMessageHelper().setMessageText(text);
-                } else {
-                    Bundle bundle = fragment.getArguments();
-                    bundle.putString(ChatFragment.ARG_SEND_MESSAGE_TEXT, text);
-                    fragment.setArguments(bundle);
-                }
+                ChatFragment openedFragment = openServer(server, channel);
+                setFragmentShareText(openedFragment, text);
             }).show();
             return;
         }
 
-        String serverUUID = getIntent().getStringExtra(ARG_SERVER_UUID);
-        if (serverUUID != null) {
-            ServerConnectionInfo server = ServerConnectionManager.getInstance(this).getConnection(UUID.fromString(serverUUID));
-            openServer(server, getIntent().getStringExtra(ARG_CHANNEL_NAME));
-        } else {
+        if (fragment == null)
             openManageServers();
+    }
+
+    private void setFragmentShareText(ChatFragment fragment, String text) {
+        if (fragment.getSendMessageHelper() != null) {
+            fragment.getSendMessageHelper().setMessageText(text);
+        } else {
+            Bundle bundle = fragment.getArguments();
+            bundle.putString(ChatFragment.ARG_SEND_MESSAGE_TEXT, text);
+            fragment.setArguments(bundle);
         }
     }
 

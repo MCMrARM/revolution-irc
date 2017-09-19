@@ -34,6 +34,7 @@ import io.mrarm.chatlib.dto.StatusMessageInfo;
 import io.mrarm.chatlib.dto.StatusMessageList;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.chatlib.message.MessageListener;
+import io.mrarm.irc.IRCChooserTargetService;
 import io.mrarm.irc.MainActivity;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
@@ -83,6 +84,12 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         }
         if (mConnection != null && mChannelName != null) {
             mConnection.getNotificationManager().getChannelManager(mChannelName, true).setOpened(getContext(), isVisibleToUser);
+        }
+        if (mConnection != null) {
+            if (isVisibleToUser)
+                IRCChooserTargetService.setChannel(mConnection.getUUID(), mChannelName);
+            else
+                IRCChooserTargetService.unsetChannel(mConnection.getUUID(), mChannelName);
         }
     }
 
@@ -244,6 +251,9 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             mConnection.getApiInstance().getMessageStorageApi().unsubscribeChannelMessages(getArguments().getString(ARG_CHANNEL_NAME), ChatMessagesFragment.this, null, null);
         if (mNeedsUnsubscribeStatusMessages)
             mConnection.getApiInstance().unsubscribeStatusMessages(ChatMessagesFragment.this, null, null);
+
+        if (mConnection != null && getUserVisibleHint())
+            IRCChooserTargetService.unsetChannel(mConnection.getUUID(), mChannelName);
     }
 
     public ServerConnectionInfo getConnectionInfo() {
