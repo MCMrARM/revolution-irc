@@ -131,7 +131,7 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
                 .setContentIntent(intent)
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setSmallIcon(R.drawable.ic_message)
+                .setSmallIcon(R.drawable.ic_notification_message)
                 .setCustomContentView(notificationsView)
                 .setCustomBigContentView(notificationsViewBig)
                 .setGroup(NotificationManager.NOTIFICATION_GROUP_CHAT)
