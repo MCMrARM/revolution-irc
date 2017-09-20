@@ -26,6 +26,7 @@ import java.util.UUID;
 import io.mrarm.chatlib.ChannelInfoListener;
 import io.mrarm.chatlib.StatusMessageListener;
 import io.mrarm.chatlib.dto.ChannelInfo;
+import io.mrarm.chatlib.dto.MessageFilterOptions;
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.dto.MessageList;
 import io.mrarm.chatlib.dto.MessageListAfterIdentifier;
@@ -113,6 +114,10 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         return fragment;
     }
 
+    private MessageFilterOptions getFilterOptions() {
+        return null;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -138,7 +143,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                     Log.i(TAG, "Load more: " + channelName);
                     mIsLoadingMore = true;
                     connectionInfo.getApiInstance().getMessageStorageApi().getMessages(channelName,
-                            100, mLoadMoreIdentifier, (MessageList messages) -> {
+                            100, getFilterOptions(), mLoadMoreIdentifier,
+                            (MessageList messages) -> {
                                 mRecyclerView.post(() -> {
                                     mAdapter.addMessagesToTop(messages.getMessages());
                                     mLoadMoreIdentifier = messages.getAfterIdentifier();
@@ -169,8 +175,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             connectionInfo.getApiInstance().subscribeChannelInfo(channelName, this, null, null);
             mNeedsUnsubscribeChannelInfo = true;
 
-            connectionInfo.getApiInstance().getMessageStorageApi().getMessages(channelName, 100, null,
-                    (MessageList messages) -> {
+            connectionInfo.getApiInstance().getMessageStorageApi().getMessages(channelName, 100,
+                    getFilterOptions(), null, (MessageList messages) -> {
                         Log.i(TAG, "Got message list for " + channelName + ": " +
                                 messages.getMessages().size() + " messages");
                         mMessages = messages.getMessages();
