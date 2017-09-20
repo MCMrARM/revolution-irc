@@ -37,6 +37,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     public static final String PREF_CHAT_FONT = "chat_font";
     public static final String PREF_CHAT_FONT_SIZE = "chat_font_size";
     public static final String PREF_CHAT_TEXT_AUTOCORRECT = "chat_text_autocorrect";
+    public static final String PREF_CHAT_HIDE_JOIN_PART = "chat_hide_join_part";
     public static final String PREF_CHAT_APPBAR_COMPACT_MODE = "chat_appbar_compact_mode";
     public static final String PREF_MESSAGE_FORMAT = "message_format";
     public static final String PREF_MESSAGE_FORMAT_MENTION = "message_format_mention";
@@ -217,6 +218,10 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
 
     public boolean isChatAutocorrectEnabled() {
         return mPreferences.getBoolean(PREF_CHAT_TEXT_AUTOCORRECT, true);
+    }
+
+    public boolean shouldHideJoinPartMessages() {
+        return mPreferences.getBoolean(PREF_CHAT_HIDE_JOIN_PART, false);
     }
 
     public String getChatAppbarCompactMode() {

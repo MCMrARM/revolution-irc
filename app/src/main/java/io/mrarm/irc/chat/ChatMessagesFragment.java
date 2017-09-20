@@ -57,6 +57,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
 
     private static final int LOAD_MORE_BEFORE_INDEX = 10;
 
+    private static final MessageFilterOptions sFilterJoinParts;
+
     private List<NickWithPrefix> mMembers = null;
 
     private ServerConnectionInfo mConnection;
@@ -72,6 +74,15 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     private boolean mNeedsUnsubscribeStatusMessages = false;
     private MessageListAfterIdentifier mLoadMoreIdentifier;
     private boolean mIsLoadingMore;
+    private MessageFilterOptions mMessageFilterOptions;
+
+    static {
+        sFilterJoinParts = new MessageFilterOptions();
+        sFilterJoinParts.excludeMessageTypes = new ArrayList<>();
+        sFilterJoinParts.excludeMessageTypes.add(MessageInfo.MessageType.JOIN);
+        sFilterJoinParts.excludeMessageTypes.add(MessageInfo.MessageType.PART);
+        sFilterJoinParts.excludeMessageTypes.add(MessageInfo.MessageType.QUIT);
+    }
 
     public ChatMessagesFragment() {
     }
@@ -115,7 +126,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     }
 
     private MessageFilterOptions getFilterOptions() {
-        return null;
+        return mMessageFilterOptions;
     }
 
     @Override
@@ -175,20 +186,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             connectionInfo.getApiInstance().subscribeChannelInfo(channelName, this, null, null);
             mNeedsUnsubscribeChannelInfo = true;
 
-            connectionInfo.getApiInstance().getMessageStorageApi().getMessages(channelName, 100,
-                    getFilterOptions(), null, (MessageList messages) -> {
-                        Log.i(TAG, "Got message list for " + channelName + ": " +
-                                messages.getMessages().size() + " messages");
-                        mMessages = messages.getMessages();
-                        mNeedsUnsubscribeMessages = true;
-                        mRecyclerView.post(() -> {
-                            mAdapter.setMessages(mMessages);
-                            mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
-                            mLoadMoreIdentifier = messages.getAfterIdentifier();
-                        });
-
-                        connectionInfo.getApiInstance().getMessageStorageApi().subscribeChannelMessages(channelName, ChatMessagesFragment.this, null, null);
-                    }, null);
+            reloadMessages(settingsHelper);
         } else if (getArguments().getBoolean(ARG_DISPLAY_STATUS)) {
             mStatusAdapter = new ServerStatusMessagesAdapter(new StatusMessageList(new ArrayList<>()));
             mStatusAdapter.setMessageFont(settingsHelper.getChatFont(), settingsHelper.getChatFontSize());
@@ -213,8 +211,33 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         SettingsHelper s = SettingsHelper.getInstance(getContext());
         s.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT, this);
         s.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT_SIZE, this);
+        s.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_HIDE_JOIN_PART, this);
 
         return rootView;
+    }
+
+    private void reloadMessages(SettingsHelper settingsHelper) {
+        if (settingsHelper.shouldHideJoinPartMessages())
+            mMessageFilterOptions = sFilterJoinParts;
+        else
+            mMessageFilterOptions = null;
+        mMessages = null;
+        mConnection.getApiInstance().getMessageStorageApi().getMessages(mChannelName, 100,
+                getFilterOptions(), null, (MessageList messages) -> {
+                    Log.i(TAG, "Got message list for " + mChannelName + ": " +
+                            messages.getMessages().size() + " messages");
+                    mMessages = messages.getMessages();
+                    mRecyclerView.post(() -> {
+                        mAdapter.setMessages(mMessages);
+                        mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
+                        mLoadMoreIdentifier = messages.getAfterIdentifier();
+                    });
+
+                    if (!mNeedsUnsubscribeMessages) {
+                        mConnection.getApiInstance().getMessageStorageApi().subscribeChannelMessages(mChannelName, ChatMessagesFragment.this, null, null);
+                        mNeedsUnsubscribeMessages = true;
+                    }
+                }, null);
     }
 
     @Override
@@ -245,6 +268,10 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         if (mStatusAdapter != null) {
             mStatusAdapter.setMessageFont(settingsHelper.getChatFont(), settingsHelper.getChatFontSize());
             mStatusAdapter.notifyDataSetChanged();
+        }
+        if (settingsHelper.shouldHideJoinPartMessages() != (mMessageFilterOptions != null) &&
+                mChannelName != null) {
+            reloadMessages(settingsHelper);
         }
     }
 

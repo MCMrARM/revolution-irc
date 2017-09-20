@@ -62,6 +62,9 @@ public class InterfaceSettingsFragment extends SettingsListFragment
                 .linkPreference(prefs, SettingsHelper.PREF_CHAT_FONT));
         a.add(new FontSizeSetting(getString(R.string.pref_title_font_size), -1)
                 .linkPreference(prefs, SettingsHelper.PREF_CHAT_FONT_SIZE));
+        a.add(new CheckBoxSetting(getString(R.string.pref_title_hide_join_part),
+                getString(R.string.pref_summary_hide_join_part), false)
+                .linkPreference(prefs, SettingsHelper.PREF_CHAT_HIDE_JOIN_PART));
         a.add(new CheckBoxSetting(getString(R.string.pref_title_autocorrect),
                 getString(R.string.pref_summary_autocorrect), true)
                 .linkPreference(prefs, SettingsHelper.PREF_CHAT_TEXT_AUTOCORRECT));
