@@ -31,6 +31,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     public static final String PREF_RECONNECT_INTERVAL = "reconnect_interval";
     public static final String PREF_RECONNECT_REJOIN_CHANNELS = "reconnect_rejoin_channels";
     public static final String PREF_DARK_THEME = "dark_theme";
+    public static final String PREF_DRAWER_PINNED = "drawer_pinned";
     public static final String PREF_COLOR_PREFIX = "color_";
     public static final String PREF_COLOR_PRIMARY = PREF_COLOR_PREFIX + "primary";
     public static final String PREF_COLOR_ACCENT = PREF_COLOR_PREFIX + "accent";
@@ -190,6 +191,16 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
 
     public boolean isNightModeEnabled() {
         return mPreferences.getBoolean(PREF_DARK_THEME, false);
+    }
+
+    public boolean isDrawerPinned() {
+        return mPreferences.getBoolean(PREF_DRAWER_PINNED, false);
+    }
+
+    public void setDrawerPinned(boolean pinned) {
+        mPreferences.edit()
+                .putBoolean(PREF_DRAWER_PINNED, pinned)
+                .apply();
     }
 
     public Typeface getChatFont() {

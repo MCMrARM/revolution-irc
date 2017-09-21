@@ -97,6 +97,9 @@ public class MainActivity extends ThemedActivity {
             openManageServers();
         });
 
+        if (SettingsHelper.getInstance(this).isDrawerPinned())
+            mDrawerLayout.setLocked(true);
+
         if (savedInstanceState != null && savedInstanceState.getString(ARG_SERVER_UUID) != null)
             return;
 

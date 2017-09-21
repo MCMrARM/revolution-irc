@@ -23,6 +23,7 @@ import io.mrarm.irc.ChannelNotificationManager;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
+import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.util.ExpandIconStateHelper;
 import io.mrarm.irc.util.StyledAttributesHelper;
 import io.mrarm.irc.util.ThemeHelper;
@@ -298,6 +299,7 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             pinIcon.setSelected(mDrawerLayout.isLocked());
             pinIcon.setOnClickListener((View view) -> {
                 mDrawerLayout.setLocked(!mDrawerLayout.isLocked());
+                SettingsHelper.getInstance(mContext).setDrawerPinned(mDrawerLayout.isLocked());
                 pinIcon.setSelected(mDrawerLayout.isLocked());
             });
         }
