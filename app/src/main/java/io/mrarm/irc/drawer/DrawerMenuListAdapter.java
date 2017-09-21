@@ -26,6 +26,7 @@ import io.mrarm.irc.ServerConnectionManager;
 import io.mrarm.irc.util.ExpandIconStateHelper;
 import io.mrarm.irc.util.StyledAttributesHelper;
 import io.mrarm.irc.util.ThemeHelper;
+import io.mrarm.irc.view.LockableDrawerLayout;
 
 public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -36,6 +37,7 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private static final int TYPE_MENU_ITEM = 4;
 
     private Context mContext;
+    private LockableDrawerLayout mDrawerLayout;
     private List<ServerConnectionInfo> mServers;
     private ArrayList<DrawerMenuItem> mMenuItems = new ArrayList<>();
     private ArrayList<DrawerMenuItem> mTopMenuItems = new ArrayList<>();
@@ -52,8 +54,9 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private int mHeaderPaddingTop = 0;
     private int mCounterWidestLetter = -1;
 
-    public DrawerMenuListAdapter(Context context) {
+    public DrawerMenuListAdapter(Context context, LockableDrawerLayout drawerLayout) {
         mContext = context;
+        mDrawerLayout = drawerLayout;
         notifyServerListChanged();
 
         StyledAttributesHelper ta = StyledAttributesHelper.obtainStyledAttributes(context,
@@ -204,7 +207,7 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         if (viewType == TYPE_DRAWER_HEADER) {
             View view = LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.drawer_header, viewGroup, false);
-            return new SimpleViewHolder(view);
+            return new DrawerHeaderViewHolder(view);
         } else if (viewType == TYPE_DIVIDER) {
             View view = LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.drawer_divider, viewGroup, false);
@@ -283,6 +286,20 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
         public SimpleViewHolder(View v) {
             super(v);
+        }
+
+    }
+
+    public class DrawerHeaderViewHolder extends RecyclerView.ViewHolder {
+
+        public DrawerHeaderViewHolder(View v) {
+            super(v);
+            View pinIcon = v.findViewById(R.id.pin_icon);
+            pinIcon.setSelected(mDrawerLayout.isLocked());
+            pinIcon.setOnClickListener((View view) -> {
+                mDrawerLayout.setLocked(!mDrawerLayout.isLocked());
+                pinIcon.setSelected(mDrawerLayout.isLocked());
+            });
         }
 
     }

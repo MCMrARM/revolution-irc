@@ -24,6 +24,10 @@ public class LockableDrawerLayout extends DrawerLayout {
         super(context, attrs, defStyle);
     }
 
+    public boolean isLocked() {
+        return mLocked;
+    }
+
     public void setLocked(boolean locked) {
         mLocked = locked;
         if (locked) {
@@ -31,6 +35,7 @@ public class LockableDrawerLayout extends DrawerLayout {
             setScrimColor(Color.TRANSPARENT);
         } else {
             setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+            setScrimColor(0x99000000);
         }
         requestLayout();
     }

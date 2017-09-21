@@ -18,13 +18,14 @@ import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
 import io.mrarm.irc.SettingsActivity;
 import io.mrarm.irc.dialog.ChannelSearchDialog;
+import io.mrarm.irc.view.LockableDrawerLayout;
 
 public class DrawerHelper implements ServerConnectionManager.ConnectionsListener,
         ServerConnectionInfo.InfoChangeListener, ServerConnectionInfo.ChannelListChangeListener,
         NotificationManager.UnreadMessageCountCallback {
 
     private Activity mActivity;
-    private DrawerLayout mDrawerLayout;
+    private LockableDrawerLayout mDrawerLayout;
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
     private DrawerMenuListAdapter mAdapter;
@@ -41,7 +42,7 @@ public class DrawerHelper implements ServerConnectionManager.ConnectionsListener
 
         Resources r = activity.getResources();
 
-        mAdapter = new DrawerMenuListAdapter(activity);
+        mAdapter = new DrawerMenuListAdapter(activity, mDrawerLayout);
 
         mSearchItem = new DrawerMenuItem(r.getString(R.string.action_search), R.drawable.ic_search_white);
         mSearchItem.setOnClickListener((View view) -> {
