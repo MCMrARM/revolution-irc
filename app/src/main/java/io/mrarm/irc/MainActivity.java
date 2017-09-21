@@ -8,7 +8,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 
@@ -37,6 +36,7 @@ import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.util.StyledAttributesHelper;
 import io.mrarm.irc.util.WarningHelper;
 import io.mrarm.irc.view.ChipsEditText;
+import io.mrarm.irc.view.LockableDrawerLayout;
 
 public class MainActivity extends ThemedActivity {
 
@@ -46,7 +46,7 @@ public class MainActivity extends ThemedActivity {
     public static final String ARG_CHANNEL_NAME = "channel";
 
     private NightModeRecreateHelper mNightModeHelper = new NightModeRecreateHelper(this);
-    private DrawerLayout mDrawerLayout;
+    private LockableDrawerLayout mDrawerLayout;
     private DrawerHelper mDrawerHelper;
     private Toolbar mToolbar;
     private View mFakeToolbar;
@@ -96,6 +96,8 @@ public class MainActivity extends ThemedActivity {
             mDrawerLayout.closeDrawers();
             openManageServers();
         });
+
+        mDrawerLayout.setLocked(true);
 
         if (savedInstanceState != null && savedInstanceState.getString(ARG_SERVER_UUID) != null)
             return;
