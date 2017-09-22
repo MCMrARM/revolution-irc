@@ -8,7 +8,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 
 import android.os.Bundle;
@@ -233,11 +232,9 @@ public class MainActivity extends ThemedActivity {
     }
 
     public void addActionBarDrawerToggle(Toolbar toolbar) {
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, mDrawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        LockableDrawerLayout.ActionBarDrawerToggle toggle = new LockableDrawerLayout.ActionBarDrawerToggle(
+                toolbar, mDrawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         // mDrawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
-        toggle.onDrawerClosed(mDrawerLayout);
     }
 
     public ChatFragment openServer(ServerConnectionInfo server, String channel, boolean fromServerList) {
