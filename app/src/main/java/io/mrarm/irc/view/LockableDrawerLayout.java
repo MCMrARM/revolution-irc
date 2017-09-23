@@ -2,19 +2,27 @@ package io.mrarm.irc.view;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Parcelable;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.graphics.drawable.DrawerArrowDrawable;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 
-import io.mrarm.irc.drawer.DrawerNavigationView;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class LockableDrawerLayout extends DrawerLayout {
 
+    private boolean mLockable = false;
     private boolean mLocked = false;
+    private List<WeakReference<LockableStateListener>> mLockableListener = new ArrayList<>();
 
     public LockableDrawerLayout(Context context) {
         super(context);
@@ -28,34 +36,95 @@ public class LockableDrawerLayout extends DrawerLayout {
         super(context, attrs, defStyle);
     }
 
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        super.onRestoreInstanceState(state);
+        setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+    }
+
+    /**
+     * Adds a lockable state listener, as a weak reference.
+     */
+    public void addLockableStateListener(LockableStateListener listener) {
+        mLockableListener.add(new WeakReference<>(listener));
+    }
+
+    public boolean isLockable() {
+        return mLockable;
+    }
+
     public boolean isLocked() {
         return mLocked;
     }
 
+    public boolean isCurrentlyLocked() {
+        return mLocked && mLockable;
+    }
+
     public void setLocked(boolean locked) {
         mLocked = locked;
-        if (locked) {
+        updateLockState();
+    }
+
+    private void updateLockState() {
+        if (isCurrentlyLocked()) {
+            if (getDrawerLockMode(Gravity.START) == DrawerLayout.LOCK_MODE_LOCKED_OPEN)
+                return;
+            openDrawer(Gravity.START, false);
             setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN);
             setScrimColor(Color.TRANSPARENT);
+            Log.d("Test", "Currently locked");
         } else {
+            if (getDrawerLockMode(Gravity.START) == DrawerLayout.LOCK_MODE_UNLOCKED)
+                return;
+            closeDrawer(Gravity.START, false);
             setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             setScrimColor(0x99000000);
+            Log.d("Test", "Currently not locked");
         }
         requestLayout();
+        Iterator<WeakReference<LockableStateListener>> iterator = mLockableListener.iterator();
+        while (iterator.hasNext()) {
+            LockableStateListener listener = iterator.next().get();
+            if (listener != null)
+                listener.onLockableStateChanged(isCurrentlyLocked());
+            else
+                iterator.remove();
+        }
+    }
+
+    private int getDrawerWidth() {
+        for (int i = getChildCount() - 1; i >= 0; --i) {
+            View child = getChildAt(i);
+            LayoutParams p = (LayoutParams) child.getLayoutParams();
+            int hg = p.gravity & GravityCompat.RELATIVE_HORIZONTAL_GRAVITY_MASK;
+            if (hg == GravityCompat.START)
+                return child.getMeasuredWidth();
+        }
+        return 0;
     }
 
     @Override
     public void closeDrawers() {
-        if (mLocked)
+        if (isCurrentlyLocked())
             return;
         super.closeDrawers();
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+        mLockable = MeasureSpec.getSize(widthMeasureSpec) >= getDrawerWidth() * 2;
+        if (mLocked)
+            updateLockState();
     }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
 
-        if (mLocked) {
+        if (isCurrentlyLocked()) {
             int ml = 0, mr = 0;
             for (int i = getChildCount() - 1; i >= 0; --i) {
                 View child = getChildAt(i);
@@ -85,7 +154,7 @@ public class LockableDrawerLayout extends DrawerLayout {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-        if (mLocked)
+        if (isCurrentlyLocked())
             return false;
         return super.onInterceptTouchEvent(event);
     }
@@ -109,9 +178,9 @@ public class LockableDrawerLayout extends DrawerLayout {
                     ? closeTextId : openTextId);
             toolbar.setNavigationOnClickListener((View view) -> {
                 if (drawerLayout.isDrawerOpen(Gravity.START))
-                    drawerLayout.closeDrawer(Gravity.START, !drawerLayout.isLocked());
+                    drawerLayout.closeDrawer(Gravity.START, !drawerLayout.isCurrentlyLocked());
                 else
-                    drawerLayout.openDrawer(Gravity.START, !drawerLayout.isLocked());
+                    drawerLayout.openDrawer(Gravity.START, !drawerLayout.isCurrentlyLocked());
                 drawerLayout.requestLayout();
             });
             mOpenTextId = openTextId;
@@ -139,6 +208,12 @@ public class LockableDrawerLayout extends DrawerLayout {
         @Override
         public void onDrawerStateChanged(int newState) {
         }
+
+    }
+
+    public interface LockableStateListener {
+
+        void onLockableStateChanged(boolean lockable);
 
     }
 

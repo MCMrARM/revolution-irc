@@ -291,17 +291,27 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     }
 
-    public class DrawerHeaderViewHolder extends RecyclerView.ViewHolder {
+    public class DrawerHeaderViewHolder extends RecyclerView.ViewHolder
+            implements LockableDrawerLayout.LockableStateListener {
+
+        private View mPinIcon;
 
         public DrawerHeaderViewHolder(View v) {
             super(v);
-            View pinIcon = v.findViewById(R.id.pin_icon);
-            pinIcon.setSelected(mDrawerLayout.isLocked());
-            pinIcon.setOnClickListener((View view) -> {
+            mPinIcon = v.findViewById(R.id.pin_icon);
+            mPinIcon.setSelected(mDrawerLayout.isLocked());
+            mPinIcon.setOnClickListener((View view) -> {
                 mDrawerLayout.setLocked(!mDrawerLayout.isLocked());
                 SettingsHelper.getInstance(mContext).setDrawerPinned(mDrawerLayout.isLocked());
-                pinIcon.setSelected(mDrawerLayout.isLocked());
+                mPinIcon.setSelected(mDrawerLayout.isLocked());
             });
+            onLockableStateChanged(mDrawerLayout.isLockable());
+            mDrawerLayout.addLockableStateListener(this); // no need to unregister as it adds a weakref
+        }
+
+        @Override
+        public void onLockableStateChanged(boolean lockable) {
+            mPinIcon.setVisibility(mDrawerLayout.isLockable() ? View.VISIBLE : View.GONE);
         }
 
     }
