@@ -13,6 +13,7 @@ import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -116,10 +117,15 @@ public class MainActivity extends ThemedActivity {
                 setFragmentShareText(fragment, text);
                 return;
             }
-            new ChannelSearchDialog(this, (ServerConnectionInfo server, String channel) -> {
+            ChannelSearchDialog dialog = new ChannelSearchDialog(this,
+                    (ServerConnectionInfo server, String channel) -> {
                 ChatFragment openedFragment = openServer(server, channel);
                 setFragmentShareText(openedFragment, text);
-            }).show();
+            });
+            dialog.setOnCancelListener((DialogInterface di) -> {
+                finish();
+            });
+            dialog.show();
             return;
         }
 
