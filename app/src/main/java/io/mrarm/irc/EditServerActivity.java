@@ -196,6 +196,7 @@ public class EditServerActivity extends ThemedActivity {
                 mServerAuthPass.setHint(R.string.server_password_unchanged);
                 mServerAuthPass.addTextChangedListener(mResetPasswordWatcher);
                 mServerAuthPassCtr.setPasswordVisibilityToggleEnabled(false);
+                mServerAuthUser.setText(mEditServer.authUser);
                 mOldServerAuthPass = mEditServer.authPass;
             }
             if (mEditServer.authMode != null) {
