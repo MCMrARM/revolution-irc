@@ -8,7 +8,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.graphics.drawable.DrawerArrowDrawable;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -73,14 +72,12 @@ public class LockableDrawerLayout extends DrawerLayout {
             openDrawer(Gravity.START, false);
             setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN);
             setScrimColor(Color.TRANSPARENT);
-            Log.d("Test", "Currently locked");
         } else {
             if (getDrawerLockMode(Gravity.START) == DrawerLayout.LOCK_MODE_UNLOCKED)
                 return;
             closeDrawer(Gravity.START, false);
             setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             setScrimColor(0x99000000);
-            Log.d("Test", "Currently not locked");
         }
         requestLayout();
         Iterator<WeakReference<LockableStateListener>> iterator = mLockableListener.iterator();
@@ -118,11 +115,6 @@ public class LockableDrawerLayout extends DrawerLayout {
         mLockable = MeasureSpec.getSize(widthMeasureSpec) >= getDrawerWidth() * 2;
         if (mLocked)
             updateLockState();
-    }
-
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        super.onLayout(changed, l, t, r, b);
 
         if (isCurrentlyLocked()) {
             int ml = 0, mr = 0;
@@ -146,9 +138,14 @@ public class LockableDrawerLayout extends DrawerLayout {
                     lp.leftMargin = ml;
                     lp.rightMargin = mr;
                     child.setLayoutParams(lp);
+
+                    int cw = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec)
+                            - lp.leftMargin - lp.rightMargin, MeasureSpec.EXACTLY);
+                    int ch = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(heightMeasureSpec)
+                            - lp.topMargin - lp.bottomMargin, MeasureSpec.EXACTLY);
+                    child.measure(cw, ch);
                 }
             }
-            super.onLayout(changed, l, t, r, b);
         }
     }
 
