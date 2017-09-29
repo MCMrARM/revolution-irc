@@ -23,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.mrarm.chatlib.dto.NickWithPrefix;
@@ -227,7 +228,15 @@ public class ChatFragmentSendMessageHelper {
                     } else if (result.mode == CommandAliasManager.CommandAlias.MODE_MESSAGE) {
                         if (channel == null)
                             throw new RuntimeException();
-                        conn.sendMessage(result.channel, result.text, null, null);
+                        if (!mFragment.getConnectionInfo().getChannels().contains(result.channel)) {
+                            ArrayList<String> list = new ArrayList<>();
+                            list.add(result.channel);
+                            mFragment.getConnectionInfo().getApiInstance().joinChannels(list, (Void v) -> {
+                                conn.sendMessage(result.channel, result.text, null, null);
+                            }, null);
+                        } else {
+                            conn.sendMessage(result.channel, result.text, null, null);
+                        }
                     } else {
                         throw new RuntimeException();
                     }
