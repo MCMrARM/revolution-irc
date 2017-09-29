@@ -81,7 +81,7 @@ public class ChatFragment extends Fragment implements
 
         ((MainActivity) getActivity()).addActionBarDrawerToggle(toolbar);
 
-        mSectionsPagerAdapter = new ChatPagerAdapter(getContext(), getChildFragmentManager(), mConnectionInfo);
+        mSectionsPagerAdapter = new ChatPagerAdapter(getContext(), getChildFragmentManager(), mConnectionInfo, savedInstanceState);
 
         mViewPager = rootView.findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
@@ -253,6 +253,12 @@ public class ChatFragment extends Fragment implements
         s.removePreferenceChangeListener(SettingsHelper.PREF_NICK_AUTOCOMPLETE_SHOW_BUTTON, this);
         s.removePreferenceChangeListener(SettingsHelper.PREF_NICK_AUTOCOMPLETE_DOUBLE_TAP, this);
         super.onDestroyView();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        mSectionsPagerAdapter.onSaveInstanceState(outState);
     }
 
     public ServerConnectionInfo getConnectionInfo() {

@@ -1,10 +1,12 @@
 package io.mrarm.irc.chat;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -25,6 +27,41 @@ public class ChatPagerAdapter extends FragmentPagerAdapter {
         super(fm);
         this.context = context;
         this.connectionInfo = connectionInfo;
+        updateChannelList();
+    }
+
+    public ChatPagerAdapter(Context context, FragmentManager fm, ServerConnectionInfo connectionInfo, Bundle bundle) {
+        super(fm);
+        this.context = context;
+        this.connectionInfo = connectionInfo;
+        if (bundle != null)
+            onRestoreInstanceState(bundle);
+        else
+            updateChannelList();
+    }
+
+    public void onSaveInstanceState(Bundle outBundle) {
+        String[] keys = new String[channelIds.size()];
+        long[] values = new long[channelIds.size()];
+        Iterator<Map.Entry<String, Long>> it = channelIds.entrySet().iterator();
+        int i = 0;
+        while (it.hasNext()) {
+            Map.Entry<String, Long> e = it.next();
+            keys[i] = e.getKey();
+            values[i] = e.getValue();
+            ++i;
+        }
+        outBundle.putStringArray("channel_ids_keys", keys);
+        outBundle.putLongArray("channel_ids_values", values);
+    }
+
+    public void onRestoreInstanceState(Bundle bundle) {
+        String[] keys = bundle.getStringArray("channel_ids_keys");
+        long[] values = bundle.getLongArray("channel_ids_values");
+        if (keys != null && values != null && keys.length == values.length) {
+            for (int i = keys.length - 1; i >= 0; --i)
+                channelIds.put(keys[i], values[i]);
+        }
         updateChannelList();
     }
 
