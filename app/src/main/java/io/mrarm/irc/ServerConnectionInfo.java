@@ -40,6 +40,7 @@ public class ServerConnectionInfo {
     private boolean mConnecting = false;
     private boolean mDisconnecting = false;
     private boolean mUserDisconnectRequest = false;
+    private long mReconnectQueueTime = -1L;
     private NotificationManager.ConnectionManager mNotificationData;
     private final List<InfoChangeListener> mInfoListeners = new ArrayList<>();
     private final List<ChannelListChangeListener> mChannelsListeners = new ArrayList<>();
@@ -93,6 +94,7 @@ public class ServerConnectionInfo {
                 return;
             mConnecting = true;
             mUserDisconnectRequest = false;
+            mReconnectQueueTime = -1L;
         }
         Log.i("ServerConnectionInfo", "Connecting...");
 
@@ -198,6 +200,7 @@ public class ServerConnectionInfo {
         if (reconnectDelay == -1)
             return;
         Log.i("ServerConnectionInfo", "Queuing reconnect in " + reconnectDelay + " ms");
+        mReconnectQueueTime = System.nanoTime();
         mReconnectHandler.postDelayed(mReconnectRunnable, reconnectDelay);
     }
 
@@ -213,6 +216,27 @@ public class ServerConnectionInfo {
             }
         }
         mManager.notifyConnectionFullyDisconnected(this);
+    }
+
+    public void notifyConnectivityChanged(boolean hasAnyConnectivity, boolean hasWifi) {
+        mReconnectHandler.removeCallbacks(mReconnectRunnable);
+
+        SettingsHelper helper = SettingsHelper.getInstance(getConnectionManager().getContext());
+        if (!hasAnyConnectivity || !helper.isReconnectEnabled() || (helper.isReconnectWifiRequired()
+                && !hasWifi))
+            return;
+        if (helper.shouldReconnectOnConnectivityChange()) {
+            connect(); // this will be ignored if we are already corrected
+        } else if (mReconnectQueueTime != -1L) {
+            long reconnectDelay = mManager.getReconnectDelay(mCurrentReconnectAttempt++);
+            if (reconnectDelay == -1)
+                return;
+            reconnectDelay = reconnectDelay - (System.nanoTime() - mReconnectQueueTime) / 1000000L;
+            if (reconnectDelay <= 0L)
+                connect();
+            else
+                mReconnectHandler.postDelayed(mReconnectRunnable, reconnectDelay);
+        }
     }
 
     public UUID getUUID() {
@@ -343,10 +367,10 @@ public class ServerConnectionInfo {
     }
 
     private Runnable mReconnectRunnable = () -> {
+        mReconnectQueueTime = -1L;
         SettingsHelper helper = SettingsHelper.getInstance(mManager.getContext());
-        if (!helper.isReconnectEnabled() || !helper.shouldReconnectOnConnectivityChange() ||
-                (helper.isReconnectWifiRequired() && !ServerConnectionManager.isWifiConnected(
-                        mManager.getContext())))
+        if (!helper.isReconnectEnabled() || (helper.isReconnectWifiRequired() &&
+                !ServerConnectionManager.isWifiConnected(mManager.getContext())))
             return;
         this.connect();
     };

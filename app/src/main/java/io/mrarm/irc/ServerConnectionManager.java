@@ -341,15 +341,11 @@ public class ServerConnectionManager {
         }
     }
 
-    public void notifyConnectivityChanged() {
-        SettingsHelper helper = SettingsHelper.getInstance(mContext);
-        if (helper.isReconnectEnabled() && helper.shouldReconnectOnConnectivityChange()) {
-            if (helper.isReconnectWifiRequired() && !isWifiConnected(mContext))
-                return;
-            synchronized (this) {
-                for (ServerConnectionInfo server : mConnectionsMap.values())
-                    server.connect(); // this will be ignored if we are already corrected
-            }
+    public void notifyConnectivityChanged(boolean hasAnyConnectivity) {
+        boolean hasWifi = isWifiConnected(mContext);
+        synchronized (this) {
+            for (ServerConnectionInfo server : mConnectionsMap.values())
+                server.notifyConnectivityChanged(hasAnyConnectivity, hasWifi);
         }
     }
 

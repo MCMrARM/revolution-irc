@@ -122,13 +122,8 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.i(TAG, "Connectivity changed");
-
-            if (intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, Boolean.FALSE)) {
-                Log.d(TAG, "No network connectivity");
-                return;
-            }
-
-            ServerConnectionManager.getInstance(context).notifyConnectivityChanged();
+            ServerConnectionManager.getInstance(context).notifyConnectivityChanged(!intent
+                    .getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, Boolean.FALSE));
         }
 
     }
