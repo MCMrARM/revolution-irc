@@ -158,6 +158,7 @@ public class ServerConnectionInfo {
     public void disconnect() {
         synchronized (this) {
             mUserDisconnectRequest = true;
+            mReconnectHandler.removeCallbacks(mReconnectRunnable);
             if (!isConnected() && isConnecting()) {
                 mConnecting = false;
                 mDisconnecting = true;
@@ -197,14 +198,7 @@ public class ServerConnectionInfo {
         if (reconnectDelay == -1)
             return;
         Log.i("ServerConnectionInfo", "Queuing reconnect in " + reconnectDelay + " ms");
-        mReconnectHandler.postDelayed(() -> {
-            SettingsHelper helper = SettingsHelper.getInstance(mManager.getContext());
-            if (!helper.isReconnectEnabled() || !helper.shouldReconnectOnConnectivityChange() ||
-                    (helper.isReconnectWifiRequired() && !ServerConnectionManager.isWifiConnected(
-                            mManager.getContext())))
-                return;
-            this.connect();
-        }, reconnectDelay);
+        mReconnectHandler.postDelayed(mReconnectRunnable, reconnectDelay);
     }
 
     private void notifyFullyDisconnected() {
@@ -347,6 +341,15 @@ public class ServerConnectionInfo {
             mManager.notifyConnectionInfoChanged(this);
         }
     }
+
+    private Runnable mReconnectRunnable = () -> {
+        SettingsHelper helper = SettingsHelper.getInstance(mManager.getContext());
+        if (!helper.isReconnectEnabled() || !helper.shouldReconnectOnConnectivityChange() ||
+                (helper.isReconnectWifiRequired() && !ServerConnectionManager.isWifiConnected(
+                        mManager.getContext())))
+            return;
+        this.connect();
+    };
 
     public interface InfoChangeListener {
         void onConnectionInfoChanged(ServerConnectionInfo connection);
