@@ -103,25 +103,28 @@ public class MainActivity extends ThemedActivity {
         if (savedInstanceState != null && savedInstanceState.getString(ARG_SERVER_UUID) != null)
             return;
 
-        String serverUUID = getIntent().getStringExtra(ARG_SERVER_UUID);
+        handleIntent(getIntent());
+    }
+
+    private void handleIntent(Intent intent) {
+        String serverUUID = intent.getStringExtra(ARG_SERVER_UUID);
         ChatFragment fragment = null;
         if (serverUUID != null) {
             ServerConnectionInfo server = ServerConnectionManager.getInstance(this).getConnection(UUID.fromString(serverUUID));
-            fragment = openServer(server, getIntent().getStringExtra(ARG_CHANNEL_NAME));
+            fragment = openServer(server, intent.getStringExtra(ARG_CHANNEL_NAME));
         }
 
-        if (Intent.ACTION_SEND.equals(getIntent().getAction()) && "text/plain".equals(
-                getIntent().getType())) {
-            final String text = getIntent().getStringExtra(Intent.EXTRA_TEXT);
+        if (Intent.ACTION_SEND.equals(intent.getAction()) && "text/plain".equals(intent.getType())) {
+            final String text = intent.getStringExtra(Intent.EXTRA_TEXT);
             if (fragment != null) {
                 setFragmentShareText(fragment, text);
                 return;
             }
             ChannelSearchDialog dialog = new ChannelSearchDialog(this,
                     (ServerConnectionInfo server, String channel) -> {
-                ChatFragment openedFragment = openServer(server, channel);
-                setFragmentShareText(openedFragment, text);
-            });
+                        ChatFragment openedFragment = openServer(server, channel);
+                        setFragmentShareText(openedFragment, text);
+                    });
             dialog.setOnCancelListener((DialogInterface di) -> {
                 finish();
             });
@@ -219,12 +222,7 @@ public class MainActivity extends ThemedActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-
-        String serverUUID = intent.getStringExtra(ARG_SERVER_UUID);
-        if (serverUUID != null) {
-            ServerConnectionInfo server = ServerConnectionManager.getInstance(this).getConnection(UUID.fromString(serverUUID));
-            openServer(server, intent.getStringExtra(ARG_CHANNEL_NAME));
-        }
+        handleIntent(intent);
     }
 
     @Override
