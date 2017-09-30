@@ -200,7 +200,8 @@ public class ChatFragmentSendMessageHelper {
     }
 
     public void updateVisibility() {
-        mSendContainer.setVisibility(mFragment.getConnectionInfo().isConnected() ? View.VISIBLE : View.GONE);
+        mSendContainer.setVisibility(mFragment.getConnectionInfo().isConnected() ||
+                mFragment.getConnectionInfo().isConnecting() ? View.VISIBLE : View.GONE);
     }
 
     public void setMessageText(String text) {
@@ -209,7 +210,8 @@ public class ChatFragmentSendMessageHelper {
 
     public void sendMessage() {
         String text = IRCColorUtils.convertSpannableToIRCString(mContext, mSendText.getText());
-        if (text.length() == 0 || !mFragment.getConnectionInfo().isConnected())
+        if (text.length() == 0 || (!mFragment.getConnectionInfo().isConnected() &&
+                !mFragment.getConnectionInfo().isConnecting()))
             return;
         String channel = mFragment.getCurrentChannel();
         if (text.charAt(0) == '/') {
