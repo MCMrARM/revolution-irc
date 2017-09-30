@@ -24,7 +24,7 @@ public class AutoCloseDialogEditText extends android.support.v7.widget.AppCompat
     @Override
     public boolean onKeyPreIme(int keyCode, KeyEvent event) {
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
-            mDialog.dismiss();
+            mDialog.cancel();
             return true;
         }
         return super.onKeyPreIme(keyCode, event);
