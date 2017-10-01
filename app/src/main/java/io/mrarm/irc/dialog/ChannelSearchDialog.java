@@ -13,11 +13,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import io.mrarm.irc.MainActivity;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
-import io.mrarm.irc.dialog.SearchDialog;
 import io.mrarm.irc.util.ClickableRecyclerViewAdapter;
 import io.mrarm.irc.util.StyledAttributesHelper;
 
@@ -29,7 +27,7 @@ public class ChannelSearchDialog extends SearchDialog {
         super(context);
         StyledAttributesHelper ta = StyledAttributesHelper.obtainStyledAttributes(context,
                 new int[] { R.attr.colorBackgroundFloating, android.R.attr.textColorSecondary });
-        setBackgroundColor(ta.getColor(R.attr.colorBackgroundFloating, 0));
+        getSearchView().setBackgroundColor(ta.getColor(R.attr.colorBackgroundFloating, 0));
         int secondaryTextColor = ta.getColor(android.R.attr.textColorSecondary, 0);
         ta.recycle();
         int highlightTextColor = context.getResources().getColor(R.color.searchColorHighlight);
@@ -44,11 +42,6 @@ public class ChannelSearchDialog extends SearchDialog {
         onQueryTextChange("");
     }
 
-    @Override
-    public void onQueryTextSubmit(String query) {
-    }
-
-    @Override
     public void onQueryTextChange(String newText) {
         List<Pair<ServerConnectionInfo, String>> ret = new ArrayList<>();
         for (ServerConnectionInfo info : ServerConnectionManager.getInstance(getContext())

@@ -29,7 +29,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/action_close" />
 
-        <io.mrarm.irc.dialog.AutoCloseDialogEditText
+        <io.mrarm.irc.view.BackButtonListenerEditText
             android:id="@+id/search_text"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

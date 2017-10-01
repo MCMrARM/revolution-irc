@@ -9,17 +9,18 @@ import java.util.List;
 import io.mrarm.irc.MainActivity;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
+import io.mrarm.irc.view.ListSearchView;
 
 public class UserSearchDialog extends SearchDialog {
 
     private ServerConnectionInfo mConnection;
-    private SimpleSuggestionsAdapter mAdapter;
+    private ListSearchView.SimpleSuggestionsAdapter mAdapter;
 
     public UserSearchDialog(@NonNull Context context, ServerConnectionInfo connection) {
         super(context);
         mConnection = connection;
         setQueryHint(context.getString(R.string.action_message_user));
-        mAdapter = new SimpleSuggestionsAdapter();
+        mAdapter = new ListSearchView.SimpleSuggestionsAdapter();
         mAdapter.setItemClickListener((int index, CharSequence value) -> {
             onQueryTextSubmit(value.toString());
         });
