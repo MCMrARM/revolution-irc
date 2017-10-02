@@ -358,8 +358,15 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     public void showMessagesActionMenu() {
         if (mMessagesActionModeCallback == null)
             mMessagesActionModeCallback = new MessagesActionModeCallback();
-        if (!mMessagesActionModeCallback.mShown)
-            ((MainActivity) getActivity()).startSupportActionMode(mMessagesActionModeCallback);
+        if (mMessagesActionModeCallback.mActionMode == null)
+            mMessagesActionModeCallback.mActionMode = ((MainActivity) getActivity()).startSupportActionMode(mMessagesActionModeCallback);
+    }
+
+    public void hideMessagesActionMenu() {
+        if (mMessagesActionModeCallback != null && mMessagesActionModeCallback.mActionMode != null) {
+            mMessagesActionModeCallback.mActionMode.finish();
+            mMessagesActionModeCallback.mActionMode = null;
+        }
     }
 
     public void copySelectedMessages() {
@@ -381,14 +388,14 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
 
     private class MessagesActionModeCallback implements ActionMode.Callback {
 
-        public boolean mShown = false;
+        public ActionMode mActionMode;
 
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
             MenuInflater inflater = mode.getMenuInflater();
             inflater.inflate(R.menu.menu_context_messages, menu);
             ((ChatFragment) getParentFragment()).setTabsHidden(true);
-            mShown = true;
+            mActionMode = mode;
             return true;
         }
 
@@ -413,7 +420,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         public void onDestroyActionMode(ActionMode mode) {
             ((ChatFragment) getParentFragment()).setTabsHidden(false);
             mAdapter.clearSelection(mRecyclerView);
-            mShown = false;
+            mActionMode = null;
         }
 
     };
