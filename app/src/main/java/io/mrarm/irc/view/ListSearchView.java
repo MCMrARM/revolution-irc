@@ -143,6 +143,7 @@ public class ListSearchView extends FrameLayout {
             mRecyclerView.getAdapter().unregisterAdapterDataObserver(mDataObserver);
         mRecyclerView.setAdapter(adapter);
         adapter.registerAdapterDataObserver(mDataObserver);
+        mDataObserver.onChanged();
     }
 
     private void updateOverscrollMode() {

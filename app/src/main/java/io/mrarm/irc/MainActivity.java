@@ -13,7 +13,6 @@ import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,7 +28,6 @@ import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.irc.chat.ChatFragment;
 import io.mrarm.irc.dialog.ThemedAlertDialog;
 import io.mrarm.irc.dialog.UserSearchDialog;
-import io.mrarm.irc.dialog.ChannelSearchDialog;
 import io.mrarm.irc.drawer.DrawerHelper;
 import io.mrarm.irc.util.NightModeRecreateHelper;
 import io.mrarm.irc.config.SettingsHelper;
@@ -108,32 +106,17 @@ public class MainActivity extends ThemedActivity {
 
     private void handleIntent(Intent intent) {
         String serverUUID = intent.getStringExtra(ARG_SERVER_UUID);
-        ChatFragment fragment = null;
         if (serverUUID != null) {
-            ServerConnectionInfo server = ServerConnectionManager.getInstance(this).getConnection(UUID.fromString(serverUUID));
-            fragment = openServer(server, intent.getStringExtra(ARG_CHANNEL_NAME));
-        }
-
-        if (Intent.ACTION_SEND.equals(intent.getAction()) && "text/plain".equals(intent.getType())) {
-            final String text = intent.getStringExtra(Intent.EXTRA_TEXT);
-            if (fragment != null) {
-                setFragmentShareText(fragment, text);
-                return;
+            ServerConnectionInfo server = ServerConnectionManager.getInstance(this)
+                    .getConnection(UUID.fromString(serverUUID));
+            ChatFragment fragment = openServer(server, intent.getStringExtra(ARG_CHANNEL_NAME));
+            if (Intent.ACTION_SEND.equals(intent.getAction()) &&
+                    "text/plain".equals(intent.getType())) {
+                setFragmentShareText(fragment, intent.getStringExtra(Intent.EXTRA_TEXT));
             }
-            ChannelSearchDialog dialog = new ChannelSearchDialog(this,
-                    (ServerConnectionInfo server, String channel) -> {
-                        ChatFragment openedFragment = openServer(server, channel);
-                        setFragmentShareText(openedFragment, text);
-                    });
-            dialog.setOnCancelListener((DialogInterface di) -> {
-                finish();
-            });
-            dialog.show();
-            return;
-        }
-
-        if (fragment == null)
+        } else {
             openManageServers();
+        }
     }
 
     private void setFragmentShareText(ChatFragment fragment, String text) {

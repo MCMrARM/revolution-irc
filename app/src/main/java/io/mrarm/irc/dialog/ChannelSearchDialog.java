@@ -25,54 +25,52 @@ public class ChannelSearchDialog extends SearchDialog {
 
     public ChannelSearchDialog(@NonNull Context context, ChannelSelectedListener listener) {
         super(context);
-        StyledAttributesHelper ta = StyledAttributesHelper.obtainStyledAttributes(context,
-                new int[] { R.attr.colorBackgroundFloating, android.R.attr.textColorSecondary });
-        getSearchView().setBackgroundColor(ta.getColor(R.attr.colorBackgroundFloating, 0));
-        int secondaryTextColor = ta.getColor(android.R.attr.textColorSecondary, 0);
-        ta.recycle();
-        int highlightTextColor = context.getResources().getColor(R.color.searchColorHighlight);
 
-        mAdapter = new SuggestionsAdapter(secondaryTextColor, highlightTextColor);
+        getSearchView().setBackgroundColor(StyledAttributesHelper.getColor(context, R.attr.colorBackgroundFloating, 0));
+
+        mAdapter = new SuggestionsAdapter(context);
         mAdapter.setItemClickListener((int index, Pair<ServerConnectionInfo, String> value) ->{
             if (listener != null)
                 listener.onChannelSelected(value.first, value.second);
             dismiss();
         });
         setSuggestionsAdapter(mAdapter);
-        onQueryTextChange("");
     }
 
     public void onQueryTextChange(String newText) {
-        List<Pair<ServerConnectionInfo, String>> ret = new ArrayList<>();
-        for (ServerConnectionInfo info : ServerConnectionManager.getInstance(getContext())
-                .getConnections()) {
-            for (String channel : info.getChannels()) {
-                int iof = channel.indexOf(newText);
-                if (iof != -1)
-                    ret.add(new Pair<>(info, channel));
-            }
-        }
-        Collections.sort(ret, (Pair<ServerConnectionInfo, String> l,
-                               Pair<ServerConnectionInfo, String> r) ->
-                Integer.compare(l.second.indexOf(newText), r.second.indexOf(newText)));
-        mAdapter.setItems(newText, ret);
+        mAdapter.filterWithQuery(newText);
     }
 
     public static class SuggestionsAdapter extends ClickableRecyclerViewAdapter<SuggestionsAdapter.SuggestionHolder, Pair<ServerConnectionInfo, String>> {
 
+        private final ServerConnectionManager mConnectionManager;
+        private final int mSecondaryTextColor;
+        private final int mHighlightTextColor;
         private String mHighlightQuery;
-        private int mSecondaryTextColor;
-        private int mHighlightTextColor;
 
-        public SuggestionsAdapter(int secondaryTextColor, int highlightTextColor) {
+        public SuggestionsAdapter(Context context) {
             setViewHolderFactory(SuggestionHolder::new, R.layout.dialog_search_item);
-            mSecondaryTextColor = secondaryTextColor;
-            mHighlightTextColor = highlightTextColor;
+            mConnectionManager = ServerConnectionManager.getInstance(context);
+            mSecondaryTextColor = StyledAttributesHelper.getColor(context,
+                    android.R.attr.textColorSecondary, 0);
+            mHighlightTextColor = context.getResources().getColor(R.color.searchColorHighlight);
+            filterWithQuery("");
         }
 
-        public void setItems(String query, List<Pair<ServerConnectionInfo, String>> items) {
+        public void filterWithQuery(String query) {
+            List<Pair<ServerConnectionInfo, String>> ret = new ArrayList<>();
+            for (ServerConnectionInfo info : mConnectionManager.getConnections()) {
+                for (String channel : info.getChannels()) {
+                    int iof = channel.indexOf(query);
+                    if (iof != -1)
+                        ret.add(new Pair<>(info, channel));
+                }
+            }
+            Collections.sort(ret, (Pair<ServerConnectionInfo, String> l,
+                                   Pair<ServerConnectionInfo, String> r) ->
+                    Integer.compare(l.second.indexOf(query), r.second.indexOf(query)));
             mHighlightQuery = query;
-            setItems(items);
+            setItems(ret);
         }
 
         public class SuggestionHolder extends ClickableRecyclerViewAdapter.ViewHolder<Pair<ServerConnectionInfo, String>> {
