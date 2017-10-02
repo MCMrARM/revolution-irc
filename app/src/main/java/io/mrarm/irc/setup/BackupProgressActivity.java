@@ -146,12 +146,12 @@ public class BackupProgressActivity extends SetupProgressActivity {
                         mBackupFile.deleteOnExit();
                         FileInputStream fis = new FileInputStream(desc.getFileDescriptor());
                         FileOutputStream fos = new FileOutputStream(mBackupFile);
-                        new CopyFileTask(this).execute(new CopyRequest(fis, fos));
+                        new CopyFileTask(this).execute(new CopyRequest(fis, fos, desc));
                     } else {
                         ParcelFileDescriptor desc = getContentResolver().openFileDescriptor(uri, "w");
                         FileOutputStream fos = new FileOutputStream(desc.getFileDescriptor());
                         FileInputStream fis = new FileInputStream(mBackupFile);
-                        new CopyFileTask(this).execute(new CopyRequest(fis, fos));
+                        new CopyFileTask(this).execute(new CopyRequest(fis, fos, desc));
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -258,9 +258,11 @@ public class BackupProgressActivity extends SetupProgressActivity {
     private static class CopyRequest {
         public FileInputStream fis;
         public FileOutputStream fos;
-        public CopyRequest(FileInputStream fis, FileOutputStream fos) {
+        public ParcelFileDescriptor fd;
+        public CopyRequest(FileInputStream fis, FileOutputStream fos, ParcelFileDescriptor fd) {
             this.fis = fis;
             this.fos = fos;
+            this.fd = fd;
         }
     }
 
@@ -286,6 +288,12 @@ public class BackupProgressActivity extends SetupProgressActivity {
             } catch (Exception e) {
                 e.printStackTrace();
                 return false;
+            } finally {
+                try {
+                    if (args[0].fd != null)
+                        args[0].fd.close();
+                } catch (Exception ignored) {
+                }
             }
             return true;
         }
