@@ -4,6 +4,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.view.ActionMode;
@@ -97,7 +98,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         if (mConnection != null && mChannelName != null) {
             mConnection.getNotificationManager().getChannelManager(mChannelName, true).setOpened(getContext(), isVisibleToUser);
         }
-        if (mConnection != null) {
+        if (mConnection != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (isVisibleToUser)
                 IRCChooserTargetService.setChannel(mConnection.getUUID(), mChannelName);
             else
@@ -245,7 +246,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         super.onResume();
         if (getUserVisibleHint())
             mConnection.getNotificationManager().getChannelManager(mChannelName, true).setOpened(getContext(), true);
-        if (mConnection != null && getUserVisibleHint())
+        if (mConnection != null && getUserVisibleHint() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             IRCChooserTargetService.setChannel(mConnection.getUUID(), mChannelName);
     }
 
@@ -254,7 +255,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         super.onPause();
         if (getUserVisibleHint())
             mConnection.getNotificationManager().getChannelManager(mChannelName, true).setOpened(getContext(), false);
-        if (mConnection != null && getUserVisibleHint())
+        if (mConnection != null && getUserVisibleHint() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             IRCChooserTargetService.setChannel(mConnection.getUUID(), mChannelName);
     }
 
@@ -289,7 +290,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         if (mNeedsUnsubscribeStatusMessages)
             mConnection.getApiInstance().unsubscribeStatusMessages(ChatMessagesFragment.this, null, null);
 
-        if (mConnection != null && getUserVisibleHint())
+        if (mConnection != null && getUserVisibleHint() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             IRCChooserTargetService.unsetChannel(mConnection.getUUID(), mChannelName);
     }
 
