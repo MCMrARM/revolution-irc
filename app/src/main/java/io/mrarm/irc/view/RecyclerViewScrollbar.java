@@ -183,6 +183,8 @@ public class RecyclerViewScrollbar extends View {
         if (itemPos == -1)
             return;
         RecyclerView.ViewHolder holder = mRecyclerView.findViewHolderForAdapterPosition(itemPos);
+        if (holder == null)
+            return;
         mScrollPos -= (float) holder.itemView.getTop() / holder.itemView.getHeight();
     }
 
