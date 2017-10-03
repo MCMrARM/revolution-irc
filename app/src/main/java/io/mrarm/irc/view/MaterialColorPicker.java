@@ -112,6 +112,8 @@ public class MaterialColorPicker extends View {
             return VARIANT_ORDERING[Math.min(mDisplayedColorVariants.length - 1,
                     y / baseTileSize * mColorVariantsColumnCount + x / baseTileSize)];
 
+        if (mDisplayedColorAccentVariants == null)
+            return -1;
         int minY = maxY + getWidth() / mColorColumnCount / 2;
         baseTileSize = getWidth() / mColorAccentVariantsColumnCount;
         maxY = minY + baseTileSize * ((mDisplayedColorAccentVariants.length - 1) /
