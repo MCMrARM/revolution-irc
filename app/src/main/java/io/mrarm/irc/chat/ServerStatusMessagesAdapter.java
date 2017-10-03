@@ -18,7 +18,6 @@ import io.mrarm.chatlib.dto.StatusMessageInfo;
 import io.mrarm.chatlib.dto.StatusMessageList;
 import io.mrarm.irc.R;
 import io.mrarm.irc.util.AlignToPointSpan;
-import io.mrarm.irc.util.ColoredTextBuilder;
 import io.mrarm.irc.util.IRCColorUtils;
 import io.mrarm.irc.util.MessageBuilder;
 
@@ -164,9 +163,8 @@ public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerVi
 
             if (!expanded)
                 return;
-            ColoredTextBuilder builder2 = new ColoredTextBuilder();
-            IRCColorUtils.appendFormattedString(mText.getContext(), builder2, message.getMessage());
-            mExpandedText.setText(builder2.getSpannable());
+            mExpandedText.setText(IRCColorUtils.getFormattedString(mText.getContext(),
+                    message.getMessage()));
         }
 
     }
