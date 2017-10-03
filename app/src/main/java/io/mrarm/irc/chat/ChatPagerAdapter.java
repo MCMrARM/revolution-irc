@@ -6,7 +6,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -86,8 +85,7 @@ public class ChatPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         if (position == 0)
             return ChatMessagesFragment.newStatusInstance(connectionInfo);
-        return ChatMessagesFragment.newInstance(connectionInfo,
-                connectionInfo.getChannels().get(position - 1));
+        return ChatMessagesFragment.newInstance(connectionInfo, channels.get(position - 1));
     }
 
     @Override
