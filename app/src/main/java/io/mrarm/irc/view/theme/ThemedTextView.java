@@ -17,8 +17,8 @@ import io.mrarm.irc.util.ThemeHelper;
 public class ThemedTextView extends AppCompatTextView {
 
     private static final int[] THEME_ATTRS = { android.R.attr.textColor,
-            android.R.attr.textAppearance, android.R.attr.drawableStart,
-            android.R.attr.drawableTop, android.R.attr.drawableEnd,
+            android.R.attr.textColorLink, android.R.attr.textAppearance,
+            android.R.attr.drawableStart, android.R.attr.drawableTop, android.R.attr.drawableEnd,
             android.R.attr.drawableBottom };
     private static final int[] DRAWABLE_ATTRS = { android.R.attr.drawableStart,
             android.R.attr.drawableTop, android.R.attr.drawableEnd,
@@ -60,6 +60,9 @@ public class ThemedTextView extends AppCompatTextView {
             view.setTextColor(ThemeHelper.getPrimaryColor(view.getContext()));
         else if (colorResId == R.color.colorAccent)
             view.setTextColor(ThemeHelper.getAccentColor(view.getContext()));
+        colorResId = r.getResourceId(android.R.attr.textColorLink, 0);
+        if (colorResId == R.color.colorAccent)
+            view.setLinkTextColor(ThemeHelper.getAccentColor(view.getContext()));
 
         Drawable[] drawables = TextViewCompat.getCompoundDrawablesRelative(view);
         boolean hasChange = false;
