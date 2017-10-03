@@ -58,7 +58,8 @@ public class ServerConnectionInfo {
         mSASLOptions = saslOptions;
         mNotificationData = new NotificationManager.ConnectionManager(this);
         mChannels = joinChannels;
-        Collections.sort(mChannels);
+        if (mChannels != null)
+            Collections.sort(mChannels);
     }
 
     private void setApi(ChatApi api) {
