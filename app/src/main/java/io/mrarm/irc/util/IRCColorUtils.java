@@ -124,15 +124,22 @@ public class IRCColorUtils {
                 }
                 case 0x03: { // color
                     fg = 0;
-                    bg = 0;
                     i++;
                     for (int j = 0; j < 2 && i < string.length(); i++, j++) {
                         if (string.charAt(i) < '0' || string.charAt(i) > '9')
                             break;
                         fg = fg * 10 + string.charAt(i) - '0';
                     }
-                    if (string.charAt(i++) != ',')
+                    if (((fg < 0 || fg > COLOR_IDS.length) && fg != 99))
                         throw new RuntimeException("Invalid formatting");
+
+                    builder.endSpans(ForegroundColorSpan.class);
+                    if (fg != 99)
+                        builder.setSpan(new ForegroundColorSpan(getColor(context, fg)));
+
+                    if (string.charAt(i++) != ',')
+                        break;
+                    bg = 0;
                     for (int j = 0; j < 2 && i < string.length(); i++, j++) {
                         if (string.charAt(i) < '0' || string.charAt(i) > '9')
                             break;
@@ -142,10 +149,7 @@ public class IRCColorUtils {
                             ((fg < 0 || fg > COLOR_IDS.length) && fg != 99))
                         throw new RuntimeException("Invalid formatting");
 
-                    builder.endSpans(ForegroundColorSpan.class);
                     builder.endSpans(BackgroundColorSpan.class);
-                    if (fg != 99)
-                        builder.setSpan(new ForegroundColorSpan(getColor(context, fg)));
                     if (bg != 99)
                         builder.setSpan(new BackgroundColorSpan(getColor(context, bg)));
                     break;
