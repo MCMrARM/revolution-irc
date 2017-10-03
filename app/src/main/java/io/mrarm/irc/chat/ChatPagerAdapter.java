@@ -69,8 +69,7 @@ public class ChatPagerAdapter extends FragmentPagerAdapter {
     }
 
     public void updateChannelList() {
-        channels = new ArrayList<>(connectionInfo.getChannels());
-        Collections.sort(channels);
+        channels = connectionInfo.getChannels();
         Iterator<Map.Entry<String, Long>> it = channelIds.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<String, Long> entry = it.next();

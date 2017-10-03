@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -57,6 +58,7 @@ public class ServerConnectionInfo {
         mSASLOptions = saslOptions;
         mNotificationData = new NotificationManager.ConnectionManager(this);
         mChannels = joinChannels;
+        Collections.sort(mChannels);
     }
 
     private void setApi(ChatApi api) {
@@ -292,6 +294,7 @@ public class ServerConnectionInfo {
 
     public void setChannels(List<String> channels) {
         synchronized (this) {
+            Collections.sort(channels);
             mChannels = channels;
             mManager.notifyChannelListChanged(this, channels);
             mManager.saveAutoconnectListAsync();
