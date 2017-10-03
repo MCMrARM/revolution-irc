@@ -59,8 +59,10 @@ public class ChatPagerAdapter extends FragmentPagerAdapter {
         String[] keys = bundle.getStringArray("channel_ids_keys");
         long[] values = bundle.getLongArray("channel_ids_values");
         if (keys != null && values != null && keys.length == values.length) {
-            for (int i = keys.length - 1; i >= 0; --i)
+            for (int i = keys.length - 1; i >= 0; --i) {
                 channelIds.put(keys[i], values[i]);
+                nextChannelId = Math.max(nextChannelId, values[i] + 1);
+            }
         }
         updateChannelList();
     }
