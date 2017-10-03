@@ -6,6 +6,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -67,7 +69,8 @@ public class ChatPagerAdapter extends FragmentPagerAdapter {
     }
 
     public void updateChannelList() {
-        channels = connectionInfo.getChannels();
+        channels = new ArrayList<>(connectionInfo.getChannels());
+        Collections.sort(channels);
         Iterator<Map.Entry<String, Long>> it = channelIds.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<String, Long> entry = it.next();
