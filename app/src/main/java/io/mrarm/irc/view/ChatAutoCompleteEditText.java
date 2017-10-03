@@ -207,7 +207,7 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
             return false;
         int flags = 0;
         for (CommandAliasManager.CommandAlias alias : mCompletingCommands) {
-            if (alias.disableArgAutocomplete)
+            if (alias.disableArgAutocomplete || alias.getSyntaxParser() == null)
                 continue;
             ServerConnectionData data = ((ServerConnectionApi) mConnection.getApiInstance()).getServerConnectionData();
             flags |= alias.getSyntaxParser().getAutocompleteFlags(data, args, 1);
