@@ -306,7 +306,9 @@ public class ChatFragment extends Fragment implements
         if (messageCount == 0 || (messageCount > 0 && oldMessageCount == 0)) {
             getActivity().runOnUiThread(() -> {
                 int tabNumber = mSectionsPagerAdapter.findChannel(channel);
-                updateTabLayoutTab(mTabLayout.getTabAt(tabNumber));
+                TabLayout.Tab tab = mTabLayout.getTabAt(tabNumber);
+                if (tab != null)
+                    updateTabLayoutTab(tab);
             });
         }
     }
