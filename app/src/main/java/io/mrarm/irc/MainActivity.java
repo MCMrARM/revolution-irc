@@ -106,9 +106,11 @@ public class MainActivity extends ThemedActivity {
 
     private void handleIntent(Intent intent) {
         String serverUUID = intent.getStringExtra(ARG_SERVER_UUID);
-        if (serverUUID != null) {
-            ServerConnectionInfo server = ServerConnectionManager.getInstance(this)
-                    .getConnection(UUID.fromString(serverUUID));
+        ServerConnectionInfo server = null;
+        if (serverUUID != null)
+            server = ServerConnectionManager.getInstance(this).getConnection(
+                    UUID.fromString(serverUUID));
+        if (server != null) {
             ChatFragment fragment = openServer(server, intent.getStringExtra(ARG_CHANNEL_NAME));
             if (Intent.ACTION_SEND.equals(intent.getAction()) &&
                     "text/plain".equals(intent.getType())) {
