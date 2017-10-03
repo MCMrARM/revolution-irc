@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:paddingTop="16dp"
     android:paddingBottom="16dp"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingLeft="@dimen/setting_horizontal_padding"
+    android:paddingRight="@dimen/setting_horizontal_padding"
     android:background="?attr/selectableItemBackground"
     android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />

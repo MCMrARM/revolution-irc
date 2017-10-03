@@ -12,8 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-        android:layout_marginLeft="@dimen/activity_horizontal_margin"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_marginLeft="@dimen/setting_horizontal_padding"
+        android:layout_marginStart="@dimen/setting_horizontal_padding"
         android:text="Name Placeholder"
         android:layout_toLeftOf="@+id/color"
         android:layout_toStartOf="@+id/color" />
@@ -24,8 +24,8 @@
         android:layout_height="wrap_content"
         android:text="Value Placeholder"
         android:layout_below="@+id/name"
-        android:layout_marginLeft="@dimen/activity_horizontal_margin"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_marginLeft="@dimen/setting_horizontal_padding"
+        android:layout_marginStart="@dimen/setting_horizontal_padding"
         android:layout_marginTop="2dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
@@ -41,8 +41,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginRight="@dimen/activity_horizontal_margin"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/setting_horizontal_padding"
+        android:layout_marginEnd="@dimen/setting_horizontal_padding"
         app:srcCompat="@drawable/color_circle" />
 
 </RelativeLayout>

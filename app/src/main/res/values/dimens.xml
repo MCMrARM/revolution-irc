@@ -46,6 +46,7 @@
     <dimen name="touch_press_select_autoscroll_amount">500dp</dimen>
 
     <dimen name="setting_vertical_padding">16dp</dimen>
+    <dimen name="setting_horizontal_padding">16dp</dimen>
 
     <dimen name="add_server_item_spacing">12dp</dimen>
 
