@@ -2,13 +2,11 @@ package io.mrarm.irc.view;
 
 import android.content.Context;
 import android.graphics.Rect;
-import android.support.v7.widget.AppCompatEditText;
 import android.text.Editable;
 import android.text.NoCopySpan;
 import android.text.Spanned;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,11 +57,9 @@ public class FormattableEditText extends ThemedEditText {
                         data.start += after - count;
                     if (data.end > selStart) {
                         data.end = Math.max(data.end + after - count, data.start);
-                    } else if (data.end >= selStart) {
+                    } else if (data.end == selStart) {
                         if (spanPointFlags == Spanned.SPAN_EXCLUSIVE_INCLUSIVE || spanPointFlags == Spanned.SPAN_INCLUSIVE_INCLUSIVE) {
                             data.extendToCursor = true;
-                        } else if (data.end > start + after) {
-                            data.end = Math.max(start + after, data.start);
                         }
                     }
                     mBackedUpSpans.add(data);
@@ -77,7 +73,7 @@ public class FormattableEditText extends ThemedEditText {
                 int selStart = getSelectionStart();
                 for (SpanData span : mBackedUpSpans) {
                     if (span.extendToCursor)
-                        span.end = Math.max(selStart, span.start);
+                        span.end = selStart;
                 }
             }
 
@@ -85,18 +81,20 @@ public class FormattableEditText extends ThemedEditText {
             public void afterTextChanged(Editable s) {
                 if (mSettingText)
                     return;
+                mSettingText = true;
                 for (SpanData span : mBackedUpSpans) {
                     span.start = Math.max(span.start, 0);
                     span.end = Math.min(span.end, s.length());
                     int spanPointFlags = span.flags & Spanned.SPAN_POINT_MARK_MASK;
                     if (span.start >= s.length() || span.end < 0 || span.start > span.end ||
                             (span.start == span.end && (spanPointFlags == Spanned.SPAN_EXCLUSIVE_EXCLUSIVE || spanPointFlags == Spanned.SPAN_INCLUSIVE_EXCLUSIVE))) {
-                        s.removeSpan(span);
+                        s.removeSpan(span.span);
                         continue;
                     }
                     s.setSpan(span.span, span.start, span.end, span.flags);
                 }
                 mBackedUpSpans.clear();
+                mSettingText = false;
             }
         });
     }
