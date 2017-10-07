@@ -159,7 +159,7 @@ public class MessageBuilder {
         mActionMessageFormat = getMessageFormat(mgr, SettingsHelper.PREF_MESSAGE_FORMAT_ACTION);
         if (mActionMessageFormat == null)
             mActionMessageFormat = buildDefaultActionMessageFormat(context);
-        mActionMentionMessageFormat = getMessageFormat(mgr, SettingsHelper.PREF_MESSAGE_FORMAT_MENTION);
+        mActionMentionMessageFormat = getMessageFormat(mgr, SettingsHelper.PREF_MESSAGE_FORMAT_ACTION_MENTION);
         if (mActionMentionMessageFormat == null)
             mActionMentionMessageFormat = buildDefaultActionMentionMessageFormat(context);
         mNoticeMessageFormat = getMessageFormat(mgr, SettingsHelper.PREF_MESSAGE_FORMAT_NOTICE);
