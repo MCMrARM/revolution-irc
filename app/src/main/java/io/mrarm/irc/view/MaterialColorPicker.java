@@ -10,6 +10,7 @@ import android.graphics.Paint;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
@@ -34,6 +35,7 @@ public class MaterialColorPicker extends View {
     private int mColorVariantsColumnCount = 3;
     private int mColorAccentVariantsColumnCount = 4;
     private Paint mPaint;
+    private int mMaxWidth;
 
     private int mAnimExpandIndex = -1;
     private float mAnimExpandProgress = 0.f;
@@ -59,9 +61,14 @@ public class MaterialColorPicker extends View {
 
     public MaterialColorPicker(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+
+        TypedArray ta = context.getTheme().obtainStyledAttributes(attrs, R.styleable.MaterialColorPicker, defStyleAttr, 0);
+        mMaxWidth = ta.getDimensionPixelSize(R.styleable.MaterialColorPicker_maxWidth, -1);
+        ta.recycle();
+
         mColors = context.getResources().getIntArray(R.array.color_picker_colors_main);
         mExtraColors = context.getResources().getIntArray(R.array.color_picker_colors_extra);
-        TypedArray ta = context.getResources().obtainTypedArray(R.array.color_picker_variants_main);
+        ta = context.getResources().obtainTypedArray(R.array.color_picker_variants_main);
         mColorVariants = new int[ta.length()];
         for (int i = 0; i < mColorVariants.length; i++)
             mColorVariants[i] = ta.getResourceId(i, 0);
@@ -318,13 +325,22 @@ public class MaterialColorPicker extends View {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        if (mMaxWidth != -1 && getMeasuredWidth() > mMaxWidth)
+            setMeasuredDimension(mMaxWidth, getMeasuredHeight());
         int mode = MeasureSpec.getMode(heightMeasureSpec);
-        int baseTileSize = getWidth() / mColorColumnCount;
-        float height = ((mColors.length - 1) / mColorColumnCount + 1) * baseTileSize;
-        height += baseTileSize / 2.f;
-        height += ((mExtraColors.length - 1) / mColorColumnCount + 1) * baseTileSize;
+        int baseTileSize = getMeasuredWidth() / mColorColumnCount;
+        int vTileCount = ((mColors.length - 1) / mColorColumnCount + 1);
+        vTileCount += ((mExtraColors.length - 1) / mColorColumnCount + 1);
+        float height = (vTileCount + 0.5f) * baseTileSize;
         if (mode == MeasureSpec.AT_MOST) {
-            setMeasuredDimension(getMeasuredWidth(), Math.min((int) height, MeasureSpec.getSize(heightMeasureSpec)));
+            if (MeasureSpec.getSize(heightMeasureSpec) < height) {
+                baseTileSize = (int) (MeasureSpec.getSize(heightMeasureSpec) / (vTileCount + 0.5f));
+                setMeasuredDimension(mColorColumnCount * baseTileSize,
+                        (int) ((vTileCount + 0.5f) * baseTileSize));
+            } else {
+                setMeasuredDimension(getMeasuredWidth(), Math.min((int) height,
+                        MeasureSpec.getSize(heightMeasureSpec)));
+            }
         } else if (mode == MeasureSpec.UNSPECIFIED) {
             setMeasuredDimension(getMeasuredWidth(), (int) height);
         }

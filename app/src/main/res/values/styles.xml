@@ -163,4 +163,9 @@
         <item name="android:textColor">#DE000000</item>
     </style>
 
+    <style name="MaterialColorPickerDialog" parent="Theme.AppCompat.DayNight.Dialog.Alert">
+        <item name="android:windowMinWidthMinor">16dp</item>
+        <item name="android:windowMinWidthMajor">16dp</item>
+    </style>
+
 </resources>

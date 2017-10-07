@@ -4,6 +4,10 @@
     <attr name="textFormatBarStyle" type="reference" />
     <attr name="recyclerViewScrollbarStyle" type="reference" />
 
+    <declare-styleable name="MaterialColorPicker">
+        <attr name="maxWidth" format="dimension" />
+    </declare-styleable>
+
     <declare-styleable name="LabelLayout">
         <attr name="android:textColorHint" format="color" />
         <attr name="doNotExpand" format="boolean" />
