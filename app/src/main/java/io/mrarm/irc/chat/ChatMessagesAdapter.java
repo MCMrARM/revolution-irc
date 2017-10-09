@@ -72,7 +72,8 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     public void setSelectListener(LongPressSelectTouchListener selectListener) {
         mSelectListener = selectListener;
-        selectListener.setListener(this);
+        if (selectListener != null)
+            selectListener.setListener(this);
     }
 
     public Set<Integer> getSelectedItems() {

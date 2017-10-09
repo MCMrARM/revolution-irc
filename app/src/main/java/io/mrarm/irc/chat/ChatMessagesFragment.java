@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.RecyclerView;
@@ -131,13 +132,78 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
         UUID connectionUUID = UUID.fromString(getArguments().getString(ARG_SERVER_UUID));
         ServerConnectionInfo connectionInfo = ServerConnectionManager.getInstance(getContext())
                 .getConnection(connectionUUID);
         mConnection = connectionInfo;
-        String channelName = getArguments().getString(ARG_CHANNEL_NAME);
+        mChannelName = getArguments().getString(ARG_CHANNEL_NAME);
+
+        SettingsHelper settingsHelper = SettingsHelper.getInstance(getContext());
+        if (mChannelName != null) {
+            mAdapter = new ChatMessagesAdapter(this, new ArrayList<>());
+            mAdapter.setMessageFont(settingsHelper.getChatFont(), settingsHelper.getChatFontSize());
+
+            Log.i(TAG, "Request message list for: " + mChannelName);
+            connectionInfo.getApiInstance().getChannelInfo(mChannelName,
+                    (ChannelInfo channelInfo) -> {
+                        Log.i(TAG, "Got channel info " + mChannelName);
+                        onMemberListChanged(channelInfo.getMembers());
+                    }, null);
+
+            connectionInfo.getApiInstance().subscribeChannelInfo(mChannelName, this, null, null);
+            mNeedsUnsubscribeChannelInfo = true;
+
+            reloadMessages(settingsHelper);
+        } else if (getArguments().getBoolean(ARG_DISPLAY_STATUS)) {
+            mStatusAdapter = new ServerStatusMessagesAdapter(new StatusMessageList(new ArrayList<>()));
+            mStatusAdapter.setMessageFont(settingsHelper.getChatFont(), settingsHelper.getChatFontSize());
+
+            Log.i(TAG, "Request status message list");
+            connectionInfo.getApiInstance().getStatusMessages(100, null,
+                    (StatusMessageList messages) -> {
+                        Log.i(TAG, "Got server status message list: " +
+                                messages.getMessages().size() + " messages");
+                        mStatusMessages = messages.getMessages();
+                        mNeedsUnsubscribeStatusMessages = true;
+                        if (mRecyclerView != null) {
+                            mRecyclerView.post(() -> {
+                                mStatusAdapter.setMessages(messages);
+                                mRecyclerView.scrollToPosition(mStatusAdapter.getItemCount() - 1);
+                            });
+                        } else {
+                            mStatusAdapter.setMessages(messages);
+                        }
+
+                        connectionInfo.getApiInstance().subscribeStatusMessages(ChatMessagesFragment.this, null, null);
+                    }, null);
+        }
+
+        settingsHelper.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT, this);
+        settingsHelper.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT_SIZE, this);
+        settingsHelper.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_HIDE_JOIN_PART, this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        SettingsHelper s = SettingsHelper.getInstance(getContext());
+        s.removePreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT, this);
+        s.removePreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT_SIZE, this);
+
+        if (mNeedsUnsubscribeChannelInfo)
+            mConnection.getApiInstance().unsubscribeChannelInfo(getArguments().getString(ARG_CHANNEL_NAME), ChatMessagesFragment.this, null, null);
+        if (mNeedsUnsubscribeMessages)
+            mConnection.getApiInstance().getMessageStorageApi().unsubscribeChannelMessages(getArguments().getString(ARG_CHANNEL_NAME), ChatMessagesFragment.this, null, null);
+        if (mNeedsUnsubscribeStatusMessages)
+            mConnection.getApiInstance().unsubscribeStatusMessages(ChatMessagesFragment.this, null, null);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.chat_messages_fragment, container, false);
         mRecyclerView = (RecyclerView) rootView;
@@ -152,9 +218,9 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                 if (firstVisible >= 0 && firstVisible < LOAD_MORE_BEFORE_INDEX) {
                     if (mIsLoadingMore || mLoadMoreIdentifier == null || !mAdapter.hasMessages())
                         return;
-                    Log.i(TAG, "Load more: " + channelName);
+                    Log.i(TAG, "Load more: " + mChannelName);
                     mIsLoadingMore = true;
-                    connectionInfo.getApiInstance().getMessageStorageApi().getMessages(channelName,
+                    mConnection.getApiInstance().getMessageStorageApi().getMessages(mChannelName,
                             100, getFilterOptions(), mLoadMoreIdentifier,
                             (MessageList messages) -> {
                                 mRecyclerView.post(() -> {
@@ -167,54 +233,27 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             }
         });
 
-        SettingsHelper settingsHelper = SettingsHelper.getInstance(getContext());
-        if (channelName != null) {
-            mChannelName = channelName;
-            mAdapter = new ChatMessagesAdapter(this, new ArrayList<>());
-            mAdapter.setMessageFont(settingsHelper.getChatFont(), settingsHelper.getChatFontSize());
+        if (mAdapter != null) {
             mRecyclerView.setAdapter(mAdapter);
             LongPressSelectTouchListener selectTouchListener = new LongPressSelectTouchListener(mRecyclerView);
             mAdapter.setSelectListener(selectTouchListener);
             mRecyclerView.addOnItemTouchListener(selectTouchListener);
-
-            Log.i(TAG, "Request message list for: " + channelName);
-            connectionInfo.getApiInstance().getChannelInfo(channelName,
-                    (ChannelInfo channelInfo) -> {
-                        Log.i(TAG, "Got channel info " + channelName);
-                        onMemberListChanged(channelInfo.getMembers());
-                    }, null);
-
-            connectionInfo.getApiInstance().subscribeChannelInfo(channelName, this, null, null);
-            mNeedsUnsubscribeChannelInfo = true;
-
-            reloadMessages(settingsHelper);
-        } else if (getArguments().getBoolean(ARG_DISPLAY_STATUS)) {
-            mStatusAdapter = new ServerStatusMessagesAdapter(new StatusMessageList(new ArrayList<>()));
-            mStatusAdapter.setMessageFont(settingsHelper.getChatFont(), settingsHelper.getChatFontSize());
+        } else if (mStatusAdapter != null) {
             mRecyclerView.setAdapter(mStatusAdapter);
-
-            Log.i(TAG, "Request status message list");
-            connectionInfo.getApiInstance().getStatusMessages(100, null,
-                    (StatusMessageList messages) -> {
-                        Log.i(TAG, "Got server status message list: " +
-                                messages.getMessages().size() + " messages");
-                        mStatusMessages = messages.getMessages();
-                        mNeedsUnsubscribeStatusMessages = true;
-                        mRecyclerView.post(() -> {
-                            mStatusAdapter.setMessages(messages);
-                            mRecyclerView.scrollToPosition(mStatusAdapter.getItemCount() - 1);
-                        });
-
-                        connectionInfo.getApiInstance().subscribeStatusMessages(ChatMessagesFragment.this, null, null);
-                    }, null);
         }
 
-        SettingsHelper s = SettingsHelper.getInstance(getContext());
-        s.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT, this);
-        s.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT_SIZE, this);
-        s.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_HIDE_JOIN_PART, this);
-
         return rootView;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        if (mAdapter != null) {
+            mAdapter.setSelectListener(null);
+        }
+        if (mConnection != null && getUserVisibleHint() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            IRCChooserTargetService.unsetChannel(mConnection.getUUID(), mChannelName);
     }
 
     private void reloadMessages(SettingsHelper settingsHelper) {
@@ -228,11 +267,15 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                     Log.i(TAG, "Got message list for " + mChannelName + ": " +
                             messages.getMessages().size() + " messages");
                     mMessages = messages.getMessages();
-                    mRecyclerView.post(() -> {
+                    if (mRecyclerView != null) {
+                        mRecyclerView.post(() -> {
+                            mAdapter.setMessages(mMessages);
+                            mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
+                            mLoadMoreIdentifier = messages.getAfterIdentifier();
+                        });
+                    } else {
                         mAdapter.setMessages(mMessages);
-                        mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
-                        mLoadMoreIdentifier = messages.getAfterIdentifier();
-                    });
+                    }
 
                     if (!mNeedsUnsubscribeMessages) {
                         mConnection.getApiInstance().getMessageStorageApi().subscribeChannelMessages(mChannelName, ChatMessagesFragment.this, null, null);
@@ -274,24 +317,6 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                 mChannelName != null) {
             reloadMessages(settingsHelper);
         }
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        SettingsHelper s = SettingsHelper.getInstance(getContext());
-        s.removePreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT, this);
-        s.removePreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT_SIZE, this);
-
-        if (mNeedsUnsubscribeChannelInfo)
-            mConnection.getApiInstance().unsubscribeChannelInfo(getArguments().getString(ARG_CHANNEL_NAME), ChatMessagesFragment.this, null, null);
-        if (mNeedsUnsubscribeMessages)
-            mConnection.getApiInstance().getMessageStorageApi().unsubscribeChannelMessages(getArguments().getString(ARG_CHANNEL_NAME), ChatMessagesFragment.this, null, null);
-        if (mNeedsUnsubscribeStatusMessages)
-            mConnection.getApiInstance().unsubscribeStatusMessages(ChatMessagesFragment.this, null, null);
-
-        if (mConnection != null && getUserVisibleHint() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            IRCChooserTargetService.unsetChannel(mConnection.getUUID(), mChannelName);
     }
 
     public ServerConnectionInfo getConnectionInfo() {
