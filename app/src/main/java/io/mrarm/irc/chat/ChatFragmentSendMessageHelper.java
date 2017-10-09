@@ -228,7 +228,7 @@ public class ChatFragmentSendMessageHelper {
                         setupCommandResultHandler(conn, text, result.text);
                         conn.sendCommandRaw(result.text, null, null);
                     } else if (result.mode == CommandAliasManager.CommandAlias.MODE_MESSAGE) {
-                        if (channel == null)
+                        if (result.channel == null)
                             throw new RuntimeException();
                         if (!mFragment.getConnectionInfo().getChannels().contains(result.channel)) {
                             ArrayList<String> list = new ArrayList<>();
