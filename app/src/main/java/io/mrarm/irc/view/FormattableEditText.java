@@ -55,12 +55,12 @@ public class FormattableEditText extends ThemedEditText {
                             !(data.start == selStart && (spanPointFlags == Spanned.SPAN_INCLUSIVE_EXCLUSIVE || spanPointFlags == Spanned.SPAN_INCLUSIVE_INCLUSIVE)) &&
                             !(data.end == selStart && (spanPointFlags == Spanned.SPAN_EXCLUSIVE_INCLUSIVE || spanPointFlags == Spanned.SPAN_INCLUSIVE_INCLUSIVE)))
                         data.start += after - count;
-                    if (data.end > selStart) {
+                    if (data.end == selStart &&
+                            (spanPointFlags == Spanned.SPAN_EXCLUSIVE_INCLUSIVE ||
+                                    spanPointFlags == Spanned.SPAN_INCLUSIVE_INCLUSIVE)) {
+                        data.extendToCursor = true;
+                    } else if (data.end >= selStart) {
                         data.end = Math.max(data.end + after - count, data.start);
-                    } else if (data.end == selStart) {
-                        if (spanPointFlags == Spanned.SPAN_EXCLUSIVE_INCLUSIVE || spanPointFlags == Spanned.SPAN_INCLUSIVE_INCLUSIVE) {
-                            data.extendToCursor = true;
-                        }
                     }
                     mBackedUpSpans.add(data);
                 }
