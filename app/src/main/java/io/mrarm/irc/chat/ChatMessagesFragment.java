@@ -168,14 +168,11 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                                 messages.getMessages().size() + " messages");
                         mStatusMessages = messages.getMessages();
                         mNeedsUnsubscribeStatusMessages = true;
-                        if (mRecyclerView != null) {
-                            mRecyclerView.post(() -> {
-                                mStatusAdapter.setMessages(messages);
-                                mRecyclerView.scrollToPosition(mStatusAdapter.getItemCount() - 1);
-                            });
-                        } else {
+                        getActivity().runOnUiThread(() -> {
                             mStatusAdapter.setMessages(messages);
-                        }
+                            if (mRecyclerView != null)
+                                mRecyclerView.scrollToPosition(mStatusAdapter.getItemCount() - 1);
+                        });
 
                         connectionInfo.getApiInstance().subscribeStatusMessages(ChatMessagesFragment.this, null, null);
                     }, null);
@@ -223,7 +220,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                     mConnection.getApiInstance().getMessageStorageApi().getMessages(mChannelName,
                             100, getFilterOptions(), mLoadMoreIdentifier,
                             (MessageList messages) -> {
-                                mRecyclerView.post(() -> {
+                                getActivity().runOnUiThread(() -> {
                                     mAdapter.addMessagesToTop(messages.getMessages());
                                     mLoadMoreIdentifier = messages.getAfterIdentifier();
                                     mIsLoadingMore = false;
@@ -267,15 +264,12 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                     Log.i(TAG, "Got message list for " + mChannelName + ": " +
                             messages.getMessages().size() + " messages");
                     mMessages = messages.getMessages();
-                    if (mRecyclerView != null) {
-                        mRecyclerView.post(() -> {
-                            mAdapter.setMessages(mMessages);
-                            mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
-                            mLoadMoreIdentifier = messages.getAfterIdentifier();
-                        });
-                    } else {
+                    getActivity().runOnUiThread(() -> {
                         mAdapter.setMessages(mMessages);
-                    }
+                        if (mRecyclerView != null)
+                            mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
+                        mLoadMoreIdentifier = messages.getAfterIdentifier();
+                    });
 
                     if (!mNeedsUnsubscribeMessages) {
                         mConnection.getApiInstance().getMessageStorageApi().subscribeChannelMessages(mChannelName, ChatMessagesFragment.this, null, null);
@@ -340,7 +334,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
 
     @Override
     public void onMessage(String channel, MessageInfo messageInfo) {
-        mRecyclerView.post(() -> {
+        getActivity().runOnUiThread(() -> {
             mMessages.add(messageInfo);
             mAdapter.notifyItemInserted(mMessages.size() - 1);
             scrollToBottom();
@@ -349,7 +343,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
 
     @Override
     public void onStatusMessage(StatusMessageInfo statusMessageInfo) {
-        mRecyclerView.post(() -> {
+        getActivity().runOnUiThread(() -> {
             mStatusMessages.add(statusMessageInfo);
             mStatusAdapter.notifyItemInserted(mStatusMessages.size() - 1);
             scrollToBottom();
@@ -375,7 +369,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             return left.getNick().compareTo(right.getNick());
         });
         if (getUserVisibleHint()) {
-            mRecyclerView.post(() -> {
+            getActivity().runOnUiThread(() -> {
                 ((ChatFragment) getParentFragment()).setCurrentChannelMembers(mMembers);
             });
         }
