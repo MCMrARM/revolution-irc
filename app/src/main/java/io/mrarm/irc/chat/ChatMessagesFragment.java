@@ -168,7 +168,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                                 messages.getMessages().size() + " messages");
                         mStatusMessages = messages.getMessages();
                         mNeedsUnsubscribeStatusMessages = true;
-                        getActivity().runOnUiThread(() -> {
+                        updateMessageList(() -> {
                             mStatusAdapter.setMessages(messages);
                             if (mRecyclerView != null)
                                 mRecyclerView.scrollToPosition(mStatusAdapter.getItemCount() - 1);
@@ -203,7 +203,9 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                              Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.chat_messages_fragment, container, false);
-        mRecyclerView = (RecyclerView) rootView;
+        synchronized (this) {
+            mRecyclerView = (RecyclerView) rootView;
+        }
         mLayoutManager = new ScrollPosLinearLayoutManager(getContext());
         mLayoutManager.setStackFromEnd(true);
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -220,7 +222,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                     mConnection.getApiInstance().getMessageStorageApi().getMessages(mChannelName,
                             100, getFilterOptions(), mLoadMoreIdentifier,
                             (MessageList messages) -> {
-                                getActivity().runOnUiThread(() -> {
+                                updateMessageList(() -> {
                                     mAdapter.addMessagesToTop(messages.getMessages());
                                     mLoadMoreIdentifier = messages.getAfterIdentifier();
                                     mIsLoadingMore = false;
@@ -246,6 +248,9 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     public void onDestroyView() {
         super.onDestroyView();
 
+        synchronized (this) {
+            mRecyclerView = null;
+        }
         if (mAdapter != null) {
             mAdapter.setSelectListener(null);
         }
@@ -264,7 +269,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                     Log.i(TAG, "Got message list for " + mChannelName + ": " +
                             messages.getMessages().size() + " messages");
                     mMessages = messages.getMessages();
-                    getActivity().runOnUiThread(() -> {
+                    updateMessageList(() -> {
                         mAdapter.setMessages(mMessages);
                         if (mRecyclerView != null)
                             mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
@@ -313,6 +318,16 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         }
     }
 
+    private void updateMessageList(Runnable r) {
+        synchronized (this) {
+            if (mRecyclerView != null) {
+                mRecyclerView.post(r);
+            } else {
+                r.run();
+            }
+        }
+    }
+
     public ServerConnectionInfo getConnectionInfo() {
         return mConnection;
     }
@@ -334,7 +349,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
 
     @Override
     public void onMessage(String channel, MessageInfo messageInfo) {
-        getActivity().runOnUiThread(() -> {
+        updateMessageList(() -> {
             mMessages.add(messageInfo);
             mAdapter.notifyItemInserted(mMessages.size() - 1);
             scrollToBottom();
@@ -343,7 +358,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
 
     @Override
     public void onStatusMessage(StatusMessageInfo statusMessageInfo) {
-        getActivity().runOnUiThread(() -> {
+        updateMessageList(() -> {
             mStatusMessages.add(statusMessageInfo);
             mStatusAdapter.notifyItemInserted(mStatusMessages.size() - 1);
             scrollToBottom();
@@ -368,8 +383,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                 return left.getNickPrefixes() != null ? -1 : 1;
             return left.getNick().compareTo(right.getNick());
         });
-        if (getUserVisibleHint()) {
-            getActivity().runOnUiThread(() -> {
+        if (getUserVisibleHint() && getParentFragment().getView() != null) {
+            getParentFragment().getView().post(() -> {
                 ((ChatFragment) getParentFragment()).setCurrentChannelMembers(mMembers);
             });
         }
