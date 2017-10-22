@@ -1,5 +1,6 @@
 package io.mrarm.irc;
 
+import android.app.ActivityManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
@@ -29,6 +30,11 @@ public class ThemedActivity extends AppCompatActivity {
         mCurrentAccentColor = ThemeHelper.getAccentColor(this);
         super.onCreate(savedInstanceState);
         applyStatusBarColor();
+        if (ThemeHelper.hasCustomPrimaryColor(this) &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            setTaskDescription(new ActivityManager.TaskDescription(null, null,
+                    mCurrentPrimaryColor));
+        }
     }
 
     @Override
