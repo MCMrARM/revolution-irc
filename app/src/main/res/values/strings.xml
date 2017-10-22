@@ -101,9 +101,17 @@
     <!-- Service -->
 
     <string name="service_title">Connected to IRC</string>
-    <plurals name="service_status">
-        <item quantity="one">Connected to %d network.</item>
-        <item quantity="other">Connected to %d networks.</item>
+    <plurals name="service_status_connected">
+        <item quantity="one">Connected to %d network</item>
+        <item quantity="other">Connected to %d networks</item>
+    </plurals>
+    <plurals name="service_status_connecting">
+        <item quantity="one">connecting to %d network</item>
+        <item quantity="other">connecting to %d networks</item>
+    </plurals>
+    <plurals name="service_status_disconnected">
+        <item quantity="one">disconnected fom %d network</item>
+        <item quantity="other">disconnecting from %d networks</item>
     </plurals>
     <plurals name="notify_multiple_messages">
         <item quantity="one">%d unread message</item>

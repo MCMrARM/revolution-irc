@@ -79,11 +79,31 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
                 mCreatedChannel = true;
             }
 
+            StringBuilder b = new StringBuilder();
+            int connectedCount = 0, connectingCount = 0, disconnectedCount = 0;
+            for (ServerConnectionInfo connectionInfo :
+                    ServerConnectionManager.getInstance(this).getConnections()) {
+                if (connectionInfo.isConnected())
+                    connectedCount++;
+                else if (connectionInfo.isConnecting())
+                    connectingCount++;
+                else
+                    disconnectedCount++;
+            }
+            b.append(getResources().getQuantityString(R.plurals.service_status_connected, connectedCount, connectedCount));
+            if (connectingCount > 0) {
+                b.append(getResources().getString(R.string.text_comma));
+                b.append(getResources().getQuantityString(R.plurals.service_status_connecting, connectingCount, connectingCount));
+            }
+            if (disconnectedCount > 0) {
+                b.append(getResources().getString(R.string.text_comma));
+                b.append(getResources().getQuantityString(R.plurals.service_status_disconnected, disconnectedCount, disconnectedCount));
+            }
+
             Intent mainIntent = MainActivity.getLaunchIntent(this, null, null);
-            int connectionCount = ServerConnectionManager.getInstance(this).getConnections().size();
             NotificationCompat.Builder notification = new NotificationCompat.Builder(this, IDLE_NOTIFICATION_CHANNEL)
                     .setContentTitle(getString(R.string.service_title))
-                    .setContentText(getResources().getQuantityString(R.plurals.service_status, connectionCount, connectionCount))
+                    .setContentText(b.toString())
                     .setPriority(NotificationCompat.PRIORITY_MIN)
                     .setContentIntent(PendingIntent.getActivity(this, IDLE_NOTIFICATION_ID, mainIntent, PendingIntent.FLAG_CANCEL_CURRENT));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)

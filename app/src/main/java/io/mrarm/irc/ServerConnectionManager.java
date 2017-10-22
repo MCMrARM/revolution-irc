@@ -325,6 +325,7 @@ public class ServerConnectionManager {
         synchronized (mInfoListeners) {
             for (ServerConnectionInfo.InfoChangeListener listener : mInfoListeners)
                 listener.onConnectionInfoChanged(connection);
+            IRCService.start(mContext);
         }
     }
 
