@@ -111,7 +111,7 @@
     </plurals>
     <plurals name="service_status_disconnected">
         <item quantity="one">disconnected fom %d network</item>
-        <item quantity="other">disconnecting from %d networks</item>
+        <item quantity="other">disconnected from %d networks</item>
     </plurals>
     <plurals name="notify_multiple_messages">
         <item quantity="one">%d unread message</item>
