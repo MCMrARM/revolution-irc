@@ -58,6 +58,7 @@ public class CommandAliasManager {
         sDefaultAliases.add(CommandAlias.raw("kick", "[channel] <member> [message...]", "KICK ${channel} ${member} :${message}"));
         sDefaultAliases.add(CommandAlias.raw("mode", "<target> <modes> [args...]", "MODE ${target} ${modes} ${args}"));
         sDefaultAliases.add(CommandAlias.raw("whois", "<user>", "WHOIS ${user}"));
+        sDefaultAliases.add(CommandAlias.raw("away", "[message...]", "AWAY :${message}"));
         sDefaultAliases.add(CommandAlias.raw("quit", "[message...]", "QUIT :${message}"));
     }
 
