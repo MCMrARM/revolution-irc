@@ -54,8 +54,16 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
         return mChannel;
     }
 
-    public List<NotificationMessage> getNotificationMessages() {
-        return mMessages;
+    public int getNotificationMessageCount() {
+        synchronized (this) {
+            return mMessages.size();
+        }
+    }
+
+    public NotificationMessage getNotificationMessage(int index) {
+        synchronized (this) {
+            return mMessages.get(index);
+        }
     }
 
     public boolean addNotificationMessage(MessageInfo messageInfo) {
@@ -237,12 +245,12 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
             ColoredTextBuilder builder = new ColoredTextBuilder();
             builder.append(mSender + ": ", new ForegroundColorSpan(nickColor));
             builder.append(mText);
-            return mBuilt = builder.getSpannable();
+            return builder.getSpannable();
         }
 
-        public CharSequence getNotificationText(Context context) {
+        public synchronized CharSequence getNotificationText(Context context) {
             if (mBuilt == null)
-                return buildNotificationText(context);
+                return mBuilt = buildNotificationText(context);
             return mBuilt;
         }
 

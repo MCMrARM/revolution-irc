@@ -66,9 +66,11 @@ public class NotificationManager {
 
     public void clearAllNotifications(Context context, ServerConnectionInfo connection) {
         ConnectionManager connectionData = connection.getNotificationManager();
-        for (ChannelNotificationManager mgr : connectionData.getChannelManagerList())
-            mgr.cancelNotification(context);
-        connectionData.getChannelManagerList().clear();
+        synchronized (connectionData.mChannels) {
+            for (ChannelNotificationManager mgr : connectionData.mChannels.values())
+                mgr.cancelNotification(context);
+            connectionData.mChannels.clear();
+        }
         updateSummaryNotification(context);
     }
 
@@ -110,17 +112,20 @@ public class NotificationManager {
         int notificationCount = 0;
         StringBuilder longBuilder = new StringBuilder();
         for (ServerConnectionInfo info : ServerConnectionManager.getInstance(context).getConnections()) {
-            for (ChannelNotificationManager channelManager : info.getNotificationManager().getChannelManagerList()) {
-                if (channelManager.getNotificationMessages().size() == 0)
-                    continue;
-                if (first == null) {
-                    first = channelManager;
-                } else {
-                    longBuilder.append(context.getString(R.string.text_comma));
-                    isLong = true;
+            ConnectionManager cm = info.getNotificationManager();
+            synchronized (cm.mChannels) {
+                for (ChannelNotificationManager channelManager : cm.mChannels.values()) {
+                    if (channelManager.getNotificationMessageCount() == 0)
+                        continue;
+                    if (first == null) {
+                        first = channelManager;
+                    } else {
+                        longBuilder.append(context.getString(R.string.text_comma));
+                        isLong = true;
+                    }
+                    longBuilder.append(channelManager.getChannel());
+                    notificationCount++;
                 }
-                longBuilder.append(channelManager.getChannel());
-                notificationCount++;
             }
         }
         // Remove the notification if no notification entries were found
@@ -143,13 +148,12 @@ public class NotificationManager {
                     .setContentText(longBuilder.toString())
                     .setContentIntent(intent);
         } else {
-            List<ChannelNotificationManager.NotificationMessage> list = first.getNotificationMessages();
             PendingIntent intent = PendingIntent.getActivity(context, CHAT_SUMMARY_NOTIFICATION_ID,
                     MainActivity.getLaunchIntent(context, first.getConnection(), first.getChannel()),
                     PendingIntent.FLAG_CANCEL_CURRENT);
             notification
                     .setContentTitle(first.getChannel())
-                    .setContentText(list.get(list.size() - 1).getNotificationText(context))
+                    .setContentText(first.getNotificationMessage(first.getNotificationMessageCount() - 1).getNotificationText(context))
                     .setContentIntent(intent);
         }
         NotificationManagerCompat.from(context).notify(CHAT_SUMMARY_NOTIFICATION_ID, notification.build());
@@ -199,16 +203,14 @@ public class NotificationManager {
         }
 
         public ChannelNotificationManager getChannelManager(String channel, boolean create) {
-            ChannelNotificationManager ret = mChannels.get(channel);
-            if (ret == null && create) {
-                ret = new ChannelNotificationManager(mConnection, channel);
-                mChannels.put(channel, ret);
+            synchronized (mChannels) {
+                ChannelNotificationManager ret = mChannels.get(channel);
+                if (ret == null && create) {
+                    ret = new ChannelNotificationManager(mConnection, channel);
+                    mChannels.put(channel, ret);
+                }
+                return ret;
             }
-            return ret;
-        }
-
-        public Collection<ChannelNotificationManager> getChannelManagerList() {
-            return mChannels.values();
         }
 
         public UUID getServerUUID() {
