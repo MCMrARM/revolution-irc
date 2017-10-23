@@ -305,9 +305,11 @@ public class EditServerActivity extends ThemedActivity {
             authModePassword = true;
         } else {
             mEditServer.authMode = null;
+            mEditServer.authUser = null;
+            mEditServer.authPass = null;
         }
         if (mServerAuthPassReset.getVisibility() == View.GONE && authModePassword)
-            mEditServer.authPass = mServerAuthPass.getText().length() > 0 ? mServerAuthPass.getText().toString() : null;
+            mEditServer.authPass = mServerAuthPass.getText().toString();
         mEditServer.autojoinChannels = Arrays.asList(mServerChannels.getItems());
         mEditServer.rejoinChannels = mServerRejoinChannels.isChecked();
         try {
