@@ -1,9 +1,11 @@
 package io.mrarm.irc.view.theme;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.v4.graphics.ColorUtils;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.AppCompatEditText;
@@ -134,5 +136,10 @@ public class ThemedEditText extends AppCompatEditText {
         }
     }
 
+    @Override
+    @TargetApi(Build.VERSION_CODES.O)
+    public int getAutofillType() {
+        return AUTOFILL_TYPE_NONE;
+    }
 
 }
