@@ -352,7 +352,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         updateMessageList(() -> {
             mMessages.add(messageInfo);
             mAdapter.notifyItemInserted(mMessages.size() - 1);
-            scrollToBottom();
+            if (mRecyclerView != null)
+                scrollToBottom();
         });
     }
 
@@ -361,7 +362,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         updateMessageList(() -> {
             mStatusMessages.add(statusMessageInfo);
             mStatusAdapter.notifyItemInserted(mStatusMessages.size() - 1);
-            scrollToBottom();
+            if (mRecyclerView != null)
+                scrollToBottom();
         });
     }
 
@@ -383,8 +385,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                 return left.getNickPrefixes() != null ? -1 : 1;
             return left.getNick().compareTo(right.getNick());
         });
-        if (getUserVisibleHint() && getParentFragment().getView() != null) {
-            getParentFragment().getView().post(() -> {
+        if (getUserVisibleHint()) {
+            updateMessageList(() -> {
                 ((ChatFragment) getParentFragment()).setCurrentChannelMembers(mMembers);
             });
         }
