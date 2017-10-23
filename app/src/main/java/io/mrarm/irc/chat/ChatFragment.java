@@ -270,6 +270,8 @@ public class ChatFragment extends Fragment implements
     }
 
     public void setCurrentChannelMembers(List<NickWithPrefix> members) {
+        if (mChannelMembersAdapter == null)
+            return;
         mChannelMembersAdapter.setMembers(members);
         mSendHelper.setCurrentChannelMembers(members);
         if (members == null || members.size() == 0)
