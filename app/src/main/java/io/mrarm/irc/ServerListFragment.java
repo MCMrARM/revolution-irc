@@ -115,4 +115,9 @@ public class ServerListFragment extends Fragment {
             mAdapter.unregisterListeners();
         super.onDestroyView();
     }
+
+    public ServerListAdapter getAdapter() {
+        return mAdapter;
+    }
+
 }

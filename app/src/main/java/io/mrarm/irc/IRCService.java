@@ -60,8 +60,11 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
     public void onDestroy() {
         super.onDestroy();
 
-        for (ServerConnectionInfo connection : ServerConnectionManager.getInstance(this).getConnections())
-            onConnectionRemoved(connection);
+        if (ServerConnectionManager.hasInstance()) {
+            for (ServerConnectionInfo connection : ServerConnectionManager.getInstance(this)
+                    .getConnections())
+                onConnectionRemoved(connection);
+        }
 
         unregisterReceiver(mConnectivityReceiver);
     }

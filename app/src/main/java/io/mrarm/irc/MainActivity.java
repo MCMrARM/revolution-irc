@@ -38,8 +38,6 @@ import io.mrarm.irc.view.LockableDrawerLayout;
 
 public class MainActivity extends ThemedActivity {
 
-    private static boolean sDoReconnectOnOpen = false;
-
     public static final String ARG_SERVER_UUID = "server_uuid";
     public static final String ARG_CHANNEL_NAME = "channel";
 
@@ -62,11 +60,6 @@ public class MainActivity extends ThemedActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         ServerConnectionManager.getInstance(this);
-        if (sDoReconnectOnOpen) {
-            sDoReconnectOnOpen = false;
-            for (ServerConnectionInfo connection : ServerConnectionManager.getInstance(this).getConnections())
-                connection.connect();
-        }
         WarningHelper.setAppContext(getApplicationContext());
 
         if (SettingsHelper.getInstance(this).isNightModeEnabled())
@@ -387,11 +380,12 @@ public class MainActivity extends ThemedActivity {
         } else if (id == R.id.action_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
         } else if (id == R.id.action_exit) {
-            for (ServerConnectionInfo connection : ServerConnectionManager.getInstance(this).getConnections())
-                connection.disconnect();
+            if (getCurrentFragment() instanceof ServerListFragment)
+                ((ServerListFragment) getCurrentFragment()).getAdapter().unregisterListeners();
+            getDrawerHelper().unregisterListeners();
+            ServerConnectionManager.destroyInstance();
             IRCService.stop(this);
             finish();
-            sDoReconnectOnOpen = true;
         } else {
             return super.onOptionsItemSelected(item);
         }

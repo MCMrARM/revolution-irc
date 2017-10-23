@@ -29,6 +29,7 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private static final Integer DISABLE_ANIM = 10;
 
     private Activity mContext;
+    private boolean mHasRegisteredListeners = false;
 
     private List<ServerConfigData> mFilteredInactiveServers = new ArrayList<>();
 
@@ -55,17 +56,23 @@ public class ServerListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     public void registerListeners() {
+        if (mHasRegisteredListeners)
+            return;
         ServerConnectionManager.getInstance(mContext).addListener(this);
         ServerConnectionManager.getInstance(mContext).addGlobalConnectionInfoListener(this);
         ServerConnectionManager.getInstance(mContext).addGlobalChannelListListener(this);
         ServerConfigManager.getInstance(mContext).addListener(this);
+        mHasRegisteredListeners = true;
     }
 
     public void unregisterListeners() {
+        if (!mHasRegisteredListeners)
+            return;
         ServerConnectionManager.getInstance(mContext).removeListener(this);
         ServerConnectionManager.getInstance(mContext).removeGlobalConnectionInfoListener(this);
         ServerConnectionManager.getInstance(mContext).removeGlobalChannelListListener(this);
         ServerConfigManager.getInstance(mContext).removeListener(this);
+        mHasRegisteredListeners = false;
     }
 
     @Override

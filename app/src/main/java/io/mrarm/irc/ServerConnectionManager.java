@@ -40,11 +40,29 @@ public class ServerConnectionManager {
     private final List<ConnectionsListener> mListeners = new ArrayList<>();
     private final List<ServerConnectionInfo.ChannelListChangeListener> mChannelsListeners = new ArrayList<>();
     private final List<ServerConnectionInfo.InfoChangeListener> mInfoListeners = new ArrayList<>();
+    private boolean mDestroying = false;
 
-    public static ServerConnectionManager getInstance(Context context) {
+    public static boolean hasInstance() {
+        return instance != null;
+    }
+
+    public static synchronized ServerConnectionManager getInstance(Context context) {
         if (instance == null && context != null)
             instance = new ServerConnectionManager(context.getApplicationContext());
         return instance;
+    }
+
+    public static synchronized void destroyInstance() {
+        if (instance == null)
+            return;
+        instance.mDestroying = true;
+        while (instance.mConnections.size() > 0) {
+            ServerConnectionInfo connection = instance.mConnections.get(instance.mConnections.size() - 1);
+            connection.disconnect();
+            instance.removeConnection(connection, false);
+            instance.killDisconnectingConnection(connection.getUUID());
+        }
+        instance = null;
     }
 
     public ServerConnectionManager(Context context) {
@@ -214,7 +232,7 @@ public class ServerConnectionManager {
                 saveAutoconnectListAsync();
             if (mConnections.size() == 0)
                 IRCService.stop(mContext);
-            else
+            else if (!mDestroying)
                 IRCService.start(mContext); // update connection count
         }
         synchronized (mListeners) {
@@ -325,7 +343,8 @@ public class ServerConnectionManager {
         synchronized (mInfoListeners) {
             for (ServerConnectionInfo.InfoChangeListener listener : mInfoListeners)
                 listener.onConnectionInfoChanged(connection);
-            IRCService.start(mContext);
+            if (!mDestroying)
+                IRCService.start(mContext);
         }
     }
 

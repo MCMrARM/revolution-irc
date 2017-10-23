@@ -32,6 +32,7 @@ public class DrawerHelper implements ServerConnectionManager.ConnectionsListener
     private DrawerMenuItem mSearchItem;
     private DrawerMenuItem mManageServersItem;
     private DrawerMenuItem mSettingsItem;
+    private boolean mHasRegisteredListeners = false;
 
     public DrawerHelper(Activity activity) {
         mActivity = activity;
@@ -100,17 +101,23 @@ public class DrawerHelper implements ServerConnectionManager.ConnectionsListener
     }
 
     public void registerListeners() {
+        if (mHasRegisteredListeners)
+            return;
         ServerConnectionManager.getInstance(mActivity).addListener(this);
         ServerConnectionManager.getInstance(mActivity).addGlobalConnectionInfoListener(this);
         ServerConnectionManager.getInstance(mActivity).addGlobalChannelListListener(this);
         NotificationManager.getInstance().addGlobalUnreadMessageCountCallback(this);
+        mHasRegisteredListeners = true;
     }
 
     public void unregisterListeners() {
+        if (!mHasRegisteredListeners)
+            return;
         ServerConnectionManager.getInstance(mActivity).removeListener(this);
         ServerConnectionManager.getInstance(mActivity).removeGlobalConnectionInfoListener(this);
         ServerConnectionManager.getInstance(mActivity).removeGlobalChannelListListener(this);
         NotificationManager.getInstance().removeGlobalUnreadMessageCountCallback(this);
+        mHasRegisteredListeners = false;
     }
 
     public void setChannelClickListener(DrawerMenuListAdapter.ChannelClickListener listener) {
