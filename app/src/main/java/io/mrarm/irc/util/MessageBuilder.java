@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.preference.PreferenceManager;
+import android.support.v7.content.res.AppCompatResources;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -604,7 +605,7 @@ public class MessageBuilder {
 
         public static Drawable getDrawableFor(Context ctx, int type) {
             if (type == TYPE_WRAP_ANCHOR)
-                return ctx.getResources().getDrawable(R.drawable.ic_format_indent);
+                return AppCompatResources.getDrawable(ctx, R.drawable.ic_format_indent);
             return null;
         }
 
