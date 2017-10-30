@@ -37,6 +37,7 @@ import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.config.CommandAliasManager;
 import io.mrarm.irc.dialog.UserBottomSheetDialog;
+import io.mrarm.irc.util.AutoMultilineTextListener;
 import io.mrarm.irc.util.ColoredTextBuilder;
 import io.mrarm.irc.util.IRCColorUtils;
 import io.mrarm.irc.util.ImageViewTintUtils;
@@ -102,6 +103,7 @@ public class ChatFragmentSendMessageHelper {
 
         ImageViewTintUtils.setTint(mSendIcon, 0x54000000);
 
+        mSendText.addTextChangedListener(new AutoMultilineTextListener(mSendText));
         mSendText.addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
             if (s.length() > 0)
                 ImageViewTintUtils.setTint(mSendIcon, ThemeHelper.getAccentColor(mFragment.getContext()));
@@ -188,11 +190,16 @@ public class ChatFragmentSendMessageHelper {
     }
 
     public void setAutocorrectEnabled(boolean enabled) {
+        boolean wasMultiline =
+                (mSendText.getInputType() & InputType.TYPE_TEXT_FLAG_MULTI_LINE) != 0;
         if (enabled)
             mSendText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
                     | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
         else
             mSendText.setInputType(InputType.TYPE_CLASS_TEXT);
+
+        if (wasMultiline)
+            mSendText.setInputType(mSendText.getInputType() | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
     }
 
     public void setCurrentChannelMembers(List<NickWithPrefix> members) {
@@ -214,6 +221,18 @@ public class ChatFragmentSendMessageHelper {
                 !mFragment.getConnectionInfo().isConnecting()))
             return;
         String channel = mFragment.getCurrentChannel();
+        if (text.contains("\n")) {
+            try {
+                IRCConnection conn = (IRCConnection) mFragment.getConnectionInfo().getApiInstance();
+                for (String s : text.split("\n")) {
+                    conn.sendMessage(channel, s, null, null);
+                    mFragment.getConnectionInfo().addHistoryMessage(new SpannableString(s));
+                }
+            } catch (Exception ignored) {
+            }
+            mSendText.setText("");
+            return;
+        }
         if (text.charAt(0) == '/') {
             SimpleTextVariableList vars = new SimpleTextVariableList();
             vars.set(CommandAliasManager.VAR_CHANNEL, channel);
