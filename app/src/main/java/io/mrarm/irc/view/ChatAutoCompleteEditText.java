@@ -5,8 +5,6 @@ import android.content.SharedPreferences;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
-import android.text.TextUtils;
-import android.text.method.QwertyKeyListener;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
@@ -261,8 +259,9 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
         }
         int start = findTokenStart();
         int end = findTokenEnd();
-        QwertyKeyListener.markAsReplaced(getText(), start, end, TextUtils.substring(getText(), start, end));
-        getText().replace(findTokenStart(), findTokenEnd(), val);
+        clearComposingText();
+        // QwertyKeyListener.markAsReplaced(getText(), start, end, TextUtils.substring(getText(), start, end));
+        getText().replace(start, end, val);
     }
 
     @Override
