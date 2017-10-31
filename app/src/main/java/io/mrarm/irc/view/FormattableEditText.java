@@ -59,7 +59,7 @@ public class FormattableEditText extends ThemedEditText {
                             (spanPointFlags == Spanned.SPAN_EXCLUSIVE_INCLUSIVE ||
                                     spanPointFlags == Spanned.SPAN_INCLUSIVE_INCLUSIVE)) {
                         data.extendToCursor = true;
-                    } else if (data.end >= selStart) {
+                    } else if (data.end > selStart) {
                         data.end = Math.max(data.end + after - count, data.start);
                     }
                     mBackedUpSpans.add(data);
