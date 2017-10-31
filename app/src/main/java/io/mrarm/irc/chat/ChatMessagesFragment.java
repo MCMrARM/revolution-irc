@@ -189,6 +189,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         SettingsHelper s = SettingsHelper.getInstance(getContext());
         s.removePreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT, this);
         s.removePreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT_SIZE, this);
+        s.removePreferenceChangeListener(SettingsHelper.PREF_CHAT_HIDE_JOIN_PART, this);
 
         if (mNeedsUnsubscribeChannelInfo)
             mConnection.getApiInstance().unsubscribeChannelInfo(getArguments().getString(ARG_CHANNEL_NAME), ChatMessagesFragment.this, null, null);
