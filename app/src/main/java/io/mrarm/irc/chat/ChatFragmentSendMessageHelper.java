@@ -226,7 +226,7 @@ public class ChatFragmentSendMessageHelper {
                 IRCConnection conn = (IRCConnection) mFragment.getConnectionInfo().getApiInstance();
                 for (String s : text.split("\n")) {
                     conn.sendMessage(channel, s, null, null);
-                    mFragment.getConnectionInfo().addHistoryMessage(new SpannableString(s));
+                    mFragment.getConnectionInfo().addHistoryMessage(s);
                 }
             } catch (Exception ignored) {
             }
@@ -261,7 +261,7 @@ public class ChatFragmentSendMessageHelper {
                     } else {
                         throw new RuntimeException();
                     }
-                    mFragment.getConnectionInfo().addHistoryMessage(new SpannableString(mSendText.getText()));
+                    mFragment.getConnectionInfo().addHistoryMessage(mSendText.getText());
                     mSendText.setText("");
                     return;
                 }
@@ -285,7 +285,7 @@ public class ChatFragmentSendMessageHelper {
         }
         if (channel == null)
             return;
-        mFragment.getConnectionInfo().addHistoryMessage(new SpannableString(mSendText.getText()));
+        mFragment.getConnectionInfo().addHistoryMessage(mSendText.getText());
         mSendText.setText("");
         mFragment.getConnectionInfo().getApiInstance().sendMessage(channel, text, null, null);
     }

@@ -1,6 +1,8 @@
 package io.mrarm.irc;
 
 import android.os.Handler;
+import android.text.NoCopySpan;
+import android.text.SpannableString;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -333,7 +335,10 @@ public class ServerConnectionInfo {
 
     // Should be called only from main thread
     public void addHistoryMessage(CharSequence msg) {
-        mSentMessageHistory.add(msg);
+        SpannableString str = new SpannableString(msg);
+        for (Object o : str.getSpans(0, str.length(), NoCopySpan.class))
+            str.removeSpan(o);
+        mSentMessageHistory.add(str);
         if (mSentMessageHistory.size() >= HISTORY_MAX_COUNT)
             mSentMessageHistory.remove(0);
     }
