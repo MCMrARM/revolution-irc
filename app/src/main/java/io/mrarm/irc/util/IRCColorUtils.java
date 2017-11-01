@@ -137,8 +137,9 @@ public class IRCColorUtils {
                     if (fg != 99)
                         builder.setSpan(new ForegroundColorSpan(getColor(context, fg)));
 
-                    if (string.charAt(i++) != ',')
+                    if (string.charAt(i) != ',')
                         break;
+                    i++;
                     bg = 0;
                     for (int j = 0; j < 2 && i < string.length(); i++, j++) {
                         if (string.charAt(i) < '0' || string.charAt(i) > '9')
