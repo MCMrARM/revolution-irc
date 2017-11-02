@@ -5,7 +5,7 @@ android {
     buildToolsVersion "27.0.0"
     defaultConfig {
         applicationId "io.mrarm.irc"
-        minSdkVersion 16
+        minSdkVersion 17
         targetSdkVersion 25
         versionCode 3
         versionName "0.3.0"
