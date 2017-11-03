@@ -43,14 +43,15 @@ public class FormattableEditText extends ThemedEditText {
                     return;
                 int selStart = getSelectionStart();
                 for (Object span : getText().getSpans(start, start + count, Object.class)) {
-                    if (span instanceof NoCopySpan)
+                    int flags = getText().getSpanFlags(span);
+                    if (span instanceof NoCopySpan || (flags & Spanned.SPAN_COMPOSING) != 0)
                         continue;
                     SpanData data = new SpanData();
                     data.span = span;
                     data.start = getText().getSpanStart(span);
                     data.end = getText().getSpanEnd(span);
-                    data.flags = getText().getSpanFlags(span);
-                    int spanPointFlags = data.flags & Spanned.SPAN_POINT_MARK_MASK;
+                    data.flags = flags;
+                    int spanPointFlags = flags & Spanned.SPAN_POINT_MARK_MASK;
                     if ((data.start >= selStart || data.start >= start + count) &&
                             !(data.start == selStart && (spanPointFlags == Spanned.SPAN_INCLUSIVE_EXCLUSIVE || spanPointFlags == Spanned.SPAN_INCLUSIVE_INCLUSIVE)) &&
                             !(data.end == selStart && (spanPointFlags == Spanned.SPAN_EXCLUSIVE_INCLUSIVE || spanPointFlags == Spanned.SPAN_INCLUSIVE_INCLUSIVE)))
