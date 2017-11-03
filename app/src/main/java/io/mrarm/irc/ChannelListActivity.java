@@ -278,7 +278,7 @@ public class ChannelListActivity extends ThemedActivity {
             }
             if (mStartSortMode == SORT_NAME) {
                 Collections.sort(ret, (ChannelList.Entry l, ChannelList.Entry r) ->
-                        l.getChannel().compareTo(r.getChannel()));
+                        l.getChannel().compareToIgnoreCase(r.getChannel()));
             } else if (mStartSortMode == SORT_MEMBER_COUNT) {
                 Collections.sort(ret, (ChannelList.Entry l, ChannelList.Entry r) ->
                         Integer.compare(r.getMemberCount(), l.getMemberCount()));

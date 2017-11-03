@@ -61,7 +61,7 @@ public class ServerConnectionInfo {
         mNotificationData = new NotificationManager.ConnectionManager(this);
         mChannels = joinChannels;
         if (mChannels != null)
-            Collections.sort(mChannels);
+            Collections.sort(mChannels, String::compareToIgnoreCase);
     }
 
     private void setApi(ChatApi api) {
@@ -297,7 +297,7 @@ public class ServerConnectionInfo {
 
     public void setChannels(List<String> channels) {
         synchronized (this) {
-            Collections.sort(channels);
+            Collections.sort(channels, String::compareToIgnoreCase);
             mChannels = channels;
             mManager.notifyChannelListChanged(this, channels);
             mManager.saveAutoconnectListAsync();
