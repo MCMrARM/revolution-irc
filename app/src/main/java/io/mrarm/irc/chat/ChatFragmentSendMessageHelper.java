@@ -1,6 +1,7 @@
 package io.mrarm.irc.chat;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.view.MarginLayoutParamsCompat;
@@ -209,6 +210,10 @@ public class ChatFragmentSendMessageHelper {
     public void updateVisibility() {
         mSendContainer.setVisibility(mFragment.getConnectionInfo().isConnected() ||
                 mFragment.getConnectionInfo().isConnecting() ? View.VISIBLE : View.GONE);
+    }
+
+    public void setMessageFieldTypeface(Typeface typeface) {
+        mSendText.setTypeface(typeface);
     }
 
     public void setMessageText(String text) {
