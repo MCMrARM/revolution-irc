@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 26
     buildToolsVersion "27.0.0"
     defaultConfig {
         applicationId "io.mrarm.irc"

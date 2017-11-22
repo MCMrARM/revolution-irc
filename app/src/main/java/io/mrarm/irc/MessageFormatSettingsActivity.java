@@ -85,15 +85,15 @@ public class MessageFormatSettingsActivity extends ThemedActivity {
                     menu.setOnMenuItemClickListener((MenuItem item) -> {
                         int id = item.getItemId();
                         if (id == R.id.message_format_time)
-                            insertChip(MessageBuilder.MetaChipSpan.TYPE_TIME, " ");
+                            insertChip(MessageBuilder.MetaChipSpan.TYPE_TIME);
                         else if (id == R.id.message_format_sender)
-                            insertChip(MessageBuilder.MetaChipSpan.TYPE_SENDER, " ");
+                            insertChip(MessageBuilder.MetaChipSpan.TYPE_SENDER);
                         else if (id == R.id.message_format_message)
-                            insertChip(MessageBuilder.MetaChipSpan.TYPE_MESSAGE, " ");
+                            insertChip(MessageBuilder.MetaChipSpan.TYPE_MESSAGE);
                         else if (id == R.id.message_format_wrap_anchor)
-                            insertChip(MessageBuilder.MetaChipSpan.TYPE_WRAP_ANCHOR, " ");
+                            insertChip(MessageBuilder.MetaChipSpan.TYPE_WRAP_ANCHOR);
                         else if (id == R.id.message_format_sender_prefix)
-                            insertChip(MessageBuilder.MetaChipSpan.TYPE_SENDER_PREFIX, " ");
+                            insertChip(MessageBuilder.MetaChipSpan.TYPE_SENDER_PREFIX);
                         return false;
                     });
                     menu.show();
@@ -369,12 +369,13 @@ public class MessageFormatSettingsActivity extends ThemedActivity {
         return null;
     }
 
-    private void insertChip(int type, String str) {
+    private void insertChip(int type) {
         EditText editText = mTextFormatBar.getEditText();
         int sStart = editText.getSelectionStart();
         int sEnd = editText.getSelectionEnd();
-        editText.getText().replace(sStart, sEnd, str);
-        editText.getText().setSpan(new MessageBuilder.MetaChipSpan(this, type), sStart, sStart + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        SpannableString ss = new SpannableString(" ");
+        ss.setSpan(new MessageBuilder.MetaChipSpan(this, type), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
+        editText.getText().replace(sStart, sEnd, ss);
         refreshExamples();
     }
 
