@@ -283,6 +283,8 @@ public class ChatFragmentSendMessageHelper {
                     ((IRCConnection) mFragment.getConnectionInfo().getApiInstance()).sendCommandRaw(
                             text.substring(1), null, null);
                     mClientCommandErrorContainer.setVisibility(View.GONE);
+                    mFragment.getConnectionInfo().addHistoryMessage(mSendText.getText());
+                    mSendText.setText("");
                 }
             });
             setClientCommandError(builder.getSpannable());
