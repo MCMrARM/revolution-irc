@@ -99,8 +99,9 @@ public class NotificationManager {
     public void onNotificationDismissed(Context context, ServerConnectionInfo connection,
                                         String channel) {
         ChannelNotificationManager channelManager = connection.getNotificationManager()
-                .getChannelManager(channel, true);
-        channelManager.onNotificationDismissed();
+                .getChannelManager(channel, false);
+        if (channelManager != null)
+            channelManager.onNotificationDismissed();
     }
 
 
