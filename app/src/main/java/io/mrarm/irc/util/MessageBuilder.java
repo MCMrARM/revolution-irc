@@ -28,6 +28,7 @@ import io.mrarm.chatlib.dto.ChannelModeMessageInfo;
 import io.mrarm.chatlib.dto.HostInfoMessageInfo;
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.dto.NickChangeMessageInfo;
+import io.mrarm.chatlib.dto.NickWithPrefix;
 import io.mrarm.chatlib.dto.StatusMessageInfo;
 import io.mrarm.irc.MessageFormatSettingsActivity;
 import io.mrarm.irc.R;
@@ -294,13 +295,13 @@ public class MessageBuilder {
         String senderNick = message.getSender() == null ? null : message.getSender().getNick();
         switch (message.getType()) {
             case NORMAL:
-                return processFormat(mMessageFormat, message.getDate(), senderNick,
+                return processFormat(mMessageFormat, message.getDate(), message.getSender(),
                         LinkHelper.addLinks(IRCColorUtils.getFormattedString(mContext, message.getMessage())));
             case NOTICE:
-                return processFormat(mNoticeMessageFormat, message.getDate(), senderNick,
+                return processFormat(mNoticeMessageFormat, message.getDate(), message.getSender(),
                         LinkHelper.addLinks(IRCColorUtils.getFormattedString(mContext, message.getMessage())));
             case ME:
-                return processFormat(mActionMessageFormat, message.getDate(), senderNick,
+                return processFormat(mActionMessageFormat, message.getDate(), message.getSender(),
                         LinkHelper.addLinks(IRCColorUtils.getFormattedString(mContext, message.getMessage())));
             case JOIN:
                 return processFormat(mEventMessageFormat, message.getDate(), null,
@@ -340,13 +341,12 @@ public class MessageBuilder {
     }
 
     public CharSequence buildMessageWithMention(MessageInfo message) {
-        String senderNick = message.getSender() == null ? null : message.getSender().getNick();
         switch (message.getType()) {
             case NORMAL:
-                return processFormat(mMentionMessageFormat, message.getDate(), senderNick,
+                return processFormat(mMentionMessageFormat, message.getDate(), message.getSender(),
                         LinkHelper.addLinks(IRCColorUtils.getFormattedString(mContext, message.getMessage())));
             case ME:
-                return processFormat(mActionMentionMessageFormat, message.getDate(), senderNick,
+                return processFormat(mActionMentionMessageFormat, message.getDate(), message.getSender(),
                         LinkHelper.addLinks(IRCColorUtils.getFormattedString(mContext, message.getMessage())));
         }
         return buildMessage(message);
@@ -390,7 +390,7 @@ public class MessageBuilder {
         } else {
             text = IRCColorUtils.getFormattedString(mContext, message.getMessage());
         }
-        return processFormat(mMessageFormat, message.getDate(), sender,
+        return processFormat(mMessageFormat, message.getDate(), new NickWithPrefix(sender, null),
                 IRCColorUtils.getStatusTextColor(mContext), LinkHelper.addLinks(text));
     }
 
@@ -547,19 +547,23 @@ public class MessageBuilder {
         builder.append(seq);
     }
 
-    private CharSequence processFormat(CharSequence format, Date date, String sender,
+    private CharSequence processFormat(CharSequence format, Date date, NickWithPrefix sender,
                                        CharSequence message) {
-        int nickColor = sender == null ? 0 : IRCColorUtils.getNickColor(mContext, sender);
+        int nickColor = sender == null || sender.getNick() == null ? 0 :
+                IRCColorUtils.getNickColor(mContext, sender.getNick());
         return processFormat(format, date, sender, nickColor, message);
     }
 
-    private CharSequence processFormat(CharSequence format, Date date, String sender,
+    private CharSequence processFormat(CharSequence format, Date date, NickWithPrefix sender,
                                        int senderColor, CharSequence message) {
         SpannableStringBuilder builder = new SpannableStringBuilder(format);
         for (MetaChipSpan span : builder.getSpans(0, builder.length(), MetaChipSpan.class)) {
             CharSequence replacement = null;
             if (span.mType == MetaChipSpan.TYPE_SENDER) {
-                replacement = sender;
+                replacement = (sender != null && sender.getNick() != null ? sender.getNick() : "");
+            } else if (span.mType == MetaChipSpan.TYPE_SENDER_PREFIX) {
+                replacement = (sender != null && sender.getNickPrefixes() != null ?
+                        String.valueOf(sender.getNickPrefixes().get(0)) : "");
             } else if (span.mType == MetaChipSpan.TYPE_MESSAGE) {
                 replacement = message;
             } else if (span.mType == MetaChipSpan.TYPE_TIME) {
@@ -591,6 +595,7 @@ public class MessageBuilder {
         public static final int TYPE_MESSAGE = 1;
         public static final int TYPE_TIME = 2;
         public static final int TYPE_WRAP_ANCHOR = 3;
+        public static final int TYPE_SENDER_PREFIX = 4;
 
         public static String getTextFor(Context context, int type) {
             String text = null;
@@ -600,6 +605,8 @@ public class MessageBuilder {
                 text = context.getString(R.string.message_format_message);
             else if (type == TYPE_TIME)
                 text = context.getString(R.string.message_format_time);
+            else if (type == TYPE_SENDER_PREFIX)
+                text = context.getString(R.string.message_format_sender_prefix);
             return text;
         }
 

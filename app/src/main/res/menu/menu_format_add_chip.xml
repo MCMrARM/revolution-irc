@@ -9,6 +9,9 @@
         android:id="@+id/message_format_sender"
         android:title="@string/message_format_sender_add" />
     <item
+        android:id="@+id/message_format_sender_prefix"
+        android:title="@string/message_format_sender_prefix_add" />
+    <item
         android:id="@+id/message_format_message"
         android:title="@string/message_format_message_add" />
     <item

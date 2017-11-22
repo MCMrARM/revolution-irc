@@ -11,6 +11,7 @@ import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.SpannedString;
 import android.text.style.CharacterStyle;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
@@ -91,6 +92,8 @@ public class MessageFormatSettingsActivity extends ThemedActivity {
                             insertChip(MessageBuilder.MetaChipSpan.TYPE_MESSAGE, " ");
                         else if (id == R.id.message_format_wrap_anchor)
                             insertChip(MessageBuilder.MetaChipSpan.TYPE_WRAP_ANCHOR, " ");
+                        else if (id == R.id.message_format_sender_prefix)
+                            insertChip(MessageBuilder.MetaChipSpan.TYPE_SENDER_PREFIX, " ");
                         return false;
                     });
                     menu.show();
