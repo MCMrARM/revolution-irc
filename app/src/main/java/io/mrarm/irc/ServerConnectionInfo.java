@@ -296,14 +296,15 @@ public class ServerConnectionInfo {
     }
 
     public void setChannels(List<String> channels) {
+        Collections.sort(channels, String::compareToIgnoreCase);
         synchronized (this) {
-            Collections.sort(channels, String::compareToIgnoreCase);
             mChannels = channels;
             mManager.notifyChannelListChanged(this, channels);
             mManager.saveAutoconnectListAsync();
         }
         synchronized (mChannelsListeners) {
-            for (ChannelListChangeListener listener : mChannelsListeners)
+            List<ChannelListChangeListener> listeners = new ArrayList<>(mChannelsListeners);
+            for (ChannelListChangeListener listener : listeners)
                 listener.onChannelListChanged(this, channels);
         }
     }
