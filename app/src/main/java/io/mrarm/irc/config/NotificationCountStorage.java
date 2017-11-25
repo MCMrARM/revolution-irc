@@ -85,8 +85,10 @@ public class NotificationCountStorage {
 
     @Override
     protected void finalize() throws Throwable {
-        mHandlerThread.quit();
         close();
+        // No more messages can be posted as this is .finalize; .close will finish after processing
+        // all previous ones so it's safe to quit the HandlerThread not safely.
+        mHandlerThread.quit();
         super.finalize();
     }
 
