@@ -312,6 +312,7 @@ public class ChatFragmentSendMessageHelper {
             l.getHandler(WhoisCommandHandler.class).onRequested(params.length > 1 ? params[1] : null, (WhoisInfo whoisInfo) -> {
                 mFragment.getActivity().runOnUiThread(() -> {
                     UserBottomSheetDialog dialog = new UserBottomSheetDialog(mContext);
+                    dialog.setConnection(mFragment.getConnectionInfo());
                     dialog.setData(whoisInfo);
                     dialog.show();
                 });
