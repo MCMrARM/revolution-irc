@@ -7,6 +7,7 @@ import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * StateListDrawable (or more generally, DrawableContainer) has a bug where it is impossible to use
@@ -24,11 +25,13 @@ import android.support.annotation.NonNull;
  */
 public class ColorFilterWorkaroundDrawable extends DrawableWrapper {
 
+    private ConstantState mConstantState;
     private Drawable mOriginalDrawable;
     private Drawable mMutatedDrawable;
 
     public ColorFilterWorkaroundDrawable(Drawable drawable) {
         super(drawable);
+        mConstantState = new ConstantState(drawable);
         mOriginalDrawable = drawable;
         mMutatedDrawable = drawable.getConstantState().newDrawable().mutate();
     }
@@ -71,6 +74,33 @@ public class ColorFilterWorkaroundDrawable extends DrawableWrapper {
     public void setColorFilter(int color, @NonNull PorterDuff.Mode mode) {
         beforeFilterSet(true);
         super.setColorFilter(color, mode);
+    }
+
+    @Nullable
+    @Override
+    public Drawable.ConstantState getConstantState() {
+        return mConstantState;
+    }
+
+    public static class ConstantState extends Drawable.ConstantState {
+
+        private Drawable mDrawable;
+
+        public ConstantState(Drawable wrappedDrawable) {
+            mDrawable = wrappedDrawable;
+        }
+
+        @NonNull
+        @Override
+        public Drawable newDrawable() {
+            return new ColorFilterWorkaroundDrawable(mDrawable);
+        }
+
+        @Override
+        public int getChangingConfigurations() {
+            return mDrawable.getChangingConfigurations();
+        }
+
     }
 
 }
