@@ -115,7 +115,8 @@
     </plurals>
     <plurals name="notify_multiple_messages">
         <item quantity="one">%d nieprzeczytana wiadomość</item>
-        <item quantity="other">%d nieprzeczytane wiadomości</item>
+        <item quantity="few">%d nieprzeczytane wiadomości</item>
+        <item quantity="other">%d nieprzeczytanych wiadomości</item>
     </plurals>
 
     <string name="notification_action_required">Wymagane działanie użytkownika</string>
@@ -151,6 +152,7 @@
     <string name="server_ssl">Używaj SSL</string>
     <plurals name="server_manage_custom_certs_text">
         <item quantity="one">%d własny certyfikat</item>
+        <item quantity="few">%d własne certyfikaty</item>
         <item quantity="other">%d własnych certyfikatów</item>
     </plurals>
     <string name="server_manage_custom_certs">Zarządzaj własnymi certyfikatami</string>
@@ -223,15 +225,18 @@
 
     <plurals name="time_seconds">
         <item quantity="one">%d sekunda</item>
+        <item quantity="few">%d sekundy</item>
         <item quantity="other">%d sekund</item>
     </plurals>
     <plurals name="time_minutes">
         <item quantity="one">%d minuta</item>
+        <item quantity="few">%d minuty</item>
         <item quantity="other">%d minut</item>
     </plurals>
     <plurals name="time_hours">
         <item quantity="one">%d godzina</item>
-        <item quantity="other">*</item>
+        <item quantity="few">%d godziny</item>
+        <item quantity="other">%d godzin</item>
     </plurals>
     <plurals name="time_days">
         <item quantity="one">%d dzień</item>
@@ -407,6 +412,7 @@
 
     <plurals name="reconnect_desc_tries">
         <item quantity="one">" (%d próba)"</item>
+        <item quantity="few">" (%d próby)"</item>
         <item quantity="other">" (%d prób)"</item>
     </plurals>
 
