@@ -1,0 +1,540 @@
+<resources>
+    <string name="app_name">Rewolucja IRC</string>
+
+    <!-- Chat -->
+
+    <string name="navigation_drawer_open">Otwórz nawigację</string>
+    <string name="navigation_drawer_close">Zamknij nawigację</string>
+
+    <string name="tab_server">Serwer</string>
+    <string name="message_hint">Wyślij wiadomość</string>
+    <string name="message_disconnected">Rozłączono</string>
+    <string name="message_join">%s dołączył</string>
+    <string name="message_part">%s wyszedł (%s)</string>
+    <string name="message_part_no_message">%s wyszedł</string>
+    <string name="message_quit">%s rozłączył się (%s)</string>
+    <string name="message_nick_change">%s nazywa się teraz %s</string>
+    <string name="message_topic">Temat: %s</string>
+    <string name="message_topic_by">Temat: %s, ustawiony przez %s</string>
+
+    <string name="message_host_info">Serwer %s, oprogramowanie %s. Obsługiwane flagi użytkownika: %s, obsługiwane flagi kanału: %s</string>
+    <string name="message_motd">Wiadomość Dnia</string>
+
+    <string name="message_mode">%s %s</string>
+    <string name="message_mode_set">ustawił %s</string>
+    <string name="message_mode_unset">usunął %s</string>
+    <string name="message_mode_gave">dał %s</string>
+    <string name="message_mode_removed">odebrał %s</string>
+
+    <string name="message_mode_gave_to">%s użytkownikowi %s</string>
+    <string name="message_mode_removed_from">%s użytkownikowi %s</string>
+
+    <plurals name="message_mode_channel">
+        <item quantity="one">flagę kanału \'%s\'</item>
+        <item quantity="other">flagi kanału \'%s\'</item>
+    </plurals>
+    <string name="message_mode_channel_value">flagę kanału \'%s\' na %s</string>
+    <string name="message_mode_channel_ban">ban na %s</string>
+    <string name="message_mode_nick_admin">status administratora kanału</string>
+    <string name="message_mode_nick_op">status operatora kanału</string>
+    <string name="message_mode_nick_half_op">status pół-operatora kanału</string>
+    <string name="message_mode_nick_voice">głos na kanale</string>
+
+    <string name="message_ctcp_ping">Otrzymano ping CTCP</string>
+    <string name="message_ctcp_version">Otrzymano wersję z CTCP</string>
+
+    <string name="command_error_not_found">Nie znaleziono takiej komendy.</string>
+    <string name="command_error_internal">Wystąpił wewnętrzny błąd podczas przetwarzania komendy.</string>
+
+    <string name="command_send_raw">Wyślij dokładnie tak</string>
+
+    <!-- Actions -->
+
+    <string name="action_ok">OK</string>
+    <string name="action_done">Zakończ</string>
+    <string name="action_delete">Usuń</string>
+    <string name="action_edit">Edytuj</string>
+    <string name="action_cancel">Anuluj</string>
+    <string name="action_expand">Rozwiń</string>
+    <string name="action_settings">Ustawienia</string>
+    <string name="action_connect">Połącz</string>
+    <string name="action_disconnect">Rozłącz</string>
+    <string name="action_reconnect">Połącz ponownie</string>
+    <string name="action_open">Otwórz</string>
+    <string name="action_back">Wstecz</string>
+    <string name="action_close">Zamknij</string>
+    <string name="action_disconnect_and_close">Rozłącz i zamknij</string>
+    <string name="action_servers">Zarządzaj serwerami</string>
+    <string name="action_add_below">Dodaj poniżej</string>
+    <string name="action_add_rule">Dodaj regułę</string>
+    <string name="action_reorder">Zmień kolejność</string>
+    <string name="action_undo">Cofnij</string>
+    <string name="action_copy">Kopiuj</string>
+    <string name="action_clone">Klonuj</string>
+    <string name="action_continue">Kontynuuj</string>
+    <string name="action_finish">Zakończ</string>
+    <string name="action_search">Szukaj</string>
+    <string name="action_search_ellipsis">Szukaj…</string>
+    <string name="action_sort">Sortuj</string>
+    <string name="action_sort_none">Nie sortuj</string>
+    <string name="action_sort_name">Sortuj po nazwie</string>
+    <string name="action_join_channel">Dołącz do kanału</string>
+    <string name="action_message_user">Napisz do użytkownika</string>
+    <string name="action_part_channel">Opuść kanał</string>
+    <string name="action_close_direct">Zamknij rozmowę</string>
+    <string name="action_clear_all">Wyczyść wszystko</string>
+    <string name="action_reset">Resetuj</string>
+    <string name="action_exit">Wyjdź</string>
+
+    <string name="action_delete_confirm_title">Czy na pewno?</string>
+    <string name="action_delete_confirm_body">Czy na pewno chcesz usunąć %s? Tego nie da się cofnąć.</string>
+
+    <!-- Format -->
+
+    <string name="format_bold">Pogrubienie</string>
+    <string name="format_italic">Kursywa</string>
+    <string name="format_underline">Podkreślenie</string>
+    <string name="format_text_color">Kolor tekstu</string>
+    <string name="format_fill_color">Kolor tła</string>
+    <string name="format_clear">Wyczyść formatowanie</string>
+
+    <!-- Service -->
+
+    <string name="service_title">Połączono z IRC</string>
+    <plurals name="service_status_connected">
+        <item quantity="one">Połączono z %d siecią</item>
+        <item quantity="other">Połączono z %d sieciami</item>
+    </plurals>
+    <plurals name="service_status_connecting">
+        <item quantity="one">łączenie z %d siecią</item>
+        <item quantity="other">łączenie z %d sieciami</item>
+    </plurals>
+    <plurals name="service_status_disconnected">
+        <item quantity="one">rozłączono z %d siecią</item>
+        <item quantity="other">rozłączono z %d sieciami</item>
+    </plurals>
+    <plurals name="notify_multiple_messages">
+        <item quantity="one">%d nieprzeczytana wiadomość</item>
+        <item quantity="other">%d nieprzeczytane wiadomości</item>
+    </plurals>
+
+    <string name="notification_action_required">Wymagane działanie użytkownika</string>
+
+    <string name="notification_channel_idle">Powiadomienie o statusie</string>
+
+    <!-- Connection errors -->
+
+    <string name="connection_error_no_nick">Nie ustawiono nicka</string>
+
+    <!-- Server list -->
+
+    <string name="server_list_header_active">Aktywne</string>
+    <string name="server_list_header_inactive">Nieaktywne</string>
+    <plurals name="server_list_connected">
+        <item quantity="one">Połączono, %d kanał</item>
+        <item quantity="other">Połączono, %d kanałów</item>
+    </plurals>
+    <string name="server_list_connecting">Łączenie…</string>
+    <string name="server_list_disconnected">Rozłączono</string>
+
+    <!-- Add server -->
+
+    <string name="add_server">Dodaj nowy serwer</string>
+    <string name="edit_server">Edytuj serwer</string>
+    <string name="server_save_error">Nie udało się zapisać informacji o serwerze</string>
+    <string name="server_error_name_collision">Serwer o takiej nazwie już istnieje</string>
+    <string name="server_error_name_empty">Nazwa serwera nie może być pusta</string>
+    <string name="server_error_invalid_address">Nieprawidłowy adres</string>
+    <string name="server_error_invalid_port">Nieprawidłowy port</string>
+    <string name="server_address">Adres serwera</string>
+    <string name="server_port">Port</string>
+    <string name="server_ssl">Używaj SSL</string>
+    <plurals name="server_manage_custom_certs_text">
+        <item quantity="one">%d własny certyfikat</item>
+        <item quantity="other">%d własnych certyfikatów</item>
+    </plurals>
+    <string name="server_manage_custom_certs">Zarządzaj własnymi certyfikatami</string>
+    <string name="server_password_unchanged">Bez zmian</string>
+    <string name="server_authentication_mode">Tryb uwierzytelniania</string>
+    <string name="server_channels">Lista kanałów do dołączenia</string>
+    <string name="server_rejoin_channels">Dołącz ponownie do otwartych kanałów</string>
+    <string name="server_nicks">Nicki</string>
+    <string name="server_user">Użytkownik</string>
+    <string name="server_realname">Real name</string>
+
+    <string-array name="server_auth_modes">
+        <item>Brak</item>
+        <item>Hasło serwera</item>
+        <item>Użytkownik z hasłem (SASL)</item>
+    </string-array>
+
+    <!-- Certificate manager -->
+
+    <string name="title_activity_certificate_manager">Lista certyfikatów</string>
+
+    <string name="certificate_manager_empty">Nie ma zapisanych certyfikatów.</string>
+
+    <!-- Certificate error dialog -->
+
+    <string name="certificate_error">Nie udało się zweryfikować certyfikatu %s</string>
+    <string name="certificate_error_ignore">Zatwierdź i kontynuuj</string>
+    <string name="certificate_bad_cert">Ten certyfikat nie został rozpoznany przez system.</string>
+    <string name="certificate_bad_hostname">Adres podany w certyfikacie (%1$s) przez hosta nie zgadza się z adresem, z którym się łączymy (%2$s).</string>
+    <string name="certificate_error_footer">Nie akceptuj tego certyfikatu, jeżeli nie wiesz, co to oznacza.</string>
+    <string name="certificate_error_remember">Zapamiętaj wyjątek</string>
+
+    <!-- Channel list -->
+
+    <string name="title_activity_channel_list">Lista kanałów</string>
+    <string name="action_sort_member_count">Sortuj po liczbie rozmówców</string>
+
+    <plurals name="channel_list_title_with_member_count">
+        <item quantity="one">%s (%d rozmówca)</item>
+        <item quantity="other">%s (%d rozmówców)</item>
+    </plurals>
+
+    <!-- Settings -->
+
+    <string name="title_activity_settings">Ustawienia</string>
+
+    <string name="value_default">Domyślne</string>
+    <string name="value_custom">Własne</string>
+    <string name="value_custom_specific">Własne (%s)</string>
+    <string name="value_none">Brak</string>
+    <string name="value_any">Dowolny</string>
+    <string name="value_always">Zawsze</string>
+    <string name="value_never">Nigdy</string>
+    <string name="value_preset">Gotowe ustawienie</string>
+    <string name="value_not_set">Nie ustawiono</string>
+    <string name="value_total">Całkowite</string>
+    <string name="entry_name">Nazwa</string>
+    <string name="entry_text">Tekst</string>
+    <string name="entry_username">Nazwa użytkownika</string>
+    <string name="entry_password">Hasło</string>
+    <string name="entry_comment">Komentarz</string>
+
+    <string name="text_comma">", "</string>
+    <string name="text_and">" i "</string>
+
+    <string name="error_generic">Wystąpił błąd.</string>
+    <string name="error_file_open">Nie udało się otworzyć pliku.</string>
+
+    <!-- Time -->
+
+    <plurals name="time_seconds">
+        <item quantity="one">%d sekunda</item>
+        <item quantity="other">%d sekund</item>
+    </plurals>
+    <plurals name="time_minutes">
+        <item quantity="one">%d minuta</item>
+        <item quantity="other">%d minut</item>
+    </plurals>
+    <plurals name="time_hours">
+        <item quantity="one">%d godzina</item>
+        <item quantity="other">*</item>
+    </plurals>
+    <plurals name="time_days">
+        <item quantity="one">%d dzień</item>
+        <item quantity="other">%d dni</item>
+    </plurals>
+
+    <!-- User settings -->
+
+    <string name="pref_header_user">Informacje o użytkowniku</string>
+
+    <string name="pref_title_default_nick">Domyślne nicki</string>
+    <string name="pref_title_default_user">Domyślny użytkownik</string>
+    <string name="pref_title_default_realname">Domyślny real name</string>
+    <string name="pref_title_default_quit_message">Wiadomość przy rozłączaniu</string>
+    <string name="pref_title_default_part_message">Wiadomość przy opuszczaniu kanału</string>
+
+
+    <!-- Interface settings -->
+
+    <string name="pref_header_interface">Interfejs</string>
+
+    <string name="pref_title_dark_theme">Ciemny motyw</string>
+    <string name="pref_summary_dark_theme">Zaaplikuj ciemny motyw interfejsu</string>
+    <string name="pref_title_primary_color">Główny kolor</string>
+    <string name="pref_title_accent_color">Kolor akcentu</string>
+    <string name="pref_title_font">Czcionka</string>
+    <string name="pref_title_font_size">Rozmiar czcionki</string>
+    <string name="pref_title_hide_join_part">Ukryj dołączenia/opuszczenia</string>
+    <string name="pref_summary_hide_join_part">Ukryj wszystkie wiadomości o dołączeniach i opuszczeniach</string>
+    <string name="pref_title_autocorrect">Włącz auto-korektę tekstu</string>
+    <string name="pref_summary_autocorrect">Zezwól na auto-korektę przez aplikację klawiatury</string>
+    <string name="pref_title_appbar_compact_mode">Ukryj nagłówek z nazwą sieci</string>
+    <string name="pref_title_message_format">Format wiadomości</string>
+    <string name="pref_title_nick_autocomplete">Uzupełnianie nicków/kanałów</string>
+
+    <string name="pref_title_nick_autocomplete_show_button">Pokaż przycisk</string>
+    <string name="pref_summary_nick_autocomplete_show_button">Pokaż przycisk uzupełniania nicku</string>
+    <string name="pref_title_nick_autocomplete_double_tap">Dotknij pola dwa razy</string>
+    <string name="pref_summary_nick_autocomplete_double_tap">Dotknij pola dwa razy aby uzupełnić nick lub kanał</string>
+    <string name="pref_title_nick_autocomplete_suggestions">Sugeruj nicki</string>
+    <string name="pref_summary_nick_autocomplete_suggestions">Pokaż sugestie nicków po wpisaniu dwóch znaków</string>
+    <string name="pref_title_nick_autocomplete_at_suggestions">Sugeruj nicki po \'@\'</string>
+    <string name="pref_summary_nick_autocomplete_at_suggestions">Pokaż sugestie nicków po znaku \'@\'</string>
+    <string name="pref_title_nick_autocomplete_at_suggestions_remove_at">Usuwaj \'@\'</string>
+    <string name="pref_summary_nick_autocomplete_at_suggestions_remove_at">Usuń znak \'@\' po wyborze sugestii</string>
+    <string name="pref_title_channel_autocomplete_suggestions">Sugeruj kanały</string>
+    <string name="pref_summary_channel_autocomplete_suggestions">Pokaż sugestie kanałów po wpisaniu znaku \'#\'</string>
+
+    <string-array name="pref_entries_font">
+        <item>Domyślna (Bezszeryfowa)</item>
+        <item>#</item>
+        <item>Monospace</item>
+    </string-array>
+    <string name="font_size_sample_text">To jest przykładowy tekst prezentujący rozmiar czcionki. Możesz go zmienić poniżej.</string>
+
+    <string-array name="pref_entries_appbar_compact_mode">
+        <item></item>
+        <item></item>
+        <item>Jeśli jest mało miejscs na wiadomości</item>
+    </string-array>
+
+    <!-- Message format -->
+
+    <string name="title_activity_message_format_settings">Format wiadomości</string>
+
+    <string name="message_format">Format</string>
+
+    <string name="message_format_date">Format czasu</string>
+    <string name="message_format_date_fixed_width">Stała szerokość</string>
+    <string name="message_format_normal">Format wiadomości</string>
+    <string name="message_format_normal_mention">Format wiadomości ze wzmianką</string>
+    <string name="message_format_action">Format wiadomości akcji (/me)</string>
+    <string name="message_format_action_mention">Format wiadomości akcji (/me) ze wzmianką</string>
+    <string name="message_format_notice">Format wiadomości typu notice</string>
+    <string name="message_format_event">Format wiadomości zdarzenia (np. dołączenie, opuszczenie)</string>
+    <string name="message_format_date_invalid">Nieprawidłowy format czasu</string>
+
+    <string name="message_format_time">czas</string>
+    <string name="message_format_sender">nadawca</string>
+    <string name="message_format_message">wiadomość</string>
+    <string name="message_format_sender_prefix">prefiks</string>
+    <string name="message_format_time_add">Czas</string>
+    <string name="message_format_sender_add">Nadawca</string>
+    <string name="message_format_message_add">Wiadomość</string>
+    <string name="message_format_wrap_anchor_add">Miejsce wcięcia zawijania</string>
+    <string name="message_format_sender_prefix_add">Prefiks nadawcy</string>
+
+    <string name="message_format_add_chip">Dodaj chip formatowania</string>
+    <string name="message_format_sender_color">Kolor nicka</string>
+
+    <string name="message_example_sender">nick-nadawcy</string>
+    <string name="message_example_message">To jest przykładowa wiadomość.</string>
+
+    <string-array name="time_format_presets_desc">
+        <item>24-godzinny czas w nawiasach</item>
+        <item>24-godzinny czas</item>
+        <item>24-godzinny czas z sekundami</item>
+        <item>12-godzinny czas</item>
+    </string-array>
+
+    <!-- Notification settings -->
+
+    <string name="pref_header_notifications">Powiadomienia</string>
+
+    <string name="notification_custom_rules">Własne reguły</string>
+    <string name="notification_tip_no_custom_rules">Nie ma własnych reguł. Możesz je dodać przyciskiem w prawym dolnym rogu.</string>
+    <string name="notification_custom_rule_deleted">Reguła powiadomienia usunięta</string>
+    <string name="notification_rule_name_collision">Reguła powiadomień o takiej nazwie już istnieje</string>
+    <string name="notification_rule_regex_invalid">Nieprawidłowe wyrażenie regularne</string>
+
+    <string name="notification_rule_nick">Wzmianki nicka</string>
+    <string name="notification_rule_chan_messages">Wiadomości na kanale</string>
+    <string name="notification_rule_direct">Wiadomości prywatne</string>
+    <string name="notification_rule_notice">Prywatne wiadomości typu notice</string>
+    <string name="notification_rule_chan_notice">Wiadomości typu notice na kanale</string>
+    <string name="notification_rule_zncplayback">Wyłącz powiadomienia dla odtworzenia kanału przez ZNC</string>
+
+    <string name="title_activity_edit_notification_settings">Ustawienia powiadomień</string>
+
+    <string name="notification_header_match">Dopasowanie</string>
+    <string name="notification_match_mode">Tryb</string>
+    <string name="notification_match_case">Zachowaj wielkość liter</string>
+
+    <string-array name="notification_match_modes">
+        <item>Zawiera</item>
+        <item>Zawiera słowo</item>
+        <item>Wyrażenie regularne</item>
+    </string-array>
+
+    <string name="notification_header_applies_to">Dotyczy</string>
+    <string name="notification_rule_server">Serwer</string>
+    <string name="notification_rule_summary_any_server">Dowolny serwer</string>
+    <string name="notification_rule_summary_any_channel">dowolny kanał</string>
+    <plurals name="notification_rule_summary_multi_channels">
+        <item quantity="other">%d kanałów</item>
+    </plurals>
+    <string name="notification_rule_summary_any_nick">dowolny nick</string>
+    <plurals name="notification_rule_summary_multi_nicks">
+        <item quantity="other">%d nicków</item>
+    </plurals>
+
+    <string name="notification_header_options">Opcje</string>
+    <string name="notification_show">Pokaż powiadomienie</string>
+    <string name="notification_sound">Dźwięk</string>
+    <string name="notification_vibration">Wibracja</string>
+    <string name="notification_priority">Priorytet</string>
+    <string name="notification_color">Kolor diody LED</string>
+
+    <string-array name="notification_vibration_options">
+        <item>Domyślna</item>
+        <item>Krótka</item>
+        <item>Długa</item>
+        <item>Wyłączona</item>
+    </string-array>
+    <string-array name="notification_priority_options">
+        <item>Zwykły</item>
+        <item>Wysoki (domyślny)</item>
+        <item>Najwyższy</item>
+    </string-array>
+
+    <!-- Reconnect settings -->
+
+    <string name="pref_header_reconnect">Ponowne łączenie</string>
+    <string name="pref_title_auto_reconnect">Automatycznie łącz ponownie</string>
+    <string name="pref_description_auto_reconnect">Automatycznie połącz ponownie po utracie połączenia</string>
+    <string name="pref_title_reconnect_connchg">Obserwuj zmiany połączenia</string>
+    <string name="pref_description_reconnect_connchg">Automatycznie połącz ponownie po zmianie połączenia</string>
+    <string name="pref_title_reconnect_wifi">Łącz ponownie tylko na WiFi</string>
+    <string name="pref_description_reconnect_wifi">Połącz ponownie tylko w zasięgu WiFi</string>
+    <string name="pref_title_reconnect_pattern">Czas przed ponownym łączeniem</string>
+    <string name="reconnect_header_interval">Czas</string>
+    <string name="reconnect_header_tries">Próby</string>
+
+    <plurals name="reconnect_desc_tries">
+        <item quantity="one">" (%d próba)"</item>
+        <item quantity="other">" (%d prób)"</item>
+    </plurals>
+
+    <string-array name="duration_types">
+        <item>sekundy</item>
+        <item>minuty</item>
+        <item>godziny</item>
+    </string-array>
+
+    <!-- Command aliases settings -->
+
+    <string name="pref_header_command_aliases">Aliasy komend</string>
+    <string name="title_activity_edit_command_alias">Edytuj alias komendy</string>
+    <string name="title_activity_add_command_alias">Dodaj alias komendy</string>
+    <string name="title_activity_view_command_alias">Zobacz alias komendy</string>
+
+    <string name="edit_command_alias_error_name_collision">Istnieje już alias komendy z tą nazwą i składnią.</string>
+
+    <string name="edit_command_alias_type">Typ</string>
+    <string name="edit_command_alias_syntax">Składnia</string>
+    <string name="edit_command_alias_channel">Kanał</string>
+
+    <string-array name="edit_command_alias_types">
+        <item>Wiadomość</item>
+        <item>Komenda</item>
+        <item></item>
+    </string-array>
+
+    <!-- Storage settings -->
+
+    <string name="pref_header_storage">Pamięć</string>
+
+    <string name="pref_storage_chat_logs_title">Historia rozmów</string>
+    <string name="pref_storage_change_limits">Zmień ograniczenia</string>
+    <string name="pref_storage_configuration_title">Konfiguracja</string>
+
+    <string name="pref_storage_reset_configuration">Resetuj konfigurację</string>
+    <string name="pref_storage_reset_configuration_confirm">Czy na pewno chcesz zresetować konfigurację aplikacji? Wszystkie dane i historia rozmów zostaną utracone.</string>
+
+    <string name="pref_storage_clear_all_chat_logs">Usuń wszystkie historie rozmów</string>
+    <string name="pref_storage_clear_all_chat_logs_confirm">Czy na pewno chcesz usunąć wszystkie historie rozmów?</string>
+
+    <string name="pref_storage_clear_server_chat_logs">Usuń historię rozmów danego serwera</string>
+
+    <string name="pref_header_storage_limits">Ograniczenia</string>
+    <string name="pref_storage_limit_global_title">Całkowity limit pamięci na historię rozmów</string>
+    <string name="pref_storage_limit_def_server_title">Limit pamięci na historię rozmów na serwer</string>
+    <string name="pref_storage_no_limit">Brak ograniczenia</string>
+    <string name="pref_storage_limit_notice">Zwróć uwagę, że są to miękkie ograniczenia, które mogą być czasami przekraczane.</string>
+
+    <string name="pref_storage_set_server_limit">Ustaw ograniczenie serwera</string>
+    <string name="pref_storage_change_server_limit">Zmień ograniczenie serwera</string>
+    <string name="pref_storage_remove_server_limit">Resetuj ograniczenie</string>
+    <string name="pref_storage_limit_server_title">Ograniczenie pamięci na serwer</string>
+
+    <!-- Backup settings -->
+
+    <string name="pref_header_backup">Kopia zapasowa</string>
+
+    <string name="backup_create">Utwórz nową kopię zapasową</string>
+    <string name="backup_restore">Odzyskaj kopię zapasową</string>
+
+    <string name="title_activity_backup">Kopia zapasowa</string>
+    <string name="title_activity_restore">Odtwórz</string>
+    <string name="title_activity_backup_password">Ustaw hasło</string>
+    <string name="title_activity_backup_password_restore">Podaj hasło</string>
+    <string name="title_activity_backup_progress">Tworzenie kopii zapasowej</string>
+    <string name="title_activity_backup_progress_restore">Odtwarzanie kopii zapasowej</string>
+
+    <string name="backup_desc">Aby później odzyskać dane aplikacji, na przykład po reinstalacji systemu, możesz utworzyć kopię zapasową konfiguracji i zapisać ją w bezpiecznym miejscu.</string>
+    <string name="backup_password_text">Kopia zapasowa będzie zawierała wszystkie twoje ustawienia, w tym informacje o serwerach i niezaszyfrowane hasła. Zalecane jest ustawienie hasła, które będzie wymagane do odzyskania danych.</string>
+    <string name="backup_restore_password_text">Ta kopia zapasowa jest chroniona hasłem. Aby ją przywrócić, musisz podać hasło.</string>
+
+    <string name="backup_created">Plik kopii zapasowej został pomyślnie utworzony.</string>
+    <string name="backup_cancelled">Tworzenie kopii zapasowej zostało anulowane.</string>
+    <string name="backup_restored">Kopia zapasowa została pomyślnie przywrócona</string>
+    <string name="backup_restore_cancelled">Odzyskanie zostało anulowane.</string>
+    <string name="backup_restore_invalid">Podany plik kopii zapasowej jest nieprawidłowy.</string>
+    <string name="backup_restore_invalid_password">Nieprawidłowe hasło</string>
+
+    <!-- Setup -->
+
+    <string name="please_wait_generic">Proszę czekać…</string>
+
+    <!-- Ignore list -->
+
+    <string name="title_activity_ignore_list">Lista ignorowania</string>
+    <string name="title_activity_ignore_list_network">Lista ignorowania dla %s</string>
+    <string name="title_activity_edit_ignore_entry">Edytuj ignorowanie</string>
+    <string name="title_activity_add_ignore_entry">Dodaj ignorowanie</string>
+
+    <!-- User info -->
+
+    <string name="user_title_away">%s (nieobecny)</string>
+    <string name="user_nick">Nick</string>
+    <string name="user_hostname">Nazwa hosta</string>
+    <string name="user_server">Serwer</string>
+    <string name="user_server_format">%s (%s)</string>
+    <string name="user_channels">Kanały</string>
+    <string name="user_idle">Czas nieaktywności</string>
+    <string name="user_server_op">Operator serwera</string>
+    <string name="user_server_op_desc">Jest operatorem serwera IRC</string>
+    <string name="user_secure">Bezpieczeństwo połączenia</string>
+    <string name="user_secure_desc">Używa bezpiecznego połączenia</string>
+    <string name="user_account">Konto</string>
+    <string name="user_away">Wiadomość o nieobecności</string>
+
+    <!-- Color picker -->
+
+    <string name="color_picker_title">Wybierz kolor</string>
+
+    <string-array name="color_picker_color_names">
+        <item>Czarny</item>
+        <item>Biały</item>
+        <item>Niebieski</item>
+        <item>Zielony</item>
+        <item>Jasnoczerwony</item>
+        <item>Brązowy</item>
+        <item>Fioletowy</item>
+        <item>Pomarańczowy</item>
+        <item>Żółty</item>
+        <item>Jasnozielony</item>
+        <item>Seledynowy</item>
+        <item>Jasnoseledynowy</item>
+        <item>Jasnoniebieski</item>
+        <item>Różowy</item>
+        <item>Szary</item>
+        <item>Jasnoszary</item>
+    </string-array>
+
+</resources>
