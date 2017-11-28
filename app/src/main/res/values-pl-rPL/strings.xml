@@ -293,8 +293,8 @@
     <string name="font_size_sample_text">To jest przykładowy tekst prezentujący rozmiar czcionki. Możesz go zmienić poniżej.</string>
 
     <string-array name="pref_entries_appbar_compact_mode">
-        <item></item>
-        <item></item>
+        <item>@string/value_never</item>
+        <item>@string/value_always</item>
         <item>Jeśli jest mało miejsca na wiadomości</item>
     </string-array>
 
@@ -438,7 +438,7 @@
     <string-array name="edit_command_alias_types">
         <item>Wiadomość</item>
         <item>Komenda</item>
-        <item></item>
+        <item>Raw</item>
     </string-array>
 
     <!-- Storage settings -->
