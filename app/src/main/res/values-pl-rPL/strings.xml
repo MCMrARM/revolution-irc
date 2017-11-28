@@ -287,7 +287,7 @@
 
     <string-array name="pref_entries_font">
         <item>Domyślna (Bezszeryfowa)</item>
-        <item>#</item>
+        <item>Szeryfowa</item>
         <item>Monospace</item>
     </string-array>
     <string name="font_size_sample_text">To jest przykładowy tekst prezentujący rozmiar czcionki. Możesz go zmienić poniżej.</string>
@@ -295,7 +295,7 @@
     <string-array name="pref_entries_appbar_compact_mode">
         <item></item>
         <item></item>
-        <item>Jeśli jest mało miejscs na wiadomości</item>
+        <item>Jeśli jest mało miejsca na wiadomości</item>
     </string-array>
 
     <!-- Message format -->
