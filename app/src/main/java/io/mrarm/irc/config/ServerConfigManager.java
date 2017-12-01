@@ -6,6 +6,8 @@ import android.util.Log;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -38,6 +40,7 @@ public class ServerConfigManager {
 
     private final File mServersPath;
     private final File mServerLogsPath;
+    private final File mFallbackServerLogsPath;
 
     private final Context mContext;
     private final List<ServerConfigData> mServers = new ArrayList<>();
@@ -49,9 +52,16 @@ public class ServerConfigManager {
         mContext = context;
         mServersPath = new File(context.getFilesDir(), SERVERS_PATH);
         File externalFilesDir = context.getExternalFilesDir(null);
+        mFallbackServerLogsPath = new File(context.getFilesDir(), SERVER_LOGS_PATH);
         mServerLogsPath = externalFilesDir != null ? new File(externalFilesDir, SERVER_LOGS_PATH)
-                : new File(context.getFilesDir(), SERVER_LOGS_PATH);
+                : mFallbackServerLogsPath;
         mServerLogsPath.mkdirs();
+
+        if (externalFilesDir != null && mFallbackServerLogsPath.exists()) {
+            migrateServerLogs(mFallbackServerLogsPath, mServerLogsPath);
+            mFallbackServerLogsPath.delete();
+        }
+
         loadServers();
     }
 
@@ -71,6 +81,38 @@ public class ServerConfigManager {
                 Log.e(TAG, "Failed to load server data");
                 e.printStackTrace();
             }
+        }
+    }
+
+    private void migrateServerLogs(File from, File to) {
+        File[] files = from.listFiles();
+        if (files == null)
+            return;
+        to.mkdir();
+        for (File file : files) {
+            if (file.isDirectory()) {
+                migrateServerLogs(file, new File(to, file.getName()));
+            } else {
+                File toFile = new File(to, file.getName());
+                File tempFile = new File(to, file.getName() + ".tmp");
+                try {
+                    FileInputStream fis = new FileInputStream(file);
+                    FileOutputStream fos = new FileOutputStream(tempFile);
+                    byte[] buf = new byte[16 * 1024];
+                    int n;
+                    while ((n = fis.read(buf)) > 0) {
+                        fos.write(buf, 0, n);
+                    }
+                    fis.close();
+                    fos.close();
+                } catch (IOException e) {
+                    throw new RuntimeException("Migration failed", e);
+                }
+                if (toFile.exists())
+                    toFile.delete();
+                tempFile.renameTo(toFile);
+            }
+            file.delete();
         }
     }
 
