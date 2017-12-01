@@ -48,7 +48,9 @@ public class ServerConfigManager {
     public ServerConfigManager(Context context) {
         mContext = context;
         mServersPath = new File(context.getFilesDir(), SERVERS_PATH);
-        mServerLogsPath = new File(context.getExternalFilesDir(null), SERVER_LOGS_PATH);
+        File externalFilesDir = context.getExternalFilesDir(null);
+        mServerLogsPath = externalFilesDir != null ? new File(externalFilesDir, SERVER_LOGS_PATH)
+                : new File(context.getFilesDir(), SERVER_LOGS_PATH);
         mServerLogsPath.mkdirs();
         loadServers();
     }
