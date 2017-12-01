@@ -81,11 +81,14 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     }
 
     public void clearSelection(RecyclerView recyclerView) {
-        for (int item : mSelectedItems) {
-            RecyclerView.ViewHolder viewHolder = recyclerView.findViewHolderForAdapterPosition(item);
-            if (viewHolder == null)
-                continue;
-            ((MessageHolder) viewHolder).setSelected(false, false);
+        if (recyclerView != null) {
+            for (int item : mSelectedItems) {
+                RecyclerView.ViewHolder viewHolder = recyclerView
+                        .findViewHolderForAdapterPosition(item);
+                if (viewHolder == null)
+                    continue;
+                ((MessageHolder) viewHolder).setSelected(false, false);
+            }
         }
         mSelectedItems.clear();
     }
