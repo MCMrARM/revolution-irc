@@ -47,10 +47,10 @@ public class LinkHelper {
 
         @Override
         public void onClick(View view) {
+            MainActivity activity = ((MainActivity) view.getContext());
             MenuBottomSheetDialog dialog = new MenuBottomSheetDialog(view.getContext());
             dialog.addHeader(mChannel);
             dialog.addItem(R.string.action_open, R.drawable.ic_open_in_new, (MenuBottomSheetDialog.Item item) -> {
-                MainActivity activity = ((MainActivity) view.getContext());
                 ChatFragment fragment = (ChatFragment) activity.getCurrentFragment();
                 List<String> channels = new ArrayList<>();
                 channels.add(mChannel);
@@ -70,6 +70,7 @@ public class LinkHelper {
                 return true;
             });
             dialog.show();
+            activity.setFragmentDialog(dialog);
         }
 
     }

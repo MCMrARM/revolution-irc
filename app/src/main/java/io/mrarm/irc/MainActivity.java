@@ -1,5 +1,6 @@
 package io.mrarm.irc;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -47,6 +49,7 @@ public class MainActivity extends ThemedActivity {
     private Toolbar mToolbar;
     private View mFakeToolbar;
     private boolean mBackReturnToServerList;
+    private Dialog mCurrentDialog;
 
     public static Intent getLaunchIntent(Context context, ServerConnectionInfo server, String channel) {
         Intent intent = new Intent(context, MainActivity.class);
@@ -220,6 +223,7 @@ public class MainActivity extends ThemedActivity {
     }
 
     public ChatFragment openServer(ServerConnectionInfo server, String channel, boolean fromServerList) {
+        dismissFragmentDialog();
         ChatFragment fragment;
         if (getCurrentFragment() instanceof ChatFragment &&
                 ((ChatFragment) getCurrentFragment()).getConnectionInfo() == server) {
@@ -244,6 +248,7 @@ public class MainActivity extends ThemedActivity {
     }
 
     public void openManageServers() {
+        dismissFragmentDialog();
         getSupportFragmentManager().beginTransaction()
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .replace(R.id.content_frame, ServerListFragment.newInstance())
@@ -258,6 +263,31 @@ public class MainActivity extends ThemedActivity {
 
     public Fragment getCurrentFragment() {
         return getSupportFragmentManager().findFragmentById(R.id.content_frame);
+    }
+
+    public void setFragmentDialog(Dialog dialog) {
+        if (mCurrentDialog != null) {
+            mCurrentDialog.setOnDismissListener(null);
+            mCurrentDialog.dismiss();
+        }
+        mCurrentDialog = dialog;
+        mCurrentDialog.setOnDismissListener((DialogInterface di) -> {
+            if (mCurrentDialog == dialog)
+                mCurrentDialog = null;
+        });
+    }
+
+    public void dismissFragmentDialog() {
+        if (mCurrentDialog != null) {
+            InputMethodManager manager = (InputMethodManager) getSystemService(
+                    Context.INPUT_METHOD_SERVICE);
+            manager.hideSoftInputFromWindow(mCurrentDialog.getWindow().getDecorView()
+                    .getApplicationWindowToken(), 0);
+
+            mCurrentDialog.setOnDismissListener(null);
+            mCurrentDialog.dismiss();
+            mCurrentDialog = null;
+        }
     }
 
     @Override
@@ -352,10 +382,12 @@ public class MainActivity extends ThemedActivity {
             dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
             dialog.show();
             dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+            setFragmentDialog(dialog);
         } else if (id == R.id.action_message_user) {
             UserSearchDialog dialog = new UserSearchDialog(this, ((ChatFragment)
                     getCurrentFragment()).getConnectionInfo());
             dialog.show();
+            setFragmentDialog(dialog);
         } else if (id == R.id.action_part_channel) {
             ChatApi api = ((ChatFragment) getCurrentFragment()).getConnectionInfo().getApiInstance();
             String channel = ((ChatFragment) getCurrentFragment()).getCurrentChannel();

@@ -73,6 +73,7 @@ public class ServerListFragment extends Fragment {
                 return true;
             });
             menu.show();
+            ((MainActivity) getActivity()).setFragmentDialog(menu);
         });
         mAdapter.setInactiveServerClickListener((ServerConfigData data) -> {
             ServerConnectionManager.getInstance(getContext()).tryCreateConnection(data, getActivity());
@@ -99,10 +100,11 @@ public class ServerListFragment extends Fragment {
                     ServerConfigManager.getInstance(getContext()).deleteServer(data);
                 });
                 builder2.setNegativeButton(R.string.action_cancel, null);
-                builder2.show();
+                ((MainActivity) getActivity()).setFragmentDialog(builder2.show());
                 return true;
             });
             menu.show();
+            ((MainActivity) getActivity()).setFragmentDialog(menu);
         });
         mAdapter.registerListeners();
 
