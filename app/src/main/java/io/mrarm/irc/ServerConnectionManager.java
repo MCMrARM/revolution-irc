@@ -340,6 +340,8 @@ public class ServerConnectionManager {
     }
 
     void notifyConnectionInfoChanged(ServerConnectionInfo connection) {
+        if (!hasConnection(connection.getUUID()))
+            return;
         synchronized (mInfoListeners) {
             for (ServerConnectionInfo.InfoChangeListener listener : mInfoListeners)
                 listener.onConnectionInfoChanged(connection);
@@ -349,6 +351,8 @@ public class ServerConnectionManager {
     }
 
     void notifyChannelListChanged(ServerConnectionInfo connection, List<String> newChannels) {
+        if (!hasConnection(connection.getUUID()))
+            return;
         synchronized (mChannelsListeners) {
             for (ServerConnectionInfo.ChannelListChangeListener listener : mChannelsListeners)
                 listener.onChannelListChanged(connection, newChannels);
