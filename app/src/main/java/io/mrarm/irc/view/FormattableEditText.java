@@ -44,7 +44,8 @@ public class FormattableEditText extends ThemedEditText {
                 int selStart = getSelectionStart();
                 for (Object span : getText().getSpans(start, start + count, Object.class)) {
                     int flags = getText().getSpanFlags(span);
-                    if (span instanceof NoCopySpan || (flags & Spanned.SPAN_COMPOSING) != 0)
+                    if (span instanceof NoCopySpan || (flags & Spanned.SPAN_COMPOSING) != 0
+                            || (flags & Spanned.SPAN_PARAGRAPH) != 0)
                         continue;
                     SpanData data = new SpanData();
                     data.span = span;
