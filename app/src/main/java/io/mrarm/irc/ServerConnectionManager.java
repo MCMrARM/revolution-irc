@@ -92,13 +92,11 @@ public class ServerConnectionManager {
     private void saveAutoconnectList() {
         ConnectedServersList list = new ConnectedServersList();
         list.servers = new ArrayList<>();
-        synchronized (this) {
-            for (ServerConnectionInfo connectionInfo : mConnections) {
-                ConnectedServerInfo server = new ConnectedServerInfo();
-                server.uuid = connectionInfo.getUUID();
-                server.channels = connectionInfo.getChannels();
-                list.servers.add(server);
-            }
+        for (ServerConnectionInfo connectionInfo : getConnections()) {
+            ConnectedServerInfo server = new ConnectedServerInfo();
+            server.uuid = connectionInfo.getUUID();
+            server.channels = connectionInfo.getChannels();
+            list.servers.add(server);
         }
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(mConnectedServersFile));

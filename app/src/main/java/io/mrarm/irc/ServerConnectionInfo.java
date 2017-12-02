@@ -299,10 +299,10 @@ public class ServerConnectionInfo {
         Collections.sort(channels, String::compareToIgnoreCase);
         synchronized (this) {
             mChannels = channels;
-            mManager.notifyChannelListChanged(this, channels);
-            mManager.saveAutoconnectListAsync();
         }
         synchronized (mChannelsListeners) {
+            mManager.notifyChannelListChanged(this, channels);
+            mManager.saveAutoconnectListAsync();
             List<ChannelListChangeListener> listeners = new ArrayList<>(mChannelsListeners);
             for (ChannelListChangeListener listener : listeners)
                 listener.onChannelListChanged(this, channels);
