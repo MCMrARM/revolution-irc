@@ -48,7 +48,7 @@ public class NotificationCountStorage {
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
 
-        open();
+        mHandler.post(this::open);
     }
 
     public void open() {
