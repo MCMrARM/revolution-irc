@@ -180,6 +180,7 @@ public class MainActivity extends ThemedActivity {
     @Override
     protected void onDestroy() {
         mDrawerHelper.unregisterListeners();
+        dismissFragmentDialog();
         super.onDestroy();
     }
 
