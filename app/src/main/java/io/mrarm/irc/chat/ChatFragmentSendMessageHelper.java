@@ -1,5 +1,6 @@
 package io.mrarm.irc.chat;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.support.annotation.NonNull;
@@ -10,7 +11,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.Editable;
 import android.text.InputType;
-import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.view.ActionMode;
@@ -34,6 +34,7 @@ import io.mrarm.chatlib.irc.IRCConnection;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.chatlib.irc.handlers.NickCommandHandler;
 import io.mrarm.chatlib.irc.handlers.WhoisCommandHandler;
+import io.mrarm.irc.MainActivity;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.config.CommandAliasManager;
@@ -314,7 +315,8 @@ public class ChatFragmentSendMessageHelper {
                     UserBottomSheetDialog dialog = new UserBottomSheetDialog(mContext);
                     dialog.setConnection(mFragment.getConnectionInfo());
                     dialog.setData(whoisInfo);
-                    dialog.show();
+                    Dialog d = dialog.show();
+                    ((MainActivity) mFragment.getActivity()).setFragmentDialog(d);
                 });
             }, (String n, int i, String m) -> {
                 notifyCommandFailed(clientCommand, m);

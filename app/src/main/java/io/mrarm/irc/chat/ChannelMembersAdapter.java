@@ -1,5 +1,6 @@
 package io.mrarm.irc.chat;
 
+import android.app.Dialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import io.mrarm.chatlib.dto.NickWithPrefix;
+import io.mrarm.irc.MainActivity;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.dialog.UserBottomSheetDialog;
@@ -62,7 +64,9 @@ public class ChannelMembersAdapter extends RecyclerView.Adapter<ChannelMembersAd
                 UserBottomSheetDialog dialog = new UserBottomSheetDialog(view.getContext());
                 dialog.setConnection(connection);
                 dialog.requestData((String) mText.getTag(), connection.getApiInstance());
-                dialog.show();
+                Dialog d = dialog.show();
+                if (view.getContext() instanceof MainActivity)
+                    ((MainActivity) view.getContext()).setFragmentDialog(d);
             });
         }
 

@@ -2,6 +2,7 @@ package io.mrarm.irc.dialog;
 
 import android.content.Context;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -180,10 +181,11 @@ public class UserBottomSheetDialog {
             mDialog.setStatusBarColor(mContext.getResources().getColor(R.color.colorPrimaryDark));
     }
 
-    public void show() {
+    public BottomSheetDialog show() {
         if (mDialog == null)
             create();
         mDialog.show();
+        return mDialog;
     }
 
     private class ItemAdapter extends RecyclerView.Adapter {
