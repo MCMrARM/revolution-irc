@@ -30,6 +30,8 @@ import io.mrarm.irc.NotificationManager;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
+import io.mrarm.irc.config.ServerConfigData;
+import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.config.SettingsHelper;
 
 public class ChatFragment extends Fragment implements
@@ -70,6 +72,11 @@ public class ChatFragment extends Fragment implements
         UUID connectionUUID = UUID.fromString(getArguments().getString(ARG_SERVER_UUID));
         mConnectionInfo = ServerConnectionManager.getInstance(getContext()).getConnection(connectionUUID);
         String requestedChannel = getArguments().getString(ARG_CHANNEL_NAME);
+
+        if (mConnectionInfo == null) {
+            ((MainActivity) getActivity()).openManageServers();
+            return null;
+        }
 
         mAppBar = rootView.findViewById(R.id.appbar);
 
@@ -247,6 +254,9 @@ public class ChatFragment extends Fragment implements
 
     @Override
     public void onDestroyView() {
+        super.onDestroyView();
+        if (mConnectionInfo == null)
+            return;
         mConnectionInfo.removeOnChannelListChangeListener(this);
         mConnectionInfo.removeOnChannelInfoChangeListener(this);
         mConnectionInfo.getNotificationManager().removeUnreadMessageCountCallback(this);
@@ -256,13 +266,13 @@ public class ChatFragment extends Fragment implements
         s.removePreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT, this);
         s.removePreferenceChangeListener(SettingsHelper.PREF_NICK_AUTOCOMPLETE_SHOW_BUTTON, this);
         s.removePreferenceChangeListener(SettingsHelper.PREF_NICK_AUTOCOMPLETE_DOUBLE_TAP, this);
-        super.onDestroyView();
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        mSectionsPagerAdapter.onSaveInstanceState(outState);
+        if (mSectionsPagerAdapter != null)
+            mSectionsPagerAdapter.onSaveInstanceState(outState);
     }
 
     public ServerConnectionInfo getConnectionInfo() {
