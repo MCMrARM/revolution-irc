@@ -355,7 +355,7 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
     public CharSequence terminateNickToken(CharSequence text) {
         int start = findTokenStart();
         if (!mAtSuggestionsRemoveAt &&
-                (getText().length() >= start && getText().charAt(start) == '@'))
+                (getText().length() > start && getText().charAt(start) == '@'))
             return "@" + text + " ";
         if (start == 0)
             return text + ": ";
