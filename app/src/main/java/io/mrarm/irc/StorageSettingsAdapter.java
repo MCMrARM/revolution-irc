@@ -426,7 +426,12 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
         protected Void doInBackground(Void... voids) {
             Context ctx = mContext;
             if (mDeleteConfig) {
-                ServerConnectionManager.getInstance(ctx).disconnectAndRemoveAllConnections(true);
+                ServerConnectionManager mgr = ServerConnectionManager.getInstance(null);
+                if (mgr != null)
+                    mgr.disconnectAndRemoveAllConnections(true);
+                else
+                    new File(ctx.getFilesDir(),
+                            ServerConnectionManager.CONNECTED_SERVERS_FILE_PATH).delete();
                 ServerConfigManager.getInstance(ctx).deleteAllServers(true);
                 NotificationRuleManager.getUserRules(ctx).clear();
                 CommandAliasManager.getInstance(ctx).getUserAliases().clear();
@@ -466,7 +471,8 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
 
         private void deleteChatLogDir(UUID uuid) {
             ServerConnectionManager connectionManager = ServerConnectionManager.getInstance(null);
-            connectionManager.killDisconnectingConnection(uuid);
+            if (connectionManager != null)
+                connectionManager.killDisconnectingConnection(uuid);
             ServerConnectionInfo connection = connectionManager != null ? connectionManager.getConnection(uuid) : null;
             SQLiteMessageStorageApi storageApi = null;
             if (connection != null && connection.getApiInstance() != null &&
