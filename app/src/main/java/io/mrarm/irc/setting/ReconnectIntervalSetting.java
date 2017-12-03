@@ -38,7 +38,8 @@ public class ReconnectIntervalSetting extends SimpleSetting {
             R.layout.settings_list_entry);
 
     private static List<Rule> sDefaultValue;
-    public static final Type sListRuleType = new TypeToken<List<Rule>>(){}.getType();
+    public static final Type sListRuleType = new TypeToken<List<Rule>>() {
+    }.getType();
 
     static {
         sDefaultValue = new ArrayList<>();
@@ -186,12 +187,14 @@ public class ReconnectIntervalSetting extends SimpleSetting {
             private static final int SPINNER_MINUTES = 1;
             private static final int SPINNER_HOURS = 2;
 
+            private RulesAdapter mAdapter;
             private EditText mReconnectDelayText;
             private Spinner mReconnectDelaySpinner;
             private EditText mRepeatCountText;
 
             public RuleViewHolder(View v, RulesAdapter adapter) {
                 super(v);
+                mAdapter = adapter;
 
                 mReconnectDelaySpinner = v.findViewById(R.id.rule_duration_type);
                 ArrayAdapter<CharSequence> spinnerAdapter = new ArrayAdapter<>(itemView.getContext(),
@@ -210,15 +213,15 @@ public class ReconnectIntervalSetting extends SimpleSetting {
                     inflater.inflate(R.menu.menu_reconnect_rule, menu.getMenu());
                     menu.setOnMenuItemClickListener((MenuItem item) -> {
                         if (item.getItemId() == R.id.action_add) {
-                            adapter.mRules.add(getAdapterPosition() + 1, new Rule());
-                            adapter.notifyItemInserted(getAdapterPosition() + 1);
-                            adapter.updateDialogOkButtonState(false);
+                            mAdapter.mRules.add(getAdapterPosition() + 1, new Rule());
+                            mAdapter.notifyItemInserted(getAdapterPosition() + 1);
+                            mAdapter.updateDialogOkButtonState(false);
                             return true;
                         } else if (item.getItemId() == R.id.action_delete) {
-                            if (adapter.mRules.size() > 1) {
-                                adapter.mRules.remove(getAdapterPosition());
-                                adapter.notifyItemRemoved(getAdapterPosition());
-                                adapter.updateDialogOkButtonState(true);
+                            if (mAdapter.mRules.size() > 1) {
+                                mAdapter.mRules.remove(getAdapterPosition());
+                                mAdapter.notifyItemRemoved(getAdapterPosition());
+                                mAdapter.updateDialogOkButtonState(true);
                             }
                             return true;
                         }
@@ -226,48 +229,9 @@ public class ReconnectIntervalSetting extends SimpleSetting {
                     });
                     menu.show();
                 });
-
-                mReconnectDelayText.addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
-                    updateReconnectDelay(adapter);
-                }));
-                mReconnectDelaySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                        updateReconnectDelay(adapter);
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parent) {
-                    }
-                });
-                mRepeatCountText.addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
-                    Rule rule = adapter.mRules.get(getAdapterPosition());
-                    try {
-                        rule.repeatCount = Integer.parseInt(mRepeatCountText.getText().toString());
-                    } catch (NumberFormatException e) {
-                        rule.repeatCount = -1;
-                    }
-
-                    if (getAdapterPosition() == adapter.mRules.size() - 1) { // last item
-                        if (mRepeatCountText.getText().length() > 0) {
-                            // add a new empty item
-                            adapter.mRules.add(getAdapterPosition() + 1, new Rule());
-                            adapter.notifyItemInserted(getAdapterPosition() + 1);
-                        }
-                    } else if (getAdapterPosition() == adapter.mRules.size() - 2) {
-                        int ii = adapter.mRules.size() - 1;
-                        Rule lastRule = adapter.mRules.get(ii);
-                        if (lastRule.reconnectDelay == -1 && lastRule.repeatCount == -1) {
-                            // remove last, empty rule
-                            adapter.mRules.remove(ii);
-                            adapter.notifyItemRemoved(ii);
-                        }
-                    }
-                    adapter.updateDialogOkButtonState();
-                }));
             }
 
-            private void updateReconnectDelay(RulesAdapter adapter) {
+            private void updateReconnectDelay() {
                 int mp = 1;
                 switch (mReconnectDelaySpinner.getSelectedItemPosition()) {
                     case SPINNER_SECONDS:
@@ -281,16 +245,20 @@ public class ReconnectIntervalSetting extends SimpleSetting {
                         break;
                 }
 
-                Rule rule = adapter.mRules.get(getAdapterPosition());
+                Rule rule = mAdapter.mRules.get(getAdapterPosition());
                 try {
                     rule.reconnectDelay = (int) (Double.parseDouble(mReconnectDelayText.getText().toString()) * mp);
                 } catch (NumberFormatException e) {
                     rule.reconnectDelay = -1;
                 }
-                adapter.updateDialogOkButtonState(rule.reconnectDelay > 0);
+                mAdapter.updateDialogOkButtonState(rule.reconnectDelay > 0);
             }
 
             public void bind(Rule rule) {
+                mReconnectDelayText.removeTextChangedListener(mReconnectDelayTextListener);
+                mReconnectDelaySpinner.setOnItemSelectedListener(null);
+                mRepeatCountText.removeTextChangedListener(mRepeatCountTextListener);
+
                 if (rule.reconnectDelay != -1) {
                     int reconnectDelay = rule.reconnectDelay;
                     int spinnerItemId = SPINNER_SECONDS;
@@ -317,7 +285,51 @@ public class ReconnectIntervalSetting extends SimpleSetting {
                 }
 
                 mRepeatCountText.setText(rule.repeatCount == -1 ? "" : String.valueOf(rule.repeatCount));
+
+                mReconnectDelayText.addTextChangedListener(mReconnectDelayTextListener);
+                mReconnectDelaySpinner.setOnItemSelectedListener(mReconnectDelaySpinnerListener);
+                mRepeatCountText.addTextChangedListener(mRepeatCountTextListener);
             }
+
+            private SimpleTextWatcher mReconnectDelayTextListener = new SimpleTextWatcher(
+                    (Editable s) -> updateReconnectDelay());
+
+            private AdapterView.OnItemSelectedListener mReconnectDelaySpinnerListener = new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> vp, View v, int p, long i) {
+                    updateReconnectDelay();
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                }
+            };
+
+            private SimpleTextWatcher mRepeatCountTextListener = new SimpleTextWatcher((Editable s) -> {
+                Rule rule = mAdapter.mRules.get(getAdapterPosition());
+                try {
+                    rule.repeatCount = Integer.parseInt(mRepeatCountText.getText().toString());
+                } catch (NumberFormatException e) {
+                    rule.repeatCount = -1;
+                }
+
+                if (getAdapterPosition() == mAdapter.mRules.size() - 1) { // last item
+                    if (mRepeatCountText.getText().length() > 0) {
+                        // add a new empty item
+                        mAdapter.mRules.add(getAdapterPosition() + 1, new Rule());
+                        mAdapter.notifyItemInserted(getAdapterPosition() + 1);
+                    }
+                } else if (getAdapterPosition() == mAdapter.mRules.size() - 2) {
+                    int ii = mAdapter.mRules.size() - 1;
+                    Rule lastRule = mAdapter.mRules.get(ii);
+                    if (lastRule.reconnectDelay == -1 && lastRule.repeatCount == -1) {
+                        // remove last, empty rule
+                        mAdapter.mRules.remove(ii);
+                        mAdapter.notifyItemRemoved(ii);
+                    }
+                }
+                mAdapter.updateDialogOkButtonState();
+            });
 
         }
 
