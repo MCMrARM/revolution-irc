@@ -1,6 +1,7 @@
 package io.mrarm.irc;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.text.NoCopySpan;
 import android.text.SpannableString;
 import android.util.Log;
@@ -30,7 +31,7 @@ public class ServerConnectionInfo {
 
     private static final int HISTORY_MAX_COUNT = 24;
 
-    private static Handler mReconnectHandler = new Handler();
+    private static Handler mReconnectHandler = new Handler(Looper.getMainLooper());
 
     private ServerConnectionManager mManager;
     private ServerConfigData mServerConfig;
