@@ -269,7 +269,6 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             mMessageFilterOptions = sFilterJoinParts;
         else
             mMessageFilterOptions = null;
-        mMessages = null;
         mConnection.getApiInstance().getMessageStorageApi().getMessages(mChannelName, 100,
                 getFilterOptions(), null, (MessageList messages) -> {
                     Log.i(TAG, "Got message list for " + mChannelName + ": " +
