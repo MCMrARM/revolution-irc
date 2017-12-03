@@ -96,6 +96,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             Log.d(TAG, "setMembers " + (mMembers == null ? -1 : mMembers.size()));
             ((ChatFragment) getParentFragment()).setCurrentChannelMembers(mMembers);
         }
+        if (!isVisibleToUser)
+            hideMessagesActionMenu();
         if (mConnection != null && mChannelName != null) {
             mConnection.getNotificationManager().getChannelManager(mChannelName, true).setOpened(getContext(), isVisibleToUser);
         }
@@ -186,6 +188,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     @Override
     public void onDestroy() {
         super.onDestroy();
+
         SettingsHelper s = SettingsHelper.getInstance(getContext());
         s.removePreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT, this);
         s.removePreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT_SIZE, this);
@@ -197,6 +200,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             mConnection.getApiInstance().getMessageStorageApi().unsubscribeChannelMessages(getArguments().getString(ARG_CHANNEL_NAME), ChatMessagesFragment.this, null, null);
         if (mNeedsUnsubscribeStatusMessages)
             mConnection.getApiInstance().unsubscribeStatusMessages(ChatMessagesFragment.this, null, null);
+
+        hideMessagesActionMenu();
     }
 
     @Override
