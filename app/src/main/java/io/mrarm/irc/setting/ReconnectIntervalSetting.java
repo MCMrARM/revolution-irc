@@ -245,7 +245,10 @@ public class ReconnectIntervalSetting extends SimpleSetting {
                         break;
                 }
 
-                Rule rule = mAdapter.mRules.get(getAdapterPosition());
+                int pos = getAdapterPosition();
+                if (pos == -1)
+                    return;
+                Rule rule = mAdapter.mRules.get(pos);
                 try {
                     rule.reconnectDelay = (int) (Double.parseDouble(mReconnectDelayText.getText().toString()) * mp);
                 } catch (NumberFormatException e) {
