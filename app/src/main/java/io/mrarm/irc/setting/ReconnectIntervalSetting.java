@@ -108,6 +108,11 @@ public class ReconnectIntervalSetting extends SimpleSetting {
             this.repeatCount = repeatCount;
         }
 
+        public Rule(Rule rule) {
+            this.reconnectDelay = rule.reconnectDelay;
+            this.repeatCount = rule.repeatCount;
+        }
+
         public String getReconnectDelayAsString(Context context) {
             if (reconnectDelay != -1) {
                 int delay = reconnectDelay / 1000;
@@ -347,7 +352,9 @@ public class ReconnectIntervalSetting extends SimpleSetting {
 
         @Override
         public void onClick(View v) {
-            List<Rule> rules = new ArrayList<>(getEntry().mRules);
+            List<Rule> rules = new ArrayList<>();
+            for (Rule rule : getEntry().mRules)
+                rules.add(new Rule(rule));
             if (rules.size() == 0)
                 rules.add(new Rule());
 
