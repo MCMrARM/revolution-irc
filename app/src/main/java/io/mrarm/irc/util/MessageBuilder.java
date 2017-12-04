@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.preference.PreferenceManager;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.content.res.AppCompatResources;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -611,9 +612,13 @@ public class MessageBuilder {
         }
 
         public static Drawable getDrawableFor(Context ctx, int type) {
+            Drawable drawable = null;
             if (type == TYPE_WRAP_ANCHOR)
-                return AppCompatResources.getDrawable(ctx, R.drawable.ic_format_indent);
-            return null;
+                drawable = AppCompatResources.getDrawable(ctx, R.drawable.ic_format_indent);
+            if (drawable != null)
+                DrawableCompat.setTint(drawable.mutate(),
+                        ctx.getResources().getColor(R.color.iconColor));
+            return drawable;
         }
 
         private int mType;
