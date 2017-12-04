@@ -6,6 +6,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.view.GravityCompat;
+import android.support.v7.widget.ListPopupWindow;
 import android.support.v7.widget.PopupMenu;
 import android.text.Editable;
 import android.text.Spannable;
@@ -20,6 +21,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -265,12 +268,13 @@ public class MessageFormatSettingsActivity extends ThemedActivity {
     }
 
     private void selectPreset(EditText editText, CharSequence[] presets) {
-        PopupMenu menu = new PopupMenu(editText.getContext(), editText, GravityCompat.START);
-        for (int i = 0; i < presets.length; i++)
-            menu.getMenu().add(Menu.NONE, i, Menu.NONE, presets[i]);
-        menu.setOnMenuItemClickListener((MenuItem item) -> {
-            editText.setText(presets[item.getItemId()]);
-            return false;
+        ListPopupWindow menu = new ListPopupWindow(editText.getContext());
+        menu.setAnchorView(editText);
+        menu.setAdapter(new ArrayAdapter<>(this,
+                R.layout.activity_message_format_settings_preset, presets));
+        menu.setOnItemClickListener((AdapterView<?> parent, View view, int position, long id) -> {
+            editText.setText(presets[position]);
+            menu.dismiss();
         });
         menu.show();
     }
