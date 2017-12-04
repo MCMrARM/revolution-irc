@@ -62,11 +62,11 @@ public class MessageBuilder {
     private CharSequence mEventMessageFormat;
 
     public static SpannableString buildDefaultMessageFormat(Context context) {
-        return MessageFormatSettingsActivity.buildPresetMessageFormat(context, 0, false);
+        return MessageFormatSettingsActivity.buildPresetMessageFormat(context, 0, false, false);
     }
 
     public static SpannableString buildDefaultMentionMessageFormat(Context context) {
-        return MessageFormatSettingsActivity.buildPresetMessageFormat(context, 0, true);
+        return MessageFormatSettingsActivity.buildPresetMessageFormat(context, 0, true, false);
     }
 
     public static SpannableString buildDefaultActionMessageFormat(Context context) {
