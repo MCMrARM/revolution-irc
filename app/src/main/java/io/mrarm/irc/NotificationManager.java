@@ -135,7 +135,7 @@ public class NotificationManager {
         NotificationCompat.Builder notification = new NotificationCompat.Builder(context);
         notification
                 .setAutoCancel(true)
-                .setSmallIcon(R.drawable.ic_message)
+                .setSmallIcon(R.drawable.ic_notification_message)
                 .setGroup(NOTIFICATION_GROUP_CHAT)
                 .setGroupSummary(true)
                 .setColor(context.getResources().getColor(R.color.colorNotificationMention));
