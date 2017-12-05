@@ -274,9 +274,9 @@ public class ChatLogStorageManager implements SharedPreferences.OnSharedPreferen
             mGlobalTotalSize += mCurrentLogSize;
 
             long blockSize = getBlockSize();
-            while (currentYear > mCurrentLogTime.get(Calendar.YEAR) ||
-                    currentMonth > mCurrentLogTime.get(Calendar.MONTH) ||
-                    currentDay > mCurrentLogTime.get(Calendar.DAY_OF_MONTH)) {
+            while (currentYear > mCurrentLogTime.get(Calendar.YEAR) || (currentYear == mCurrentLogTime.get(Calendar.YEAR) &&
+                    (currentMonth > mCurrentLogTime.get(Calendar.MONTH) || (currentMonth == mCurrentLogTime.get(Calendar.MONTH) &&
+                            currentDay > mCurrentLogTime.get(Calendar.DAY_OF_MONTH))))) {
                 if (mCurrentLogFile != null && mCurrentLogFile.exists()) {
                     DeletionCandidate candidate = new DeletionCandidate(this, mCurrentLogSize,
                             mCurrentLogTime.getTimeInMillis());
