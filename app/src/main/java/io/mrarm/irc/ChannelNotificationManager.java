@@ -112,9 +112,9 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
 
                 // cancel the notification
                 NotificationManagerCompat.from(context).cancel(mNotificationId);
-                NotificationManager.getInstance().updateSummaryNotification(context);
             }
         }
+        NotificationManager.getInstance().updateSummaryNotification(context);
     }
 
     void showNotification(Context context, NotificationRule rule) {
