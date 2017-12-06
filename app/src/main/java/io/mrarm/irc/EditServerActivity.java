@@ -62,6 +62,7 @@ public class EditServerActivity extends ThemedActivity {
     private EditText mServerRealname;
     private ChipsEditText mServerChannels;
     private CheckBox mServerRejoinChannels;
+    private EditText mServerCommands;
 
     private View mServerUserExpandIcon;
     private View mServerUserExpandContent;
@@ -133,6 +134,7 @@ public class EditServerActivity extends ThemedActivity {
         mServerRealname = findViewById(R.id.server_realname);
         mServerChannels = findViewById(R.id.server_channels);
         mServerRejoinChannels = findViewById(R.id.server_rejoin_channels);
+        mServerCommands = findViewById(R.id.server_commands);
 
         mServerUserExpandIcon = findViewById(R.id.server_user_expand);
         mServerUserExpandContent = findViewById(R.id.server_user_expand_content);
@@ -224,6 +226,16 @@ public class EditServerActivity extends ThemedActivity {
                 mServerUserExpandContent.setVisibility(View.VISIBLE);
                 ExpandIconStateHelper.setExpanded(mServerUserExpandIcon, true);
             }
+            if (mEditServer.execCommandsConnected != null
+                    && mEditServer.execCommandsConnected.size() > 0) {
+                StringBuilder b = new StringBuilder();
+                for (String cmd : mEditServer.execCommandsConnected) {
+                    if (b.length() > 0)
+                        b.append('\n');
+                    b.append(cmd);
+                }
+                mServerCommands.setText(b.toString());
+            }
             if (getIntent().getBooleanExtra(ARG_COPY, false)) {
                 mEditServer = null;
                 getSupportActionBar().setTitle(R.string.add_server);
@@ -312,6 +324,8 @@ public class EditServerActivity extends ThemedActivity {
             mEditServer.authPass = mServerAuthPass.getText().toString();
         mEditServer.autojoinChannels = Arrays.asList(mServerChannels.getItems());
         mEditServer.rejoinChannels = mServerRejoinChannels.isChecked();
+        mEditServer.execCommandsConnected = mServerCommands.getText().length() > 0
+                ? Arrays.asList(mServerCommands.getText().toString().split("\n")) : null;
         try {
             ServerConfigManager.getInstance(this).saveServer(mEditServer);
         } catch (IOException e) {

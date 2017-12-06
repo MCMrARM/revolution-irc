@@ -27,6 +27,7 @@ public class ServerConfigData {
 
     public List<String> autojoinChannels;
     public boolean rejoinChannels = true;
+    public List<String> execCommandsConnected;
 
     public List<IgnoreEntry> ignoreList;
 
