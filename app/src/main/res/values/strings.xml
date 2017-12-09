@@ -126,6 +126,13 @@
 
     <string name="connection_error_no_nick">No nick set</string>
 
+    <string name="connection_error_command_title">Error processing post-connect commands</string>
+    <string name="connection_error_command_notification_desc">An internal error has occurred while trying to process post-connect commands.</string>
+    <plurals name="connection_error_command_dialog_content">
+        <item quantity="one">An error has occurred processing the following command for the network \"%s\":\n\n%s</item>
+        <item quantity="other">An error has occurred processing the following commands for the network \"%s\":\n\n%s</item>
+    </plurals>
+
     <!-- Server list -->
 
     <string name="server_list_header_active">Active</string>
