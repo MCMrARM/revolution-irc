@@ -22,10 +22,12 @@ import io.mrarm.chatlib.irc.cap.SASLOptions;
 import io.mrarm.chatlib.irc.filters.ZNCPlaybackMessageFilter;
 import io.mrarm.chatlib.irc.handlers.MessageCommandHandler;
 import io.mrarm.chatlib.message.MessageStorageApi;
+import io.mrarm.irc.config.CommandAliasManager;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.util.IgnoreListMessageFilter;
 import io.mrarm.irc.config.SettingsHelper;
+import io.mrarm.irc.util.SimpleTextVariableList;
 
 public class ServerConnectionInfo {
 
@@ -139,6 +141,9 @@ public class ServerConnectionInfo {
             }
 
             List<String> joinChannels = new ArrayList<>();
+            if (mServerConfig.execCommandsConnected != null)
+                executeUserCommands(mServerConfig.execCommandsConnected);
+
             if (mServerConfig.autojoinChannels != null)
                 joinChannels.addAll(mServerConfig.autojoinChannels);
             if (rejoinChannels != null && mServerConfig.rejoinChannels)
@@ -160,6 +165,51 @@ public class ServerConnectionInfo {
 
         if (createdNewConnection) {
             setApi(connection);
+        }
+    }
+
+    private void executeUserCommands(List<String> cmds) {
+        IRCConnection conn = (IRCConnection) getApiInstance();
+        for (String cmd : cmds) {
+            if (cmd.length() == 0)
+                continue;
+            if (!cmd.startsWith("/")) {
+                conn.sendCommandRaw(cmd, null, null);
+                continue;
+            }
+            cmd = cmd.substring(1);
+
+            SimpleTextVariableList vars = new SimpleTextVariableList();
+            vars.set(CommandAliasManager.VAR_MYNICK, getUserNick());
+            try {
+                CommandAliasManager.ProcessCommandResult result = CommandAliasManager
+                        .getInstance(mManager.getContext())
+                        .processCommand(conn.getServerConnectionData(), cmd, vars);
+                if (result != null) {
+                    if (result.mode == CommandAliasManager.CommandAlias.MODE_RAW) {
+                        conn.sendCommandRaw(result.text, null, null);
+                    } else if (result.mode == CommandAliasManager.CommandAlias.MODE_MESSAGE) {
+                        if (result.channel == null)
+                            throw new RuntimeException();
+                        if (!getChannels().contains(result.channel)) {
+                            ArrayList<String> list = new ArrayList<>();
+                            list.add(result.channel);
+                            conn.joinChannels(list, (Void v) -> {
+                                conn.sendMessage(result.channel, result.text, null, null);
+                            }, null);
+                        } else {
+                            conn.sendMessage(result.channel, result.text, null, null);
+                        }
+                    } else {
+                        throw new RuntimeException();
+                    }
+                } else {
+                    throw new RuntimeException();
+                }
+            } catch (RuntimeException e) {
+                Log.e("ServerConnectionInfo", "User command execution failed: " + cmd);
+                e.printStackTrace();
+            }
         }
     }
 
