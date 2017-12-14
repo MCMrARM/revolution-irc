@@ -317,7 +317,7 @@
                 style="@style/EditServerTextInput"
                 android:hint="@string/server_commands">
 
-                <EditText
+                <io.mrarm.irc.view.AutoRunCommandListEditText
                     android:id="@+id/server_commands"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />

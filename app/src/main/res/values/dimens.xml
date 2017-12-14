@@ -30,6 +30,8 @@
     <dimen name="bottom_sheet_menu_vertical_margin">8dp</dimen>
     <dimen name="bottom_sheet_menu_horizontal_margin">16dp</dimen>
 
+    <dimen name="list_popup_max_height">180dp</dimen>
+
     <dimen name="dialog_bottom_user_header_height">224dp</dimen>
     <dimen name="dialog_bottom_user_header_height_compact">73dp</dimen>
     <dimen name="dialog_bottom_user_header_height_compact_activate">200dp</dimen>

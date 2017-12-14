@@ -59,6 +59,13 @@ public class StyledAttributesHelper {
         return ret;
     }
 
+    public static int getDimensionPixelSize(Context ctx, int attribute, int def) {
+        TypedArray ta = ctx.obtainStyledAttributes(new int[] { attribute });
+        int ret = ta.getDimensionPixelSize(0, def);
+        ta.recycle();
+        return ret;
+    }
+
     private Context mContext;
     private TypedArray mArray;
     private int[] mAttributes;
