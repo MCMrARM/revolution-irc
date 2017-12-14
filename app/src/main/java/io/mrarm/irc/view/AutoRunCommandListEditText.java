@@ -81,7 +81,7 @@ public class AutoRunCommandListEditText extends ThemedEditText
                 dismissDropDown();
                 return;
             }
-            if (!getCurrentLine().equals(text) && !enoughToFilter())
+            if (!text.equals(getCurrentLine()) && !enoughToFilter())
                 return;
             if (completeIfSingle && i == 1) {
                 onItemClick(mCommandAdapter.getItem(0));
