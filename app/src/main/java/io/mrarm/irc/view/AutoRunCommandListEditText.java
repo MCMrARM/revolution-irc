@@ -5,6 +5,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.util.AttributeSet;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.PopupWindow;
@@ -23,6 +24,7 @@ public class AutoRunCommandListEditText extends ThemedEditText
 
     private RecyclerView mSuggestionsList;
     private CommandListSuggestionsAdapter mCommandAdapter;
+    private View mPopupAnchor;
     private PopupWindow mPopupWindow;
     private int mPopupItemHeight;
     private int mMaxPopupHeight;
@@ -49,6 +51,8 @@ public class AutoRunCommandListEditText extends ThemedEditText
         mSuggestionsList = new RecyclerView(getContext());
         mSuggestionsList.setAdapter(mCommandAdapter);
         mSuggestionsList.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        mPopupAnchor = new View(getContext());
 
         mPopupWindow = new PopupWindow(getContext(), null, android.R.attr.listPopupWindowStyle);
         mPopupWindow.setContentView(mSuggestionsList);
@@ -88,14 +92,35 @@ public class AutoRunCommandListEditText extends ThemedEditText
         });
     }
 
+    private void updatePopupAnchor() {
+        if (mPopupAnchor.getParent() != getParent() && getParent() != null)
+            ((ViewGroup) getParent()).addView(mPopupAnchor);
+
+        ViewGroup.MarginLayoutParams myLp = ((ViewGroup.MarginLayoutParams) getLayoutParams());
+        ViewGroup.MarginLayoutParams anchorLp = ((ViewGroup.MarginLayoutParams)
+                mPopupAnchor.getLayoutParams());
+        anchorLp.topMargin = myLp.topMargin + getPaddingTop();
+        anchorLp.leftMargin = myLp.leftMargin + getPaddingLeft();
+        anchorLp.rightMargin = myLp.rightMargin + getPaddingLeft();
+        anchorLp.width = ViewGroup.MarginLayoutParams.MATCH_PARENT;
+        anchorLp.height = getLineHeight();
+        int d = getResources().getDimensionPixelSize(R.dimen.add_server_autocomplete_dialog_dist);
+        anchorLp.topMargin -= d;
+        anchorLp.height += d * 2;
+        mPopupAnchor.setLayoutParams(anchorLp);
+    }
+
     private void showDropDown() {
+        updatePopupAnchor();
+
         int h = Math.min(mCommandAdapter.getItemCount() * mPopupItemHeight, mMaxPopupHeight);
         if (!mPopupWindow.isShowing()) {
             mPopupWindow.setWidth(getWidth());
             mPopupWindow.setHeight(h);
-            mPopupWindow.showAsDropDown(this);
+            mPopupWindow.showAsDropDown(mPopupAnchor, 0,
+                    getLayout().getLineTop(getLayout().getLineForOffset(getSelectionStart())));
         } else {
-            mPopupWindow.update(this, getWidth(), h);
+            mPopupWindow.update(mPopupAnchor, getWidth(), h);
         }
     }
 
