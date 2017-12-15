@@ -29,6 +29,7 @@ import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.util.ExpandIconStateHelper;
 import io.mrarm.irc.util.SimpleTextWatcher;
+import io.mrarm.irc.view.AutoRunCommandListEditText;
 import io.mrarm.irc.view.StaticLabelTextInputLayout;
 import io.mrarm.irc.view.ChipsEditText;
 
@@ -62,7 +63,7 @@ public class EditServerActivity extends ThemedActivity {
     private EditText mServerRealname;
     private ChipsEditText mServerChannels;
     private CheckBox mServerRejoinChannels;
-    private EditText mServerCommands;
+    private AutoRunCommandListEditText mServerCommands;
 
     private View mServerUserExpandIcon;
     private View mServerUserExpandContent;
@@ -325,7 +326,7 @@ public class EditServerActivity extends ThemedActivity {
         mEditServer.autojoinChannels = Arrays.asList(mServerChannels.getItems());
         mEditServer.rejoinChannels = mServerRejoinChannels.isChecked();
         mEditServer.execCommandsConnected = mServerCommands.getText().length() > 0
-                ? Arrays.asList(mServerCommands.getText().toString().split("\n")) : null;
+                ? Arrays.asList(mServerCommands.getTextWithPasswords().split("\n")) : null;
         try {
             ServerConfigManager.getInstance(this).saveServer(mEditServer);
         } catch (IOException e) {

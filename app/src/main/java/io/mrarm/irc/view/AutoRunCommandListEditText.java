@@ -1,9 +1,15 @@
 package io.mrarm.irc.view;
 
 import android.content.Context;
+import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.InputType;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,12 +24,19 @@ import io.mrarm.irc.chat.ChatSuggestionsAdapter;
 import io.mrarm.irc.chat.CommandListSuggestionsAdapter;
 import io.mrarm.irc.config.CommandAliasManager;
 import io.mrarm.irc.util.SelectableRecyclerViewAdapter;
+import io.mrarm.irc.util.SimpleChipSpan;
 import io.mrarm.irc.util.SimpleTextWatcher;
 import io.mrarm.irc.util.StyledAttributesHelper;
 import io.mrarm.irc.view.theme.ThemedEditText;
 
 public class AutoRunCommandListEditText extends ThemedEditText
         implements ChatSuggestionsAdapter.OnItemClickListener {
+
+    private static final String[] PASSWORD_LINE_PREFIXES = new String[] {
+            "/msg NickServ IDENTIFY ",
+            "/raw NICKSERV IDENTIFY ",
+            "NICKSERV IDENTIFY "
+    };
 
     private RecyclerView mSuggestionsList;
     private CommandListSuggestionsAdapter mCommandAdapter;
@@ -79,7 +92,7 @@ public class AutoRunCommandListEditText extends ThemedEditText
     }
 
     private void performFiltering(boolean completeIfSingle) {
-        final CharSequence text = getCurrentLine();
+        final CharSequence text = getCurrentLineToken();
         if (text == null)
             return;
         Filter filter = mCommandAdapter.getFilter();
@@ -88,7 +101,7 @@ public class AutoRunCommandListEditText extends ThemedEditText
                 dismissDropDown();
                 return;
             }
-            if (!text.equals(getCurrentLine()) && !enoughToFilter())
+            if (!text.equals(getCurrentLineToken()) && !enoughToFilter())
                 return;
             if (completeIfSingle && i == 1) {
                 onItemClick(mCommandAdapter.getItem(0));
@@ -138,6 +151,81 @@ public class AutoRunCommandListEditText extends ThemedEditText
             ((SelectableRecyclerViewAdapter) mSuggestionsList.getAdapter()).setSelection(-1);
     }
 
+
+    @Override
+    protected void onSelectionChanged(int selStart, int selEnd) {
+        super.onSelectionChanged(selStart, selEnd);
+
+        if (getLayout() == null)
+            return;
+        String line = getText().subSequence(getLayout().getLineStart(getLayout()
+                .getLineForOffset(selStart)), selEnd).toString();
+        boolean isPassword = getPasswordStart(line) != -1;
+        boolean wasPassword = (getInputType() & InputType.TYPE_TEXT_VARIATION_PASSWORD) != 0;
+        if (isPassword && !wasPassword) {
+            Typeface tf = getTypeface();
+            setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE |
+                    InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+            setTypeface(tf);
+            setSelection(selStart, selEnd);
+        } else if (!isPassword && wasPassword) {
+            createPasswordSpans();
+            setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+        }
+    }
+
+    @Override
+    public void setText(CharSequence text, BufferType type) {
+        super.setText(text, type);
+        createPasswordSpans();
+    }
+
+    private void createPasswordSpans() {
+        Editable text = getText();
+        for (int start = 0; start < text.length(); start++) {
+            int end;
+            for (end = start; end < text.length(); end++) {
+                if (text.charAt(end) == '\n')
+                    break;
+            }
+            CharSequence line = text.subSequence(start, end);
+
+            int passwordStart = getPasswordStart(line.toString());
+            if (passwordStart != -1 && (line.length() != passwordStart + 1 ||
+                    line.charAt(passwordStart) != '-')) {
+                String replacedText = getTextWithPasswords(line.subSequence(passwordStart,
+                        line.length()));
+                getText().replace(start + passwordStart, end, "-");
+                getText().setSpan(new PasswordSpan(getContext(), replacedText),
+                        start + passwordStart, start + passwordStart + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                start = start + passwordStart + 2;
+                continue;
+            }
+            start = end;
+        }
+    }
+
+    private static String getTextWithPasswords(CharSequence seq) {
+        SpannableStringBuilder lstr = new SpannableStringBuilder(seq);
+        for (PasswordSpan span : lstr.getSpans(0, lstr.length(), PasswordSpan.class)) {
+            lstr.replace(lstr.getSpanStart(span), lstr.getSpanEnd(span), span.mPassword);
+            lstr.removeSpan(span);
+        }
+        return lstr.toString();
+    }
+
+    public String getTextWithPasswords() {
+        return getTextWithPasswords(getText());
+    }
+
+    private static int getPasswordStart(String line) {
+        for (String p : PASSWORD_LINE_PREFIXES) {
+            if (line.regionMatches(true, 0, p, 0, p.length()))
+                return p.length();
+        }
+        return -1;
+    }
+
     @Override
     public void onItemClick(Object item) {
         CharSequence val = "/" + ((CommandAliasManager.CommandAlias) item).name + " ";
@@ -149,7 +237,7 @@ public class AutoRunCommandListEditText extends ThemedEditText
 
 
     private boolean enoughToFilter() {
-        CharSequence line = getCurrentLine();
+        CharSequence line = getCurrentLineToken();
         return (line != null && line.length() > 0 && line.charAt(0) == '/');
     }
 
@@ -174,11 +262,28 @@ public class AutoRunCommandListEditText extends ThemedEditText
         return len;
     }
 
-    private CharSequence getCurrentLine() {
+    private CharSequence getCurrentLineToken() {
         int tokenStart = findTokenStart();
         if (tokenStart != 0 && getText().charAt(tokenStart - 1) != '\n')
             return null;
         return getText().subSequence(tokenStart, getSelectionStart());
+    }
+
+    public static class PasswordSpan extends SimpleChipSpan {
+
+        private final String mPassword;
+
+        private static Drawable getIcon(Context context) {
+            Drawable d = context.getResources().getDrawable(R.drawable.ic_lock_small).mutate();
+            DrawableCompat.setTint(d, context.getResources().getColor(R.color.iconColor));
+            return d;
+        }
+
+        public PasswordSpan(Context context, String password) {
+            super(context, null, getIcon(context), true);
+            mPassword = password;
+        }
+
     }
 
 }
