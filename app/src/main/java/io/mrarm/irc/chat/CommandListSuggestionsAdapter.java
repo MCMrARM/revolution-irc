@@ -24,6 +24,7 @@ import io.mrarm.irc.util.StyledAttributesHelper;
 public class CommandListSuggestionsAdapter extends SelectableRecyclerViewAdapter<CommandListSuggestionsAdapter.ItemHolder> implements Filterable {
 
     private Context mContext;
+    private List<CommandAliasManager.CommandAlias> mAdditionalItems;
     private List<CommandAliasManager.CommandAlias> mFilteredItems;
     private MyFilter mFilter;
     private int mSecondaryTextColor;
@@ -36,6 +37,10 @@ public class CommandListSuggestionsAdapter extends SelectableRecyclerViewAdapter
         mFilteredItems = null;
 
         mSecondaryTextColor = StyledAttributesHelper.getColor(context, android.R.attr.textColorSecondary, Color.BLACK);
+    }
+
+    public void setAdditionalItems(List<CommandAliasManager.CommandAlias> items) {
+        mAdditionalItems = items;
     }
 
     public void setClickListener(ChatSuggestionsAdapter.OnItemClickListener listener) {
@@ -109,7 +114,15 @@ public class CommandListSuggestionsAdapter extends SelectableRecyclerViewAdapter
                 if (alias.name.regionMatches(true, 0, str, 0, str.length()))
                     list.add(alias);
             }
+            if (mAdditionalItems != null && str.length() > 0) {
+                for (CommandAliasManager.CommandAlias alias : mAdditionalItems) {
+                    if (alias.name.regionMatches(true, 0, str, 0, str.length()))
+                        list.add(alias);
+                }
+            }
             Collections.sort(list, (CommandAliasManager.CommandAlias l, CommandAliasManager.CommandAlias r) -> l.name.compareTo(r.name));
+            if (mAdditionalItems != null && str.length() == 0)
+                list.addAll(0, mAdditionalItems);
             ret.values = list;
             ret.count = list.size();
             return ret;

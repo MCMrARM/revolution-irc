@@ -10,6 +10,9 @@ import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.PopupWindow;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.mrarm.irc.R;
 import io.mrarm.irc.chat.ChatSuggestionsAdapter;
 import io.mrarm.irc.chat.CommandListSuggestionsAdapter;
@@ -47,6 +50,10 @@ public class AutoRunCommandListEditText extends ThemedEditText
     private void init() {
         mCommandAdapter = new CommandListSuggestionsAdapter(getContext());
         mCommandAdapter.setClickListener(this);
+        List<CommandAliasManager.CommandAlias> additionalItems = new ArrayList<>();
+        additionalItems.add(CommandAliasManager.CommandAlias.raw("wait", "<seconds>", ""));
+        additionalItems.add(CommandAliasManager.CommandAlias.raw("wait-for", "<channel>", ""));
+        mCommandAdapter.setAdditionalItems(additionalItems);
 
         mSuggestionsList = new RecyclerView(getContext());
         mSuggestionsList.setAdapter(mCommandAdapter);
