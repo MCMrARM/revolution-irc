@@ -91,7 +91,11 @@ public class UserAutoRunCommandHelper implements ServerConnectionInfo.ChannelLis
                     } else if (result.mode == CommandAliasManager.CommandAlias.MODE_MESSAGE) {
                         if (result.channel == null)
                             throw new RuntimeException();
-                        if (!mConnection.hasChannel(result.channel)) {
+                        if (result.channel.equalsIgnoreCase("NickServ")
+                                && result.text.startsWith("IDENTIFY ")) {
+                            conn.sendCommandRaw("PRIVMSG " + result.channel + " :"
+                                    + result.text, null, null);
+                        } else if (!mConnection.hasChannel(result.channel)) {
                             ArrayList<String> list = new ArrayList<>();
                             list.add(result.channel);
                             conn.joinChannels(list, (Void v) -> {
