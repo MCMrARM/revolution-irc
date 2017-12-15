@@ -22,10 +22,12 @@ public class ColoredTextBuilder {
         builder.setSpan(span, builder.length(), builder.length(), Spanned.SPAN_MARK_POINT);
     }
 
-    public void endSpans(Class<? extends Object> kind) {
-        for (Object span : builder.getSpans(builder.length(), builder.length(), kind)) {
+    public <T> void endSpans(Class<T> kind, EndSpanChecker<T> lambda) {
+        for (T span : builder.getSpans(builder.length(), builder.length(), kind)) {
             int type = builder.getSpanFlags(span) & Spannable.SPAN_POINT_MARK_MASK;
             if (type == Spannable.SPAN_MARK_POINT || type == Spannable.SPAN_POINT_POINT) {
+                if (lambda != null && !lambda.shouldEndSpan(span))
+                    continue;
                 int start = builder.getSpanStart(span);
                 builder.removeSpan(span);
                 builder.setSpan(span, start, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -34,8 +36,18 @@ public class ColoredTextBuilder {
         }
     }
 
+    public void endSpans(Class<?> kind) {
+        endSpans(kind, null);
+    }
+
     public SpannableStringBuilder getSpannable() {
         return builder;
+    }
+
+    public interface EndSpanChecker<T> {
+
+        boolean shouldEndSpan(T span);
+
     }
 
 }

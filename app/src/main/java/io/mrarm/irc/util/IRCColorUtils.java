@@ -90,25 +90,37 @@ public class IRCColorUtils {
     public static void appendFormattedString(Context context, ColoredTextBuilder builder,
                                              String string) {
         int fg = 99, bg = 99;
+        boolean bold = false, italic = false, underline = false;
         SpannableStringBuilder spannable = builder.getSpannable();
         for (int i = 0; i < string.length(); ) {
             switch (string.charAt(i)) {
                 case 0x02: { // bold
                     i++;
-                    builder.setSpan(new StyleSpan(Typeface.BOLD));
+                    bold = !bold;
+                    if (bold)
+                        builder.setSpan(new StyleSpan(Typeface.BOLD));
+                    else
+                        builder.endSpans(StyleSpan.class,
+                                (StyleSpan s) -> s.getStyle() == Typeface.BOLD);
                     break;
                 }
                 case 0x1D: { // italic
                     i++;
-                    builder.setSpan(new StyleSpan(Typeface.ITALIC));
+                    italic = !italic;
+                    if (italic)
+                        builder.setSpan(new StyleSpan(Typeface.ITALIC));
+                    else
+                        builder.endSpans(StyleSpan.class,
+                                (StyleSpan s) -> s.getStyle() == Typeface.ITALIC);
                     break;
                 }
                 case 0x1F: { // underline
                     i++;
-                    if (spannable.getSpans(spannable.length(), spannable.length(),
-                            UnderlineSpan.class).length > 0)
-                        continue;
-                    builder.setSpan(new UnderlineSpan());
+                    underline = !underline;
+                    if (underline)
+                        builder.setSpan(new UnderlineSpan());
+                    else
+                        builder.endSpans(UnderlineSpan.class);
                     break;
                 }
                 case 0x0F: { // reset
@@ -123,12 +135,17 @@ public class IRCColorUtils {
                     break;
                 }
                 case 0x03: { // color
-                    fg = 0;
+                    fg = -1;
                     i++;
                     for (int j = 0; j < 2 && i < string.length(); i++, j++) {
                         if (string.charAt(i) < '0' || string.charAt(i) > '9')
                             break;
-                        fg = fg * 10 + string.charAt(i) - '0';
+                        fg = Math.max(fg, 0) * 10 + string.charAt(i) - '0';
+                    }
+                    if (fg == -1) {
+                        builder.endSpans(ForegroundColorSpan.class);
+                        builder.endSpans(BackgroundColorSpan.class);
+                        continue;
                     }
                     if (((fg < 0 || fg > COLOR_IDS.length) && fg != 99))
                         throw new RuntimeException("Invalid formatting");
