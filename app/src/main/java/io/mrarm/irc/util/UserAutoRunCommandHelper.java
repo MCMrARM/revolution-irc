@@ -5,6 +5,9 @@ import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.SpannableString;
@@ -22,6 +25,8 @@ import io.mrarm.irc.config.CommandAliasManager;
 import io.mrarm.irc.dialog.ThemedAlertDialog;
 
 public class UserAutoRunCommandHelper {
+
+    private static Handler sHandler = new Handler(Looper.getMainLooper());
 
     private final ServerConnectionInfo mConnection;
 
@@ -45,6 +50,16 @@ public class UserAutoRunCommandHelper {
             SimpleTextVariableList vars = new SimpleTextVariableList();
             vars.set(CommandAliasManager.VAR_MYNICK, mConnection.getUserNick());
             try {
+                String[] cmdp = cmd.split(" ");
+                if (cmdp[0].equalsIgnoreCase("wait")) {
+                    float time = Float.parseFloat(cmdp[1]) * 1000.f;
+                    int execStartI = i + 1;
+                    sHandler.postAtTime(() -> {
+                        executeUserCommands(cmds.subList(execStartI, cmds.size()));
+                    }, this, SystemClock.uptimeMillis() + Math.round(time));
+                    return;
+                }
+
                 CommandAliasManager.ProcessCommandResult result = CommandAliasManager
                         .getInstance(mConnection.getConnectionManager().getContext())
                         .processCommand(conn.getServerConnectionData(), cmd, vars);
@@ -80,6 +95,10 @@ public class UserAutoRunCommandHelper {
         if (errors != null) {
             WarningHelper.showWarning(new CommandProcessErrorWarning(mConnection.getName(), errors));
         }
+    }
+
+    public void cancelUserCommandExecution() {
+        sHandler.removeCallbacksAndMessages(this);
     }
 
 

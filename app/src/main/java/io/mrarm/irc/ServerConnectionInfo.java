@@ -138,15 +138,15 @@ public class ServerConnectionInfo {
                 mConnecting = false;
                 setConnected(true);
                 mCurrentReconnectAttempt = 0;
+
+                if (mServerConfig.execCommandsConnected != null) {
+                    if (mAutoRunHelper == null)
+                        mAutoRunHelper = new UserAutoRunCommandHelper(this);
+                    mAutoRunHelper.executeUserCommands(mServerConfig.execCommandsConnected);
+                }
             }
 
             List<String> joinChannels = new ArrayList<>();
-            if (mServerConfig.execCommandsConnected != null) {
-                if (mAutoRunHelper == null)
-                    mAutoRunHelper = new UserAutoRunCommandHelper(this);
-                mAutoRunHelper.executeUserCommands(mServerConfig.execCommandsConnected);
-            }
-
             if (mServerConfig.autojoinChannels != null)
                 joinChannels.addAll(mServerConfig.autojoinChannels);
             if (rejoinChannels != null && mServerConfig.rejoinChannels)
@@ -196,6 +196,10 @@ public class ServerConnectionInfo {
     }
 
     private void notifyDisconnected() {
+        synchronized (this) {
+            if (mAutoRunHelper != null)
+                mAutoRunHelper.cancelUserCommandExecution();
+        }
         if (isDisconnecting()) {
             notifyFullyDisconnected();
             return;
