@@ -255,7 +255,7 @@ public class ChatFragmentSendMessageHelper {
                     } else if (result.mode == CommandAliasManager.CommandAlias.MODE_MESSAGE) {
                         if (result.channel == null)
                             throw new RuntimeException();
-                        if (!mFragment.getConnectionInfo().getChannels().contains(result.channel)) {
+                        if (!mFragment.getConnectionInfo().hasChannel(result.channel)) {
                             ArrayList<String> list = new ArrayList<>();
                             list.add(result.channel);
                             mFragment.getConnectionInfo().getApiInstance().joinChannels(list, (Void v) -> {

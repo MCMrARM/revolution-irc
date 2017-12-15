@@ -91,7 +91,7 @@ public class UserAutoRunCommandHelper implements ServerConnectionInfo.ChannelLis
                     } else if (result.mode == CommandAliasManager.CommandAlias.MODE_MESSAGE) {
                         if (result.channel == null)
                             throw new RuntimeException();
-                        if (!mConnection.getChannels().contains(result.channel)) {
+                        if (!mConnection.hasChannel(result.channel)) {
                             ArrayList<String> list = new ArrayList<>();
                             list.add(result.channel);
                             conn.joinChannels(list, (Void v) -> {

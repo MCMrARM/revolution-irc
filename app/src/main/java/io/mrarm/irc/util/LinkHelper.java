@@ -55,12 +55,12 @@ public class LinkHelper {
                 List<String> channels = new ArrayList<>();
                 channels.add(mChannel);
                 ServerConnectionInfo connection = fragment.getConnectionInfo();
-                if (connection.getChannels().contains(mChannel)) {
+                if (connection.hasChannel(mChannel)) {
                     activity.openServer(connection, mChannel);
                     return true;
                 }
                 connection.getApiInstance().joinChannels(channels, (Void v) -> {
-                    if (fragment.getConnectionInfo().getChannels().contains(mChannel)) {
+                    if (fragment.getConnectionInfo().hasChannel(mChannel)) {
                         activity.runOnUiThread(() -> activity.openServer(connection, mChannel));
                         return;
                     }
