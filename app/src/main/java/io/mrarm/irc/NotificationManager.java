@@ -47,9 +47,11 @@ public class NotificationManager {
         NotificationRule rule = findNotificationRule(connection, channel, info);
         if (rule == null || rule.settings.noNotification)
             return;
-        if (channelManager.addNotificationMessage(info)) {
-            updateSummaryNotification(context);
-            channelManager.showNotification(context, rule);
+        synchronized (channelManager) {
+            if (channelManager.addNotificationMessage(info)) {
+                updateSummaryNotification(context);
+                channelManager.showNotification(context, rule);
+            }
         }
     }
 

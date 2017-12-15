@@ -118,13 +118,16 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
     }
 
     void showNotification(Context context, NotificationRule rule) {
-        String title = getChannel() + " (" + mConnection.getName() + ")"; // TODO: Move to strings.xml
-        RemoteViews notificationsView = createCollapsedMessagesView(context, title);
-        RemoteViews notificationsViewBig = createMessagesView(context, title);
         NotificationMessage lastMessage;
         synchronized (this) {
+            if (mMessages.size() == 0)
+                return;
             lastMessage = mMessages.get(mMessages.size() - 1);
         }
+
+        String title = getChannel() + " (" + mConnection.getName() + ")"; // TODO: Move to strings.xml
+        RemoteViews notificationsView = createCollapsedMessagesView(context, title, lastMessage);
+        RemoteViews notificationsViewBig = createMessagesView(context, title);
         NotificationCompat.Builder notification = new NotificationCompat.Builder(context);
         PendingIntent intent = PendingIntent.getActivity(context, mNotificationId,
                 MainActivity.getLaunchIntent(context, mConnection, mChannel),
@@ -176,14 +179,11 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
         NotificationManagerCompat.from(context).cancel(mNotificationId);
     }
 
-    private RemoteViews createCollapsedMessagesView(Context context, CharSequence header) {
-        NotificationMessage lastMessage;
-        synchronized (this) {
-            lastMessage = mMessages.get(mMessages.size() - 1);
-        }
+    private RemoteViews createCollapsedMessagesView(Context context, CharSequence header,
+                                                    NotificationMessage message) {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.notification_layout_collapsed);
         views.setTextViewText(R.id.message_channel, header);
-        views.setTextViewText(R.id.message_text, lastMessage.getNotificationText(context));
+        views.setTextViewText(R.id.message_text, message.getNotificationText(context));
         return views;
     }
 
