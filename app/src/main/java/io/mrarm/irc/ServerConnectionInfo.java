@@ -308,6 +308,16 @@ public class ServerConnectionInfo {
         }
     }
 
+    public boolean hasChannel(String channel) {
+        synchronized (this) {
+            for (String c : mChannels) {
+                if (c.equalsIgnoreCase(channel))
+                    return true;
+            }
+            return false;
+        }
+    }
+
     public void setChannels(List<String> channels) {
         Collections.sort(channels, String::compareToIgnoreCase);
         synchronized (this) {

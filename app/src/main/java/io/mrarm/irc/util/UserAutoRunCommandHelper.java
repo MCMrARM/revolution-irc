@@ -1,6 +1,5 @@
 package io.mrarm.irc.util;
 
-
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -15,7 +14,9 @@ import android.text.style.TypefaceSpan;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.mrarm.chatlib.irc.IRCConnection;
 import io.mrarm.irc.MainActivity;
@@ -24,11 +25,13 @@ import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.config.CommandAliasManager;
 import io.mrarm.irc.dialog.ThemedAlertDialog;
 
-public class UserAutoRunCommandHelper {
+public class UserAutoRunCommandHelper implements ServerConnectionInfo.ChannelListChangeListener {
 
     private static Handler sHandler = new Handler(Looper.getMainLooper());
 
     private final ServerConnectionInfo mConnection;
+    private final Map<String, List<Runnable>> mChannelRunnables = new HashMap<>();
+    private boolean mRegisteredChannelListener = false;
 
     public UserAutoRunCommandHelper(ServerConnectionInfo connection) {
         mConnection = connection;
@@ -57,6 +60,25 @@ public class UserAutoRunCommandHelper {
                     sHandler.postAtTime(() -> {
                         executeUserCommands(cmds.subList(execStartI, cmds.size()));
                     }, this, SystemClock.uptimeMillis() + Math.round(time));
+                    return;
+                } else if (cmdp[0].equalsIgnoreCase("wait-for")) {
+                    synchronized (mConnection) {
+                        String chan = cmdp[1].toLowerCase();
+                        if (mConnection.hasChannel(chan))
+                            continue;
+                        synchronized (mChannelRunnables) {
+                            int execStartI = i + 1;
+                            if (!mChannelRunnables.containsKey(chan))
+                                mChannelRunnables.put(chan, new ArrayList<>());
+                            mChannelRunnables.get(chan).add(() -> {
+                                executeUserCommands(cmds.subList(execStartI, cmds.size()));
+                            });
+                            if (!mRegisteredChannelListener) {
+                                mRegisteredChannelListener = true;
+                                mConnection.addOnChannelListChangeListener(this);
+                            }
+                        }
+                    }
                     return;
                 }
 
@@ -99,6 +121,23 @@ public class UserAutoRunCommandHelper {
 
     public void cancelUserCommandExecution() {
         sHandler.removeCallbacksAndMessages(this);
+    }
+
+    @Override
+    public void onChannelListChanged(ServerConnectionInfo connection, List<String> newChannels) {
+        synchronized (mChannelRunnables) {
+            for (String channel : newChannels) {
+                String lowercase = channel.toLowerCase();
+                if (!mChannelRunnables.containsKey(lowercase))
+                    continue;
+                for (Runnable r : mChannelRunnables.remove(lowercase))
+                    r.run();
+            }
+            if (mChannelRunnables.size() == 0) {
+                mRegisteredChannelListener = false;
+                mConnection.removeOnChannelListChangeListener(this);
+            }
+        }
     }
 
 
