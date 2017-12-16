@@ -355,6 +355,16 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     @Override
     public void onMessage(String channel, MessageInfo messageInfo) {
         updateMessageList(() -> {
+            MessageFilterOptions opt = getFilterOptions();
+            if (opt != null) {
+                if (opt.restrictToMessageTypes != null &&
+                        !opt.restrictToMessageTypes.contains(messageInfo.getType()))
+                    return;
+                if (opt.excludeMessageTypes != null &&
+                        opt.excludeMessageTypes.contains(messageInfo.getType()))
+                    return;
+            }
+
             mMessages.add(messageInfo);
             mAdapter.notifyItemInserted(mMessages.size() - 1);
             if (mRecyclerView != null)
