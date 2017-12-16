@@ -253,6 +253,9 @@ public class EditNotificationSettingsActivity extends ThemedActivity {
                 return false;
             }
 
+            if (mMatchEntry.mMatchText == null)
+                mMatchEntry.mMatchText = "";
+
             if (mMatchEntry.mMatchMode != MatchEntry.MODE_REGEX)
                 rule.setMatchText(mMatchEntry.mMatchText, (mMatchEntry.mMatchMode == MatchEntry.MODE_CONTAINS_WORD), !mMatchEntry.mCaseSensitive);
             else
