@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <integer-array name="notification_vibration_option_values">
+    </integer-array>
+
+    <string-array name="pref_entry_values_font">
+        <item>Standard</item>
+        <item>sserif</item>
+        <item>monospace</item>
+    </string-array>
+    <string-array name="pref_entry_values_appbar_compact_mode">
+        <item>nie</item>
+        <item>immer</item>
+        <item>automatisch</item>
+    </string-array>
+
+    <string-array name="time_format_presets">
+        <item>[SS:mm]</item>
+        <item>SS:mm</item>
+        <item>SS:mm:ss</item>
+        <item>hh:mma</item>
+    </string-array>
+
+</resources>
