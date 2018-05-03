@@ -14,6 +14,8 @@ import java.util.UUID;
 import io.mrarm.chatlib.ChannelListListener;
 import io.mrarm.chatlib.ChatApi;
 import io.mrarm.chatlib.android.storage.SQLiteMessageStorageApi;
+import io.mrarm.chatlib.android.storage.SQLiteMiscStorage;
+import io.mrarm.chatlib.android.storage.SQLiteChannelDataStorage;
 import io.mrarm.chatlib.irc.IRCConnection;
 import io.mrarm.chatlib.irc.IRCConnectionRequest;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
@@ -40,6 +42,7 @@ public class ServerConnectionInfo {
     private ChatApi mApi;
     private IRCConnectionRequest mConnectionRequest;
     private SASLOptions mSASLOptions;
+    private SQLiteMiscStorage mSQLiteMiscStorage;
     private boolean mExpandedInDrawer = true;
     private boolean mConnected = false;
     private boolean mConnecting = false;
@@ -112,6 +115,8 @@ public class ServerConnectionInfo {
             connection = new IRCConnection();
             ServerConfigManager configManager = ServerConfigManager.getInstance(mManager.getContext());
             connection.getServerConnectionData().setMessageStorageApi(new SQLiteMessageStorageApi(configManager.getServerChatLogDir(getUUID())));
+            mSQLiteMiscStorage = new SQLiteMiscStorage(configManager.getServerMiscDataFile(getUUID()));
+            connection.getServerConnectionData().setChannelDataStorage(new SQLiteChannelDataStorage(mSQLiteMiscStorage));
             connection.getServerConnectionData().getMessageFilterList().addMessageFilter(new IgnoreListMessageFilter(mServerConfig));
             if (mSASLOptions != null)
                 connection.getServerConnectionData().getCapabilityManager().registerCapability(
@@ -232,6 +237,8 @@ public class ServerConnectionInfo {
                 if (m != null && m instanceof SQLiteMessageStorageApi)
                     ((SQLiteMessageStorageApi) m).close();
             }
+            if (mSQLiteMiscStorage != null)
+                mSQLiteMiscStorage.close();
         }
         mManager.notifyConnectionFullyDisconnected(this);
     }
@@ -265,10 +272,12 @@ public class ServerConnectionInfo {
         return mServerConfig.name;
     }
 
-    public ChatApi getApiInstance() {
-        synchronized (this) {
-            return mApi;
-        }
+    public synchronized ChatApi getApiInstance() {
+        return mApi;
+    }
+
+    public synchronized SQLiteMiscStorage getSQLiteMiscStorage() {
+        return mSQLiteMiscStorage;
     }
 
     public boolean isConnected() {

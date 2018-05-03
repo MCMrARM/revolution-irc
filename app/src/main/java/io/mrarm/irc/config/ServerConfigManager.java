@@ -31,6 +31,7 @@ public class ServerConfigManager {
     private static final String SERVER_CERTS_FILE_PREFIX = "server-certs-";
     private static final String SERVER_CERTS_FILE_SUFFIX = ".jks";
     private static final String SERVER_LOGS_PATH = "chat-logs";
+    private static final String SERVER_MISC_DATA_FILENAME = "misc-data.db";
 
     public static ServerConfigManager getInstance(Context context) {
         if (mInstance == null)
@@ -204,6 +205,10 @@ public class ServerConfigManager {
 
     public File getServerChatLogDir(UUID uuid) {
         return new File(mServerLogsPath, uuid.toString());
+    }
+
+    public File getServerMiscDataFile(UUID uuid) {
+        return new File(getServerChatLogDir(uuid), SERVER_MISC_DATA_FILENAME);
     }
 
     public void addListener(ConnectionsListener listener) {

@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.UUID;
 
 import io.mrarm.chatlib.android.storage.SQLiteMessageStorageApi;
+import io.mrarm.chatlib.android.storage.SQLiteMiscStorage;
 import io.mrarm.chatlib.irc.IRCConnectionRequest;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.chatlib.irc.cap.SASLOptions;
@@ -256,6 +257,10 @@ public class ServerConnectionManager {
             if (storageApi instanceof SQLiteMessageStorageApi)
                 ((SQLiteMessageStorageApi) storageApi).close();
             ((ServerConnectionApi) connection.getApiInstance()).getServerConnectionData().setMessageStorageApi(new StubMessageStorageApi());
+            SQLiteMiscStorage miscStorage = connection.getSQLiteMiscStorage();
+            if (miscStorage != null)
+                miscStorage.close();
+            ((ServerConnectionApi) connection.getApiInstance()).getServerConnectionData().setChannelDataStorage(null);
             mDisconnectingConnections.remove(uuid);
         }
     }
