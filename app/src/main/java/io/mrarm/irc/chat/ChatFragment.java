@@ -9,11 +9,8 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.ImageViewCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,8 +27,6 @@ import io.mrarm.irc.NotificationManager;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
-import io.mrarm.irc.config.ServerConfigData;
-import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.config.SettingsHelper;
 
 public class ChatFragment extends Fragment implements
@@ -50,9 +45,7 @@ public class ChatFragment extends Fragment implements
     private TabLayout mTabLayout;
     private ChatPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
-    private DrawerLayout mDrawerLayout;
     private ChatFragmentSendMessageHelper mSendHelper;
-    private ChannelMembersAdapter mChannelMembersAdapter;
     private int mNormalToolbarInset;
 
     public static ChatFragment newInstance(ServerConnectionInfo server, String channel) {
@@ -126,14 +119,6 @@ public class ChatFragment extends Fragment implements
         });
         mConnectionInfo.getNotificationManager().addUnreadMessageCountCallback(this);
         updateTabLayoutTabs();
-
-        mDrawerLayout = rootView.findViewById(R.id.drawer_layout);
-        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-
-        mChannelMembersAdapter = new ChannelMembersAdapter(mConnectionInfo, null);
-        RecyclerView membersRecyclerView = rootView.findViewById(R.id.members_list);
-        membersRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        membersRecyclerView.setAdapter(mChannelMembersAdapter);
 
         rootView.addOnLayoutChangeListener((View v, int left, int top, int right, int bottom,
                                             int oldLeft, int oldTop, int oldRight, int oldBottom) -> {
@@ -284,14 +269,8 @@ public class ChatFragment extends Fragment implements
     }
 
     public void setCurrentChannelMembers(List<NickWithPrefix> members) {
-        if (mChannelMembersAdapter == null)
-            return;
-        mChannelMembersAdapter.setMembers(members);
+        ((MainActivity) getActivity()).setCurrentChannelInfo(getConnectionInfo(), members);
         mSendHelper.setCurrentChannelMembers(members);
-        if (members == null || members.size() == 0)
-            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-        else
-            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
     }
 
     public String getCurrentChannel() {
@@ -327,10 +306,6 @@ public class ChatFragment extends Fragment implements
                     updateTabLayoutTab(tab);
             });
         }
-    }
-
-    public void closeDrawer() {
-        mDrawerLayout.closeDrawer(GravityCompat.END, false);
     }
 
 }

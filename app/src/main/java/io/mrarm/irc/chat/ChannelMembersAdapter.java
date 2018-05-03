@@ -20,12 +20,11 @@ public class ChannelMembersAdapter extends RecyclerView.Adapter<ChannelMembersAd
     private ServerConnectionInfo mConnection;
     private List<NickWithPrefix> mMembers;
 
-    public ChannelMembersAdapter(ServerConnectionInfo connection, List<NickWithPrefix> members) {
-        mConnection = connection;
-        setMembers(members);
+    public ChannelMembersAdapter() {
     }
 
-    public void setMembers(List<NickWithPrefix> members) {
+    public void setMembers(ServerConnectionInfo connection, List<NickWithPrefix> members) {
+        this.mConnection = connection;
         this.mMembers = members;
         notifyDataSetChanged();
     }
@@ -38,12 +37,12 @@ public class ChannelMembersAdapter extends RecyclerView.Adapter<ChannelMembersAd
     public MemberHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View view = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.chat_member, viewGroup, false);
-        return new MemberHolder(view, mConnection);
+        return new MemberHolder(view);
     }
 
     @Override
     public void onBindViewHolder(MemberHolder holder, int position) {
-        holder.bind(mMembers.get(position));
+        holder.bind(mConnection, mMembers.get(position));
     }
 
     @Override
@@ -55,22 +54,24 @@ public class ChannelMembersAdapter extends RecyclerView.Adapter<ChannelMembersAd
 
     public static class MemberHolder extends RecyclerView.ViewHolder {
 
+        private ServerConnectionInfo mConnection;
         private TextView mText;
 
-        public MemberHolder(View v, ServerConnectionInfo connection) {
+        public MemberHolder(View v) {
             super(v);
             mText = v.findViewById(R.id.chat_member);
             v.setOnClickListener((View view) -> {
                 UserBottomSheetDialog dialog = new UserBottomSheetDialog(view.getContext());
-                dialog.setConnection(connection);
-                dialog.requestData((String) mText.getTag(), connection.getApiInstance());
+                dialog.setConnection(mConnection);
+                dialog.requestData((String) mText.getTag(), mConnection.getApiInstance());
                 Dialog d = dialog.show();
                 if (view.getContext() instanceof MainActivity)
                     ((MainActivity) view.getContext()).setFragmentDialog(d);
             });
         }
 
-        public void bind(NickWithPrefix nickWithPrefix) {
+        public void bind(ServerConnectionInfo connection, NickWithPrefix nickWithPrefix) {
+            mConnection = connection;
             bindText(mText, nickWithPrefix);
             mText.setTag(nickWithPrefix.getNick());
         }

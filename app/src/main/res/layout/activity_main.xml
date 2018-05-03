@@ -43,4 +43,21 @@
 
     </io.mrarm.irc.drawer.DrawerNavigationView>
 
+    <io.mrarm.irc.view.InsetNavigationView
+        android:id="@+id/members_nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="end"
+        android:fitsSystemWindows="true">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/members_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:clipToPadding="false" />
+
+    </io.mrarm.irc.view.InsetNavigationView>
+
 </io.mrarm.irc.view.LockableDrawerLayout>

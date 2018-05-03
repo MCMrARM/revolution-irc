@@ -9,10 +9,14 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatDelegate;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,10 +27,13 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import io.mrarm.chatlib.ChatApi;
+import io.mrarm.chatlib.dto.NickWithPrefix;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
+import io.mrarm.irc.chat.ChannelMembersAdapter;
 import io.mrarm.irc.chat.ChatFragment;
 import io.mrarm.irc.dialog.ThemedAlertDialog;
 import io.mrarm.irc.dialog.UserSearchDialog;
@@ -50,6 +57,7 @@ public class MainActivity extends ThemedActivity {
     private View mFakeToolbar;
     private boolean mBackReturnToServerList;
     private Dialog mCurrentDialog;
+    private ChannelMembersAdapter mChannelMembersAdapter;
 
     public static Intent getLaunchIntent(Context context, ServerConnectionInfo server, String channel) {
         Intent intent = new Intent(context, MainActivity.class);
@@ -93,6 +101,12 @@ public class MainActivity extends ThemedActivity {
 
         if (SettingsHelper.getInstance(this).isDrawerPinned())
             mDrawerLayout.setLocked(true);
+
+        mChannelMembersAdapter = new ChannelMembersAdapter();
+        RecyclerView membersRecyclerView = findViewById(R.id.members_list);
+        membersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        membersRecyclerView.setAdapter(mChannelMembersAdapter);
+        setChannelInfoDrawerVisible(false);
 
         if (savedInstanceState != null && savedInstanceState.getString(ARG_SERVER_UUID) != null)
             return;
@@ -225,12 +239,13 @@ public class MainActivity extends ThemedActivity {
 
     public ChatFragment openServer(ServerConnectionInfo server, String channel, boolean fromServerList) {
         dismissFragmentDialog();
+        setChannelInfoDrawerVisible(false);
         ChatFragment fragment;
         if (getCurrentFragment() instanceof ChatFragment &&
                 ((ChatFragment) getCurrentFragment()).getConnectionInfo() == server) {
             fragment = (ChatFragment) getCurrentFragment();
             fragment.setCurrentChannel(channel);
-            fragment.closeDrawer();
+            setChannelInfoDrawerVisible(false);
         } else {
             fragment = ChatFragment.newInstance(server, channel);
             getSupportFragmentManager().beginTransaction()
@@ -250,6 +265,7 @@ public class MainActivity extends ThemedActivity {
 
     public void openManageServers() {
         dismissFragmentDialog();
+        setChannelInfoDrawerVisible(false);
         getSupportFragmentManager().beginTransaction()
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .replace(R.id.content_frame, ServerListFragment.newInstance())
@@ -288,6 +304,22 @@ public class MainActivity extends ThemedActivity {
             mCurrentDialog.setOnDismissListener(null);
             mCurrentDialog.dismiss();
             mCurrentDialog = null;
+        }
+    }
+
+    public void setCurrentChannelInfo(ServerConnectionInfo server, List<NickWithPrefix> members) {
+        if (mChannelMembersAdapter == null)
+            return;
+        mChannelMembersAdapter.setMembers(server, members);
+        setChannelInfoDrawerVisible(members != null && members.size() > 0);
+    }
+
+    public void setChannelInfoDrawerVisible(boolean visible) {
+        if (visible) {
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, GravityCompat.END);
+        } else {
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, GravityCompat.END);
+            mDrawerLayout.closeDrawer(GravityCompat.END);
         }
     }
 

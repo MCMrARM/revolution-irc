@@ -70,13 +70,13 @@ public class LockableDrawerLayout extends DrawerLayout {
             if (getDrawerLockMode(Gravity.START) == DrawerLayout.LOCK_MODE_LOCKED_OPEN)
                 return;
             openDrawer(Gravity.START, false);
-            setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN);
+            setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN, GravityCompat.START);
             setScrimColor(Color.TRANSPARENT);
         } else {
             if (getDrawerLockMode(Gravity.START) == DrawerLayout.LOCK_MODE_UNLOCKED)
                 return;
             closeDrawer(Gravity.START, false);
-            setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+            setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, GravityCompat.START);
             setScrimColor(0x99000000);
         }
         requestLayout();
