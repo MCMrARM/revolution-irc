@@ -114,7 +114,7 @@ public class ChatSuggestionsAdapter extends SelectableRecyclerViewAdapter<ChatSu
         public void bind(Object item) {
             itemView.setTag(item);
             if (item instanceof NickWithPrefix) {
-                ChannelMembersAdapter.MemberHolder.bindText(mText, (NickWithPrefix) item);
+                ChannelInfoAdapter.MemberHolder.bindText(mText, (NickWithPrefix) item);
             } else {
                 mText.setText(item.toString());
                 mText.setTextColor(mText.getContext().getResources().getColor(R.color.memberNormal));

@@ -268,8 +268,8 @@ public class ChatFragment extends Fragment implements
         mViewPager.setCurrentItem(mSectionsPagerAdapter.findChannel(channel));
     }
 
-    public void setCurrentChannelMembers(List<NickWithPrefix> members) {
-        ((MainActivity) getActivity()).setCurrentChannelInfo(getConnectionInfo(), members);
+    public void setCurrentChannelInfo(String topic, List<NickWithPrefix> members) {
+        ((MainActivity) getActivity()).setCurrentChannelInfo(getConnectionInfo(), topic, members);
         mSendHelper.setCurrentChannelMembers(members);
     }
 

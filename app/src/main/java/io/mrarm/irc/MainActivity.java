@@ -33,7 +33,7 @@ import java.util.UUID;
 import io.mrarm.chatlib.ChatApi;
 import io.mrarm.chatlib.dto.NickWithPrefix;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
-import io.mrarm.irc.chat.ChannelMembersAdapter;
+import io.mrarm.irc.chat.ChannelInfoAdapter;
 import io.mrarm.irc.chat.ChatFragment;
 import io.mrarm.irc.dialog.ThemedAlertDialog;
 import io.mrarm.irc.dialog.UserSearchDialog;
@@ -57,7 +57,7 @@ public class MainActivity extends ThemedActivity {
     private View mFakeToolbar;
     private boolean mBackReturnToServerList;
     private Dialog mCurrentDialog;
-    private ChannelMembersAdapter mChannelMembersAdapter;
+    private ChannelInfoAdapter mChannelInfoAdapter;
 
     public static Intent getLaunchIntent(Context context, ServerConnectionInfo server, String channel) {
         Intent intent = new Intent(context, MainActivity.class);
@@ -102,10 +102,10 @@ public class MainActivity extends ThemedActivity {
         if (SettingsHelper.getInstance(this).isDrawerPinned())
             mDrawerLayout.setLocked(true);
 
-        mChannelMembersAdapter = new ChannelMembersAdapter();
+        mChannelInfoAdapter = new ChannelInfoAdapter();
         RecyclerView membersRecyclerView = findViewById(R.id.members_list);
         membersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        membersRecyclerView.setAdapter(mChannelMembersAdapter);
+        membersRecyclerView.setAdapter(mChannelInfoAdapter);
         setChannelInfoDrawerVisible(false);
 
         if (savedInstanceState != null && savedInstanceState.getString(ARG_SERVER_UUID) != null)
@@ -307,11 +307,12 @@ public class MainActivity extends ThemedActivity {
         }
     }
 
-    public void setCurrentChannelInfo(ServerConnectionInfo server, List<NickWithPrefix> members) {
-        if (mChannelMembersAdapter == null)
+    public void setCurrentChannelInfo(ServerConnectionInfo server, String topic,
+                                      List<NickWithPrefix> members) {
+        if (mChannelInfoAdapter == null)
             return;
-        mChannelMembersAdapter.setMembers(server, members);
-        setChannelInfoDrawerVisible(members != null && members.size() > 0);
+        mChannelInfoAdapter.setData(server, topic, members);
+        setChannelInfoDrawerVisible(topic != null || (members != null && members.size() > 0));
     }
 
     public void setChannelInfoDrawerVisible(boolean visible) {

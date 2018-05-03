@@ -65,6 +65,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
 
     private ServerConnectionInfo mConnection;
     private String mChannelName;
+    private String mChannelTopic;
     private RecyclerView mRecyclerView;
     private ScrollPosLinearLayoutManager mLayoutManager;
     private ChatMessagesAdapter mAdapter;
@@ -93,8 +94,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser && getParentFragment() != null) {
-            Log.d(TAG, "setMembers " + (mMembers == null ? -1 : mMembers.size()));
-            ((ChatFragment) getParentFragment()).setCurrentChannelMembers(mMembers);
+            Log.d(TAG, "setChannelInfo " + (mMembers == null ? -1 : mMembers.size()) + " " + mChannelTopic);
+            ((ChatFragment) getParentFragment()).setCurrentChannelInfo(mChannelTopic, mMembers);
         }
         if (!isVisibleToUser)
             hideMessagesActionMenu();
@@ -152,6 +153,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             connectionInfo.getApiInstance().getChannelInfo(mChannelName,
                     (ChannelInfo channelInfo) -> {
                         Log.i(TAG, "Got channel info " + mChannelName);
+                        mChannelTopic = channelInfo.getTopic();
                         onMemberListChanged(channelInfo.getMembers());
                     }, null);
 
@@ -400,11 +402,17 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                 return left.getNickPrefixes() != null ? -1 : 1;
             return left.getNick().compareTo(right.getNick());
         });
-        if (getUserVisibleHint()) {
-            updateMessageList(() -> {
-                ((ChatFragment) getParentFragment()).setCurrentChannelMembers(mMembers);
-            });
-        }
+        if (getUserVisibleHint())
+            updateMessageList(() -> ((ChatFragment) getParentFragment())
+                    .setCurrentChannelInfo(mChannelTopic, mMembers));
+    }
+
+    @Override
+    public void onTopicChanged(String topic) {
+        mChannelTopic = topic;
+        if (getUserVisibleHint())
+            updateMessageList(() -> ((ChatFragment) getParentFragment())
+                    .setCurrentChannelInfo(mChannelTopic, mMembers));
     }
 
     public void showMessagesActionMenu() {

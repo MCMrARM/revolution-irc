@@ -15,17 +15,24 @@ import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.dialog.UserBottomSheetDialog;
 
-public class ChannelMembersAdapter extends RecyclerView.Adapter<ChannelMembersAdapter.MemberHolder> {
+public class ChannelInfoAdapter extends RecyclerView.Adapter {
+
+    public static final int TYPE_HEADER = 0;
+    public static final int TYPE_TOPIC = 1;
+    public static final int TYPE_MEMBER = 2;
 
     private ServerConnectionInfo mConnection;
+    private String mTopic;
     private List<NickWithPrefix> mMembers;
 
-    public ChannelMembersAdapter() {
+    public ChannelInfoAdapter() {
     }
 
-    public void setMembers(ServerConnectionInfo connection, List<NickWithPrefix> members) {
-        this.mConnection = connection;
-        this.mMembers = members;
+    public void setData(ServerConnectionInfo connection, String topic,
+                        List<NickWithPrefix> members) {
+        mConnection = connection;
+        mTopic = topic;
+        mMembers = members;
         notifyDataSetChanged();
     }
 
@@ -34,22 +41,55 @@ public class ChannelMembersAdapter extends RecyclerView.Adapter<ChannelMembersAd
     }
 
     @Override
-    public MemberHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        View view = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.chat_member, viewGroup, false);
-        return new MemberHolder(view);
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+        if (viewType == TYPE_HEADER) {
+            // TODO:
+            return null;
+        } else if (viewType == TYPE_TOPIC) {
+            View view = LayoutInflater.from(viewGroup.getContext())
+                    .inflate(R.layout.chat_topic, viewGroup, false);
+            return new TextHolder(view);
+        } else { // TYPE_MEMBER
+            View view = LayoutInflater.from(viewGroup.getContext())
+                    .inflate(R.layout.chat_member, viewGroup, false);
+            return new MemberHolder(view);
+        }
     }
 
     @Override
-    public void onBindViewHolder(MemberHolder holder, int position) {
-        holder.bind(mConnection, mMembers.get(position));
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        int type = holder.getItemViewType();
+        if (type == TYPE_TOPIC)
+            ((TextHolder) holder).bind(mTopic);
+        else if (type == TYPE_MEMBER)
+            ((MemberHolder) holder).bind(mConnection, mMembers.get(position - 1));
     }
 
     @Override
     public int getItemCount() {
-        if (mMembers == null)
-            return 0;
-        return mMembers.size();
+        return 1 + (mMembers != null ? mMembers.size() : 0);
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (position == 0)
+            return TYPE_TOPIC;
+        return TYPE_MEMBER;
+    }
+
+    public static class TextHolder extends RecyclerView.ViewHolder {
+
+        private TextView textView;
+
+        public TextHolder(View view) {
+            super(view);
+            textView = (TextView) view;
+        }
+
+        public void bind(String title) {
+            textView.setText(title);
+        }
+
     }
 
     public static class MemberHolder extends RecyclerView.ViewHolder {
