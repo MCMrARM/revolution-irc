@@ -270,7 +270,8 @@ public class ChatFragment extends Fragment implements
 
     public void setCurrentChannelInfo(String topic, List<NickWithPrefix> members) {
         ((MainActivity) getActivity()).setCurrentChannelInfo(getConnectionInfo(), topic, members);
-        mSendHelper.setCurrentChannelMembers(members);
+        if (mSendHelper != null)
+            mSendHelper.setCurrentChannelMembers(members);
     }
 
     public String getCurrentChannel() {

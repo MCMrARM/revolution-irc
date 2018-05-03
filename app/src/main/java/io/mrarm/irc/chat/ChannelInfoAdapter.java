@@ -43,8 +43,9 @@ public class ChannelInfoAdapter extends RecyclerView.Adapter {
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         if (viewType == TYPE_HEADER) {
-            // TODO:
-            return null;
+            View view = LayoutInflater.from(viewGroup.getContext())
+                    .inflate(R.layout.chat_info_header, viewGroup, false);
+            return new TextHolder(view);
         } else if (viewType == TYPE_TOPIC) {
             View view = LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.chat_topic, viewGroup, false);
@@ -59,20 +60,25 @@ public class ChannelInfoAdapter extends RecyclerView.Adapter {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         int type = holder.getItemViewType();
-        if (type == TYPE_TOPIC)
+        if (type == TYPE_HEADER)
+            ((TextHolder) holder).bind(position == 0 ? R.string.channel_topic
+                    : R.string.channel_members);
+        else if (type == TYPE_TOPIC)
             ((TextHolder) holder).bind(mTopic);
         else if (type == TYPE_MEMBER)
-            ((MemberHolder) holder).bind(mConnection, mMembers.get(position - 1));
+            ((MemberHolder) holder).bind(mConnection, mMembers.get(position - 3));
     }
 
     @Override
     public int getItemCount() {
-        return 1 + (mMembers != null ? mMembers.size() : 0);
+        return 3 + (mMembers != null ? mMembers.size() : 0);
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (position == 0)
+        if (position == 0 || position == 2)
+            return TYPE_HEADER;
+        if (position == 1)
             return TYPE_TOPIC;
         return TYPE_MEMBER;
     }
@@ -84,6 +90,10 @@ public class ChannelInfoAdapter extends RecyclerView.Adapter {
         public TextHolder(View view) {
             super(view);
             textView = (TextView) view;
+        }
+
+        public void bind(int title) {
+            textView.setText(title);
         }
 
         public void bind(String title) {
