@@ -17,6 +17,7 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
 import io.mrarm.chatlib.dto.MessageInfo;
+import io.mrarm.irc.job.ServerPingScheduler;
 import io.mrarm.irc.util.WarningHelper;
 
 public class IRCService extends Service implements ServerConnectionManager.ConnectionsListener {
@@ -54,6 +55,8 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
         ServerConnectionManager.getInstance(this).addListener(this);
 
         registerReceiver(mConnectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+
+        ServerPingScheduler.getInstance(this).startWithWifiCheck();
     }
 
     @Override
@@ -67,6 +70,8 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
         }
 
         unregisterReceiver(mConnectivityReceiver);
+
+        ServerPingScheduler.getInstance(this).stop();
     }
 
     @Override
@@ -147,6 +152,8 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
             Log.i(TAG, "Connectivity changed");
             ServerConnectionManager.getInstance(context).notifyConnectivityChanged(!intent
                     .getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, Boolean.FALSE));
+            ServerPingScheduler.getInstance(context).onWifiStateChanged(
+                    ServerConnectionManager.isWifiConnected(context));
         }
 
     }
