@@ -169,6 +169,7 @@
     <string name="server_channels">Auto-join channels</string>
     <string name="server_rejoin_channels">Rejoin opened channels</string>
     <string name="server_commands">Auto-run commands</string>
+    <string name="server_encoding">Encoding</string>
     <string name="server_nicks">Nicknames</string>
     <string name="server_user">User</string>
     <string name="server_realname">Real name</string>

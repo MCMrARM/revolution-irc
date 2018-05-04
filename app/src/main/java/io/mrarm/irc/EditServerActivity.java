@@ -20,8 +20,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import io.mrarm.irc.config.ServerCertificateManager;
@@ -64,9 +66,12 @@ public class EditServerActivity extends ThemedActivity {
     private ChipsEditText mServerChannels;
     private CheckBox mServerRejoinChannels;
     private AutoRunCommandListEditText mServerCommands;
+    private Spinner mServerEncoding;
 
     private View mServerUserExpandIcon;
     private View mServerUserExpandContent;
+
+    private String[] mServerEncodingValues;
 
     public static Intent getLaunchIntent(Context context, ServerConfigData data, boolean copy) {
         Intent intent = new Intent(context, EditServerActivity.class);
@@ -136,6 +141,7 @@ public class EditServerActivity extends ThemedActivity {
         mServerChannels = findViewById(R.id.server_channels);
         mServerRejoinChannels = findViewById(R.id.server_rejoin_channels);
         mServerCommands = findViewById(R.id.server_commands);
+        mServerEncoding = findViewById(R.id.server_encoding);
 
         mServerUserExpandIcon = findViewById(R.id.server_user_expand);
         mServerUserExpandContent = findViewById(R.id.server_user_expand_content);
@@ -178,6 +184,13 @@ public class EditServerActivity extends ThemedActivity {
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
+
+        mServerEncodingValues =  getResources().getStringArray(R.array.encodings_values);
+        ArrayAdapter<CharSequence> encodingAdapter = new ArrayAdapter<>(this,
+                R.layout.simple_spinner_item, android.R.id.text1,
+                getResources().getTextArray(R.array.encodings_display));
+        encodingAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mServerEncoding.setAdapter(encodingAdapter);
 
         mServerAuthPassReset.setOnClickListener((View view) -> {
             mServerAuthPassCtr.setForceShowHint(false);
@@ -236,6 +249,11 @@ public class EditServerActivity extends ThemedActivity {
                     b.append(cmd);
                 }
                 mServerCommands.setText(b.toString());
+            }
+            mServerEncoding.setSelection(0);
+            for (int i = 0; i < mServerEncodingValues.length; i++) {
+                if (mServerEncodingValues[i].equals(mEditServer.charset))
+                    mServerEncoding.setSelection(i);
             }
             if (getIntent().getBooleanExtra(ARG_COPY, false)) {
                 mEditServer = null;
@@ -327,6 +345,7 @@ public class EditServerActivity extends ThemedActivity {
         mEditServer.rejoinChannels = mServerRejoinChannels.isChecked();
         mEditServer.execCommandsConnected = mServerCommands.getText().length() > 0
                 ? Arrays.asList(mServerCommands.getTextWithPasswords().split("\n")) : null;
+        mEditServer.charset = mServerEncodingValues[mServerEncoding.getSelectedItemPosition()];
         try {
             ServerConfigManager.getInstance(this).saveServer(mEditServer);
         } catch (IOException e) {

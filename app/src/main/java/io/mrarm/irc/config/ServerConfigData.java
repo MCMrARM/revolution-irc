@@ -17,6 +17,7 @@ public class ServerConfigData {
     public String address;
     public int port;
     public boolean ssl;
+    public String charset;
     public String authMode;
     public String authUser;
     public String authPass;

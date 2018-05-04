@@ -326,6 +326,29 @@
 
         </RelativeLayout>
 
+        <RelativeLayout style="@style/EditServerItemContainer"
+            android:layout_marginTop="14dp">
+
+            <ImageView
+                android:id="@+id/server_encoding_icon"
+                app:srcCompat="@drawable/ic_translate"
+                style="@style/EditServerIcon.TextInput" />
+
+            <io.mrarm.irc.view.LabelLayout
+                android:id="@+id/server_encoding_ctr"
+                style="@style/EditServerTextInput"
+                android:hint="@string/server_encoding">
+
+                <Spinner
+                    android:id="@+id/server_encoding"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/AppTheme.Spinner" />
+
+            </io.mrarm.irc.view.LabelLayout>
+
+        </RelativeLayout>
+
     </LinearLayout>
 
 </ScrollView>

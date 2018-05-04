@@ -26,4 +26,40 @@
         <item>hh:mma</item>
     </string-array>
 
+    <!-- Encoding list, as available in HexChat -->
+    <string-array name="encodings_display">
+        <item>UTF-8</item>
+        <item>Windows-1252 (Latin)</item>
+        <item>Windows-1256 (Arabic)</item>
+        <item>Windows-1257 (Baltic)</item>
+        <item>ISO-8859-15 (Western European)</item>
+        <item>ISO-8859-2 (Central European)</item>
+        <item>ISO-8859-7 (Greek)</item>
+        <item>ISO-8859-8 (Hebrew)</item>
+        <item>ISO-8859-9 (Turkish)</item>
+        <item>ISO-2022-JP (Japanese)</item>
+        <item>SJIS (Japanese)</item>
+        <item>IBM949 (Korean)</item>
+        <item>KOI8-R (Cyrillic)</item>
+        <item>GB18030 (Chinese)</item>
+        <item>TIS-620 (Thai)</item>
+    </string-array>
+    <string-array name="encodings_values">
+        <item>UTF-8</item>
+        <item>windows-1252</item>
+        <item>windows-1256</item>
+        <item>windows-1257</item>
+        <item>ISO-8859-15</item>
+        <item>ISO-8859-2</item>
+        <item>ISO-8859-7</item>
+        <item>ISO-8859-8</item>
+        <item>ISO-8859-9</item>
+        <item>ISO-2022-JP</item>
+        <item>Shift_JIS</item>
+        <item>x-IBM949</item>
+        <item>KOI8-R</item>
+        <item>GB18030</item>
+        <item>TIS-620</item>
+    </string-array>
+
 </resources>

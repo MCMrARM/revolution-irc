@@ -10,6 +10,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -156,6 +157,8 @@ public class ServerConnectionManager {
         IRCConnectionRequest request = new IRCConnectionRequest();
         request
                 .setServerAddress(data.address, data.port);
+        if (data.charset != null)
+            request.setCharset(Charset.forName(data.charset));
         if (data.nicks != null && data.nicks.size() > 0) {
             for (String nick : data.nicks)
                 request.addNick(nick);
