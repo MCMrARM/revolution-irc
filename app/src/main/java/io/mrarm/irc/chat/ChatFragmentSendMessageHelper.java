@@ -11,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.Editable;
 import android.text.InputType;
+import android.text.Spannable;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.view.ActionMode;
@@ -49,7 +50,7 @@ import io.mrarm.irc.util.ThemeHelper;
 import io.mrarm.irc.view.ChatAutoCompleteEditText;
 import io.mrarm.irc.view.TextFormatBar;
 
-public class ChatFragmentSendMessageHelper {
+public class ChatFragmentSendMessageHelper implements SendMessageHelper.Callback {
 
     private Context mContext;
     private ChatFragment mFragment;
@@ -222,83 +223,41 @@ public class ChatFragmentSendMessageHelper {
     }
 
     public void sendMessage() {
-        String text = IRCColorUtils.convertSpannableToIRCString(mContext, mSendText.getText());
-        if (text.length() == 0 || (!mFragment.getConnectionInfo().isConnected() &&
-                !mFragment.getConnectionInfo().isConnecting()))
-            return;
-        String channel = mFragment.getCurrentChannel();
-        if (text.contains("\n")) {
-            try {
-                IRCConnection conn = (IRCConnection) mFragment.getConnectionInfo().getApiInstance();
-                for (String s : text.split("\n")) {
-                    conn.sendMessage(channel, s, null, null);
-                    mFragment.getConnectionInfo().addHistoryMessage(s);
-                }
-            } catch (Exception ignored) {
-            }
-            mSendText.setText("");
-            return;
-        }
-        if (text.charAt(0) == '/') {
-            SimpleTextVariableList vars = new SimpleTextVariableList();
-            vars.set(CommandAliasManager.VAR_CHANNEL, channel);
-            vars.set(CommandAliasManager.VAR_MYNICK, mFragment.getConnectionInfo().getUserNick());
-            try {
-                IRCConnection conn = (IRCConnection) mFragment.getConnectionInfo().getApiInstance();
-                CommandAliasManager.ProcessCommandResult result = CommandAliasManager
-                        .getInstance(mContext).processCommand(conn.getServerConnectionData(),
-                                text.substring(1), vars);
-                if (result != null) {
-                    if (result.mode == CommandAliasManager.CommandAlias.MODE_RAW) {
-                        setupCommandResultHandler(conn, text, result.text);
-                        conn.sendCommandRaw(result.text, null, null);
-                    } else if (result.mode == CommandAliasManager.CommandAlias.MODE_MESSAGE) {
-                        if (result.channel == null)
-                            throw new RuntimeException();
-                        if (!mFragment.getConnectionInfo().hasChannel(result.channel)) {
-                            ArrayList<String> list = new ArrayList<>();
-                            list.add(result.channel);
-                            mFragment.getConnectionInfo().getApiInstance().joinChannels(list, (Void v) -> {
-                                conn.sendMessage(result.channel, result.text, null, null);
-                            }, null);
-                        } else {
-                            conn.sendMessage(result.channel, result.text, null, null);
-                        }
-                    } else {
-                        throw new RuntimeException();
-                    }
-                    mFragment.getConnectionInfo().addHistoryMessage(mSendText.getText());
-                    mSendText.setText("");
-                    return;
-                }
-            } catch (RuntimeException e) {
-                setClientCommandError(mContext.getString(R.string.command_error_internal));
-                return;
-            }
-            ColoredTextBuilder builder = new ColoredTextBuilder();
-            builder.append(mContext.getString(R.string.command_error_not_found));
-            builder.append("  ");
-            builder.append(mContext.getString(R.string.command_send_raw), new ClickableSpan() {
-                @Override
-                public void onClick(View view) {
-                    ((IRCConnection) mFragment.getConnectionInfo().getApiInstance()).sendCommandRaw(
-                            text.substring(1), null, null);
-                    mClientCommandErrorContainer.setVisibility(View.GONE);
-                    mFragment.getConnectionInfo().addHistoryMessage(mSendText.getText());
-                    mSendText.setText("");
-                }
-            });
-            setClientCommandError(builder.getSpannable());
-            return;
-        }
-        if (channel == null)
-            return;
-        mFragment.getConnectionInfo().addHistoryMessage(mSendText.getText());
-        mSendText.setText("");
-        mFragment.getConnectionInfo().getApiInstance().sendMessage(channel, text, null, null);
+        SendMessageHelper.sendMessage(mContext, mFragment.getConnectionInfo(),
+                mFragment.getCurrentChannel(), mSendText.getText(), this);
     }
 
-    private void setClientCommandError(CharSequence message) {
+    @Override
+    public void onMessageSent() {
+        mSendText.setText("");
+    }
+
+    @Override
+    public void onRawCommandExecuted(String clientCommand, String sentCommand) {
+        setupCommandResultHandler((IRCConnection) mFragment.getConnectionInfo().getApiInstance(),
+                clientCommand, sentCommand);
+    }
+
+    @Override
+    public void onNoCommandHandlerFound(String message) {
+        ColoredTextBuilder builder = new ColoredTextBuilder();
+        builder.append(mContext.getString(R.string.command_error_not_found));
+        builder.append("  ");
+        builder.append(mContext.getString(R.string.command_send_raw), new ClickableSpan() {
+            @Override
+            public void onClick(View view) {
+                ((IRCConnection) mFragment.getConnectionInfo().getApiInstance()).sendCommandRaw(
+                        message.substring(1), null, null);
+                mClientCommandErrorContainer.setVisibility(View.GONE);
+                mFragment.getConnectionInfo().addHistoryMessage(message);
+                mSendText.setText("");
+            }
+        });
+        onClientCommandError(builder.getSpannable());
+    }
+
+    @Override
+    public void onClientCommandError(CharSequence message) {
         mClientCommandErrorText.setText(message);
         mClientCommandErrorContainer.setVisibility(View.VISIBLE);
         mSendText.dismissDropDown();
@@ -433,5 +392,4 @@ public class ChatFragmentSendMessageHelper {
         }
 
     }
-
 }

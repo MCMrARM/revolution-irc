@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.app.RemoteInput;
+import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -17,6 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 import io.mrarm.chatlib.dto.MessageInfo;
+import io.mrarm.irc.chat.SendMessageHelper;
 import io.mrarm.irc.config.NotificationCountStorage;
 import io.mrarm.irc.config.NotificationRule;
 import io.mrarm.irc.util.ColoredTextBuilder;
@@ -26,6 +29,7 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
 
     public static final int CHAT_NOTIFICATION_ID_START = 10000;
     public static final int CHAT_DISMISS_INTENT_ID_START = 10000000;
+    public static final int CHAT_REPLY_INTENT_ID_START = 20000000;
 
     private static int mNextChatNotificationId = CHAT_NOTIFICATION_ID_START;
 
@@ -134,8 +138,18 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
                 PendingIntent.FLAG_CANCEL_CURRENT);
         PendingIntent dismissIntent = PendingIntent.getBroadcast(context,
                 CHAT_DISMISS_INTENT_ID_START + mNotificationId,
-                NotificationDismissReceiver.getIntent(context, mConnection, mChannel),
+                NotificationActionReceiver.getDismissIntent(context, mConnection, mChannel),
                 PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent replyIntent = PendingIntent.getBroadcast(context,
+                CHAT_REPLY_INTENT_ID_START + mNotificationId,
+                NotificationActionReceiver.getReplyIntent(context, mConnection, mChannel),
+                PendingIntent.FLAG_CANCEL_CURRENT);
+        NotificationCompat.Action replyAction = new NotificationCompat.Action.Builder(
+                R.drawable.ic_reply, context.getString(R.string.action_reply), replyIntent)
+                .addRemoteInput(new RemoteInput.Builder(NotificationActionReceiver.ACTION_REPLY)
+                        .setLabel(context.getString(R.string.action_reply))
+                        .build())
+                .build();
         notification
                 .setContentTitle(title)
                 .setContentText(lastMessage.getNotificationText(context))
@@ -148,6 +162,7 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
                 .setGroup(NotificationManager.NOTIFICATION_GROUP_CHAT)
                 .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
                 .setColor(context.getResources().getColor(R.color.colorNotificationMention))
+                .addAction(replyAction)
                 .setDeleteIntent(dismissIntent);
         int defaults = 0;
         if (rule.settings.soundEnabled) {
@@ -257,14 +272,30 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
     }
 
 
-    public static class NotificationDismissReceiver extends BroadcastReceiver {
+    public static class NotificationActionReceiver extends BroadcastReceiver {
 
+        private static final String ARG_ACTION = "action";
         private static final String ARG_SERVER_UUID = "server_uuid";
         private static final String ARG_CHANNEL = "channel";
 
-        public static Intent getIntent(Context context, ServerConnectionInfo server,
-                                       String channel) {
-            Intent ret = new Intent(context, NotificationDismissReceiver.class);
+        private static final String ACTION_DISMISS = "dismiss";
+        private static final String ACTION_REPLY = "reply";
+
+        public static final String ARG_REPLY_TEXT = "reply_text";
+
+        public static Intent getDismissIntent(Context context, ServerConnectionInfo server,
+                                              String channel) {
+            Intent ret = new Intent(context, NotificationActionReceiver.class);
+            ret.putExtra(ARG_ACTION, ACTION_DISMISS);
+            ret.putExtra(ARG_SERVER_UUID, server.getUUID().toString());
+            ret.putExtra(ARG_CHANNEL, channel);
+            return ret;
+        }
+
+        public static Intent getReplyIntent(Context context, ServerConnectionInfo server,
+                                              String channel) {
+            Intent ret = new Intent(context, NotificationActionReceiver.class);
+            ret.putExtra(ARG_ACTION, ACTION_REPLY);
             ret.putExtra(ARG_SERVER_UUID, server.getUUID().toString());
             ret.putExtra(ARG_CHANNEL, channel);
             return ret;
@@ -277,7 +308,61 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
             if (conn == null)
                 return;
             String channel = intent.getStringExtra(ARG_CHANNEL);
-            NotificationManager.getInstance().onNotificationDismissed(context, conn, channel);
+            String action = intent.getStringExtra(ARG_ACTION);
+            if (ACTION_DISMISS.equals(action)) {
+                NotificationManager.getInstance().onNotificationDismissed(context, conn, channel);
+            } else if (ACTION_REPLY.equals(action)) {
+                ChannelNotificationManager mgr =
+                        conn.getNotificationManager().getChannelManager(channel, false);
+                if (mgr == null)
+                    return;
+                SendMessageHelper.sendMessage(context, conn, channel,
+                        new SpannableString(intent.getCharSequenceExtra(ARG_REPLY_TEXT)),
+                        new NotificationSendMessageCallback(context, conn, channel,
+                                mgr.mNotificationId));
+            }
+        }
+
+    }
+
+    private static class NotificationSendMessageCallback implements SendMessageHelper.Callback {
+
+        private Context mContext;
+        private ServerConnectionInfo mConnection;
+        private String mChannel;
+        private int mNotificationId;
+
+        public NotificationSendMessageCallback(Context context, ServerConnectionInfo conn,
+                                               String channel, int notifId) {
+            mContext = context;
+            mConnection = conn;
+            mChannel = channel;
+        }
+
+        @Override
+        public void onMessageSent() {
+            NotificationCompat.Builder notification = new NotificationCompat.Builder(mContext);
+            notification
+                    .setContentText(mContext.getString(R.string.message_sent))
+                    .setAutoCancel(true)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setSmallIcon(R.drawable.ic_notification_message)
+                    .setColor(mContext.getResources().getColor(R.color.colorNotificationMention));
+            NotificationManagerCompat notificationManager =
+                    NotificationManagerCompat.from(mContext);
+            notificationManager.notify(mNotificationId, notification.build());
+        }
+
+        @Override
+        public void onRawCommandExecuted(String clientCommand, String sentCommand) {
+        }
+
+        @Override
+        public void onNoCommandHandlerFound(String message) {
+        }
+
+        @Override
+        public void onClientCommandError(CharSequence error) {
         }
 
     }

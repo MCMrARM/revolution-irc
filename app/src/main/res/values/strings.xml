@@ -51,6 +51,8 @@
     <string name="channel_topic">Topic</string>
     <string name="channel_members">Members</string>
 
+    <string name="message_sent">Message sent</string>
+
     <!-- Actions -->
 
     <string name="action_ok">OK</string>
@@ -88,6 +90,7 @@
     <string name="action_clear_all">Clear all</string>
     <string name="action_reset">Reset</string>
     <string name="action_exit">Exit</string>
+    <string name="action_reply">Reply</string>
 
     <string name="action_delete_confirm_title">Are you sure?</string>
     <string name="action_delete_confirm_body">Are you sure you want to delete %s? This cannot be undone.</string>
