@@ -1,6 +1,7 @@
 package io.mrarm.irc;
 
 import android.app.Dialog;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -49,6 +50,7 @@ public class MainActivity extends ThemedActivity {
 
     public static final String ARG_SERVER_UUID = "server_uuid";
     public static final String ARG_CHANNEL_NAME = "channel";
+    public static final String ARG_MANAGE_SERVERS = "manage_servers";
 
     private NightModeRecreateHelper mNightModeHelper = new NightModeRecreateHelper(this);
     private LockableDrawerLayout mDrawerLayout;
@@ -65,6 +67,12 @@ public class MainActivity extends ThemedActivity {
             intent.putExtra(ARG_SERVER_UUID, server.getUUID().toString());
         if (channel != null)
             intent.putExtra(ARG_CHANNEL_NAME, channel);
+        return intent;
+    }
+
+    public static Intent getLaunchIntentForManageServers(Context context) {
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.putExtra(ARG_MANAGE_SERVERS, true);
         return intent;
     }
 
@@ -126,8 +134,11 @@ public class MainActivity extends ThemedActivity {
                     "text/plain".equals(intent.getType())) {
                 setFragmentShareText(fragment, intent.getStringExtra(Intent.EXTRA_TEXT));
             }
-        } else {
+        } else if (intent.getBooleanExtra(ARG_MANAGE_SERVERS, false) ||
+                getCurrentFragment() == null) {
             openManageServers();
+        } else {
+            mBackReturnToServerList = false;
         }
     }
 
