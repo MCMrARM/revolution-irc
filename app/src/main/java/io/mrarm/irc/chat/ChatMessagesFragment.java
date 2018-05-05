@@ -400,7 +400,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                 }
             } else if (left.getNickPrefixes() != null || right.getNickPrefixes() != null)
                 return left.getNickPrefixes() != null ? -1 : 1;
-            return left.getNick().compareTo(right.getNick());
+            return left.getNick().compareToIgnoreCase(right.getNick());
         });
         if (getUserVisibleHint())
             updateMessageList(() -> ((ChatFragment) getParentFragment())
