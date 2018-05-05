@@ -108,7 +108,7 @@
         </service>
 
         <receiver
-            android:name=".ChannelNotificationManager$NotificationDismissReceiver"
+            android:name=".ChannelNotificationManager$NotificationActionReceiver"
             android:exported="false" />
     </application>
 
