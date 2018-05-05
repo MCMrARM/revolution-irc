@@ -72,7 +72,7 @@ public class NotificationRule {
 
     public void setMatchText(String text, boolean matchWord, boolean caseInsensitive) {
         if (matchWord)
-            setRegex("(^| |,|:|;)" + Pattern.quote(text) + "($| |,|:|;)", caseInsensitive);
+            setRegex("(^|[ ,:;@])" + Pattern.quote(text) + "($|[ ,:;'?])", caseInsensitive);
         else
             setRegex(Pattern.quote(text), caseInsensitive);
     }
