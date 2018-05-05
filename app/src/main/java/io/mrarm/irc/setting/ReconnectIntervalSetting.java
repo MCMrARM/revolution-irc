@@ -114,22 +114,6 @@ public class ReconnectIntervalSetting extends SimpleSetting {
             this.repeatCount = rule.repeatCount;
         }
 
-        public String getReconnectDelayAsString(Context context) {
-            if (reconnectDelay != -1) {
-                int delay = reconnectDelay / 1000;
-                if ((delay % 60) == 0) {
-                    delay /= 60;
-                    if ((delay % 60) == 0) {
-                        delay /= 60;
-                        return context.getResources().getQuantityString(R.plurals.time_hours, delay, delay);
-                    }
-                    return context.getResources().getQuantityString(R.plurals.time_minutes, delay, delay);
-                }
-                return context.getResources().getQuantityString(R.plurals.time_seconds, delay, delay);
-            }
-            return null;
-        }
-
     }
 
     public static class RulesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -183,10 +167,6 @@ public class ReconnectIntervalSetting extends SimpleSetting {
 
         public static class RuleViewHolder extends RecyclerView.ViewHolder {
 
-            private static final int SPINNER_SECONDS = 0;
-            private static final int SPINNER_MINUTES = 1;
-            private static final int SPINNER_HOURS = 2;
-
             private RulesAdapter mAdapter;
             private EditText mReconnectDelayText;
             private Spinner mReconnectDelaySpinner;
@@ -232,28 +212,12 @@ public class ReconnectIntervalSetting extends SimpleSetting {
             }
 
             private void updateReconnectDelay() {
-                int mp = 1;
-                switch (mReconnectDelaySpinner.getSelectedItemPosition()) {
-                    case SPINNER_SECONDS:
-                        mp = 1000; // seconds
-                        break;
-                    case SPINNER_MINUTES:
-                        mp = 1000 * 60; // minutes
-                        break;
-                    case SPINNER_HOURS:
-                        mp = 1000 * 60 * 60; // hours
-                        break;
-                }
-
+                int delay = IntervalSetting.getInterval(mReconnectDelaySpinner, mReconnectDelayText);
                 int pos = getAdapterPosition();
                 if (pos == -1)
                     return;
                 Rule rule = mAdapter.mRules.get(pos);
-                try {
-                    rule.reconnectDelay = (int) (Double.parseDouble(mReconnectDelayText.getText().toString()) * mp);
-                } catch (NumberFormatException e) {
-                    rule.reconnectDelay = -1;
-                }
+                rule.reconnectDelay = delay;
                 mAdapter.updateDialogOkButtonState(rule.reconnectDelay > 0);
             }
 
@@ -262,30 +226,7 @@ public class ReconnectIntervalSetting extends SimpleSetting {
                 mReconnectDelaySpinner.setOnItemSelectedListener(null);
                 mRepeatCountText.removeTextChangedListener(mRepeatCountTextListener);
 
-                if (rule.reconnectDelay != -1) {
-                    int reconnectDelay = rule.reconnectDelay;
-                    int spinnerItemId = SPINNER_SECONDS;
-                    if ((reconnectDelay % 1000) != 0) {
-                        mReconnectDelayText.setText(String.valueOf(reconnectDelay / 1000.0));
-                        mReconnectDelaySpinner.setSelection(spinnerItemId);
-                    } else {
-                        reconnectDelay /= 1000;
-                        if ((reconnectDelay % 60) == 0) {
-                            reconnectDelay /= 60;
-                            spinnerItemId = SPINNER_MINUTES;
-                            if ((reconnectDelay % 60) == 0) {
-                                reconnectDelay /= 60;
-                                spinnerItemId = SPINNER_HOURS;
-                            }
-                        }
-
-                        mReconnectDelayText.setText(String.valueOf(reconnectDelay));
-                    }
-                    mReconnectDelaySpinner.setSelection(spinnerItemId);
-                } else {
-                    mReconnectDelayText.setText("");
-                    mReconnectDelaySpinner.setSelection(SPINNER_SECONDS);
-                }
+                IntervalSetting.setInterval(mReconnectDelaySpinner, mReconnectDelayText, rule.reconnectDelay);
 
                 mRepeatCountText.setText(rule.repeatCount == -1 ? "" : String.valueOf(rule.repeatCount));
 
@@ -358,7 +299,7 @@ public class ReconnectIntervalSetting extends SimpleSetting {
                     first = false;
                 else
                     builder.append(delim);
-                builder.append(rule.getReconnectDelayAsString(context));
+                builder.append(IntervalSetting.getIntervalAsString(context, rule.reconnectDelay));
                 if (rule.repeatCount != -1)
                     builder.append(context.getResources().getQuantityString(R.plurals.reconnect_desc_tries, rule.repeatCount, rule.repeatCount));
             }

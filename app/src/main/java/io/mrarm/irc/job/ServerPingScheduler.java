@@ -8,13 +8,15 @@ import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 
 import io.mrarm.irc.ServerConnectionManager;
+import io.mrarm.irc.config.SettingsHelper;
 
-public class ServerPingScheduler {
+public class ServerPingScheduler implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String TAG = "ServerPingScheduler";
 
@@ -32,11 +34,28 @@ public class ServerPingScheduler {
 
     private Context context;
     private boolean running;
+    private boolean enabled = false;
     private long interval = 15 * 60 * 1000; // 15 minutes
     private boolean onlyOnWifi = true;
 
     public ServerPingScheduler(Context ctx) {
         this.context = ctx;
+
+        SettingsHelper helper = SettingsHelper.getInstance(context);
+        helper.addPreferenceChangeListener(SettingsHelper.PREF_PING_ENABLED, this);
+        helper.addPreferenceChangeListener(SettingsHelper.PREF_PING_WIFI, this);
+        helper.addPreferenceChangeListener(SettingsHelper.PREF_PING_INTERVAL, this);
+        onSharedPreferenceChanged(null, null);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+        SettingsHelper helper = SettingsHelper.getInstance(context);
+        enabled = helper.isPingEnabled();
+        onlyOnWifi = helper.isPingWifIOnly();
+        interval = helper.getPingInterval();
+        stop();
+        startIfEnabled();
     }
 
     void onJobRan() {
@@ -47,7 +66,10 @@ public class ServerPingScheduler {
         }
     }
 
-    public void startWithWifiCheck() {
+    public void startIfEnabled() {
+        if (!enabled)
+            return;
+
         if (isUsingNetworkStateAwareApi() || !onlyOnWifi) {
             start();
         } else {

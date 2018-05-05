@@ -3,11 +3,10 @@ package io.mrarm.irc.setting.fragment;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import java.util.ArrayList;
-
 import io.mrarm.irc.R;
 import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.setting.CheckBoxSetting;
+import io.mrarm.irc.setting.IntervalSetting;
 import io.mrarm.irc.setting.ReconnectIntervalSetting;
 import io.mrarm.irc.setting.SettingsListAdapter;
 
@@ -39,6 +38,19 @@ public class ReconnectSettingsFragment extends SettingsListFragment
         a.add(new ReconnectIntervalSetting(getString(R.string.pref_title_reconnect_pattern))
                 .linkPreference(prefs, SettingsHelper.PREF_RECONNECT_INTERVAL)
                 .requires(mainSetting));
+        CheckBoxSetting pingSetting = new CheckBoxSetting(getString(R.string.pref_title_ping_enabled),
+                getString(R.string.pref_description_ping_enabled), false);
+        pingSetting.linkPreference(prefs, SettingsHelper.PREF_PING_ENABLED);
+        a.add(pingSetting);
+        a.add(new CheckBoxSetting(getString(R.string.pref_title_ping_wifi),
+                getString(R.string.pref_description_ping_wifi), true)
+                .linkPreference(prefs, SettingsHelper.PREF_PING_WIFI)
+                .requires(pingSetting));
+        a.add(new IntervalSetting(getString(R.string.pref_title_ping_interval),
+                15 * 60 * 1000)
+                .setMinDuration(15 * 60 * 1000)
+                .linkPreference(prefs, SettingsHelper.PREF_PING_INTERVAL)
+                .requires(pingSetting));
         return a;
     }
 

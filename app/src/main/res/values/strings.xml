@@ -430,6 +430,14 @@
         <item>hours</item>
     </string-array>
 
+    <!-- Ping settings (currently under reconnect settings) -->
+
+    <string name="pref_title_ping_enabled">Periodically send a heartbeat</string>
+    <string name="pref_description_ping_enabled">Periodically send a heartbeat (ping) to the server in order to make sure the connection is still alive. This may increase battery drain.</string>
+    <string name="pref_title_ping_wifi">Only send a heartbeat on WiFi</string>
+    <string name="pref_description_ping_wifi">Only send a heartbeat when using a WiFi connection</string>
+    <string name="pref_title_ping_interval">Heartbeat interval</string>
+
     <!-- Command aliases settings -->
 
     <string name="pref_header_command_aliases">Command aliases</string>

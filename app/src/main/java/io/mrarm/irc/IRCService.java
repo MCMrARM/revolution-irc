@@ -56,7 +56,7 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
 
         registerReceiver(mConnectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
-        ServerPingScheduler.getInstance(this).startWithWifiCheck();
+        ServerPingScheduler.getInstance(this).startIfEnabled();
     }
 
     @Override

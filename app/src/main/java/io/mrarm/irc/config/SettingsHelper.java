@@ -30,6 +30,9 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     public static final String PREF_RECONNECT_WIFI = "reconnect_wifi";
     public static final String PREF_RECONNECT_INTERVAL = "reconnect_interval";
     public static final String PREF_RECONNECT_REJOIN_CHANNELS = "reconnect_rejoin_channels";
+    public static final String PREF_PING_ENABLED = "ping_enabled";
+    public static final String PREF_PING_WIFI = "ping_wifi";
+    public static final String PREF_PING_INTERVAL  = "ping_interval";
     public static final String PREF_DARK_THEME = "dark_theme";
     public static final String PREF_DRAWER_PINNED = "drawer_pinned";
     public static final String PREF_COLOR_PREFIX = "color_";
@@ -187,6 +190,18 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
             }
         }
         return mCachedIntervalRules;
+    }
+
+    public boolean isPingEnabled() {
+        return mPreferences.getBoolean(PREF_PING_ENABLED, false);
+    }
+
+    public boolean isPingWifIOnly() {
+        return mPreferences.getBoolean(PREF_PING_WIFI, true);
+    }
+
+    public int getPingInterval() {
+        return mPreferences.getInt(PREF_PING_INTERVAL, 15 * 60 * 1000);
     }
 
     public boolean isNightModeEnabled() {
