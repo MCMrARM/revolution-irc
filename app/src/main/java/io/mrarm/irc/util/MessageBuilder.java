@@ -27,6 +27,7 @@ import java.util.Set;
 
 import io.mrarm.chatlib.dto.ChannelModeMessageInfo;
 import io.mrarm.chatlib.dto.HostInfoMessageInfo;
+import io.mrarm.chatlib.dto.KickMessageInfo;
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.dto.NickChangeMessageInfo;
 import io.mrarm.chatlib.dto.NickWithPrefix;
@@ -312,6 +313,13 @@ public class MessageBuilder {
                         SpannableStringHelper.getText(mContext,
                                 message.getMessage() == null ? R.string.message_part_no_message : R.string.message_part,
                                 buildColoredNick(senderNick), message.getMessage()));
+            case KICK:
+                String kickedNick = ((KickMessageInfo) message).getKickedNick();
+                return processFormat(mEventMessageFormat, message.getDate(), null,
+                        SpannableStringHelper.getText(mContext,
+                                R.string.message_kick, buildColoredNick(senderNick),
+                                buildColoredNick(kickedNick),
+                                message.getMessage()));
             case QUIT:
                 return processFormat(mEventMessageFormat, message.getDate(), null,
                         SpannableStringHelper.getText(mContext, R.string.message_quit, buildColoredNick(senderNick), message.getMessage()));
