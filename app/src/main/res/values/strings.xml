@@ -10,6 +10,7 @@
     <string name="message_hint">Send a message</string>
     <string name="message_disconnected">Disconnected</string>
     <string name="message_join">%s has joined</string>
+    <string name="message_kick">%s has kicked %s (%s)</string>
     <string name="message_part">%s has left (%s)</string>
     <string name="message_part_no_message">%s has left</string>
     <string name="message_quit">%s has disconnected (%s)</string>
