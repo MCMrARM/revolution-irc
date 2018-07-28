@@ -333,17 +333,17 @@ public class MessageBuilder {
             case MODE:
                 return processFormat(mEventMessageFormat, message.getDate(), null,
                         buildModeMessage(senderNick, ((ChannelModeMessageInfo) message).getEntries()));
-            case TOPIC:
+            case TOPIC: {
+                CharSequence topicText = buildColoredMessage(LinkHelper.addLinks(
+                        IRCColorUtils.getFormattedString(mContext, message.getMessage())),
+                        IRCColorUtils.getTopicTextColor(mContext), true);
                 if (message.getSender() == null)
                     return processFormat(mEventMessageFormat, message.getDate(), null,
-                            SpannableStringHelper.getText(mContext, R.string.message_topic,
-                                    buildColoredMessage(IRCColorUtils.getFormattedString(mContext,
-                                            message.getMessage()), IRCColorUtils.getTopicTextColor(mContext), true)));
+                            SpannableStringHelper.getText(mContext, R.string.message_topic, topicText));
                 return processFormat(mEventMessageFormat, message.getDate(), null,
                         SpannableStringHelper.getText(mContext, R.string.message_topic_by,
-                                buildColoredMessage(IRCColorUtils.getFormattedString(mContext,
-                                        message.getMessage()), IRCColorUtils.getTopicTextColor(mContext), true),
-                                buildColoredNick(senderNick)));
+                                topicText, buildColoredNick(senderNick)));
+            }
             case DISCONNECT_WARNING:
                 return buildDisconnectWarning(message.getDate());
         }
