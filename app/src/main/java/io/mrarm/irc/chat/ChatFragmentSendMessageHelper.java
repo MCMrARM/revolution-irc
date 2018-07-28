@@ -150,6 +150,8 @@ public class ChatFragmentSendMessageHelper implements SendMessageHelper.Callback
             return true;
         });
 
+        mSendText.requestFocus();
+
         updateVisibility();
     }
 
