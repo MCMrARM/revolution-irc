@@ -14,6 +14,8 @@ import io.mrarm.irc.MainActivity;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.dialog.UserBottomSheetDialog;
+import io.mrarm.irc.util.IRCColorUtils;
+import io.mrarm.irc.util.LinkHelper;
 
 public class ChannelInfoAdapter extends RecyclerView.Adapter {
 
@@ -97,7 +99,12 @@ public class ChannelInfoAdapter extends RecyclerView.Adapter {
         }
 
         public void bind(String title) {
-            textView.setText(title);
+            if (title != null) {
+                textView.setText(LinkHelper.addLinks(IRCColorUtils.getFormattedString(
+                        textView.getContext(), title)));
+            } else {
+                textView.setText(null);
+            }
         }
 
     }
