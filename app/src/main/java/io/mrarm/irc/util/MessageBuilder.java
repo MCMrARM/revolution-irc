@@ -313,13 +313,14 @@ public class MessageBuilder {
                         SpannableStringHelper.getText(mContext,
                                 message.getMessage() == null ? R.string.message_part_no_message : R.string.message_part,
                                 buildColoredNick(senderNick), message.getMessage()));
-            case KICK:
+            case KICK: {
                 String kickedNick = ((KickMessageInfo) message).getKickedNick();
                 return processFormat(mEventMessageFormat, message.getDate(), null,
                         SpannableStringHelper.getText(mContext,
                                 R.string.message_kick, buildColoredNick(senderNick),
                                 buildColoredNick(kickedNick),
                                 message.getMessage()));
+            }
             case QUIT:
                 return processFormat(mEventMessageFormat, message.getDate(), null,
                         SpannableStringHelper.getText(mContext, R.string.message_quit, buildColoredNick(senderNick), message.getMessage()));
