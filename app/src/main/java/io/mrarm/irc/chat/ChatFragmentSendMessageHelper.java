@@ -2,6 +2,7 @@ package io.mrarm.irc.chat;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
@@ -56,6 +57,7 @@ public class ChatFragmentSendMessageHelper implements SendMessageHelper.Callback
     private ChatFragment mFragment;
     private View mSendContainer;
     private ChatAutoCompleteEditText mSendText;
+    private GestureDetector mSendTextGestureDetector;
     private ChatSuggestionsAdapter mChannelMembersListAdapter;
     private View mFormatBarDivider;
     private TextFormatBar mFormatBar;
@@ -67,6 +69,7 @@ public class ChatFragmentSendMessageHelper implements SendMessageHelper.Callback
     private View mServerMessagesCard;
     private RecyclerView mServerMessagesList;
     private ChatServerMessagesAdapter mServerMessagesListAdapter;
+    private boolean mDoubleTapAutocompleteEnabled;
 
     public ChatFragmentSendMessageHelper(ChatFragment chatFragment, View rootView) {
         mContext = rootView.getContext();
@@ -79,6 +82,9 @@ public class ChatFragmentSendMessageHelper implements SendMessageHelper.Callback
         mSendText = rootView.findViewById(R.id.send_text);
         mSendIcon = rootView.findViewById(R.id.send_button);
         mTabIcon = rootView.findViewById(R.id.tab_button);
+
+        mSendTextGestureDetector = new GestureDetector(mContext, new SendTextGestureListener());
+        mSendText.setOnTouchListener((View v, MotionEvent event) -> mSendTextGestureDetector.onTouchEvent(event));
 
         mSendText.setFormatBar(mFormatBar);
         mSendText.setCustomSelectionActionModeCallback(new FormatItemActionMode());
@@ -180,18 +186,7 @@ public class ChatFragmentSendMessageHelper implements SendMessageHelper.Callback
     }
 
     public void setDoubleTapCompleteEnabled(boolean enabled) {
-        if (enabled) {
-            GestureDetector detector = new GestureDetector(mContext, new GestureDetector.SimpleOnGestureListener() {
-                @Override
-                public boolean onDoubleTap(MotionEvent e) {
-                    mSendText.requestTabComplete();
-                    return true;
-                }
-            });
-            mSendText.setOnTouchListener((View v, MotionEvent event) -> detector.onTouchEvent(event));
-        } else {
-            mSendText.setOnTouchListener(null);
-        }
+        mDoubleTapAutocompleteEnabled = enabled;
     }
 
     public void setAutocorrectEnabled(boolean enabled) {
@@ -331,6 +326,31 @@ public class ChatFragmentSendMessageHelper implements SendMessageHelper.Callback
         if (mServerMessagesListAdapter.getItemCount() == 0)
             mServerMessagesContainer.setVisibility(View.GONE);
     };
+
+
+    private class SendTextGestureListener extends GestureDetector.SimpleOnGestureListener {
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            if (mDoubleTapAutocompleteEnabled) {
+                mSendText.requestTabComplete();
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            velocityX /= Resources.getSystem().getDisplayMetrics().density;
+            velocityY /= Resources.getSystem().getDisplayMetrics().density;
+            if (false && Math.abs(velocityX) > 50 && Math.abs(velocityY) < Math.abs(velocityX * 0.6)) {
+                mSendText.moveInHistory(velocityX > 0.f);
+                return true;
+            }
+            return false;
+        }
+    }
+
 
     private class FormatItemActionMode implements ActionMode.Callback {
 

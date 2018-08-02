@@ -264,6 +264,23 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
         getText().replace(start, end, val);
     }
 
+    public void moveInHistory(boolean up) {
+        int i = mHistoryIndex;
+        if (!up) {
+            if (i == -1)
+                return;
+            i--;
+        } else {
+            i = Math.min(i + 1, mHistory.size() - 1);
+        }
+        if (i == -1)
+            setText("");
+        else
+            setText(mHistory.get(mHistory.size() - 1 - i));
+        setSelection(getText().length());
+        mHistoryIndex = i;
+    }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (event.getKeyCode() == KeyEvent.KEYCODE_TAB) {
@@ -299,20 +316,7 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
                     mSuggestionsList.scrollToPosition(adapter.getSelection());
                     return true;
                 }
-                int i = mHistoryIndex;
-                if (event.getKeyCode() == KeyEvent.KEYCODE_DPAD_DOWN) {
-                    if (i == -1)
-                        return true;
-                    i--;
-                } else {
-                    i = Math.min(i + 1, mHistory.size() - 1);
-                }
-                if (i == -1)
-                    setText("");
-                else
-                    setText(mHistory.get(mHistory.size() - 1 - i));
-                setSelection(getText().length());
-                mHistoryIndex = i;
+                moveInHistory(event.getKeyCode() == KeyEvent.KEYCODE_DPAD_UP);
             }
             return true;
         }
