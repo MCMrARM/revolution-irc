@@ -515,6 +515,7 @@
     <string name="backup_restore_cancelled">Restoration has been cancelled.</string>
     <string name="backup_restore_invalid">The specified backup file is invalid.</string>
     <string name="backup_restore_invalid_password">Invalid password</string>
+    <string name="backup_restore_password_not_empty">The password must not be empty</string>
 
     <!-- Setup -->
 

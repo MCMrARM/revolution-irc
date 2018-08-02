@@ -37,6 +37,10 @@ public class BackupPasswordActivity extends SetupBigHeaderActivity {
 
         findViewById(R.id.next).setOnClickListener((View v) -> {
             if (restoreMode) {
+                if (userPassword.getText().length() == 0) {
+                    layout.setError(getString(R.string.backup_restore_password_not_empty));
+                    return;
+                }
                 Intent ret = new Intent();
                 ret.putExtra(RET_PASSWORD, userPassword.getText().toString());
                 setResult(RESULT_CODE_PASSWORD, ret);
