@@ -34,6 +34,7 @@ import io.mrarm.chatlib.dto.MessageFilterOptions;
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.dto.MessageList;
 import io.mrarm.chatlib.dto.MessageListAfterIdentifier;
+import io.mrarm.chatlib.dto.MessageSenderInfo;
 import io.mrarm.chatlib.dto.NickWithPrefix;
 import io.mrarm.chatlib.dto.StatusMessageInfo;
 import io.mrarm.chatlib.dto.StatusMessageList;
@@ -68,7 +69,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     private ServerConnectionInfo mConnection;
     private String mChannelName;
     private String mChannelTopic;
-    private String mChannelTopicSetBy;
+    private MessageSenderInfo mChannelTopicSetBy;
     private Date mChannelTopicSetOn;
     private RecyclerView mRecyclerView;
     private ScrollPosLinearLayoutManager mLayoutManager;
@@ -334,8 +335,9 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         if (activity == null)
             return;
         activity.runOnUiThread(() -> ((ChatFragment) getParentFragment())
-                .setCurrentChannelInfo(mChannelTopic, mChannelTopicSetBy, mChannelTopicSetOn,
-                        mMembers));
+                .setCurrentChannelInfo(mChannelTopic,
+                        mChannelTopicSetBy != null ? mChannelTopicSetBy.getNick() : null,
+                        mChannelTopicSetOn, mMembers));
     }
 
     private void updateMessageList(Runnable r) {
@@ -420,7 +422,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     }
 
     @Override
-    public void onTopicChanged(String topic, String topicSetBy, Date topicSetOn) {
+    public void onTopicChanged(String topic, MessageSenderInfo topicSetBy, Date topicSetOn) {
         mChannelTopic = topic;
         mChannelTopicSetBy = topicSetBy;
         mChannelTopicSetOn = topicSetOn;
