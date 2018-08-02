@@ -19,6 +19,7 @@ import io.mrarm.chatlib.android.storage.SQLiteChannelDataStorage;
 import io.mrarm.chatlib.irc.IRCConnection;
 import io.mrarm.chatlib.irc.IRCConnectionRequest;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
+import io.mrarm.chatlib.irc.ServerConnectionData;
 import io.mrarm.chatlib.irc.cap.SASLCapability;
 import io.mrarm.chatlib.irc.cap.SASLOptions;
 import io.mrarm.chatlib.irc.filters.ZNCPlaybackMessageFilter;
@@ -28,6 +29,7 @@ import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.util.IgnoreListMessageFilter;
 import io.mrarm.irc.config.SettingsHelper;
+import io.mrarm.irc.util.StubMessageStorageApi;
 import io.mrarm.irc.util.UserAutoRunCommandHelper;
 
 public class ServerConnectionInfo {
@@ -232,15 +234,23 @@ public class ServerConnectionInfo {
             setConnected(false);
             mConnecting = false;
             mDisconnecting = false;
-            if (getApiInstance() != null) {
-                MessageStorageApi m = getApiInstance().getMessageStorageApi();
-                if (m != null && m instanceof SQLiteMessageStorageApi)
-                    ((SQLiteMessageStorageApi) m).close();
-            }
-            if (mSQLiteMiscStorage != null)
-                mSQLiteMiscStorage.close();
         }
         mManager.notifyConnectionFullyDisconnected(this);
+    }
+
+    public synchronized void close() {
+        Log.i("ServerConnectionInfo", "Closing");
+        if (getApiInstance() != null) {
+            MessageStorageApi m = getApiInstance().getMessageStorageApi();
+            if (m != null && m instanceof SQLiteMessageStorageApi)
+                ((SQLiteMessageStorageApi) m).close();
+            ServerConnectionData connectionData = ((ServerConnectionApi) getApiInstance())
+                    .getServerConnectionData();
+            connectionData.setMessageStorageApi(new StubMessageStorageApi());
+            connectionData.setChannelDataStorage(null);
+        }
+        if (mSQLiteMiscStorage != null)
+            mSQLiteMiscStorage.close();
     }
 
     public void notifyConnectivityChanged(boolean hasAnyConnectivity, boolean hasWifi) {

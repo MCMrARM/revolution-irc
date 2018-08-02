@@ -226,6 +226,8 @@ public class ServerConnectionManager {
                     }
                 } else if (connection.isConnecting() || connection.isConnected() || !connection.hasUserDisconnectRequest()) {
                     throw new RuntimeException("Trying to remove a non-disconnected connection");
+                } else {
+                    connection.close();
                 }
             }
             mConnections.remove(connection);
@@ -256,14 +258,7 @@ public class ServerConnectionManager {
             ServerConnectionInfo connection = mDisconnectingConnections.get(uuid);
             if (connection == null)
                 return;
-            MessageStorageApi storageApi = ((ServerConnectionApi) connection.getApiInstance()).getServerConnectionData().getMessageStorageApi();
-            if (storageApi instanceof SQLiteMessageStorageApi)
-                ((SQLiteMessageStorageApi) storageApi).close();
-            ((ServerConnectionApi) connection.getApiInstance()).getServerConnectionData().setMessageStorageApi(new StubMessageStorageApi());
-            SQLiteMiscStorage miscStorage = connection.getSQLiteMiscStorage();
-            if (miscStorage != null)
-                miscStorage.close();
-            ((ServerConnectionApi) connection.getApiInstance()).getServerConnectionData().setChannelDataStorage(null);
+            connection.close();
             mDisconnectingConnections.remove(uuid);
         }
     }
@@ -366,9 +361,12 @@ public class ServerConnectionManager {
     }
 
     void notifyConnectionFullyDisconnected(ServerConnectionInfo connection) {
+        ServerConnectionInfo removed;
         synchronized (mDisconnectingConnections) {
-            mDisconnectingConnections.remove(connection.getUUID());
+            removed = mDisconnectingConnections.remove(connection.getUUID());
         }
+        if (removed != null)
+            connection.close();
     }
 
     public void notifyConnectivityChanged(boolean hasAnyConnectivity) {
