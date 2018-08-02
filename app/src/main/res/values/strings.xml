@@ -50,6 +50,7 @@
     <string name="command_send_raw">Send as raw</string>
 
     <string name="channel_topic">Topic</string>
+    <string name="channel_topic_info">set by %s on %s</string>
     <string name="channel_members">Members</string>
 
     <string name="message_sent">Message sent</string>

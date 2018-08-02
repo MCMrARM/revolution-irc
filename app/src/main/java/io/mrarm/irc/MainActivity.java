@@ -28,6 +28,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -318,11 +319,11 @@ public class MainActivity extends ThemedActivity {
         }
     }
 
-    public void setCurrentChannelInfo(ServerConnectionInfo server, String topic,
-                                      List<NickWithPrefix> members) {
+    public void setCurrentChannelInfo(ServerConnectionInfo server, String topic, String topicSetBy,
+                                      Date topicSetOn, List<NickWithPrefix> members) {
         if (mChannelInfoAdapter == null)
             return;
-        mChannelInfoAdapter.setData(server, topic, members);
+        mChannelInfoAdapter.setData(server, topic, topicSetBy, topicSetOn, members);
         setChannelInfoDrawerVisible(topic != null || (members != null && members.size() > 0));
     }
 

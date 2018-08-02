@@ -1,5 +1,6 @@
 package io.mrarm.irc.chat;
 
+import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -21,6 +22,7 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -66,6 +68,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     private ServerConnectionInfo mConnection;
     private String mChannelName;
     private String mChannelTopic;
+    private String mChannelTopicSetBy;
+    private Date mChannelTopicSetOn;
     private RecyclerView mRecyclerView;
     private ScrollPosLinearLayoutManager mLayoutManager;
     private ChatMessagesAdapter mAdapter;
@@ -93,10 +97,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser && getParentFragment() != null) {
-            Log.d(TAG, "setChannelInfo " + (mMembers == null ? -1 : mMembers.size()) + " " + mChannelTopic);
-            ((ChatFragment) getParentFragment()).setCurrentChannelInfo(mChannelTopic, mMembers);
-        }
+        if (isVisibleToUser && getParentFragment() != null)
+            updateParentCurrentChannel();
         if (!isVisibleToUser)
             hideMessagesActionMenu();
         if (mConnection != null && mChannelName != null) {
@@ -154,6 +156,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                     (ChannelInfo channelInfo) -> {
                         Log.i(TAG, "Got channel info " + mChannelName);
                         mChannelTopic = channelInfo.getTopic();
+                        mChannelTopicSetBy = channelInfo.getTopicSetBy();
+                        mChannelTopicSetOn = channelInfo.getTopicSetOn();
                         onMemberListChanged(channelInfo.getMembers());
                     }, null);
 
@@ -325,6 +329,15 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         }
     }
 
+    private void updateParentCurrentChannel() {
+        Activity activity = getActivity();
+        if (activity == null)
+            return;
+        activity.runOnUiThread(() -> ((ChatFragment) getParentFragment())
+                .setCurrentChannelInfo(mChannelTopic, mChannelTopicSetBy, mChannelTopicSetOn,
+                        mMembers));
+    }
+
     private void updateMessageList(Runnable r) {
         synchronized (this) {
             if (mRecyclerView != null) {
@@ -403,16 +416,16 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             return left.getNick().compareToIgnoreCase(right.getNick());
         });
         if (getUserVisibleHint())
-            updateMessageList(() -> ((ChatFragment) getParentFragment())
-                    .setCurrentChannelInfo(mChannelTopic, mMembers));
+            updateParentCurrentChannel();
     }
 
     @Override
-    public void onTopicChanged(String topic) {
+    public void onTopicChanged(String topic, String topicSetBy, Date topicSetOn) {
         mChannelTopic = topic;
+        mChannelTopicSetBy = topicSetBy;
+        mChannelTopicSetOn = topicSetOn;
         if (getUserVisibleHint())
-            updateMessageList(() -> ((ChatFragment) getParentFragment())
-                    .setCurrentChannelInfo(mChannelTopic, mMembers));
+            updateParentCurrentChannel();
     }
 
     public void showMessagesActionMenu() {

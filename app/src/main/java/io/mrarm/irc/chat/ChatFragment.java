@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -268,8 +269,10 @@ public class ChatFragment extends Fragment implements
         mViewPager.setCurrentItem(mSectionsPagerAdapter.findChannel(channel));
     }
 
-    public void setCurrentChannelInfo(String topic, List<NickWithPrefix> members) {
-        ((MainActivity) getActivity()).setCurrentChannelInfo(getConnectionInfo(), topic, members);
+    public void setCurrentChannelInfo(String topic, String topicSetBy, Date topicSetOn,
+                                      List<NickWithPrefix> members) {
+        ((MainActivity) getActivity()).setCurrentChannelInfo(getConnectionInfo(),
+                topic, topicSetBy, topicSetOn, members);
         if (mSendHelper != null)
             mSendHelper.setCurrentChannelMembers(members);
     }

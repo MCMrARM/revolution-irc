@@ -2,11 +2,17 @@ package io.mrarm.irc.chat;
 
 import android.app.Dialog;
 import android.support.v7.widget.RecyclerView;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.format.DateFormat;
+import android.text.format.DateUtils;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.Date;
 import java.util.List;
 
 import io.mrarm.chatlib.dto.NickWithPrefix;
@@ -16,6 +22,7 @@ import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.dialog.UserBottomSheetDialog;
 import io.mrarm.irc.util.IRCColorUtils;
 import io.mrarm.irc.util.LinkHelper;
+import io.mrarm.irc.util.SpannableStringHelper;
 
 public class ChannelInfoAdapter extends RecyclerView.Adapter {
 
@@ -25,15 +32,19 @@ public class ChannelInfoAdapter extends RecyclerView.Adapter {
 
     private ServerConnectionInfo mConnection;
     private String mTopic;
+    private String mTopicSetBy;
+    private Date mTopicSetOn;
     private List<NickWithPrefix> mMembers;
 
     public ChannelInfoAdapter() {
     }
 
-    public void setData(ServerConnectionInfo connection, String topic,
-                        List<NickWithPrefix> members) {
+    public void setData(ServerConnectionInfo connection, String topic, String topicSetBy,
+                        Date topicSetOn, List<NickWithPrefix> members) {
         mConnection = connection;
         mTopic = topic;
+        mTopicSetBy = topicSetBy;
+        mTopicSetOn = topicSetOn;
         mMembers = members;
         notifyDataSetChanged();
     }
@@ -51,7 +62,7 @@ public class ChannelInfoAdapter extends RecyclerView.Adapter {
         } else if (viewType == TYPE_TOPIC) {
             View view = LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.chat_topic, viewGroup, false);
-            return new TextHolder(view);
+            return new TopicHolder(view);
         } else { // TYPE_MEMBER
             View view = LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.chat_member, viewGroup, false);
@@ -66,7 +77,7 @@ public class ChannelInfoAdapter extends RecyclerView.Adapter {
             ((TextHolder) holder).bind(position == 0 ? R.string.channel_topic
                     : R.string.channel_members);
         else if (type == TYPE_TOPIC)
-            ((TextHolder) holder).bind(mTopic);
+            ((TopicHolder) holder).bind(mTopic, mTopicSetBy, mTopicSetOn);
         else if (type == TYPE_MEMBER)
             ((MemberHolder) holder).bind(mConnection, mMembers.get(position - 3));
     }
@@ -100,10 +111,47 @@ public class ChannelInfoAdapter extends RecyclerView.Adapter {
 
         public void bind(String title) {
             if (title != null) {
-                textView.setText(LinkHelper.addLinks(IRCColorUtils.getFormattedString(
-                        textView.getContext(), title)));
+                textView.setText(title);
             } else {
                 textView.setText(null);
+            }
+        }
+
+    }
+
+    public static class TopicHolder extends RecyclerView.ViewHolder {
+
+        private TextView topicTextView;
+        private TextView topicInfoTextView;
+
+        public TopicHolder(View view) {
+            super(view);
+            topicTextView = view.findViewById(R.id.topic);
+            topicInfoTextView = view.findViewById(R.id.topic_info);
+        }
+
+        public void bind(String topic, String topicSetBy, Date topicSetOn) {
+            if (topic != null) {
+                topicTextView.setText(LinkHelper.addLinks(IRCColorUtils.getFormattedString(
+                        topicTextView.getContext(), topic)));
+            } else {
+                topicTextView.setText(null);
+            }
+            if (topicSetBy != null || topicSetOn != null) {
+                SpannableString topicSetByColored = new SpannableString(topicSetBy);
+                topicSetByColored.setSpan(new ForegroundColorSpan(IRCColorUtils.getNickColor(
+                        topicInfoTextView.getContext(), topicSetBy)), 0, topicSetBy.length(),
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                String topicSetOnStr = DateUtils.formatDateTime(topicInfoTextView.getContext(),
+                        topicSetOn.getTime(),
+                        DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
+
+                topicInfoTextView.setText(SpannableStringHelper.getText(
+                        topicInfoTextView.getContext(), R.string.channel_topic_info,
+                        topicSetByColored, topicSetOnStr));
+            } else {
+                topicInfoTextView.setText(null);
             }
         }
 
