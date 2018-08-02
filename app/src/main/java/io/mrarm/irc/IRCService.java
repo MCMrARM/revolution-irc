@@ -1,6 +1,5 @@
 package io.mrarm.irc;
 
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -13,10 +12,13 @@ import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import io.mrarm.chatlib.dto.MessageInfo;
+import io.mrarm.chatlib.message.MessageListener;
 import io.mrarm.irc.job.ServerPingScheduler;
 import io.mrarm.irc.util.WarningHelper;
 
@@ -32,6 +34,8 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
     private ConnectivityChangeReceiver mConnectivityReceiver = new ConnectivityChangeReceiver();
 
     private boolean mCreatedChannel = false;
+
+    private Map<ServerConnectionInfo, MessageListener> messageListeners = new HashMap<>();
 
     public static void start(Context context) {
         Intent intent = new Intent(context, IRCService.class);
@@ -67,6 +71,7 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
             for (ServerConnectionInfo connection : ServerConnectionManager.getInstance(this)
                     .getConnections())
                 onConnectionRemoved(connection);
+            ServerConnectionManager.getInstance(this).removeListener(this);
         }
 
         unregisterReceiver(mConnectivityReceiver);
@@ -130,13 +135,18 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
 
     @Override
     public void onConnectionAdded(ServerConnectionInfo connection) {
-        connection.getApiInstance().getMessageStorageApi().subscribeChannelMessages(null, (String channel, MessageInfo info) -> {
+        MessageListener listener =  (String channel, MessageInfo info) -> {
             onMessage(connection, channel, info);
-        }, null, null);
+        };
+        messageListeners.put(connection, listener);
+        connection.getApiInstance().getMessageStorageApi().subscribeChannelMessages(null, listener, null, null);
     }
 
     @Override
     public void onConnectionRemoved(ServerConnectionInfo connection) {
+        MessageListener listener = messageListeners.get(connection);
+        if (listener != null)
+            connection.getApiInstance().getMessageStorageApi().unsubscribeChannelMessages(null, listener, null, null);
     }
 
     @Nullable
