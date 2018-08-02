@@ -1,10 +1,10 @@
 package io.mrarm.irc.chat;
 
 import android.app.Dialog;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableString;
 import android.text.Spanned;
-import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
@@ -23,6 +23,7 @@ import io.mrarm.irc.dialog.UserBottomSheetDialog;
 import io.mrarm.irc.util.IRCColorUtils;
 import io.mrarm.irc.util.LinkHelper;
 import io.mrarm.irc.util.SpannableStringHelper;
+import io.mrarm.irc.util.StyledAttributesHelper;
 
 public class ChannelInfoAdapter extends RecyclerView.Adapter {
 
@@ -123,11 +124,14 @@ public class ChannelInfoAdapter extends RecyclerView.Adapter {
 
         private TextView topicTextView;
         private TextView topicInfoTextView;
+        private int textColorSecondary;
 
         public TopicHolder(View view) {
             super(view);
             topicTextView = view.findViewById(R.id.topic);
             topicInfoTextView = view.findViewById(R.id.topic_info);
+            textColorSecondary = StyledAttributesHelper.getColor(topicTextView.getContext(),
+                    android.R.attr.textColorSecondary, Color.BLACK);
         }
 
         public void bind(String topic, String topicSetBy, Date topicSetOn) {
@@ -135,7 +139,11 @@ public class ChannelInfoAdapter extends RecyclerView.Adapter {
                 topicTextView.setText(LinkHelper.addLinks(IRCColorUtils.getFormattedString(
                         topicTextView.getContext(), topic)));
             } else {
-                topicTextView.setText(null);
+                SpannableString noTopicColored = new SpannableString(topicTextView.getResources()
+                        .getString(R.string.channel_topic_none));
+                noTopicColored.setSpan(new ForegroundColorSpan(textColorSecondary), 0,
+                        noTopicColored.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                topicTextView.setText(noTopicColored);
             }
             if (topicSetBy != null || topicSetOn != null) {
                 SpannableString topicSetByColored = new SpannableString(topicSetBy);
