@@ -10,6 +10,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.format.DateUtils;
 import android.text.style.ForegroundColorSpan;
 
 import com.google.gson.JsonArray;
@@ -32,6 +33,7 @@ import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.dto.NickChangeMessageInfo;
 import io.mrarm.chatlib.dto.NickWithPrefix;
 import io.mrarm.chatlib.dto.StatusMessageInfo;
+import io.mrarm.chatlib.dto.TopicWhoTimeMessageInfo;
 import io.mrarm.irc.MessageFormatSettingsActivity;
 import io.mrarm.irc.R;
 import io.mrarm.irc.config.SettingsHelper;
@@ -343,6 +345,16 @@ public class MessageBuilder {
                 return processFormat(mEventMessageFormat, message.getDate(), null,
                         SpannableStringHelper.getText(mContext, R.string.message_topic_by,
                                 topicText, buildColoredNick(senderNick)));
+            }
+            case TOPIC_WHOTIME: {
+                TopicWhoTimeMessageInfo topicMessage = (TopicWhoTimeMessageInfo) message;
+                String topicSetOnStr = DateUtils.formatDateTime(mContext,
+                        topicMessage.getSetOnDate().getTime(),
+                        DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
+                return processFormat(mEventMessageFormat, message.getDate(), null,
+                        SpannableStringHelper.getText(mContext, R.string.message_topic_whotime,
+                                buildColoredNick(topicMessage.getSetBy().getNick()),
+                                topicSetOnStr));
             }
             case DISCONNECT_WARNING:
                 return buildDisconnectWarning(message.getDate());

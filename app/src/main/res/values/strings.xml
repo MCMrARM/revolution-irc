@@ -16,6 +16,7 @@
     <string name="message_quit">%s has disconnected (%s)</string>
     <string name="message_nick_change">%s is now known as %s</string>
     <string name="message_topic">Topic: %s</string>
+    <string name="message_topic_whotime">Topic was set by %s on %s</string>
     <string name="message_topic_by">Topic: %s, set by %s</string>
 
     <string name="message_host_info">Server name is %s, running %s. Supported user modes: %s, supported channel modes: %s</string>
