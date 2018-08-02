@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.format.DateUtils;
+import android.text.method.LinkMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -132,6 +133,8 @@ public class ChannelInfoAdapter extends RecyclerView.Adapter {
             topicInfoTextView = view.findViewById(R.id.topic_info);
             textColorSecondary = StyledAttributesHelper.getColor(topicTextView.getContext(),
                     android.R.attr.textColorSecondary, Color.BLACK);
+
+            topicTextView.setMovementMethod(LinkMovementMethod.getInstance());
         }
 
         public void bind(String topic, String topicSetBy, Date topicSetOn) {
