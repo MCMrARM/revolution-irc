@@ -13,7 +13,8 @@
         android:manageSpaceActivity=".StorageSettingsActivity"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:name=".IRCApplication">
         <activity
             android:name=".MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|screenLayout"
@@ -107,6 +108,9 @@
             </intent-filter>
         </service>
 
+        <receiver
+            android:name=".IRCService$ExitActionReceiver"
+            android:exported="false" />
         <receiver
             android:name=".ChannelNotificationManager$NotificationActionReceiver"
             android:exported="false" />

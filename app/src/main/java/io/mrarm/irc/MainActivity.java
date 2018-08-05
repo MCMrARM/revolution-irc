@@ -47,7 +47,7 @@ import io.mrarm.irc.util.WarningHelper;
 import io.mrarm.irc.view.ChipsEditText;
 import io.mrarm.irc.view.LockableDrawerLayout;
 
-public class MainActivity extends ThemedActivity {
+public class MainActivity extends ThemedActivity implements IRCApplication.ExitCallback {
 
     public static final String ARG_SERVER_UUID = "server_uuid";
     public static final String ARG_CHANNEL_NAME = "channel";
@@ -81,6 +81,8 @@ public class MainActivity extends ThemedActivity {
     protected void onCreate(Bundle savedInstanceState) {
         ServerConnectionManager.getInstance(this);
         WarningHelper.setAppContext(getApplicationContext());
+
+        ((IRCApplication) getApplication()).addExitCallback(this);
 
         if (SettingsHelper.getInstance(this).isNightModeEnabled())
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
@@ -205,6 +207,7 @@ public class MainActivity extends ThemedActivity {
 
     @Override
     protected void onDestroy() {
+        ((IRCApplication) getApplication()).removeExitCallback(this);
         mDrawerHelper.unregisterListeners();
         dismissFragmentDialog();
         super.onDestroy();
@@ -458,16 +461,18 @@ public class MainActivity extends ThemedActivity {
         } else if (id == R.id.action_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
         } else if (id == R.id.action_exit) {
-            if (getCurrentFragment() instanceof ServerListFragment)
-                ((ServerListFragment) getCurrentFragment()).getAdapter().unregisterListeners();
-            getDrawerHelper().unregisterListeners();
-            ServerConnectionManager.destroyInstance();
-            IRCService.stop(this);
-            finish();
+            ((IRCApplication) getApplication()).requestExit();
         } else {
             return super.onOptionsItemSelected(item);
         }
         return true;
+    }
+
+    @Override
+    public void onAppExiting() {
+        if (getCurrentFragment() instanceof ServerListFragment)
+            ((ServerListFragment) getCurrentFragment()).getAdapter().unregisterListeners();
+        getDrawerHelper().unregisterListeners();
     }
 
     static {

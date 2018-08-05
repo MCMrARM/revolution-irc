@@ -27,6 +27,7 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
     private static final String TAG = "IRCService";
 
     public static final int IDLE_NOTIFICATION_ID = 100;
+    public static final int EXIT_ACTION_ID = 102; // 101 is taken by chat summary
     public static final String ACTION_START_FOREGROUND = "start_foreground";
 
     private static final String IDLE_NOTIFICATION_CHANNEL = "IdleNotification";
@@ -114,11 +115,15 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
             }
 
             Intent mainIntent = MainActivity.getLaunchIntent(this, null, null);
+            PendingIntent exitIntent = PendingIntent.getBroadcast(this, EXIT_ACTION_ID,
+                    ExitActionReceiver.getIntent(this),
+                    PendingIntent.FLAG_CANCEL_CURRENT);
             NotificationCompat.Builder notification = new NotificationCompat.Builder(this, IDLE_NOTIFICATION_CHANNEL)
                     .setContentTitle(getString(R.string.service_title))
                     .setContentText(b.toString())
                     .setPriority(NotificationCompat.PRIORITY_MIN)
-                    .setContentIntent(PendingIntent.getActivity(this, IDLE_NOTIFICATION_ID, mainIntent, PendingIntent.FLAG_CANCEL_CURRENT));
+                    .setContentIntent(PendingIntent.getActivity(this, IDLE_NOTIFICATION_ID, mainIntent, PendingIntent.FLAG_CANCEL_CURRENT))
+                    .addAction(R.drawable.ic_close, getString(R.string.action_exit), exitIntent); // TODO: render the close icon for older android versions
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                 notification.setSmallIcon(R.drawable.ic_server_connected);
             else
@@ -153,6 +158,19 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    public static class ExitActionReceiver extends BroadcastReceiver {
+
+        public static Intent getIntent(Context context) {
+            return new Intent(context, ExitActionReceiver.class);
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ((IRCApplication) context.getApplicationContext()).requestExit();
+        }
+
     }
 
     public class ConnectivityChangeReceiver extends BroadcastReceiver {

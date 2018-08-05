@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import io.mrarm.irc.IRCApplication;
 import io.mrarm.irc.R;
 
 public class SetupProgressActivity extends SetupBigHeaderActivity {
@@ -19,6 +20,12 @@ public class SetupProgressActivity extends SetupBigHeaderActivity {
         mProgressBar = findViewById(R.id.progress);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        releaseExitLock();
+    }
+
     public ProgressBar getProgressBar() {
         return mProgressBar;
     }
@@ -26,5 +33,17 @@ public class SetupProgressActivity extends SetupBigHeaderActivity {
     public void setDescriptionText(int resId) {
         mDescription.setText(resId);
     }
+
+
+    public void acquireExitLock() {
+        ((IRCApplication) getApplication()).addPreExitCallback(sExitLock);
+    }
+
+    public void releaseExitLock() {
+        ((IRCApplication) getApplication()).removePreExitCallback(sExitLock);
+    }
+
+
+    private static final IRCApplication.PreExitCallback sExitLock = () -> false;
 
 }

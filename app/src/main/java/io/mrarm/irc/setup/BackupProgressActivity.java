@@ -46,11 +46,13 @@ public class BackupProgressActivity extends SetupProgressActivity {
         } else {
             BackupRequest request = new BackupRequest();
             request.password = getIntent().getStringExtra(ARG_USER_PASSWORD);
+            acquireExitLock();
             new BackupTask(this).execute(request);
         }
     }
 
     public void setDone(int resId) {
+        releaseExitLock();
         Intent intent = new Intent(BackupProgressActivity.this, BackupCompleteActivity.class);
         intent.putExtra(BackupCompleteActivity.ARG_DESC_TEXT, resId);
         if (mRestoreMode)
@@ -120,6 +122,7 @@ public class BackupProgressActivity extends SetupProgressActivity {
     }
 
     public void startRestoreTask(String password) {
+        acquireExitLock();
         RestoreRequest request = new RestoreRequest();
         request.file = mBackupFile;
         request.password = password;
