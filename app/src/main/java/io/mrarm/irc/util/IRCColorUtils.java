@@ -126,6 +126,8 @@ public class IRCColorUtils {
                 case 0x0F: { // reset
                     i++;
                     builder.endSpans(Object.class);
+                    fg = bg = 99;
+                    bold = italic = underline = false;
                     break;
                 }
                 case '\n': { // newline
@@ -143,6 +145,7 @@ public class IRCColorUtils {
                         fg = Math.max(fg, 0) * 10 + string.charAt(i) - '0';
                     }
                     if (fg == -1) {
+                        fg = bg = 99;
                         builder.endSpans(ForegroundColorSpan.class);
                         builder.endSpans(BackgroundColorSpan.class);
                         continue;
