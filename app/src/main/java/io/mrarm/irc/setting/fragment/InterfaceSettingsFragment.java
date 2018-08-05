@@ -82,6 +82,11 @@ public class InterfaceSettingsFragment extends SettingsListFragment
                             new AutocompletePreferenceFragment());
                 });
         a.add(mAutocompleteItem);
+        a.add(new ListSetting(getString(R.string.pref_title_chat_history_swipe_mode),
+                getResources().getStringArray(R.array.pref_entries_chat_history_swipe_mode),
+                getResources().getStringArray(R.array.pref_entry_values_chat_history_swipe_mode),
+                SettingsHelper.SWIPE_LEFT_TO_RIGHT)
+                .linkPreference(prefs, SettingsHelper.PREF_CHAT_SEND_BOX_HISTORY_SWIPE_MODE));
 
         MessageSenderInfo testSender = new MessageSenderInfo(
                 getString(R.string.message_example_sender), "", "", null, null);

@@ -18,6 +18,13 @@
         <item>always</item>
         <item>auto</item>
     </string-array>
+    <string-array name="pref_entry_values_chat_history_swipe_mode">
+        <item>disabled</item>
+        <item>left_to_right</item>
+        <item>right_to_left</item>
+        <item>up_to_down</item>
+        <item>down_to_up</item>
+    </string-array>
 
     <string-array name="time_format_presets">
         <item>[HH:mm]</item>

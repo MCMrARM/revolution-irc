@@ -1,12 +1,16 @@
 package io.mrarm.irc.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Filter;
 
@@ -47,6 +51,8 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
     private List<CommandAliasManager.CommandAlias> mCompletingCommands;
     private List<CharSequence> mHistory;
     private int mHistoryIndex;
+    private SendTextGestureListener mGestureListener;
+    private GestureDetector mGestureDetector;
 
     public ChatAutoCompleteEditText(Context context) {
         super(context);
@@ -71,6 +77,8 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
             else
                 dismissDropDown();
         }));
+        mGestureListener = new SendTextGestureListener();
+        mGestureDetector = new GestureDetector(getContext(), mGestureListener);
 
         onSharedPreferenceChanged(null, null);
     }
@@ -323,6 +331,18 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
         return super.onKeyDown(keyCode, event);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        boolean ret = mGestureDetector.onTouchEvent(event);
+        ret |= super.onTouchEvent(event);
+        if (mGestureListener.mHistorySwipeDetected) {
+            moveInHistory(mGestureListener.mHistorySwipePrevious);
+            mGestureListener.mHistorySwipeDetected = false;
+        }
+        return ret;
+    }
+
     @Override
     public void setText(CharSequence text, BufferType type) {
         super.setText(text, type);
@@ -364,6 +384,68 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
         if (start == 0)
             return text + ": ";
         return text + " ";
+    }
+
+
+
+    private class SendTextGestureListener extends GestureDetector.SimpleOnGestureListener {
+
+        private int mLastTextPos;
+        private int mDoubleTapTextPos;
+        private boolean mHistorySwipeDetected = false;
+        private boolean mHistorySwipePrevious = false;
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            mLastTextPos = getSelectionStart();
+            return true;
+        }
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            mDoubleTapTextPos = mLastTextPos;
+            return SettingsHelper.getInstance(getContext()).isNickAutocompleteDoubleTapEnabled();
+        }
+
+        @Override
+        public boolean onDoubleTapEvent(MotionEvent e) {
+            if (e.getAction() == MotionEvent.ACTION_UP &&
+                    SettingsHelper.getInstance(getContext()).isNickAutocompleteDoubleTapEnabled()) {
+                setSelection(mDoubleTapTextPos);
+                requestTabComplete();
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            String swipeMode = SettingsHelper.getInstance(getContext())
+                    .getChatSendBoxHistorySwipeMode();
+            if (swipeMode.equals(SettingsHelper.SWIPE_DISABLED))
+                return false;
+
+            velocityX /= Resources.getSystem().getDisplayMetrics().density;
+            velocityY /= Resources.getSystem().getDisplayMetrics().density;
+            if (swipeMode.equals(SettingsHelper.SWIPE_DOWN_TO_UP) ||
+                    swipeMode.equals(SettingsHelper.SWIPE_UP_TO_DOWN)) {
+                float t = velocityX;
+                //noinspection SuspiciousNameCombination
+                velocityX = velocityY;
+                velocityY = t;
+            } else if (!swipeMode.equals(SettingsHelper.SWIPE_LEFT_TO_RIGHT) &&
+                    !swipeMode.equals(SettingsHelper.SWIPE_RIGHT_TO_LEFT)) {
+                return false;
+            }
+            if (Math.abs(velocityX) > 50 && Math.abs(velocityY) < Math.abs(velocityX * 0.6)) {
+                mHistorySwipeDetected = true;
+                mHistorySwipePrevious = swipeMode.equals(SettingsHelper.SWIPE_LEFT_TO_RIGHT) ||
+                        swipeMode.equals(SettingsHelper.SWIPE_UP_TO_DOWN)
+                        ? velocityX > 0.f : velocityX < 0.f;
+                return true;
+            }
+            return false;
+        }
     }
 
 }

@@ -43,6 +43,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     public static final String PREF_CHAT_TEXT_AUTOCORRECT = "chat_text_autocorrect";
     public static final String PREF_CHAT_HIDE_JOIN_PART = "chat_hide_join_part";
     public static final String PREF_CHAT_APPBAR_COMPACT_MODE = "chat_appbar_compact_mode";
+    public static final String PREF_CHAT_SEND_BOX_HISTORY_SWIPE_MODE = "chat_send_box_history_swipe_mode";
     public static final String PREF_MESSAGE_FORMAT = "message_format";
     public static final String PREF_MESSAGE_FORMAT_MENTION = "message_format_mention";
     public static final String PREF_MESSAGE_FORMAT_ACTION = "message_format_action";
@@ -63,6 +64,12 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     public static final String COMPACT_MODE_ALWAYS = "always";
     public static final String COMPACT_MODE_NEVER = "never";
     public static final String COMPACT_MODE_AUTO = "auto";
+
+    public static final String SWIPE_DISABLED = "disabled";
+    public static final String SWIPE_LEFT_TO_RIGHT = "left_to_right";
+    public static final String SWIPE_RIGHT_TO_LEFT = "right_to_left";
+    public static final String SWIPE_UP_TO_DOWN = "up_to_down";
+    public static final String SWIPE_DOWN_TO_UP = "down_to_up";
 
     private static SettingsHelper mInstance;
 
@@ -252,6 +259,10 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
 
     public String getChatAppbarCompactMode() {
         return mPreferences.getString(PREF_CHAT_APPBAR_COMPACT_MODE, COMPACT_MODE_AUTO);
+    }
+
+    public String getChatSendBoxHistorySwipeMode() {
+        return mPreferences.getString(PREF_CHAT_SEND_BOX_HISTORY_SWIPE_MODE, SWIPE_LEFT_TO_RIGHT);
     }
 
     public boolean isNickAutocompleteButtonVisible() {

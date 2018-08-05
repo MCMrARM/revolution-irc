@@ -287,6 +287,7 @@
     <string name="pref_title_appbar_compact_mode">Hide the network name header</string>
     <string name="pref_title_message_format">Message format</string>
     <string name="pref_title_nick_autocomplete">Nick/channel autocomplete</string>
+    <string name="pref_title_chat_history_swipe_mode">History swipe-based navigation mode</string>
 
     <string name="pref_title_nick_autocomplete_show_button">Show a button</string>
     <string name="pref_summary_nick_autocomplete_show_button">Show a nick autocomplete button</string>
@@ -312,6 +313,14 @@
         <item>@string/value_never</item>
         <item>@string/value_always</item>
         <item>If there is little space for messages</item>
+    </string-array>
+
+    <string-array name="pref_entries_chat_history_swipe_mode">
+        <item>Disabled</item>
+        <item>Horizontal (previous as left to right)</item>
+        <item>Horizontal (previous as right to left)</item>
+        <item>Vertical (previous as up to down)</item>
+        <item>Vertical (previous as down to up)</item>
     </string-array>
 
     <!-- Message format -->
