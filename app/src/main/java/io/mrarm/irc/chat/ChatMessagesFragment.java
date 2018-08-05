@@ -307,7 +307,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     @Override
     public void onPause() {
         super.onPause();
-        if (getUserVisibleHint())
+        MainActivity activity = (MainActivity) getActivity();
+        if (getUserVisibleHint() && (activity == null || !activity.isAppExiting()))
             mConnection.getNotificationManager().getChannelManager(mChannelName, true).setOpened(getContext(), false);
         if (mConnection != null && getUserVisibleHint() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             IRCChooserTargetService.setChannel(mConnection.getUUID(), mChannelName);

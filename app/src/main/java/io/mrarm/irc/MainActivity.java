@@ -61,6 +61,7 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
     private boolean mBackReturnToServerList;
     private Dialog mCurrentDialog;
     private ChannelInfoAdapter mChannelInfoAdapter;
+    private boolean mAppExiting;
 
     public static Intent getLaunchIntent(Context context, ServerConnectionInfo server, String channel) {
         Intent intent = new Intent(context, MainActivity.class);
@@ -82,6 +83,7 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
         ServerConnectionManager.getInstance(this);
         WarningHelper.setAppContext(getApplicationContext());
 
+        mAppExiting = false;
         ((IRCApplication) getApplication()).addExitCallback(this);
 
         if (SettingsHelper.getInstance(this).isNightModeEnabled())
@@ -470,9 +472,14 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
 
     @Override
     public void onAppExiting() {
+        mAppExiting = true;
         if (getCurrentFragment() instanceof ServerListFragment)
             ((ServerListFragment) getCurrentFragment()).getAdapter().unregisterListeners();
         getDrawerHelper().unregisterListeners();
+    }
+
+    public boolean isAppExiting() {
+        return mAppExiting;
     }
 
     static {
