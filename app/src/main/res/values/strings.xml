@@ -21,6 +21,7 @@
 
     <string name="message_host_info">Server name is %s, running %s. Supported user modes: %s, supported channel modes: %s</string>
     <string name="message_motd">Message of the Day</string>
+    <string name="message_whois">%s\'s user information</string>
 
     <string name="message_mode">%s %s</string>
     <string name="message_mode_set">set %s</string>

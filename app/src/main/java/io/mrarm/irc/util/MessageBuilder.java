@@ -34,6 +34,7 @@ import io.mrarm.chatlib.dto.NickChangeMessageInfo;
 import io.mrarm.chatlib.dto.NickWithPrefix;
 import io.mrarm.chatlib.dto.StatusMessageInfo;
 import io.mrarm.chatlib.dto.TopicWhoTimeMessageInfo;
+import io.mrarm.chatlib.dto.WhoisStatusMessageInfo;
 import io.mrarm.irc.MessageFormatSettingsActivity;
 import io.mrarm.irc.R;
 import io.mrarm.irc.config.SettingsHelper;
@@ -409,6 +410,12 @@ public class MessageBuilder {
             text = mContext.getString(R.string.message_ctcp_ping);
         } else if (message.getType() == StatusMessageInfo.MessageType.CTCP_VERSION) {
             text = mContext.getString(R.string.message_ctcp_version);
+        } else if (message.getType() == StatusMessageInfo.MessageType.WHOIS) {
+            SpannableString str = new SpannableString(mContext.getString(R.string.message_whois,
+                    ((WhoisStatusMessageInfo) message).getWhoisInfo().getNick()));
+            str.setSpan(new ForegroundColorSpan(mContext.getResources().getColor(
+                    R.color.motdColor)), 0, str.length(), Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+            text = str;
         } else {
             text = IRCColorUtils.getFormattedString(mContext, message.getMessage());
         }

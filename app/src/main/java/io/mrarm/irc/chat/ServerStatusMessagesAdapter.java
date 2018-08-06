@@ -1,5 +1,6 @@
 package io.mrarm.irc.chat;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
@@ -16,7 +17,11 @@ import java.util.Set;
 
 import io.mrarm.chatlib.dto.StatusMessageInfo;
 import io.mrarm.chatlib.dto.StatusMessageList;
+import io.mrarm.chatlib.dto.WhoisStatusMessageInfo;
+import io.mrarm.irc.MainActivity;
 import io.mrarm.irc.R;
+import io.mrarm.irc.ServerConnectionInfo;
+import io.mrarm.irc.dialog.UserBottomSheetDialog;
 import io.mrarm.irc.util.AlignToPointSpan;
 import io.mrarm.irc.util.IRCColorUtils;
 import io.mrarm.irc.util.MessageBuilder;
@@ -26,12 +31,15 @@ public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerVi
     private static final int TYPE_MESSAGE = 0;
     private static final int TYPE_EXPANDABLE_MESSAGE = 1;
 
+    private ServerConnectionInfo mConnection;
     private StatusMessageList mMessages;
     private Set<StatusMessageInfo> mExpandedMessages;
     private Typeface mTypeface;
     private int mFontSize;
 
-    public ServerStatusMessagesAdapter(StatusMessageList messages) {
+    public ServerStatusMessagesAdapter(ServerConnectionInfo connection,
+                                       StatusMessageList messages) {
+        mConnection = connection;
         setMessages(messages);
     }
 
@@ -87,7 +95,9 @@ public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerVi
 
     @Override
     public int getItemViewType(int position) {
-        if (mMessages.getMessages().get(position).getType() == StatusMessageInfo.MessageType.MOTD)
+        StatusMessageInfo.MessageType type = mMessages.getMessages().get(position).getType();
+        if (type == StatusMessageInfo.MessageType.MOTD ||
+                type == StatusMessageInfo.MessageType.WHOIS)
             return TYPE_EXPANDABLE_MESSAGE;
         return TYPE_MESSAGE;
     }
@@ -139,7 +149,17 @@ public class ServerStatusMessagesAdapter extends RecyclerView.Adapter<RecyclerVi
             mExpandedText.setTypeface(Typeface.MONOSPACE);
 
             v.setOnClickListener((View view) -> {
-                mAdapter.toggleExpandItem(mPosition);
+                StatusMessageInfo msg = mMessages.getMessages().get(mPosition);
+                if (msg instanceof WhoisStatusMessageInfo) {
+                    UserBottomSheetDialog dialog = new UserBottomSheetDialog(view.getContext());
+                    dialog.setConnection(mConnection);
+                    dialog.setData(((WhoisStatusMessageInfo) msg).getWhoisInfo());
+                    Dialog d = dialog.show();
+                    if (view.getContext() instanceof MainActivity)
+                        ((MainActivity) view.getContext()).setFragmentDialog(d);
+                } else {
+                    mAdapter.toggleExpandItem(mPosition);
+                }
             });
         }
 

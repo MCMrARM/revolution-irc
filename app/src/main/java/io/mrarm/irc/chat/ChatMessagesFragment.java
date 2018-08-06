@@ -167,7 +167,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
 
             reloadMessages(settingsHelper);
         } else if (getArguments().getBoolean(ARG_DISPLAY_STATUS)) {
-            mStatusAdapter = new ServerStatusMessagesAdapter(new StatusMessageList(new ArrayList<>()));
+            mStatusAdapter = new ServerStatusMessagesAdapter(mConnection, new StatusMessageList(new ArrayList<>()));
             mStatusAdapter.setMessageFont(settingsHelper.getChatFont(), settingsHelper.getChatFontSize());
 
             Log.i(TAG, "Request status message list");
