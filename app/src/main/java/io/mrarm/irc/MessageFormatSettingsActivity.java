@@ -206,6 +206,7 @@ public class MessageFormatSettingsActivity extends ThemedActivity {
         mMessageFormatEventExample = findViewById(R.id.message_format_event_example);
         mMessageFormatEventHostname = findViewById(R.id.message_format_event_hostname);
         mMessageFormatEvent.setText(mMessageBuilder.getEventMessageFormat());
+        mMessageFormatEventHostname.setChecked(mMessageBuilder.getEventMessageShowHostname());
         setupFormatEntry(mMessageFormatEvent, R.id.message_format_event_preset, (Editable s) -> {
             mMessageBuilder.setEventMessageFormat(prepareFormat(s));
             refreshExamples();
