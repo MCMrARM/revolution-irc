@@ -55,13 +55,13 @@ public class NotificationManager {
         }
     }
 
-    public boolean doesMessageTriggerNotitification(ServerConnectionInfo connection, String channel,
-                                                    MessageInfo info) {
+    public boolean shouldMessageUseMentionFormatting(ServerConnectionInfo connection,
+                                                     String channel, MessageInfo info) {
         if (info.getMessage() == null || info.getSender() == null ||
                 info.getSender().getNick().equals(connection.getUserNick()))
             return false;
         NotificationRule rule = findNotificationRule(connection, channel, info);
-        return (rule != null && !rule.settings.noNotification);
+        return (rule != null && rule.settings.mentionFormatting);
     }
 
     public void clearAllNotifications(Context context, ServerConnectionInfo connection) {

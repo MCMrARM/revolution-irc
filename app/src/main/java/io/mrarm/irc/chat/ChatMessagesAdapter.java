@@ -184,7 +184,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 mText.setTextSize(TypedValue.COMPLEX_UNIT_SP, mFontSize);
 
             setSelected(selected, false);
-            if (NotificationManager.getInstance().doesMessageTriggerNotitification(mFragment.getConnectionInfo(), mFragment.getChannelName(), message))
+            if (NotificationManager.getInstance().shouldMessageUseMentionFormatting(mFragment.getConnectionInfo(), mFragment.getChannelName(), message))
                 mText.setText(AlignToPointSpan.apply(mText, MessageBuilder.getInstance(mText.getContext()).buildMessageWithMention(message)));
             else
                 mText.setText(AlignToPointSpan.apply(mText, MessageBuilder.getInstance(mText.getContext()).buildMessage(message)));

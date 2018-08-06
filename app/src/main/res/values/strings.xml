@@ -405,6 +405,7 @@
     </plurals>
 
     <string name="notification_header_options">Options</string>
+    <string name="notification_mention">Use mention formatting</string>
     <string name="notification_show">Show notification</string>
     <string name="notification_sound">Sound</string>
     <string name="notification_vibration">Vibration</string>

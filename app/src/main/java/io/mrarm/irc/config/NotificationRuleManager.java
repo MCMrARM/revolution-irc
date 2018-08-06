@@ -31,6 +31,10 @@ public class NotificationRuleManager {
 
     private static class UserRuleSettings {
 
+        private static int CURRENT_VERSION = 1;
+
+        private int version;
+
         public boolean zncPlaybackRuleEnabled = true;
         public NotificationSettings nickMentionRuleSettings;
         public NotificationSettings directMessageRuleSettings;
@@ -46,7 +50,9 @@ public class NotificationRuleManager {
         sDefaultBottomRules = new ArrayList<>();
         sNickMentionRule = new NotificationRule(R.string.notification_rule_nick, NotificationRule.AppliesToEntry.channelEvents(), "(^|[ ,:;@])${nick}($|[ ,:;'?])", true);
         sDirectMessageRule = new NotificationRule(R.string.notification_rule_direct, NotificationRule.AppliesToEntry.directMessages(), null);
+        sDirectMessageRule.settings.mentionFormatting = false;
         sDirectNoticeRule = new NotificationRule(R.string.notification_rule_notice, NotificationRule.AppliesToEntry.directNotices(), null);
+        sDirectNoticeRule.settings.mentionFormatting = false;
         sChannelNoticeRule = new NotificationRule(R.string.notification_rule_chan_notice, NotificationRule.AppliesToEntry.channelNotices(), null);
         sZNCPlaybackRule = new NotificationRule(R.string.notification_rule_zncplayback, createZNCPlaybackAppliesToEntry(), null);
         sZNCPlaybackRule.settings.noNotification = true;
@@ -66,6 +72,11 @@ public class NotificationRuleManager {
         sDirectMessageRule.settings = settings.directMessageRuleSettings;
         sDirectNoticeRule.settings = settings.directNoticeRuleSettings;
         sChannelNoticeRule.settings = settings.channelNoticeRuleSettings;
+        if (settings.version == 0) {
+            // set the mentionFormatting to false for the direct message rules
+            sDirectMessageRule.settings.mentionFormatting = false;
+            sDirectNoticeRule.settings.mentionFormatting = false;
+        }
         sUserRules = settings.userRules;
     }
 
@@ -86,6 +97,7 @@ public class NotificationRuleManager {
 
     public static void saveUserRuleSettings(Context context, Writer writer) {
         UserRuleSettings settings = new UserRuleSettings();
+        settings.version = UserRuleSettings.CURRENT_VERSION;
         settings.userRules = getUserRules(context);
         settings.zncPlaybackRuleEnabled = sZNCPlaybackRule.settings.enabled;
         settings.nickMentionRuleSettings = sNickMentionRule.settings;

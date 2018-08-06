@@ -62,6 +62,7 @@ public class EditNotificationSettingsActivity extends ThemedActivity {
     BasicEntry mBasicEntry;
     MatchEntry mMatchEntry;
     CheckBoxSetting mShowNotificationEntry;
+    CheckBoxSetting mUseMentionFormattingEntry;
     RingtoneSetting mSoundEntry;
     ListSetting mVibrationEntry;
     int[] mVibrationOptions;
@@ -97,6 +98,7 @@ public class EditNotificationSettingsActivity extends ThemedActivity {
 
         mBasicEntry = new BasicEntry();
         mMatchEntry = new MatchEntry();
+        mUseMentionFormattingEntry = new CheckBoxSetting(getString(R.string.notification_mention), true);
         mShowNotificationEntry = new CheckBoxSetting(getString(R.string.notification_show), true);
         mSoundEntry = new RingtoneSetting(mAdapter, getString(R.string.notification_sound), RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
         mVibrationOptions = getResources().getIntArray(R.array.notification_vibration_option_values);
@@ -129,6 +131,7 @@ public class EditNotificationSettingsActivity extends ThemedActivity {
             }
 
             mMatchEntry.mCaseSensitive = mEditingRule.isRegexCaseInsensitive();
+            mUseMentionFormattingEntry.setChecked(mEditingRule.settings.mentionFormatting);
             mShowNotificationEntry.setChecked(!mEditingRule.settings.noNotification);
             if (mEditingRule.settings.soundEnabled)
                 mSoundEntry.setValue((mEditingRule.settings.soundUri == null ? RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION) : Uri.parse(mEditingRule.settings.soundUri)));
@@ -168,6 +171,7 @@ public class EditNotificationSettingsActivity extends ThemedActivity {
             mAdapter.add(new AddRuleEntry());
         }
         mAdapter.add(new SettingsHeader(getString(R.string.notification_header_options)));
+        mAdapter.add(mUseMentionFormattingEntry);
         mAdapter.add(mShowNotificationEntry);
         mAdapter.add(mSoundEntry);
         mAdapter.add(mVibrationEntry);
@@ -270,6 +274,7 @@ public class EditNotificationSettingsActivity extends ThemedActivity {
         }
 
         // options
+        mEditingRule.settings.mentionFormatting = mUseMentionFormattingEntry.isChecked();
         mEditingRule.settings.noNotification = !mShowNotificationEntry.isChecked();
         rule.settings.lightEnabled = (mColorEntry.getSelectedColorIndex() != 0);
         if (rule.settings.lightEnabled)
