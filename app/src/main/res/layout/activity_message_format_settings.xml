@@ -177,6 +177,15 @@
                 android:id="@+id/message_format_event_example"
                 style="@style/MessageFormatSettingsExampleText" />
 
+            <CheckBox
+                android:id="@+id/message_format_event_hostname"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/message_format_event_hostname"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin_s4"
+                android:layout_marginRight="@dimen/activity_horizontal_margin_s4"
+                android:layout_marginTop="8dp" />
+
             <View style="@style/MessageFormatSettingsDivider" />
 
         </LinearLayout>

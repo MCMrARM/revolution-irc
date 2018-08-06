@@ -59,6 +59,7 @@ public class MessageFormatSettingsActivity extends ThemedActivity {
     private TextView mMessageFormatNoticeExample;
     private FormattableEditText mMessageFormatEvent;
     private TextView mMessageFormatEventExample;
+    private CheckBox mMessageFormatEventHostname;
     private TextFormatBar mTextFormatBar;
 
     private MessageSenderInfo mTestSender;
@@ -203,6 +204,7 @@ public class MessageFormatSettingsActivity extends ThemedActivity {
 
         mMessageFormatEvent = findViewById(R.id.message_format_event);
         mMessageFormatEventExample = findViewById(R.id.message_format_event_example);
+        mMessageFormatEventHostname = findViewById(R.id.message_format_event_hostname);
         mMessageFormatEvent.setText(mMessageBuilder.getEventMessageFormat());
         setupFormatEntry(mMessageFormatEvent, R.id.message_format_event_preset, (Editable s) -> {
             mMessageBuilder.setEventMessageFormat(prepareFormat(s));
@@ -211,13 +213,17 @@ public class MessageFormatSettingsActivity extends ThemedActivity {
                 buildEventPresetMessageFormat(this, 0),
                 buildEventPresetMessageFormat(this, 1)
         });
+        mMessageFormatEventHostname.setOnCheckedChangeListener((CompoundButton b, boolean ch) -> {
+            mMessageBuilder.setEventMessageShowHostname(ch);
+            refreshExamples();
+        });
 
         refreshExamples();
     }
 
     private void refreshExamples() {
         if (mTestSender == null) {
-            mTestSender = new MessageSenderInfo(getString(R.string.message_example_sender), "", "", null, null);
+            mTestSender = new MessageSenderInfo(getString(R.string.message_example_sender), "user", "test/host", null, null);
             Date date = getSampleMessageTime();
             mSampleMessage = new MessageInfo(mTestSender, date, getString(R.string.message_example_message), MessageInfo.MessageType.NORMAL);
             mSampleActionMessage = new MessageInfo(mTestSender, date, getString(R.string.message_example_message), MessageInfo.MessageType.ME);
@@ -243,6 +249,7 @@ public class MessageFormatSettingsActivity extends ThemedActivity {
         global.setActionMentionMessageFormat(mMessageBuilder.getActionMentionMessageFormat());
         global.setNoticeMessageFormat(mMessageBuilder.getNoticeMessageFormat());
         global.setEventMessageFormat(mMessageBuilder.getEventMessageFormat());
+        global.setEventMessageShowHostname(mMessageBuilder.getEventMessageShowHostname());
         global.saveFormats();
     }
 

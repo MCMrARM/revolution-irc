@@ -30,6 +30,7 @@ import io.mrarm.chatlib.dto.ChannelModeMessageInfo;
 import io.mrarm.chatlib.dto.HostInfoMessageInfo;
 import io.mrarm.chatlib.dto.KickMessageInfo;
 import io.mrarm.chatlib.dto.MessageInfo;
+import io.mrarm.chatlib.dto.MessageSenderInfo;
 import io.mrarm.chatlib.dto.NickChangeMessageInfo;
 import io.mrarm.chatlib.dto.NickWithPrefix;
 import io.mrarm.chatlib.dto.StatusMessageInfo;
@@ -65,6 +66,7 @@ public class MessageBuilder {
     private CharSequence mActionMentionMessageFormat;
     private CharSequence mNoticeMessageFormat;
     private CharSequence mEventMessageFormat;
+    private boolean mEventMessageShowHostname = false;
 
     public static SpannableString buildDefaultMessageFormat(Context context) {
         return MessageFormatSettingsActivity.buildPresetMessageFormat(context, 0, false, false);
@@ -175,6 +177,7 @@ public class MessageBuilder {
         mEventMessageFormat = getMessageFormat(mgr, SettingsHelper.PREF_MESSAGE_FORMAT_EVENT);
         if (mEventMessageFormat == null)
             mEventMessageFormat = buildDefaultEventMessageFormat(context);
+        mEventMessageShowHostname = mgr.getBoolean(SettingsHelper.PREF_MESSAGE_FORMAT_EVENT_HOSTNAME, mEventMessageShowHostname);
     }
 
     public void saveFormats() {
@@ -187,6 +190,7 @@ public class MessageBuilder {
         mgr.putString(SettingsHelper.PREF_MESSAGE_FORMAT_ACTION_MENTION, SettingsHelper.getGson().toJson(spannableToJson(mActionMentionMessageFormat)));
         mgr.putString(SettingsHelper.PREF_MESSAGE_FORMAT_NOTICE, SettingsHelper.getGson().toJson(spannableToJson(mNoticeMessageFormat)));
         mgr.putString(SettingsHelper.PREF_MESSAGE_FORMAT_EVENT, SettingsHelper.getGson().toJson(spannableToJson(mEventMessageFormat)));
+        mgr.putBoolean(SettingsHelper.PREF_MESSAGE_FORMAT_EVENT_HOSTNAME, mEventMessageShowHostname);
         mgr.apply();
     }
 
@@ -266,6 +270,14 @@ public class MessageBuilder {
         mEventMessageFormat = format;
     }
 
+    public boolean getEventMessageShowHostname() {
+        return mEventMessageShowHostname;
+    }
+
+    public void setEventMessageShowHostname(boolean enabled) {
+        mEventMessageShowHostname = enabled;
+    }
+
     public CharSequence createTimestamp(Date date, boolean addDefaultColorSpan) {
         String ds = getMessageTimeFormat().format(date);
         if (!mMessageTimeFixedWidth && !addDefaultColorSpan)
@@ -296,6 +308,20 @@ public class MessageBuilder {
         return buildColoredMessage(nick, IRCColorUtils.getNickColor(mContext, nick), false);
     }
 
+    private CharSequence buildColoredNickWithHostname(MessageSenderInfo sender) {
+        if (!mEventMessageShowHostname || sender == null)
+            return buildColoredNick(sender == null ? null : sender.getNick());
+
+        String nick = sender.getNick();
+        int color = IRCColorUtils.getNickColor(mContext, nick);
+        SpannableString spannable = new SpannableString(nick +
+                (sender.getUser() != null ? "!" + sender.getUser() : 0) +
+                (sender.getHost() != null ? "@" + sender.getHost() : 0));
+        spannable.setSpan(new ForegroundColorSpan(color), 0, nick.length(),
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return spannable;
+    }
+
     public CharSequence buildMessage(MessageInfo message) {
         String senderNick = message.getSender() == null ? null : message.getSender().getNick();
         switch (message.getType()) {
@@ -310,12 +336,13 @@ public class MessageBuilder {
                         LinkHelper.addLinks(IRCColorUtils.getFormattedString(mContext, message.getMessage())));
             case JOIN:
                 return processFormat(mEventMessageFormat, message.getDate(), null,
-                        SpannableStringHelper.getText(mContext, R.string.message_join, buildColoredNick(senderNick)));
+                        SpannableStringHelper.getText(mContext, R.string.message_join,
+                                buildColoredNickWithHostname(message.getSender())));
             case PART:
                 return processFormat(mEventMessageFormat, message.getDate(), null,
                         SpannableStringHelper.getText(mContext,
                                 message.getMessage() == null ? R.string.message_part_no_message : R.string.message_part,
-                                buildColoredNick(senderNick), message.getMessage()));
+                                buildColoredNickWithHostname(message.getSender()), message.getMessage()));
             case KICK: {
                 String kickedNick = ((KickMessageInfo) message).getKickedNick();
                 return processFormat(mEventMessageFormat, message.getDate(), null,
@@ -326,10 +353,13 @@ public class MessageBuilder {
             }
             case QUIT:
                 return processFormat(mEventMessageFormat, message.getDate(), null,
-                        SpannableStringHelper.getText(mContext, R.string.message_quit, buildColoredNick(senderNick), message.getMessage()));
+                        SpannableStringHelper.getText(mContext, R.string.message_quit,
+                                buildColoredNickWithHostname(message.getSender()), message.getMessage()));
             case NICK_CHANGE: {
                 String newNick = ((NickChangeMessageInfo) message).getNewNick();
-                SpannableStringBuilder ssb = (SpannableStringBuilder) SpannableStringHelper.getText(mContext, R.string.message_nick_change, buildColoredNick(senderNick), buildColoredNick(newNick));
+                SpannableStringBuilder ssb = (SpannableStringBuilder)
+                        SpannableStringHelper.getText(mContext, R.string.message_nick_change,
+                                buildColoredNick(senderNick), buildColoredNick(newNick));
                 return processFormat(mEventMessageFormat, message.getDate(), null,
                         ssb);
             }
