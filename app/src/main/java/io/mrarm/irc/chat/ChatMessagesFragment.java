@@ -190,6 +190,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         settingsHelper.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT, this);
         settingsHelper.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT_SIZE, this);
         settingsHelper.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_HIDE_JOIN_PART, this);
+        // it's enough to only register to the last format preference, as all preferences are always rewritten
+        settingsHelper.addPreferenceChangeListener(SettingsHelper.PREF_MESSAGE_FORMAT_EVENT_HOSTNAME, this);
     }
 
     @Override
@@ -200,6 +202,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         s.removePreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT, this);
         s.removePreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT_SIZE, this);
         s.removePreferenceChangeListener(SettingsHelper.PREF_CHAT_HIDE_JOIN_PART, this);
+        s.removePreferenceChangeListener(SettingsHelper.PREF_MESSAGE_FORMAT_EVENT_HOSTNAME, this);
 
         if (mNeedsUnsubscribeChannelInfo)
             mConnection.getApiInstance().unsubscribeChannelInfo(getArguments().getString(ARG_CHANNEL_NAME), ChatMessagesFragment.this, null, null);
