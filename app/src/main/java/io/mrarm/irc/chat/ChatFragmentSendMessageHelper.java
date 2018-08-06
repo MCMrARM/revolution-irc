@@ -50,6 +50,7 @@ public class ChatFragmentSendMessageHelper implements SendMessageHelper.Callback
     private ChatFragment mFragment;
     private View mSendContainer;
     private ChatAutoCompleteEditText mSendText;
+    private AutoMultilineTextListener mSendTextMultilineHelper;
     private ChatSuggestionsAdapter mChannelMembersListAdapter;
     private View mFormatBarDivider;
     private TextFormatBar mFormatBar;
@@ -100,7 +101,8 @@ public class ChatFragmentSendMessageHelper implements SendMessageHelper.Callback
 
         ImageViewTintUtils.setTint(mSendIcon, 0x54000000);
 
-        mSendText.addTextChangedListener(new AutoMultilineTextListener(mSendText));
+        mSendTextMultilineHelper = new AutoMultilineTextListener(mSendText);
+        mSendText.addTextChangedListener(mSendTextMultilineHelper);
         mSendText.addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
             if (s.length() > 0)
                 ImageViewTintUtils.setTint(mSendIcon, ThemeHelper.getAccentColor(mFragment.getContext()));
@@ -184,6 +186,10 @@ public class ChatFragmentSendMessageHelper implements SendMessageHelper.Callback
 
         if (wasMultiline)
             mSendText.setInputType(mSendText.getInputType() | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+    }
+
+    public void setAlwaysMultiline(boolean multiline) {
+        mSendTextMultilineHelper.setAlwaysMultiline(multiline);
     }
 
     public void setCurrentChannelMembers(List<NickWithPrefix> members) {

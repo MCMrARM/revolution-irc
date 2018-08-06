@@ -82,7 +82,10 @@ public class InterfaceSettingsFragment extends SettingsListFragment
                             new AutocompletePreferenceFragment());
                 });
         a.add(mAutocompleteItem);
-        a.add(new ListSetting(getString(R.string.pref_title_chat_history_swipe_mode),
+        a.add(new CheckBoxSetting(getString(R.string.pref_title_chat_box_always_multiline),
+                getString(R.string.pref_summary_chat_box_always_multiline), true)
+                .linkPreference(prefs, SettingsHelper.PREF_CHAT_SEND_BOX_ALWAYS_MULTILINE));
+        a.add(new ListSetting(getString(R.string.pref_title_chat_box_history_swipe_mode),
                 getResources().getStringArray(R.array.pref_entries_chat_history_swipe_mode),
                 getResources().getStringArray(R.array.pref_entry_values_chat_history_swipe_mode),
                 SettingsHelper.SWIPE_LEFT_TO_RIGHT)

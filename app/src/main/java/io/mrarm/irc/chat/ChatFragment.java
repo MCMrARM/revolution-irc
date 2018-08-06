@@ -150,12 +150,14 @@ public class ChatFragment extends Fragment implements
         s.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_APPBAR_COMPACT_MODE, this);
         s.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_TEXT_AUTOCORRECT, this);
         s.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT, this);
+        s.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_SEND_BOX_ALWAYS_MULTILINE, this);
         s.addPreferenceChangeListener(SettingsHelper.PREF_NICK_AUTOCOMPLETE_SHOW_BUTTON, this);
         s.addPreferenceChangeListener(SettingsHelper.PREF_NICK_AUTOCOMPLETE_DOUBLE_TAP, this);
 
         mSendHelper.setTabButtonVisible(s.isNickAutocompleteButtonVisible());
         mSendHelper.setMessageFieldTypeface(s.getChatFont());
         mSendHelper.setAutocorrectEnabled(s.isChatAutocorrectEnabled());
+        mSendHelper.setAlwaysMultiline(s.isChatSendBoxAlwaysMuliline());
 
         return rootView;
     }
@@ -199,6 +201,7 @@ public class ChatFragment extends Fragment implements
             mSendHelper.setTabButtonVisible(s.isNickAutocompleteButtonVisible());
             mSendHelper.setMessageFieldTypeface(s.getChatFont());
             mSendHelper.setAutocorrectEnabled(s.isChatAutocorrectEnabled());
+            mSendHelper.setAlwaysMultiline(s.isChatSendBoxAlwaysMuliline());
         }
     }
 

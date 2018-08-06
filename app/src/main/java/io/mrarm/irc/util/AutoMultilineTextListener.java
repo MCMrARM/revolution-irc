@@ -14,9 +14,26 @@ public class AutoMultilineTextListener implements TextWatcher {
     private EditText mEditText;
     private boolean mMultiline = false;
     private boolean mPossiblyNotMultiline = false;
+    private boolean mAlwaysMultiline = false;
 
     public AutoMultilineTextListener(EditText editText) {
         mEditText = editText;
+    }
+
+    public void setAlwaysMultiline(boolean multiline) {
+        mAlwaysMultiline = multiline;
+        updateMultilineStatus();
+    }
+
+    private void updateMultilineStatus() {
+        int pos = mEditText.getSelectionStart();
+        if (mMultiline || mAlwaysMultiline)
+            mEditText.setInputType(mEditText.getInputType()
+                    | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+        else
+            mEditText.setInputType(mEditText.getInputType()
+                    & (~InputType.TYPE_TEXT_FLAG_MULTI_LINE));
+        mEditText.setSelection(pos);
     }
 
     @Override
@@ -37,10 +54,7 @@ public class AutoMultilineTextListener implements TextWatcher {
             for (int i = 0; i < count; i++) {
                 if (s.charAt(i) == '\n') {
                     mMultiline = true;
-                    int pos = mEditText.getSelectionStart();
-                    mEditText.setInputType(mEditText.getInputType()
-                            | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
-                    mEditText.setSelection(pos);
+                    updateMultilineStatus();
                     break;
                 }
             }
@@ -59,10 +73,7 @@ public class AutoMultilineTextListener implements TextWatcher {
             }
             if (!found) {
                 mMultiline = false;
-                int pos = mEditText.getSelectionStart();
-                mEditText.setInputType(mEditText.getInputType()
-                        & (~InputType.TYPE_TEXT_FLAG_MULTI_LINE));
-                mEditText.setSelection(pos);
+                updateMultilineStatus();
             }
         }
     }
