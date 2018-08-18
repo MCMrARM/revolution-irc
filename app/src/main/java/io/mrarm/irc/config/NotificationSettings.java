@@ -19,4 +19,6 @@ public class NotificationSettings {
     public boolean soundEnabled = true;
     public String soundUri;
 
+    public String notificationChannelId;
+
 }

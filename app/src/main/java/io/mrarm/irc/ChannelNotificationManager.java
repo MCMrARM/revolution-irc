@@ -1,10 +1,13 @@
 package io.mrarm.irc;
 
+import android.app.NotificationChannel;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioAttributes;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
@@ -23,6 +26,7 @@ import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.irc.chat.SendMessageHelper;
 import io.mrarm.irc.config.NotificationCountStorage;
 import io.mrarm.irc.config.NotificationRule;
+import io.mrarm.irc.config.NotificationRuleManager;
 import io.mrarm.irc.util.ColoredTextBuilder;
 import io.mrarm.irc.util.IRCColorUtils;
 
@@ -130,10 +134,14 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
             lastMessage = mMessages.get(mMessages.size() - 1);
         }
 
+        if (rule.settings.notificationChannelId == null)
+            createChannel(context, rule);
+
         String title = getChannel() + " (" + mConnection.getName() + ")"; // TODO: Move to strings.xml
         RemoteViews notificationsView = createCollapsedMessagesView(context, title, lastMessage);
         RemoteViews notificationsViewBig = createMessagesView(context, title);
-        NotificationCompat.Builder notification = new NotificationCompat.Builder(context);
+        NotificationCompat.Builder notification = new NotificationCompat.Builder(context,
+                rule.settings.notificationChannelId);
         PendingIntent intent = PendingIntent.getActivity(context, mNotificationId,
                 MainActivity.getLaunchIntent(context, mConnection, mChannel),
                 PendingIntent.FLAG_CANCEL_CURRENT);
@@ -190,6 +198,49 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
         }
         notification.setDefaults(defaults);
         NotificationManagerCompat.from(context).notify(mNotificationId, notification.build());
+    }
+
+    public static void createChannel(Context context, NotificationRule rule) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O || rule.settings.noNotification)
+            return;
+        NotificationRuleManager.loadUserRuleSettings(context);
+        String id = rule.settings.notificationChannelId;
+        if (id == null) {
+            id = UUID.randomUUID().toString();
+            rule.settings.notificationChannelId = id;
+            NotificationRuleManager.saveUserRuleSettings(context);
+        }
+        String name = rule.getName();
+        if (name == null)
+            name = context.getString(rule.getNameId());
+        NotificationChannel channel = new NotificationChannel(id, name,
+                android.app.NotificationManager.IMPORTANCE_HIGH);
+        if (rule.getNameId() != -1)
+            channel.setGroup(NotificationManager.getDefaultNotificationChannelGroup(context));
+        else
+            channel.setGroup(NotificationManager.getUserNotificationChannelGroup(context));
+        if (rule.settings.soundEnabled) {
+            if (rule.settings.soundUri != null)
+                channel.setSound(Uri.parse(rule.settings.soundUri), new AudioAttributes.Builder()
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .setUsage(AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT)
+                        .build());
+        } else {
+            channel.setSound(null, null);
+        }
+        if (rule.settings.vibrationEnabled) {
+            channel.enableVibration(true);
+            if (rule.settings.vibrationDuration != 0)
+                channel.setVibrationPattern(new long[]{0, rule.settings.vibrationDuration});
+        }
+        if (rule.settings.lightEnabled) {
+            channel.enableLights(true);
+            if (rule.settings.light != 0)
+                channel.setLightColor(rule.settings.light);
+        }
+        android.app.NotificationManager mgr = (android.app.NotificationManager)
+                context.getSystemService(Context.NOTIFICATION_SERVICE);
+        mgr.createNotificationChannel(channel);
     }
 
     void cancelNotification(Context context) {

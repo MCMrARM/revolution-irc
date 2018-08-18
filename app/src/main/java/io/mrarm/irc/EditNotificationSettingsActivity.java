@@ -1,10 +1,13 @@
 package io.mrarm.irc;
 
+import android.app.NotificationChannel;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.content.res.AppCompatResources;
@@ -37,6 +40,7 @@ import io.mrarm.irc.config.NotificationRule;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.setting.CheckBoxSetting;
+import io.mrarm.irc.setting.ClickableSetting;
 import io.mrarm.irc.setting.ColorListSetting;
 import io.mrarm.irc.setting.ListSetting;
 import io.mrarm.irc.setting.RingtoneSetting;
@@ -54,6 +58,7 @@ public class EditNotificationSettingsActivity extends ThemedActivity {
 
     SettingsListAdapter mAdapter;
     SimpleCounter mRequestCodeCounter = new SimpleCounter(1);
+    int mAndroidNotSettingsReqCode = mRequestCodeCounter.next();
 
     NotificationRule mEditingRule;
     boolean mEditingDefaultRule = false;
@@ -133,28 +138,8 @@ public class EditNotificationSettingsActivity extends ThemedActivity {
             mMatchEntry.mCaseSensitive = mEditingRule.isRegexCaseInsensitive();
             mUseMentionFormattingEntry.setChecked(mEditingRule.settings.mentionFormatting);
             mShowNotificationEntry.setChecked(!mEditingRule.settings.noNotification);
-            if (mEditingRule.settings.soundEnabled)
-                mSoundEntry.setValue((mEditingRule.settings.soundUri == null ? RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION) : Uri.parse(mEditingRule.settings.soundUri)));
-            else
-                mSoundEntry.setValue(null);
-            int vibrationOption;
-            if (mEditingRule.settings.vibrationEnabled)
-                vibrationOption = (mEditingRule.settings.vibrationDuration == 0 ? -1 : mEditingRule.settings.vibrationDuration);
-            else
-                vibrationOption = 0;
-            int vibrationOptionIndex = 0;
-            for (int i = mVibrationOptions.length - 1; i >= 0; i--) {
-                if (mVibrationOptions[i] == vibrationOption) {
-                    vibrationOptionIndex = i;
-                    break;
-                }
-            }
-            mVibrationEntry.setSelectedOption(vibrationOptionIndex);
-            mPriorityEntry.setSelectedOption(mEditingRule.settings.priority + 1);
-            if (mEditingRule.settings.lightEnabled)
-                mColorEntry.setSelectedColor(mEditingRule.settings.light);
-            else
-                mColorEntry.setSelectedColorIndex(0);
+
+            loadOptions();
         }
 
         if (!mEditingDefaultRule) {
@@ -175,14 +160,121 @@ public class EditNotificationSettingsActivity extends ThemedActivity {
         mAdapter.add(mShowNotificationEntry);
         mAdapter.add(mSoundEntry);
         mAdapter.add(mVibrationEntry);
-        mAdapter.add(mPriorityEntry);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
+            mAdapter.add(mPriorityEntry);
         mAdapter.add(mColorEntry);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && mEditingRule != null) {
+            mAdapter.add(new ClickableSetting(getString(
+                    R.string.notification_android_settings_link), null)
+                    .setOnClickListener((View v) -> {
+                        if (mEditingRule.settings.notificationChannelId == null)
+                            ChannelNotificationManager.createChannel(this, mEditingRule);
+
+                        Intent intent = new Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS);
+                        intent.putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName());
+                        intent.putExtra(Settings.EXTRA_CHANNEL_ID,
+                                mEditingRule.settings.notificationChannelId);
+                        startActivityForResult(intent, mAndroidNotSettingsReqCode);
+                    }));
+        }
         mRecyclerView.setAdapter(mAdapter);
 
         onShowNotificationSettingUpdated();
         mShowNotificationEntry.addListener((EntryRecyclerViewAdapter.Entry entry) -> {
             onShowNotificationSettingUpdated();
         });
+    }
+
+    @SuppressWarnings("DoubleNegation")
+    private boolean hasNotificationRuleChanges() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O ||
+                mEditingRule == null || mEditingRule.settings.notificationChannelId == null)
+            return false;
+        android.app.NotificationManager mgr = (android.app.NotificationManager)
+                getSystemService(NOTIFICATION_SERVICE);
+        NotificationChannel channel =
+                mgr.getNotificationChannel(mEditingRule.settings.notificationChannelId);
+
+        Uri soundUri = mSoundEntry.getValue();
+        if (channel.getSound() != soundUri &&
+                (channel.getSound() == null || !channel.getSound().equals(soundUri)))
+            return true;
+
+        int vibrationDuration = mVibrationOptions[mVibrationEntry.getSelectedOption()];
+        if (channel.shouldVibrate() != (vibrationDuration != 0))
+            return true;
+        if (channel.shouldVibrate()) {
+            int channelVibrationDuration = channel.getVibrationPattern() == null ||
+                    channel.getVibrationPattern().length != 2
+                    ? -1 : (int) channel.getVibrationPattern()[1];
+            if (channelVibrationDuration != vibrationDuration)
+                return true;
+        }
+
+        if (channel.shouldShowLights() != (mColorEntry.getSelectedColorIndex() != 0))
+            return true;
+        //noinspection RedundantIfStatement
+        if (channel.shouldShowLights() && channel.getLightColor() !=
+                (mColorEntry.getSelectedColorIndex() == -1 ? 0 : mColorEntry.getSelectedColor()))
+            return true;
+
+        return false;
+    }
+
+    private void loadOptions() {
+        loadNotificationRuleSettings();
+
+        if (mEditingRule.settings.soundEnabled)
+            mSoundEntry.setValue((mEditingRule.settings.soundUri == null
+                    ? RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+                    : Uri.parse(mEditingRule.settings.soundUri)));
+        else
+            mSoundEntry.setValue(null);
+        int vibrationOption;
+        if (mEditingRule.settings.vibrationEnabled)
+            vibrationOption = (mEditingRule.settings.vibrationDuration == 0
+                    ? -1 : mEditingRule.settings.vibrationDuration);
+        else
+            vibrationOption = 0;
+        int vibrationOptionIndex = 0;
+        for (int i = mVibrationOptions.length - 1; i >= 0; i--) {
+            if (mVibrationOptions[i] == vibrationOption) {
+                vibrationOptionIndex = i;
+                break;
+            }
+        }
+        mVibrationEntry.setSelectedOption(vibrationOptionIndex);
+        mPriorityEntry.setSelectedOption(mEditingRule.settings.priority + 1);
+        if (mEditingRule.settings.lightEnabled)
+            mColorEntry.setSelectedColor(mEditingRule.settings.light);
+        else
+            mColorEntry.setSelectedColorIndex(0);
+    }
+
+    private void loadNotificationRuleSettings() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O ||
+                mEditingRule == null || mEditingRule.settings.notificationChannelId == null)
+            return;
+        android.app.NotificationManager mgr = (android.app.NotificationManager)
+                getSystemService(NOTIFICATION_SERVICE);
+        NotificationChannel channel =
+                mgr.getNotificationChannel(mEditingRule.settings.notificationChannelId);
+
+        mEditingRule.settings.soundEnabled = channel.getSound() != null;
+        mEditingRule.settings.soundUri = null;
+        if (channel.getSound() != null && !channel.getSound().equals(
+                RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)))
+            mEditingRule.settings.soundUri = channel.getSound().toString();
+
+        mEditingRule.settings.vibrationEnabled = channel.shouldVibrate();
+        if (channel.shouldVibrate())
+            mEditingRule.settings.vibrationDuration = channel.getVibrationPattern() == null ||
+                    channel.getVibrationPattern().length != 2
+                    ? 0 : (int) channel.getVibrationPattern()[1];
+
+        mEditingRule.settings.lightEnabled = channel.shouldShowLights();
+        if (channel.shouldShowLights())
+            mEditingRule.settings.light = channel.getLightColor();
     }
 
     private static String unescapeRegex(String regex) {
@@ -273,6 +365,14 @@ public class EditNotificationSettingsActivity extends ThemedActivity {
             rule.setAppliesTo(appliesTo);
         }
 
+        if (hasNotificationRuleChanges() && mEditingRule.settings.notificationChannelId != null &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            android.app.NotificationManager mgr = (android.app.NotificationManager)
+                    getSystemService(NOTIFICATION_SERVICE);
+            mgr.deleteNotificationChannel(mEditingRule.settings.notificationChannelId);
+            mEditingRule.settings.notificationChannelId = null;
+        }
+
         // options
         mEditingRule.settings.mentionFormatting = mUseMentionFormattingEntry.isChecked();
         mEditingRule.settings.noNotification = !mShowNotificationEntry.isChecked();
@@ -289,6 +389,8 @@ public class EditNotificationSettingsActivity extends ThemedActivity {
         rule.settings.soundUri = null;
         if (soundUri != null && soundUri != RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
             rule.settings.soundUri = soundUri.toString();
+
+        ChannelNotificationManager.createChannel(this, mEditingRule);
         return true;
     }
 
@@ -304,12 +406,18 @@ public class EditNotificationSettingsActivity extends ThemedActivity {
             }
             NotificationRuleManager.getUserRules(this).add(mEditingRule);
         }
+
         NotificationRuleManager.saveUserRuleSettings(this);
         return true;
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == mAndroidNotSettingsReqCode) {
+            if (hasNotificationRuleChanges())
+                loadOptions();
+            return;
+        }
         mAdapter.onActivityResult(requestCode, resultCode, data);
     }
 

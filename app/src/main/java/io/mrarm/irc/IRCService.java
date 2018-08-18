@@ -47,6 +47,19 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
         context.stopService(new Intent(context, IRCService.class));
     }
 
+    public static void createNotificationChannel(Context ctx) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
+            return;
+        NotificationChannel channel = new NotificationChannel(IDLE_NOTIFICATION_CHANNEL,
+                ctx.getString(R.string.notification_channel_idle),
+                android.app.NotificationManager.IMPORTANCE_MIN);
+        channel.setGroup(NotificationManager.getDefaultNotificationChannelGroup(ctx));
+        channel.setShowBadge(false);
+        android.app.NotificationManager mgr = (android.app.NotificationManager)
+                ctx.getSystemService(NOTIFICATION_SERVICE);
+        mgr.createNotificationChannel(channel);
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -87,10 +100,7 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
             return START_STICKY;
         if (action.equals(ACTION_START_FOREGROUND)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !mCreatedChannel) {
-                NotificationChannel channel = new NotificationChannel(IDLE_NOTIFICATION_CHANNEL, getString(R.string.notification_channel_idle), android.app.NotificationManager.IMPORTANCE_MIN);
-                channel.setShowBadge(false);
-                android.app.NotificationManager mgr = (android.app.NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                mgr.createNotificationChannel(channel);
+                createNotificationChannel(this);
                 mCreatedChannel = true;
             }
 

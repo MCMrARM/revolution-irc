@@ -131,6 +131,8 @@
 
     <string name="notification_action_required">User action required</string>
 
+    <string name="notification_channel_group_default">Default notifications</string>
+    <string name="notification_channel_group_user">User notification rules</string>
     <string name="notification_channel_idle">Status Notification</string>
 
     <!-- Connection errors -->
@@ -414,6 +416,7 @@
     <string name="notification_vibration">Vibration</string>
     <string name="notification_priority">Priority</string>
     <string name="notification_color">LED Color</string>
+    <string name="notification_android_settings_link">More settings…</string>
 
     <string-array name="notification_vibration_options">
         <item>Default</item>

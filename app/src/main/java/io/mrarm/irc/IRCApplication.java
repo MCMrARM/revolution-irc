@@ -16,6 +16,7 @@ public class IRCApplication extends Application implements Application.ActivityL
     @Override
     public void onCreate() {
         super.onCreate();
+        NotificationManager.createDefaultChannels(this);
         registerActivityLifecycleCallbacks(this);
     }
 

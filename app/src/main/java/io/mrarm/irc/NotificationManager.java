@@ -1,7 +1,9 @@
 package io.mrarm.irc;
 
+import android.app.NotificationChannelGroup;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 
@@ -22,6 +24,8 @@ public class NotificationManager {
 
     public static final int CHAT_SUMMARY_NOTIFICATION_ID = 101;
 
+    private static final String NOTIFICATION_CHANNEL_GROUP_DEFAULT = "default";
+    private static final String NOTIFICATION_CHANNEL_GROUP_USER = "user";
     public static final String NOTIFICATION_GROUP_CHAT = "chat";
 
     private static final NotificationManager sInstance = new NotificationManager();
@@ -182,6 +186,46 @@ public class NotificationManager {
         }
         connection.getNotificationManager().callUnreadMessageCountCallbacks(channel, messageCount,
                 oldMessageCount);
+    }
+
+
+    private static void createChannelGroup(Context ctx, String id, CharSequence name) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
+            return;
+        NotificationChannelGroup group = new NotificationChannelGroup(id, name);
+        android.app.NotificationManager mgr = (android.app.NotificationManager)
+                ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+        mgr.createNotificationChannelGroup(group);
+    }
+
+    private static boolean sDefaultChannelCreated = false;
+
+    public static String getDefaultNotificationChannelGroup(Context ctx) {
+        if (!sDefaultChannelCreated) {
+            createChannelGroup(ctx, NOTIFICATION_CHANNEL_GROUP_DEFAULT,
+                    ctx.getString(R.string.notification_channel_group_default));
+            sDefaultChannelCreated = true;
+        }
+        return NOTIFICATION_CHANNEL_GROUP_DEFAULT;
+    }
+
+    private static boolean sUserChannelCreated = false;
+
+    public static String getUserNotificationChannelGroup(Context ctx) {
+        if (!sUserChannelCreated) {
+            createChannelGroup(ctx, NOTIFICATION_CHANNEL_GROUP_USER,
+                    ctx.getString(R.string.notification_channel_group_user));
+            sUserChannelCreated = true;
+        }
+        return NOTIFICATION_CHANNEL_GROUP_USER;
+    }
+
+    public static void createDefaultChannels(Context context) {
+        IRCService.createNotificationChannel(context);
+        for (NotificationRule rule : NotificationRuleManager.getDefaultTopRules())
+            ChannelNotificationManager.createChannel(context, rule);
+        for (NotificationRule rule : NotificationRuleManager.getDefaultBottomRules())
+            ChannelNotificationManager.createChannel(context, rule);
     }
 
     public static class ConnectionManager {
