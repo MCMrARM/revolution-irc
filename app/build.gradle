@@ -6,7 +6,7 @@ android {
     defaultConfig {
         applicationId "io.mrarm.irc"
         minSdkVersion 17
-        targetSdkVersion 25
+        targetSdkVersion 27
         versionCode 5
         versionName "0.3.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
