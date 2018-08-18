@@ -1,13 +1,13 @@
 package io.mrarm.irc;
 
 import android.app.Dialog;
-import android.app.FragmentManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -175,6 +175,14 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
             AppBarLayout.LayoutParams toolbarParams = new AppBarLayout.LayoutParams(
                     AppBarLayout.LayoutParams.MATCH_PARENT, params.height);
             replacement.setLayoutParams(toolbarParams);
+            for (int j = 0; j < mToolbar.getChildCount(); j++) {
+                View v = mToolbar.getChildAt(j);
+                if (v instanceof TabLayout) {
+                    mToolbar.removeViewAt(j);
+                    replacement.addView(v);
+                    j--;
+                }
+            }
             group.addView(replacement, i);
             setSupportActionBar(replacement);
             addActionBarDrawerToggle(replacement);
