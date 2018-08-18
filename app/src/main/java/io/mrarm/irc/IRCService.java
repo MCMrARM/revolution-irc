@@ -53,7 +53,7 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
         NotificationChannel channel = new NotificationChannel(IDLE_NOTIFICATION_CHANNEL,
                 ctx.getString(R.string.notification_channel_idle),
                 android.app.NotificationManager.IMPORTANCE_MIN);
-        channel.setGroup(NotificationManager.getDefaultNotificationChannelGroup(ctx));
+        channel.setGroup(NotificationManager.getSystemNotificationChannelGroup(ctx));
         channel.setShowBadge(false);
         android.app.NotificationManager mgr = (android.app.NotificationManager)
                 ctx.getSystemService(NOTIFICATION_SERVICE);

@@ -131,7 +131,8 @@
 
     <string name="notification_action_required">User action required</string>
 
-    <string name="notification_channel_group_default">Default notifications</string>
+    <string name="notification_channel_group_system">Miscellaneous notifications</string>
+    <string name="notification_channel_group_default">Default notification rules</string>
     <string name="notification_channel_group_user">User notification rules</string>
     <string name="notification_channel_idle">Status Notification</string>
     <string name="notification_channel_warning">Warning Notifications</string>

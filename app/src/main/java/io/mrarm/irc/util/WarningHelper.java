@@ -93,7 +93,7 @@ public class WarningHelper {
                     context.getString(R.string.notification_channel_warning),
                     NotificationManager.IMPORTANCE_HIGH);
             channel.setGroup(
-                    io.mrarm.irc.NotificationManager.getDefaultNotificationChannelGroup(context));
+                    io.mrarm.irc.NotificationManager.getSystemNotificationChannelGroup(context));
             notificationManager.createNotificationChannel(channel);
             sNotificationChannelCreated = true;
         }

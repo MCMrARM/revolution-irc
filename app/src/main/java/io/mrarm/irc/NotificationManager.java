@@ -25,8 +25,9 @@ public class NotificationManager {
 
     public static final int CHAT_SUMMARY_NOTIFICATION_ID = 101;
 
-    private static final String NOTIFICATION_CHANNEL_GROUP_DEFAULT = "default";
-    private static final String NOTIFICATION_CHANNEL_GROUP_USER = "user";
+    private static final String NOTIFICATION_CHANNEL_GROUP_SYSTEM = "01_system";
+    private static final String NOTIFICATION_CHANNEL_GROUP_DEFAULT_RULES = "02_default";
+    private static final String NOTIFICATION_CHANNEL_GROUP_USER_RULES = "03_user";
     public static final String NOTIFICATION_GROUP_CHAT = "chat";
 
     private static final NotificationManager sInstance = new NotificationManager();
@@ -199,26 +200,34 @@ public class NotificationManager {
         mgr.createNotificationChannelGroup(group);
     }
 
-    private static boolean sDefaultChannelCreated = false;
+    private static boolean sChannelsCreated = false;
 
-    public static String getDefaultNotificationChannelGroup(Context ctx) {
-        if (!sDefaultChannelCreated) {
-            createChannelGroup(ctx, NOTIFICATION_CHANNEL_GROUP_DEFAULT,
-                    ctx.getString(R.string.notification_channel_group_default));
-            sDefaultChannelCreated = true;
-        }
-        return NOTIFICATION_CHANNEL_GROUP_DEFAULT;
+    private static void createChannelGroups(Context ctx) {
+        if (sChannelsCreated)
+            return;
+        sChannelsCreated = true;
+
+        createChannelGroup(ctx, NOTIFICATION_CHANNEL_GROUP_SYSTEM,
+                ctx.getString(R.string.notification_channel_group_system));
+        createChannelGroup(ctx, NOTIFICATION_CHANNEL_GROUP_DEFAULT_RULES,
+                ctx.getString(R.string.notification_channel_group_default));
+        createChannelGroup(ctx, NOTIFICATION_CHANNEL_GROUP_USER_RULES,
+                ctx.getString(R.string.notification_channel_group_user));
     }
 
-    private static boolean sUserChannelCreated = false;
+    public static String getSystemNotificationChannelGroup(Context ctx) {
+        createChannelGroups(ctx);
+        return NOTIFICATION_CHANNEL_GROUP_SYSTEM;
+    }
+
+    public static String getDefaultNotificationChannelGroup(Context ctx) {
+        createChannelGroups(ctx);
+        return NOTIFICATION_CHANNEL_GROUP_DEFAULT_RULES;
+    }
 
     public static String getUserNotificationChannelGroup(Context ctx) {
-        if (!sUserChannelCreated) {
-            createChannelGroup(ctx, NOTIFICATION_CHANNEL_GROUP_USER,
-                    ctx.getString(R.string.notification_channel_group_user));
-            sUserChannelCreated = true;
-        }
-        return NOTIFICATION_CHANNEL_GROUP_USER;
+        createChannelGroups(ctx);
+        return NOTIFICATION_CHANNEL_GROUP_USER_RULES;
     }
 
     public static void createDefaultChannels(Context context) {
