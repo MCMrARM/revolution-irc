@@ -148,7 +148,7 @@ public class ChannelInfoAdapter extends RecyclerView.Adapter {
                         noTopicColored.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 topicTextView.setText(noTopicColored);
             }
-            if (topicSetBy != null || topicSetOn != null) {
+            if (topicSetBy != null && topicSetOn != null) {
                 SpannableString topicSetByColored = new SpannableString(topicSetBy);
                 topicSetByColored.setSpan(new ForegroundColorSpan(IRCColorUtils.getNickColor(
                         topicInfoTextView.getContext(), topicSetBy)), 0, topicSetBy.length(),
