@@ -55,6 +55,7 @@ public class NotificationRuleManager {
         sDirectNoticeRule.settings.mentionFormatting = false;
         sChannelNoticeRule = new NotificationRule(R.string.notification_rule_chan_notice, NotificationRule.AppliesToEntry.channelNotices(), null);
         sZNCPlaybackRule = new NotificationRule(R.string.notification_rule_zncplayback, createZNCPlaybackAppliesToEntry(), null);
+        sZNCPlaybackRule.settings.mentionFormatting = false;
         sZNCPlaybackRule.settings.noNotification = true;
         sZNCPlaybackRule.notEditable = true;
         sDefaultTopRules.add(NotificationRuleManager.sZNCPlaybackRule);
