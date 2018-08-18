@@ -1,6 +1,7 @@
 package io.mrarm.irc;
 
 import android.animation.ValueAnimator;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
@@ -400,12 +401,20 @@ public class NotificationRulesAdapter extends RecyclerView.Adapter<RecyclerView.
             int index = position - getUserRulesStartIndex();
             NotificationRule rule = mRules.remove(index);
             notifyItemRemoved(position);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                NotificationManager mgr = (NotificationManager) viewHolder.itemView.getContext()
+                        .getSystemService(Context.NOTIFICATION_SERVICE);
+                mgr.deleteNotificationChannel(rule.settings.notificationChannelId);
+            }
             if (mRules.size() == 0)
                 notifyItemInserted(getUserRulesStartIndex() + 1); // the tip
             Snackbar.make(viewHolder.itemView, R.string.notification_custom_rule_deleted, Snackbar.LENGTH_SHORT)
                     .setAction(R.string.action_undo, (View v) -> {
                         int newIndex = Math.min(index, mRules.size());
                         mRules.add(newIndex, rule);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                            ChannelNotificationManager.createChannel(
+                                    viewHolder.itemView.getContext(), rule);
                         if (mRules.size() == 1)
                             notifyItemRemoved(getUserRulesStartIndex() + 1); // the tip
                         notifyItemInserted(newIndex + getUserRulesStartIndex());
