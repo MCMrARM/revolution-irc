@@ -19,6 +19,7 @@ import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.irc.config.NotificationRule;
 import io.mrarm.irc.config.NotificationRuleManager;
+import io.mrarm.irc.util.WarningHelper;
 
 public class NotificationManager {
 
@@ -222,6 +223,7 @@ public class NotificationManager {
 
     public static void createDefaultChannels(Context context) {
         IRCService.createNotificationChannel(context);
+        WarningHelper.getNotificationChannel(context);
         for (NotificationRule rule : NotificationRuleManager.getDefaultTopRules())
             ChannelNotificationManager.createChannel(context, rule);
         for (NotificationRule rule : NotificationRuleManager.getDefaultBottomRules())

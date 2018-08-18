@@ -134,6 +134,7 @@
     <string name="notification_channel_group_default">Default notifications</string>
     <string name="notification_channel_group_user">User notification rules</string>
     <string name="notification_channel_idle">Status Notification</string>
+    <string name="notification_channel_warning">Warning Notifications</string>
 
     <!-- Connection errors -->
 

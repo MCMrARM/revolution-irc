@@ -1,8 +1,10 @@
 package io.mrarm.irc.util;
 
 import android.app.Activity;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 
 import java.util.ArrayList;
@@ -14,6 +16,10 @@ public class WarningHelper {
 
     public static final int WARNING_NOTIFICATION_ID_RANGE_START = 200;
     public static final int WARNING_NOTIFICATION_ID_RANGE_END = 300;
+
+    private static final String NOTIFICATION_CHANNEL_NAME = "warning";
+
+    private static boolean sNotificationChannelCreated = false;
 
     private static int sNextNotificationId = WARNING_NOTIFICATION_ID_RANGE_START;
 
@@ -79,6 +85,21 @@ public class WarningHelper {
         }
     }
 
+    public static String getNotificationChannel(Context context) {
+        if (!sNotificationChannelCreated && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager notificationManager = (NotificationManager)
+                    context.getSystemService(Context.NOTIFICATION_SERVICE);
+            NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_NAME,
+                    context.getString(R.string.notification_channel_warning),
+                    NotificationManager.IMPORTANCE_HIGH);
+            channel.setGroup(
+                    io.mrarm.irc.NotificationManager.getDefaultNotificationChannelGroup(context));
+            notificationManager.createNotificationChannel(channel);
+            sNotificationChannelCreated = true;
+        }
+        return NOTIFICATION_CHANNEL_NAME;
+    }
+
     public static class Warning {
 
         private boolean mDismissed = false;
@@ -96,7 +117,8 @@ public class WarningHelper {
         }
 
         public void showNotification(Context context) {
-            NotificationCompat.Builder notification = new NotificationCompat.Builder(mAppContext);
+            NotificationCompat.Builder notification = new NotificationCompat.Builder(mAppContext,
+                    getNotificationChannel(context));
             if (mNotificationId == -1)
                 mNotificationId = getNotificationId();
             buildNotification(context, notification, mNotificationId);
