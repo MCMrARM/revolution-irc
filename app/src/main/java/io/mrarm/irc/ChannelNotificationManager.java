@@ -123,7 +123,7 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
                 NotificationManagerCompat.from(context).cancel(mNotificationId);
             }
         }
-        NotificationManager.getInstance().updateSummaryNotification(context);
+        NotificationManager.getInstance().updateSummaryNotification(context, null);
     }
 
     void showNotification(Context context, NotificationRule rule) {
@@ -403,7 +403,7 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
 
             NotificationManager.getInstance().onNotificationDismissed(mContext, mConnection,
                     mChannel);
-            NotificationManager.getInstance().updateSummaryNotification(mContext);
+            NotificationManager.getInstance().updateSummaryNotification(mContext, null);
         }
 
         @Override

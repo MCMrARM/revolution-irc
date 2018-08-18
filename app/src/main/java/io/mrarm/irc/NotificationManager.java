@@ -38,6 +38,8 @@ public class NotificationManager {
 
     private final List<UnreadMessageCountCallback> mGlobalUnreadCallbacks = new ArrayList<>();
 
+    private String mLastSummaryChannel = null;
+
     public void processMessage(Context context, ServerConnectionInfo connection, String channel,
                                MessageInfo info) {
         ChannelNotificationManager channelManager = connection.getNotificationManager().getChannelManager(channel, true);
@@ -55,7 +57,9 @@ public class NotificationManager {
             return;
         synchronized (channelManager) {
             if (channelManager.addNotificationMessage(info)) {
-                updateSummaryNotification(context);
+                if (rule.settings.notificationChannelId == null)
+                    ChannelNotificationManager.createChannel(context, rule);
+                updateSummaryNotification(context, rule.settings.notificationChannelId);
                 channelManager.showNotification(context, rule);
             }
         }
@@ -77,7 +81,7 @@ public class NotificationManager {
                 mgr.cancelNotification(context);
             connectionData.mChannels.clear();
         }
-        updateSummaryNotification(context);
+        updateSummaryNotification(context, null);
     }
 
     private NotificationRule findNotificationRule(ServerConnectionInfo connection, String channel,
@@ -113,7 +117,7 @@ public class NotificationManager {
     }
 
 
-    public void updateSummaryNotification(Context context) {
+    public void updateSummaryNotification(Context context, String channel) {
         ChannelNotificationManager first = null;
         boolean isLong = false;
         int notificationCount = 0;
@@ -140,7 +144,10 @@ public class NotificationManager {
             NotificationManagerCompat.from(context).cancel(CHAT_SUMMARY_NOTIFICATION_ID);
             return;
         }
-        NotificationCompat.Builder notification = new NotificationCompat.Builder(context);
+        if (channel != null)
+            mLastSummaryChannel = channel;
+        NotificationCompat.Builder notification = new NotificationCompat.Builder(context,
+                mLastSummaryChannel);
         notification
                 .setAutoCancel(true)
                 .setSmallIcon(R.drawable.ic_notification_message)
