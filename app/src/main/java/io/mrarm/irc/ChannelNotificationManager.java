@@ -157,7 +157,7 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
                 .setContentText(lastMessage.getNotificationText(context))
                 .setContentIntent(intent)
                 .setAutoCancel(true)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setPriority(rule.settings.priority + 1)
                 .setSmallIcon(R.drawable.ic_notification_message)
                 .setCustomContentView(notificationsView)
                 .setCustomBigContentView(notificationsViewBig)
@@ -175,7 +175,7 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
         }
         if (rule.settings.vibrationEnabled) {
             if (rule.settings.vibrationDuration != 0)
-                notification.setVibrate(new long[]{rule.settings.vibrationDuration});
+                notification.setVibrate(new long[]{0, rule.settings.vibrationDuration});
             else
                 defaults |= NotificationCompat.DEFAULT_VIBRATE;
         }
