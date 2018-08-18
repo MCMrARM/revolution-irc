@@ -88,6 +88,7 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
         if (action.equals(ACTION_START_FOREGROUND)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !mCreatedChannel) {
                 NotificationChannel channel = new NotificationChannel(IDLE_NOTIFICATION_CHANNEL, getString(R.string.notification_channel_idle), android.app.NotificationManager.IMPORTANCE_MIN);
+                channel.setShowBadge(false);
                 android.app.NotificationManager mgr = (android.app.NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                 mgr.createNotificationChannel(channel);
                 mCreatedChannel = true;
@@ -122,6 +123,7 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
                     .setContentTitle(getString(R.string.service_title))
                     .setContentText(b.toString())
                     .setPriority(NotificationCompat.PRIORITY_MIN)
+                    .setOnlyAlertOnce(true)
                     .setContentIntent(PendingIntent.getActivity(this, IDLE_NOTIFICATION_ID, mainIntent, PendingIntent.FLAG_CANCEL_CURRENT))
                     .addAction(R.drawable.ic_close, getString(R.string.action_exit), exitIntent); // TODO: render the close icon for older android versions
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
