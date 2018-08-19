@@ -3,7 +3,6 @@ package io.mrarm.irc;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -30,18 +29,8 @@ public class IRCLinkActivity extends ThemedActivity {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        List<ServerConfigData> active = new ArrayList<>();
-        List<ServerConfigData> inactive = new ArrayList<>();
-
-        ServerConnectionManager connectionManager = ServerConnectionManager.getInstance(this);
-        for (ServerConfigData server : ServerConfigManager.getInstance(this).getServers()) {
-            if (connectionManager .hasConnection(server.uuid))
-                active.add(server);
-            else
-                inactive.add(server);
-        }
         LinkServerListAdapter adapter = new LinkServerListAdapter(
-                "irc.mrarm.io", "#testing", active, inactive);
+                this, "irc.mrarm.io", "#testing");
         recyclerView.setAdapter(adapter);
         recyclerView.addItemDecoration(adapter.createItemDecoration(this));
     }
@@ -53,18 +42,51 @@ public class IRCLinkActivity extends ThemedActivity {
         private static final int TYPE_SERVER_ITEM = 2;
         private static final int TYPE_ACTION_ITEM = 3;
 
+        private Context mContext;
         private String mHostName;
         private String mChannelName;
         private List<ServerConfigData> mActiveServers;
         private List<ServerConfigData> mInactiveServers;
 
-        public LinkServerListAdapter(String hostName, String channelName,
-                                     List<ServerConfigData> active,
-                                     List<ServerConfigData> inactive) {
+        public LinkServerListAdapter(Context context, String hostName, String channelName) {
+            mContext = context;
             mHostName = hostName;
             mChannelName = channelName;
-            mActiveServers = active;
-            mInactiveServers = inactive;
+            reloadServerList(true);
+        }
+
+        /**
+         * Returns the main domain for the specified hostname.
+         * Example: test.freenode.net => freenode.net
+         */
+        private String getHostnameDomain(String hname) {
+            if (hname == null || hname.isEmpty())
+                return hname;
+            int iof = hname.lastIndexOf('.');
+            if (iof <= 0)
+                return hname;
+            iof = hname.lastIndexOf('.', iof - 1);
+            if (iof <= 0)
+                return hname;
+            return hname.substring(iof + 1);
+        }
+
+        private void reloadServerList(boolean filter) {
+            mActiveServers = new ArrayList<>();
+            mInactiveServers = new ArrayList<>();
+            ServerConnectionManager connectionManager =
+                    ServerConnectionManager.getInstance(mContext);
+            for (ServerConfigData server : ServerConfigManager.getInstance(mContext).getServers()) {
+                if (filter) {
+                    if (!getHostnameDomain(server.address).equals(getHostnameDomain(mHostName)))
+                        continue;
+                }
+                if (connectionManager .hasConnection(server.uuid))
+                    mActiveServers.add(server);
+                else
+                    mInactiveServers.add(server);
+            }
+            notifyDataSetChanged();
         }
 
         @NonNull
@@ -85,7 +107,7 @@ public class IRCLinkActivity extends ThemedActivity {
             } else if (viewType == TYPE_ACTION_ITEM) {
                 View view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.simple_list_item_with_icon, parent, false);
-                return new TextIconHolder(view);
+                return new ActionHolder(view);
             }
             throw new IllegalArgumentException();
         }
@@ -141,10 +163,10 @@ public class IRCLinkActivity extends ThemedActivity {
                         .name);
             else if (position == getExtraActionsHeaderIndex())
                 ((TextHolder) holder).bind(R.string.notification_header_options);
-            else if (position == getExtraActionsStart() + 1)
-                ((TextIconHolder) holder).bind(R.string.irc_link_show_all, R.drawable.ic_sort_white);
             else if (position == getExtraActionsStart())
-                ((TextIconHolder) holder).bind(R.string.add_server, R.drawable.ic_add_white);
+                ((ActionHolder) holder).bind(ActionHolder.ACTION_ADD);
+            else if (position == getExtraActionsStart() + 1)
+                ((ActionHolder) holder).bind(ActionHolder.ACTION_SHOW_ALL);
         }
 
         @Override
@@ -201,7 +223,7 @@ public class IRCLinkActivity extends ThemedActivity {
 
         }
 
-        private static final class TextIconHolder extends RecyclerView.ViewHolder {
+        private static class TextIconHolder extends RecyclerView.ViewHolder {
 
             private TextView mTextView;
             private ImageView mImageView;
@@ -215,6 +237,35 @@ public class IRCLinkActivity extends ThemedActivity {
             public void bind(int textResId, int imageResId) {
                 mTextView.setText(textResId);
                 mImageView.setImageResource(imageResId);
+            }
+
+        }
+
+        private final class ActionHolder extends TextIconHolder implements View.OnClickListener {
+
+            private static final int ACTION_ADD = 1;
+            private static final int ACTION_SHOW_ALL = 2;
+
+            private int mActionType;
+
+            public ActionHolder(View itemView) {
+                super(itemView);
+                itemView.setOnClickListener(this);
+            }
+
+            public void bind(int actionType) {
+                mActionType = actionType;
+                if (actionType == ACTION_ADD)
+                    super.bind(R.string.add_server, R.drawable.ic_add_white);
+                else if (actionType == ACTION_SHOW_ALL)
+                    super.bind(R.string.irc_link_show_all, R.drawable.ic_sort_white);
+            }
+
+
+            @Override
+            public void onClick(View v) {
+                if (mActionType == ACTION_SHOW_ALL)
+                    reloadServerList(false);
             }
 
         }
