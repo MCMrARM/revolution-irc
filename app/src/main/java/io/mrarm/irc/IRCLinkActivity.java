@@ -31,19 +31,51 @@ public class IRCLinkActivity extends ThemedActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (getIntent() == null || getIntent().getAction() == null ||
+                !getIntent().getAction().equals(Intent.ACTION_VIEW) ||
+                getIntent().getData() == null) {
+            finish();
+            return;
+        }
+
         RecyclerView recyclerView = new RecyclerView(this);
         setContentView(recyclerView);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        mHostName = "irc.mrarm.io";
-        mChannelName = "#testing";
+        String str = getIntent().getData().toString();
+        int iof = str.indexOf(":/");
+        if (iof == -1) {
+            finish();
+            return;
+        }
+        iof += 2;
+        if (str.length() > iof && str.charAt(iof) == '/')
+            iof++;
+        str = str.substring(iof);
+        iof = str.indexOf('/');
+        if (iof == -1) {
+            finish();
+            return;
+        }
+        mHostName = str.substring(0, iof);
+        mChannelName = prefixChannelIfNeeded(str.substring(iof + 1));
 
         LinkServerListAdapter adapter = new LinkServerListAdapter(
                 this, mHostName, mChannelName);
         recyclerView.setAdapter(adapter);
         recyclerView.addItemDecoration(adapter.createItemDecoration(this));
+    }
+
+    private static String prefixChannelIfNeeded(String name) {
+        if (name == null || name.length() == 0)
+            return "";
+        char c = name.charAt(0);
+        if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9'))
+            return "#" + name;
+        return name;
     }
 
     @Override
