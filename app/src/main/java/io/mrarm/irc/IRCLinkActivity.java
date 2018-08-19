@@ -13,10 +13,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import io.mrarm.chatlib.ChatApi;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.util.AdvancedDividerItemDecoration;
@@ -27,6 +29,8 @@ public class IRCLinkActivity extends ThemedActivity {
 
     private String mHostName;
     private String mChannelName;
+    private ServerConnectionInfo mSelectedConnection;
+    private OpenTaskChannelListListener mOpenTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,15 +89,75 @@ public class IRCLinkActivity extends ThemedActivity {
             ServerConnectionManager mgr = ServerConnectionManager.getInstance(this);
 
             String uuid = data.getStringExtra(EditServerActivity.ARG_SERVER_UUID);
-            ServerConfigData server = ServerConfigManager.getInstance(this).findServer(
-                    UUID.fromString(uuid));
+            openServer(ServerConfigManager.getInstance(this).findServer(
+                    UUID.fromString(uuid)));
+            return;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mOpenTask != null) {
+            mSelectedConnection.removeOnChannelListChangeListener(mOpenTask);
+        }
+    }
+
+    public void openServer(ServerConfigData server) {
+        if (mSelectedConnection != null)
+            throw new RuntimeException();
+
+        ArrayList<String> channels = new ArrayList<>();
+        channels.add(mChannelName);
+
+        ServerConnectionManager mgr = ServerConnectionManager.getInstance(this);
+        if (!mgr.hasConnection(server.uuid))
             mgr.tryCreateConnection(server, this);
-            ServerConnectionInfo connection = mgr.getConnection(server.uuid);
+        ServerConnectionInfo connection = mgr.getConnection(server.uuid);
+        if (connection == null)
+            return;
+        mSelectedConnection = connection;
+        ChatApi api = connection.getApiInstance();
+        if (api == null)
+            return;
+        if (connection.hasChannel(mChannelName)) {
             startActivity(MainActivity.getLaunchIntent(this, connection, mChannelName));
             finish();
             return;
         }
-        super.onActivityResult(requestCode, resultCode, data);
+        setContentView(R.layout.dialog_please_wait);
+        api.joinChannels(channels, (Void vv) -> {
+            if (connection.hasChannel(mChannelName)) {
+                startActivity(MainActivity.getLaunchIntent(this, connection, mChannelName));
+                finish();
+                return;
+            }
+            mOpenTask = new OpenTaskChannelListListener(mChannelName);
+            connection.addOnChannelListChangeListener(mOpenTask);
+        }, (Exception e) -> finish());
+    }
+
+    private class OpenTaskChannelListListener
+            implements ServerConnectionInfo.ChannelListChangeListener {
+
+        private String mChannel;
+
+        public OpenTaskChannelListListener(String channel) {
+            mChannel = channel;
+        }
+
+        @Override
+        public void onChannelListChanged(ServerConnectionInfo connection, List<String> newChannels) {
+            if (newChannels.contains(mChannel)) {
+                startActivity(MainActivity.getLaunchIntent(IRCLinkActivity.this,
+                        connection, mChannel));
+                connection.removeOnChannelListChangeListener(this);
+                mOpenTask = null;
+                finish();
+            }
+        }
+
     }
 
     private static class LinkServerListAdapter extends RecyclerView.Adapter {
@@ -103,13 +167,13 @@ public class IRCLinkActivity extends ThemedActivity {
         private static final int TYPE_SERVER_ITEM = 2;
         private static final int TYPE_ACTION_ITEM = 3;
 
-        private Activity mContext;
+        private IRCLinkActivity mContext;
         private String mHostName;
         private String mChannelName;
         private List<ServerConfigData> mActiveServers;
         private List<ServerConfigData> mInactiveServers;
 
-        public LinkServerListAdapter(Activity context, String hostName, String channelName) {
+        public LinkServerListAdapter(IRCLinkActivity context, String hostName, String channelName) {
             mContext = context;
             mHostName = hostName;
             mChannelName = channelName;
@@ -164,7 +228,7 @@ public class IRCLinkActivity extends ThemedActivity {
             } else if (viewType == TYPE_SERVER_ITEM) {
                 View view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.simple_list_item, parent, false);
-                return new TextHolder(view);
+                return new ServerHolder(view);
             } else if (viewType == TYPE_ACTION_ITEM) {
                 View view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.simple_list_item_with_icon, parent, false);
@@ -214,14 +278,12 @@ public class IRCLinkActivity extends ThemedActivity {
                 ((TextHolder) holder).bind(R.string.server_list_header_active);
             else if (position >= getActiveListStart() &&
                     position < getActiveListStart() + mActiveServers.size())
-                ((TextHolder) holder).bind(mActiveServers.get(position - getActiveListStart())
-                        .name);
+                ((ServerHolder) holder).bind(mActiveServers.get(position - getActiveListStart()));
             else if (hasInactiveHeader() && position == getInactiveHeaderIndex())
                 ((TextHolder) holder).bind(R.string.server_list_header_inactive);
             else if (position >= getInactiveListStart() &&
                     position < getInactiveListStart() + mInactiveServers.size())
-                ((TextHolder) holder).bind(mInactiveServers.get(position - getInactiveListStart())
-                        .name);
+                ((ServerHolder) holder).bind(mInactiveServers.get(position - getInactiveListStart()));
             else if (position == getExtraActionsHeaderIndex())
                 ((TextHolder) holder).bind(R.string.notification_header_options);
             else if (position == getExtraActionsStart())
@@ -268,7 +330,7 @@ public class IRCLinkActivity extends ThemedActivity {
 
         }
 
-        private static final class TextHolder extends RecyclerView.ViewHolder {
+        private static class TextHolder extends RecyclerView.ViewHolder {
 
             public TextHolder(View itemView) {
                 super(itemView);
@@ -280,6 +342,31 @@ public class IRCLinkActivity extends ThemedActivity {
 
             public void bind(String text) {
                 ((TextView) itemView).setText(text);
+            }
+
+        }
+
+        private final class ServerHolder extends TextHolder implements View.OnClickListener {
+
+            private static final int ACTION_ADD = 1;
+            private static final int ACTION_SHOW_ALL = 2;
+
+            ServerConfigData mServer;
+
+            public ServerHolder(View itemView) {
+                super(itemView);
+                itemView.setOnClickListener(this);
+            }
+
+            public void bind(ServerConfigData server) {
+                mServer = server;
+                super.bind(server.name);
+            }
+
+
+            @Override
+            public void onClick(View v) {
+                mContext.openServer(mServer);
             }
 
         }

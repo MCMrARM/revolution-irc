@@ -35,7 +35,8 @@
         </activity>
         <activity
             android:name=".IRCLinkActivity"
-            android:label="@string/title_activity_irc_link">
+            android:label="@string/title_activity_irc_link"
+            android:configChanges="keyboardHidden|orientation|screenSize|screenLayout">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
