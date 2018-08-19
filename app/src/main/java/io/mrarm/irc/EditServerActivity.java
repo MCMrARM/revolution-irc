@@ -14,16 +14,15 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import io.mrarm.irc.config.ServerCertificateManager;
@@ -199,11 +198,17 @@ public class EditServerActivity extends ThemedActivity {
             mServerAuthPass.removeTextChangedListener(mResetPasswordWatcher);
         });
 
+        mServerPort.setText(String.valueOf(getDefaultPort(mServerSSL.isEnabled())));
+        mServerSSL.setOnCheckedChangeListener((CompoundButton buttonView, boolean isChecked) -> {
+            if (String.valueOf(getDefaultPort(!isChecked)).equals(mServerPort.getText().toString()))
+                mServerPort.setText(String.valueOf(getDefaultPort(isChecked)));
+        });
+
         if (mEditServer != null) {
             mServerName.setText(mEditServer.name);
             mServerAddress.setText(mEditServer.address);
-            mServerPort.setText(String.valueOf(mEditServer.port));
             mServerSSL.setChecked(mEditServer.ssl);
+            mServerPort.setText(String.valueOf(mEditServer.port));
             mServerRejoinChannels.setChecked(mEditServer.rejoinChannels);
 
             if (mEditServer.authPass != null) {
@@ -394,6 +399,10 @@ public class EditServerActivity extends ThemedActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private static int getDefaultPort(boolean sslEnabled) {
+        return sslEnabled ? 6697 : 6667;
     }
 
 }

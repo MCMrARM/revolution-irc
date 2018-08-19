@@ -96,7 +96,8 @@
                 android:layout_toRightOf="@id/server_ssl_icon"
                 android:layout_toEndOf="@id/server_ssl_icon"
                 android:layout_centerVertical="true"
-                android:text="@string/server_ssl" />
+                android:text="@string/server_ssl"
+                android:checked="true" />
 
         </RelativeLayout>
 
