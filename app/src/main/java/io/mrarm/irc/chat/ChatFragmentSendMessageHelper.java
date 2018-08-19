@@ -221,6 +221,9 @@ public class ChatFragmentSendMessageHelper implements SendMessageHelper.Callback
 
     @Override
     public void onRawCommandExecuted(String clientCommand, String sentCommand) {
+        if (sentCommand.startsWith("QUIT ") || sentCommand.equals("QUIT")) {
+            mFragment.getConnectionInfo().notifyUserExecutedQuit();
+        }
         setupCommandResultHandler((IRCConnection) mFragment.getConnectionInfo().getApiInstance(),
                 clientCommand, sentCommand);
     }

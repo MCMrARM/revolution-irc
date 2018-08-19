@@ -178,7 +178,7 @@ public class ServerConnectionInfo {
         }
     }
 
-    public void disconnect() {
+    private void disconnect(boolean userExecutedQuit) {
         synchronized (this) {
             mUserDisconnectRequest = true;
             mReconnectHandler.removeCallbacks(mReconnectRunnable);
@@ -193,13 +193,25 @@ public class ServerConnectionInfo {
             } else if (isConnected()) {
                 mDisconnecting = true;
                 String message = SettingsHelper.getInstance(mManager.getContext()).getDefaultQuitMessage();
-                mApi.quit(message, null, (Exception e) -> {
-                    ((IRCConnection) getApiInstance()).disconnect(true);
-                });
+                if (userExecutedQuit) {
+                    ((IRCConnection) mApi).disconnect(null, null);
+                } else {
+                    mApi.quit(message, null, (Exception e) -> {
+                        ((IRCConnection) getApiInstance()).disconnect(true);
+                    });
+                }
             } else {
                 notifyFullyDisconnected();
             }
         }
+    }
+
+    public void disconnect() {
+        disconnect(false);
+    }
+
+    public void notifyUserExecutedQuit() {
+        disconnect(true);
     }
 
     private void notifyDisconnected() {
