@@ -1,6 +1,8 @@
 package io.mrarm.irc;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
@@ -42,13 +44,13 @@ public class IRCLinkActivity extends ThemedActivity {
         private static final int TYPE_SERVER_ITEM = 2;
         private static final int TYPE_ACTION_ITEM = 3;
 
-        private Context mContext;
+        private Activity mContext;
         private String mHostName;
         private String mChannelName;
         private List<ServerConfigData> mActiveServers;
         private List<ServerConfigData> mInactiveServers;
 
-        public LinkServerListAdapter(Context context, String hostName, String channelName) {
+        public LinkServerListAdapter(Activity context, String hostName, String channelName) {
             mContext = context;
             mHostName = hostName;
             mChannelName = channelName;
@@ -264,8 +266,20 @@ public class IRCLinkActivity extends ThemedActivity {
 
             @Override
             public void onClick(View v) {
-                if (mActionType == ACTION_SHOW_ALL)
+                if (mActionType == ACTION_ADD) {
+                    ArrayList<String> channels = new ArrayList<>();
+                    channels.add(mChannelName);
+
+                    Intent intent = new Intent(v.getContext(), EditServerActivity.class);
+                    intent.putExtra(EditServerActivity.ARG_NAME, mHostName);
+                    intent.putExtra(EditServerActivity.ARG_ADDRESS, mHostName);
+                    intent.putExtra(EditServerActivity.ARG_AUTOJOIN_CHANNELS, channels);
+                    v.getContext().startActivity(intent);
+                    mContext.finish();
+                }
+                if (mActionType == ACTION_SHOW_ALL) {
                     reloadServerList(false);
+                }
             }
 
         }

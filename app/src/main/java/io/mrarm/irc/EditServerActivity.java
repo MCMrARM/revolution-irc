@@ -21,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -40,6 +41,10 @@ public class EditServerActivity extends ThemedActivity {
 
     public static String ARG_SERVER_UUID = "server_uuid";
     public static String ARG_COPY = "copy";
+    public static String ARG_NAME = "server_name";
+    public static String ARG_ADDRESS = "server_address";
+    public static String ARG_PORT = "server_port";
+    public static String ARG_AUTOJOIN_CHANNELS = "server_autojoin_channels";
 
     private ServerConfigData mEditServer;
     private EditText mServerName;
@@ -268,6 +273,20 @@ public class EditServerActivity extends ThemedActivity {
         } else {
             getSupportActionBar().setTitle(R.string.add_server);
             mServerSSLCertsButton.setVisibility(View.GONE);
+
+            String prefillName = getIntent().getStringExtra(ARG_NAME);
+            if (prefillName != null)
+                mServerName.setText(prefillName);
+            String prefillAddress = getIntent().getStringExtra(ARG_ADDRESS);
+            if (prefillAddress != null)
+                mServerAddress.setText(prefillAddress);
+            int prefillPort = getIntent().getIntExtra(ARG_PORT, -1);
+            if (prefillPort != -1)
+                mServerPort.setText(String.valueOf(prefillPort));
+            ArrayList<String> prefillAutojoinChannels =
+                    getIntent().getStringArrayListExtra(ARG_AUTOJOIN_CHANNELS);
+            if (prefillAutojoinChannels != null)
+                mServerChannels.setItems(prefillAutojoinChannels);
         }
     }
 
