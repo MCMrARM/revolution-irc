@@ -1,5 +1,7 @@
 package io.mrarm.irc.dialog;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialog;
@@ -12,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -215,6 +218,10 @@ public class UserBottomSheetDialog {
                 super(itemView);
                 mTitle = itemView.findViewById(R.id.title);
                 mValue = itemView.findViewById(R.id.value);
+                itemView.setOnLongClickListener((View v) -> {
+                    copyValueToClipbord(v.getContext(), mTitle.getText(), mValue.getText());
+                    return true;
+                });
             }
 
             public void bind(Pair<String, String> entry) {
@@ -245,6 +252,10 @@ public class UserBottomSheetDialog {
             mUser = itemView.findViewById(R.id.user);
             setCompactMode(false, true);
             mElevation = mContext.getResources().getDimensionPixelSize(R.dimen.abc_action_bar_elevation_material);
+
+            mNick.setOnLongClickListener(createLongClickListener(mContext, R.string.user_nick));
+            mUser.setOnLongClickListener(createLongClickListener(mContext, R.string.server_user));
+            mName.setOnLongClickListener(createLongClickListener(mContext, R.string.server_realname));
         }
 
         public void bind() {
@@ -329,6 +340,22 @@ public class UserBottomSheetDialog {
             setCompactMode(compactMode, false);
         }
 
+    }
+
+    private static void copyValueToClipbord(Context context, CharSequence key, CharSequence value) {
+        ClipboardManager clipboard = (ClipboardManager) context
+                .getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText(key, value);
+        clipboard.setPrimaryClip(clip);
+        Toast.makeText(context, context.getString(R.string.user_info_copied, key),
+                Toast.LENGTH_SHORT).show();
+    }
+
+    private static View.OnLongClickListener createLongClickListener(Context context, int resId) {
+        return (View v) -> {
+            copyValueToClipbord(context, context.getString(resId), ((TextView) v).getText());
+            return true;
+        };
     }
 
 }
