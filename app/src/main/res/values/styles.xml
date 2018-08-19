@@ -33,8 +33,7 @@
         <item name="android:enabled">true</item>
     </style>
 
-    <style name="AppTheme.Spinner" parent="Widget.AppCompat.EditText">
-    </style>
+    <style name="AppTheme.Spinner" parent="Widget.AppCompat.EditText"></style>
 
     <style name="Icon">
         <item name="tint">@color/iconColor</item>

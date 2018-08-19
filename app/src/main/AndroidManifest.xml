@@ -7,14 +7,14 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
+        android:name=".IRCApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:manageSpaceActivity=".StorageSettingsActivity"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:name=".IRCApplication">
+        android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|screenLayout"
@@ -24,18 +24,35 @@
             android:windowSoftInputMode="adjustResize|stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
+
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
-        <activity android:name=".ShareTargetActivity"
+        <activity
+            android:name=".IRCLinkActivity"
+            android:label="@string/title_activity_irc_link">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="irc" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ShareTargetActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="text/plain" />
             </intent-filter>
 
@@ -96,9 +113,12 @@
             android:theme="@style/AppTheme.NoActionBar.OpaqueStatusBar" />
 
         <service android:name=".IRCService" />
-        <service android:name=".job.ServerPingJobService"
+        <service
+            android:name=".job.ServerPingJobService"
             android:permission="android.permission.BIND_JOB_SERVICE" />
+
         <receiver android:name=".job.ServerPingBroadcastReceiver" />
+
         <service
             android:name=".IRCChooserTargetService"
             android:label="@string/app_name"
