@@ -17,6 +17,7 @@ import io.mrarm.irc.R;
 import io.mrarm.irc.dialog.StorageLimitsDialog;
 import io.mrarm.irc.setting.ListWithCustomSetting;
 import io.mrarm.irc.setting.ReconnectIntervalSetting;
+import io.mrarm.irc.view.ChipsEditText;
 
 public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -150,7 +151,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         String s = mPreferences.getString(PREF_DEFAULT_NICKS, null);
         if (s == null || s.equals(""))
             return new String[0];
-        return s.split("\n");
+        return s.split(String.valueOf(ChipsEditText.SEPARATOR));
     }
 
     public String getDefaultPrimaryNick() {
