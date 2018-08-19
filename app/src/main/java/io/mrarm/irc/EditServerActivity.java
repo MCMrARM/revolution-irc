@@ -1,5 +1,6 @@
 package io.mrarm.irc;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.design.widget.TextInputLayout;
@@ -38,6 +39,8 @@ import io.mrarm.irc.view.ChipsEditText;
 public class EditServerActivity extends ThemedActivity {
 
     private static String TAG = "EditServerActivity";
+
+    public static final String RESULT_ACTION = "io.mrarm.irc.EDIT_SERVER_RESULT_ACTION";
 
     public static String ARG_SERVER_UUID = "server_uuid";
     public static String ARG_COPY = "copy";
@@ -410,10 +413,15 @@ public class EditServerActivity extends ThemedActivity {
                 mServerChannels.clearFocus();
                 if (!save())
                     return true;
+
+                Intent result = new Intent(RESULT_ACTION);
+                result.putExtra(ARG_SERVER_UUID, mEditServer.uuid.toString());
+                setResult(Activity.RESULT_OK, result);
             }
 
             InputMethodManager manager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
             manager.hideSoftInputFromWindow(getWindow().getDecorView().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
             finish();
             return true;
         }

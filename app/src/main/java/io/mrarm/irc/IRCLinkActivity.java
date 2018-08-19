@@ -15,12 +15,18 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.util.AdvancedDividerItemDecoration;
 
 public class IRCLinkActivity extends ThemedActivity {
+
+    private static final int REQUEST_ADD_SERVER = 100;
+
+    private String mHostName;
+    private String mChannelName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,10 +37,31 @@ public class IRCLinkActivity extends ThemedActivity {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        mHostName = "irc.mrarm.io";
+        mChannelName = "#testing";
+
         LinkServerListAdapter adapter = new LinkServerListAdapter(
-                this, "irc.mrarm.io", "#testing");
+                this, mHostName, mChannelName);
         recyclerView.setAdapter(adapter);
         recyclerView.addItemDecoration(adapter.createItemDecoration(this));
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_ADD_SERVER && data != null && data.getAction() != null &&
+                data.getAction().equals(EditServerActivity.RESULT_ACTION)) {
+            ServerConnectionManager mgr = ServerConnectionManager.getInstance(this);
+
+            String uuid = data.getStringExtra(EditServerActivity.ARG_SERVER_UUID);
+            ServerConfigData server = ServerConfigManager.getInstance(this).findServer(
+                    UUID.fromString(uuid));
+            mgr.tryCreateConnection(server, this);
+            ServerConnectionInfo connection = mgr.getConnection(server.uuid);
+            startActivity(MainActivity.getLaunchIntent(this, connection, mChannelName));
+            finish();
+            return;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private static class LinkServerListAdapter extends RecyclerView.Adapter {
@@ -274,8 +301,7 @@ public class IRCLinkActivity extends ThemedActivity {
                     intent.putExtra(EditServerActivity.ARG_NAME, mHostName);
                     intent.putExtra(EditServerActivity.ARG_ADDRESS, mHostName);
                     intent.putExtra(EditServerActivity.ARG_AUTOJOIN_CHANNELS, channels);
-                    v.getContext().startActivity(intent);
-                    mContext.finish();
+                    mContext.startActivityForResult(intent, REQUEST_ADD_SERVER);
                 }
                 if (mActionType == ACTION_SHOW_ALL) {
                     reloadServerList(false);
