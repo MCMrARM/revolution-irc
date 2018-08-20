@@ -32,8 +32,11 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -512,7 +515,7 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
             long size = cursor.isNull(sizeIndex) ? -1 : cursor.getLong(sizeIndex);
 
             String channel = ((ChatFragment) getCurrentFragment()).getCurrentChannel();
-            DCCServerManager.UploadEntry upload = null;
+            DCCServerManager.UploadEntry upload;
             try {
                 ParcelFileDescriptor desc = getContentResolver().openFileDescriptor(uri, "r");
                 if (desc == null)
@@ -520,9 +523,11 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
                 if (size == -1)
                     size = desc.getStatSize();
                 upload = DCCManager.getInstance().getServerManager()
-                        .startUpload(channel, name, desc.getFileDescriptor());
+                        .startUpload(channel, name, () -> new FileInputStream(
+                                desc.getFileDescriptor()).getChannel().position(0));
             } catch (IOException e) {
                 Toast.makeText(this, R.string.error_file_open, Toast.LENGTH_SHORT).show();
+                return;
             }
             ((ChatFragment) getCurrentFragment()).getConnectionInfo().getApiInstance().sendMessage(
                     channel, DCCManager.buildSendMessage(name, upload.getPort(), size),
