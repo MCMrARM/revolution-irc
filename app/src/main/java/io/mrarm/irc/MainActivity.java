@@ -5,6 +5,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.ParcelFileDescriptor;
+import android.provider.OpenableColumns;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
@@ -26,7 +30,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -35,6 +42,7 @@ import java.util.UUID;
 import io.mrarm.chatlib.ChatApi;
 import io.mrarm.chatlib.dto.NickWithPrefix;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
+import io.mrarm.chatlib.irc.dcc.DCCServerManager;
 import io.mrarm.irc.chat.ChannelInfoAdapter;
 import io.mrarm.irc.chat.ChatFragment;
 import io.mrarm.irc.dialog.ThemedAlertDialog;
@@ -52,6 +60,8 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
     public static final String ARG_SERVER_UUID = "server_uuid";
     public static final String ARG_CHANNEL_NAME = "channel";
     public static final String ARG_MANAGE_SERVERS = "manage_servers";
+
+    private static final int REQUEST_CODE_PICK_FILE_DCC = 100;
 
     private NightModeRecreateHelper mNightModeHelper = new NightModeRecreateHelper(this);
     private LockableDrawerLayout mDrawerLayout;
@@ -413,6 +423,13 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
                 partItem.setVisible(true);
                 partItem.setTitle(R.string.action_part_channel);
             }
+            boolean wasDccSendVisible = menu.findItem(R.id.action_dcc_send).isVisible();
+            boolean dccSendVisible = SettingsHelper.getInstance(this).isChatDccSendVisible()
+                    && connected;
+            if (dccSendVisible != wasDccSendVisible) {
+                menu.findItem(R.id.action_dcc_send).setVisible(dccSendVisible);
+                hasChanges = true;
+            }
         }
         return super.onPrepareOptionsMenu(menu) | hasChanges;
     }
@@ -452,6 +469,11 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
             String channel = ((ChatFragment) getCurrentFragment()).getCurrentChannel();
             if (channel != null)
                 api.leaveChannel(channel, SettingsHelper.getInstance(this).getDefaultPartMessage(), null, null);
+        } else if (id == R.id.action_dcc_send) {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("*/*");
+            startActivityForResult(intent, REQUEST_CODE_PICK_FILE_DCC);
         } else if (id == R.id.action_ignore_list) {
             ServerConnectionInfo info = ((ChatFragment) getCurrentFragment()).getConnectionInfo();
             Intent intent = new Intent(this, IgnoreListActivity.class);
@@ -476,6 +498,39 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
             return super.onOptionsItemSelected(item);
         }
         return true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE_PICK_FILE_DCC) {
+            Uri uri = data.getData();
+            Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+            int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+            int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+            cursor.moveToFirst();
+            String name = cursor.getString(nameIndex);
+            long size = cursor.isNull(sizeIndex) ? -1 : cursor.getLong(sizeIndex);
+
+            String channel = ((ChatFragment) getCurrentFragment()).getCurrentChannel();
+            DCCServerManager.UploadEntry upload = null;
+            try {
+                ParcelFileDescriptor desc = getContentResolver().openFileDescriptor(uri, "r");
+                if (desc == null)
+                    throw new IOException();
+                if (size == -1)
+                    size = desc.getStatSize();
+                upload = DCCManager.getInstance().getServerManager()
+                        .startUpload(channel, name, desc.getFileDescriptor());
+            } catch (IOException e) {
+                Toast.makeText(this, R.string.error_file_open, Toast.LENGTH_SHORT).show();
+            }
+            ((ChatFragment) getCurrentFragment()).getConnectionInfo().getApiInstance().sendMessage(
+                    channel, DCCManager.buildSendMessage(name, upload.getPort(), size),
+                    null, null);
+
+            return;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
