@@ -5,17 +5,7 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
 
-import io.mrarm.chatlib.irc.dcc.DCCServerManager;
-
 public class DCCManager {
-
-    private static DCCManager sInstance = new DCCManager();
-
-    public static DCCManager getInstance() {
-        return sInstance;
-    }
-
-    private DCCServerManager mServerManager = new DCCServerManager();
 
     public static String getLocalIP() {
         try {
@@ -61,12 +51,7 @@ public class DCCManager {
         StringBuilder sendCmd = new StringBuilder();
         sendCmd.append('\001');
         sendCmd.append("DCC SEND ");
-        boolean nameHasSpaces = name.contains(" ");
-        if (nameHasSpaces)
-            sendCmd.append('\"');
         sendCmd.append(name);
-        if (nameHasSpaces)
-            sendCmd.append('\"');
         sendCmd.append(' ');
         sendCmd.append(convertIPForDCC(DCCManager.getLocalIP()));
         sendCmd.append(' ');
@@ -77,7 +62,4 @@ public class DCCManager {
         return sendCmd.toString();
     }
 
-    public DCCServerManager getServerManager() {
-        return mServerManager;
-    }
 }

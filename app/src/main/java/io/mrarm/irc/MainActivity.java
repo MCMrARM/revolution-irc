@@ -46,6 +46,7 @@ import io.mrarm.chatlib.ChatApi;
 import io.mrarm.chatlib.dto.NickWithPrefix;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.chatlib.irc.dcc.DCCServerManager;
+import io.mrarm.chatlib.irc.dcc.DCCUtils;
 import io.mrarm.irc.chat.ChannelInfoAdapter;
 import io.mrarm.irc.chat.ChatFragment;
 import io.mrarm.irc.dialog.ThemedAlertDialog;
@@ -511,7 +512,7 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
             int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
             int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
             cursor.moveToFirst();
-            String name = cursor.getString(nameIndex);
+            String name = DCCUtils.escapeFilename(cursor.getString(nameIndex));
             long size = cursor.isNull(sizeIndex) ? -1 : cursor.getLong(sizeIndex);
 
             String channel = ((ChatFragment) getCurrentFragment()).getCurrentChannel();
@@ -522,8 +523,8 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
                     throw new IOException();
                 if (size == -1)
                     size = desc.getStatSize();
-                upload = DCCManager.getInstance().getServerManager()
-                        .startUpload(channel, name, () -> new FileInputStream(
+                upload = ((ChatFragment) getCurrentFragment()).getConnectionInfo()
+                        .getDCCServerManager().startUpload(channel, name, () -> new FileInputStream(
                                 desc.getFileDescriptor()).getChannel().position(0));
             } catch (IOException e) {
                 Toast.makeText(this, R.string.error_file_open, Toast.LENGTH_SHORT).show();
@@ -532,7 +533,6 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
             ((ChatFragment) getCurrentFragment()).getConnectionInfo().getApiInstance().sendMessage(
                     channel, DCCManager.buildSendMessage(name, upload.getPort(), size),
                     null, null);
-
             return;
         }
         super.onActivityResult(requestCode, resultCode, data);

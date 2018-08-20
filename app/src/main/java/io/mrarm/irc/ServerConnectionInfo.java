@@ -22,6 +22,7 @@ import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.chatlib.irc.ServerConnectionData;
 import io.mrarm.chatlib.irc.cap.SASLCapability;
 import io.mrarm.chatlib.irc.cap.SASLOptions;
+import io.mrarm.chatlib.irc.dcc.DCCServerManager;
 import io.mrarm.chatlib.irc.filters.ZNCPlaybackMessageFilter;
 import io.mrarm.chatlib.irc.handlers.MessageCommandHandler;
 import io.mrarm.chatlib.message.MessageStorageApi;
@@ -45,6 +46,7 @@ public class ServerConnectionInfo {
     private IRCConnectionRequest mConnectionRequest;
     private SASLOptions mSASLOptions;
     private SQLiteMiscStorage mSQLiteMiscStorage;
+    private DCCServerManager mDCCServerManager = new DCCServerManager();
     private boolean mExpandedInDrawer = true;
     private boolean mConnected = false;
     private boolean mConnecting = false;
@@ -125,8 +127,10 @@ public class ServerConnectionInfo {
                         new SASLCapability(mSASLOptions));
             connection.getServerConnectionData().getMessageFilterList().addMessageFilter(
                     new ZNCPlaybackMessageFilter(connection.getServerConnectionData()));
-            connection.getServerConnectionData().getCommandHandlerList().getHandler(
-                    MessageCommandHandler.class).setCtcpVersionReply(mManager.getContext()
+            MessageCommandHandler messageHandler = connection.getServerConnectionData()
+                    .getCommandHandlerList().getHandler(MessageCommandHandler.class);
+            messageHandler.setDCCServerManager(mDCCServerManager);
+            messageHandler.setCtcpVersionReply(mManager.getContext()
                     .getString(R.string.app_name), BuildConfig.VERSION_NAME, "Android");
             connection.addDisconnectListener((IRCConnection conn, Exception reason) -> {
                 notifyDisconnected();
@@ -300,6 +304,10 @@ public class ServerConnectionInfo {
 
     public synchronized SQLiteMiscStorage getSQLiteMiscStorage() {
         return mSQLiteMiscStorage;
+    }
+
+    public DCCServerManager getDCCServerManager() {
+        return mDCCServerManager;
     }
 
     public boolean isConnected() {
