@@ -18,6 +18,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import io.mrarm.irc.R;
+import io.mrarm.irc.util.RecyclerViewScrollerRunnable;
 import io.mrarm.irc.util.TextSelectionHandlePopup;
 import io.mrarm.irc.util.TextSelectionHelper;
 import io.mrarm.irc.view.TextSelectionHandleView;
@@ -29,6 +30,8 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
     private BaseActionModeCallback mActionModeCallback;
     private ActionModeCallback2 mActionModeCallback2;
     private ActionModeStateCallback mActionModeStateCallback;
+
+    private RecyclerViewScrollerRunnable mScroller;
 
     private int mSelectionStartIndex = -1;
     private int mSelectionStartOffset = -1;
@@ -51,6 +54,16 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
 
     public ChatSelectTouchListener(RecyclerView recyclerView) {
         mRecyclerView = recyclerView;
+        mScroller = new RecyclerViewScrollerRunnable(recyclerView, (int scrollDir) -> {
+            if (scrollDir < 0) {
+                handleSelection(0, 0, 0, 0);
+            } else if (scrollDir > 0) {
+                mRecyclerView.getLocationOnScreen(mTmpLocation);
+                handleSelection(mRecyclerView.getWidth(), mRecyclerView.getHeight(),
+                        mTmpLocation[0] + mRecyclerView.getWidth(),
+                        mTmpLocation[1] + mRecyclerView.getHeight());
+            }
+        });
         mActionModeCallback = new BaseActionModeCallback();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             mActionModeCallback2 = new ActionModeCallback2(mActionModeCallback);
@@ -106,29 +119,17 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
             mActionModeCallback.mCurrentActionMode.finish();
     }
 
-    @Override
-    public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-        if (e.getActionMasked() == MotionEvent.ACTION_DOWN)
-            hideActionModeForSelection();
-        if (e.getActionMasked() == MotionEvent.ACTION_UP) {
-            mRecyclerView.getParent().requestDisallowInterceptTouchEvent(false);
-            mSelectionLongPressMode = false;
-            if (mSelectionStartIndex != -1) {
-                showHandles();
-                showActionMode();
-            }
-        }
-
-        View view = rv.findChildViewUnder(e.getX(), e.getY());
+    private boolean handleSelection(float x, float y, float rawX, float rawY) {
+        View view = mRecyclerView.findChildViewUnder(x, y);
         if (view == null)
             return mSelectionLongPressMode;
-        int index = rv.getChildAdapterPosition(view);
+        int index = mRecyclerView.getChildAdapterPosition(view);
         TextView textView = findTextViewIn(view);
         if (textView == null)
             return mSelectionLongPressMode;
         view.getLocationOnScreen(mTmpLocation);
-        float viewX = e.getRawX() - mTmpLocation[0];
-        float viewY = e.getRawY() - mTmpLocation[1];
+        float viewX = rawX - mTmpLocation[0];
+        float viewY = rawY - mTmpLocation[1];
 
         mLastTouchTextIndex = index;
         mLastTouchTextOffset = textView.getOffsetForPosition(viewX, viewY);
@@ -149,6 +150,29 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
             return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+        if (e.getActionMasked() == MotionEvent.ACTION_DOWN)
+            hideActionModeForSelection();
+        if (e.getActionMasked() == MotionEvent.ACTION_UP) {
+            mRecyclerView.getParent().requestDisallowInterceptTouchEvent(false);
+            mSelectionLongPressMode = false;
+            if (mSelectionStartIndex != -1) {
+                showHandles();
+                showActionMode();
+            }
+        }
+
+        if (e.getY() < 0)
+            mScroller.setScrollDir(-1);
+        else if (e.getY() > mRecyclerView.getHeight())
+            mScroller.setScrollDir(1);
+        else
+            mScroller.setScrollDir(0);
+
+        return handleSelection(e.getX(), e.getY(), e.getRawX(), e.getRawY());
     }
 
     @Override

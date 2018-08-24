@@ -18,11 +18,16 @@ public class LongPressSelectTouchListener implements RecyclerView.OnItemTouchLis
     private Rect mTempRect = new Rect();
     private int mStartElementPos = -1;
     private int mEndElementPos = -1;
-    private ScrollerRunnable mScroller;
+    private RecyclerViewScrollerRunnable mScroller;
 
     public LongPressSelectTouchListener(RecyclerView recyclerView) {
         mRecyclerView = recyclerView;
-        mScroller = new ScrollerRunnable();
+        mScroller = new RecyclerViewScrollerRunnable(recyclerView, (int scrollDir) -> {
+            LinearLayoutManager llm = (LinearLayoutManager) mRecyclerView.getLayoutManager();
+            updateHightlightedElements(mRecyclerView, scrollDir > 0
+                    ? llm.findLastCompletelyVisibleItemPosition()
+                    : llm.findFirstCompletelyVisibleItemPosition());
+        });
     }
 
     public void startSelectMode(int startPos) {
@@ -129,44 +134,6 @@ public class LongPressSelectTouchListener implements RecyclerView.OnItemTouchLis
         void onElementSelected(RecyclerView recyclerView, int adapterPos);
 
         void onElementHighlighted(RecyclerView recyclerView, int adapterPos, boolean highlight);
-
-    }
-
-    private class ScrollerRunnable implements Runnable {
-
-        private int mScrollDir = 0;
-        private int mAutoscrollAmount;
-        private long mPrevTime;
-
-        public ScrollerRunnable() {
-            mAutoscrollAmount = mRecyclerView.getContext().getResources().getDimensionPixelSize(R.dimen.touch_press_select_autoscroll_amount);
-        }
-
-        public void setScrollDir(int dir) {
-            if (mScrollDir == dir)
-                return;
-            if (dir != 0 && mScrollDir == 0)
-                ViewCompat.postOnAnimation(mRecyclerView, this);
-            mScrollDir = dir;
-            mPrevTime = AnimationUtils.currentAnimationTimeMillis();
-        }
-
-        @Override
-        public void run() {
-            if (mScrollDir == 0)
-                return;
-
-            long now = AnimationUtils.currentAnimationTimeMillis();
-            float delta = (now - mPrevTime) * 0.001f;
-            mPrevTime = now;
-
-            mRecyclerView.scrollBy(0, (int) (delta * mAutoscrollAmount * mScrollDir));
-            LinearLayoutManager llm = (LinearLayoutManager) mRecyclerView.getLayoutManager();
-            updateHightlightedElements(mRecyclerView, mScrollDir > 0
-                    ? llm.findLastCompletelyVisibleItemPosition()
-                    : llm.findFirstCompletelyVisibleItemPosition());
-            ViewCompat.postOnAnimation(mRecyclerView, this);
-        }
 
     }
 
