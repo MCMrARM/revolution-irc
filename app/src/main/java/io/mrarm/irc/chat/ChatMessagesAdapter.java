@@ -155,6 +155,8 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             super(v);
             mText = v.findViewById(R.id.chat_message);
             v.setOnClickListener((View view) -> {
+                if (mSelectListener != null)
+                    mSelectListener.clearSelection();
                 if (mSelectedItems.size() > 0)
                     setSelected(!isSelected(), true);
             });
