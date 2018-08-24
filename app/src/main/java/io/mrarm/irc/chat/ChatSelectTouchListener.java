@@ -84,6 +84,8 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
     private void showHandles() {
         if (mLeftHandle == null)
             createHandles();
+        if (mSelectionLongPressMode)
+            return;
         showHandle(mLeftHandle, mSelectionStartIndex, mSelectionStartOffset);
         showHandle(mRightHandle, mSelectionEndIndex, mSelectionEndOffset);
     }
@@ -111,8 +113,10 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
         if (e.getActionMasked() == MotionEvent.ACTION_UP) {
             mRecyclerView.getParent().requestDisallowInterceptTouchEvent(false);
             mSelectionLongPressMode = false;
-            showHandles();
-            showActionMode();
+            if (mSelectionStartIndex != -1) {
+                showHandles();
+                showActionMode();
+            }
         }
 
         View view = rv.findChildViewUnder(e.getX(), e.getY());
