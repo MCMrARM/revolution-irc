@@ -44,7 +44,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         mFragment = fragment;
         StyledAttributesHelper ta = StyledAttributesHelper.obtainStyledAttributes(fragment.getContext(),
                 new int[] { R.attr.selectableItemBackground, R.attr.colorControlHighlight });
-        mItemBackground = ta.getDrawable(R.attr.selectableItemBackground);
+        // mItemBackground = ta.getDrawable(R.attr.selectableItemBackground);
         int color = ta.getColor(R.attr.colorControlHighlight, 0);
         //color = ColorUtils.setAlphaComponent(color, Color.alpha(color) / 2);
         mSelectedItemBackground = new ColorDrawable(color);
@@ -170,7 +170,10 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 }
                 return true;
             });
-            mText.setBackground(mItemBackground.getConstantState().newDrawable());
+            if (mItemBackground != null)
+                mText.setBackground(mItemBackground.getConstantState().newDrawable());
+            else
+                mText.setBackground(null);
             mText.setMovementMethod(LinkMovementMethod.getInstance());
         }
 
