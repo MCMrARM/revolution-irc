@@ -42,6 +42,10 @@ public class TextSelectionHandlePopup {
         mWindow.dismiss();
     }
 
+    public boolean isVisible() {
+        return mWindow.isShowing();
+    }
+
     public void setOnMoveListener(TextSelectionHandleView.MoveListener listener) {
         mView.setOnMoveListener(listener);
     }

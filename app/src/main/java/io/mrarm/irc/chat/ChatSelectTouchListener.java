@@ -24,7 +24,8 @@ import io.mrarm.irc.util.TextSelectionHandlePopup;
 import io.mrarm.irc.util.TextSelectionHelper;
 import io.mrarm.irc.view.TextSelectionHandleView;
 
-public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener {
+public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener,
+        View.OnAttachStateChangeListener {
 
     private static final int MAX_CLICK_DURATION = 200;
     private static final int MAX_CLICK_DISTANCE = 30;
@@ -76,6 +77,16 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
             mActionModeCallback2 = new ActionModeCallback2(mActionModeCallback);
         recyclerView.getViewTreeObserver().addOnScrollChangedListener(this::showHandles);
         recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(this::showHandles);
+        recyclerView.addOnAttachStateChangeListener(this);
+    }
+
+    @Override
+    public void onViewAttachedToWindow(View v) {
+    }
+
+    @Override
+    public void onViewDetachedFromWindow(View v) {
+        clearSelection();
     }
 
     public void setActionModeStateCallback(ActionModeStateCallback callback) {
@@ -108,6 +119,8 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
             return;
         showHandle(mLeftHandle, mSelectionStartIndex, mSelectionStartOffset);
         showHandle(mRightHandle, mSelectionEndIndex, mSelectionEndOffset);
+        if (!mLeftHandle.isVisible() && !mRightHandle.isVisible() && mSelectionStartIndex != -1)
+            clearSelection();
     }
 
     private void showActionMode() {
