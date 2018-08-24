@@ -205,6 +205,28 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
         }
     }
 
+    public void applySelectionTo(View view, int position) {
+        TextView textView = findTextViewIn(view);
+        if (textView == null)
+            return;
+        if (position >= mSelectionStartIndex && position <= mSelectionEndIndex) {
+            if (mSelectionStartIndex == mSelectionEndIndex)
+                TextSelectionHelper.setSelection(textView.getContext(),
+                        (Spannable) textView.getText(), mSelectionStartOffset, mSelectionEndOffset);
+            else if (position == mSelectionStartIndex)
+                TextSelectionHelper.setSelection(textView.getContext(),
+                        (Spannable) textView.getText(), mSelectionStartOffset, textView.length());
+            else if (position == mSelectionEndOffset)
+                TextSelectionHelper.setSelection(textView.getContext(),
+                        (Spannable) textView.getText(), 0, mSelectionEndOffset);
+            else
+                TextSelectionHelper.setSelection(textView.getContext(),
+                        (Spannable) textView.getText(), 0, textView.length());
+        } else {
+            TextSelectionHelper.removeSelection((Spannable) textView.getText());
+        }
+    }
+
 
     private TextView findTextViewIn(View view) {
         return view.findViewById(R.id.chat_message);

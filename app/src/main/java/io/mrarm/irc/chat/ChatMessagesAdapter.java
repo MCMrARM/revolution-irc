@@ -34,10 +34,6 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private LongPressSelectTouchListener mMutliSelectListener;
     private ChatSelectTouchListener mSelectListener;
     private Set<Integer> mSelectedItems = new TreeSet<>();
-    private int mTextSelectionStartIndex = -1;
-    private int mTextSelectionStartOffset = -1;
-    private int mTextSelectionEndIndex = -1;
-    private int mTextSelectionEndOffset = -1;
     private Drawable mItemBackground;
     private Drawable mSelectedItemBackground;
     private Typeface mTypeface;
@@ -116,7 +112,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         int viewType = holder.getItemViewType();
         if (viewType == TYPE_MESSAGE) {
-            ((MessageHolder) holder).bind(mMessages.get(position), mSelectedItems.contains(position) || (mMutliSelectListener != null ? mMutliSelectListener.isElementHightlighted(position) : false));
+            ((MessageHolder) holder).bind(mMessages.get(position), position);
         }
     }
 
@@ -183,24 +179,30 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 else
                     mSelectedItems.remove(getAdapterPosition());
             }
-            mText.setBackgroundDrawable(selected
+            mText.setBackground(selected
                     ? mSelectedItemBackground.getConstantState().newDrawable()
                     : mItemBackground.getConstantState().newDrawable());
             if (mSelectedItems.size() == 0)
                 mFragment.hideMessagesActionMenu();
         }
 
-        public void bind(MessageInfo message, boolean selected) {
+        public void bind(MessageInfo message, int position) {
             if (mTypeface != null)
                 mText.setTypeface(mTypeface);
             if (mFontSize != -1)
                 mText.setTextSize(TypedValue.COMPLEX_UNIT_SP, mFontSize);
 
-            setSelected(selected, false);
+            if (mMutliSelectListener != null)
+                setSelected(mSelectedItems.contains(position) ||
+                        mMutliSelectListener.isElementHightlighted(position), false);
+
             if (NotificationManager.getInstance().shouldMessageUseMentionFormatting(mFragment.getConnectionInfo(), mFragment.getChannelName(), message))
                 mText.setText(AlignToPointSpan.apply(mText, MessageBuilder.getInstance(mText.getContext()).buildMessageWithMention(message)));
             else
                 mText.setText(AlignToPointSpan.apply(mText, MessageBuilder.getInstance(mText.getContext()).buildMessage(message)));
+
+            if (mSelectListener != null)
+                mSelectListener.applySelectionTo(itemView, position);
         }
 
     }
