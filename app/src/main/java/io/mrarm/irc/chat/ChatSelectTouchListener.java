@@ -7,7 +7,9 @@ import android.view.View;
 import android.widget.TextView;
 
 import io.mrarm.irc.R;
+import io.mrarm.irc.util.TextSelectionHandlePopup;
 import io.mrarm.irc.util.TextSelectionHelper;
+import io.mrarm.irc.view.TextSelectionHandleView;
 
 public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener {
 
@@ -26,10 +28,41 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
     private int mLastTouchTextIndex;
     private int mLastTouchTextOffset;
 
+    private TextSelectionHandlePopup mLeftHandle;
+    private TextSelectionHandlePopup mRightHandle;
+
     private int[] mTmpLocation = new int[2];
 
     public ChatSelectTouchListener(RecyclerView recyclerView) {
         mRecyclerView = recyclerView;
+        recyclerView.getViewTreeObserver().addOnScrollChangedListener(this::showHandles);
+        recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(this::showHandles);
+    }
+
+    private void createHandles() {
+        mLeftHandle = new TextSelectionHandlePopup(mRecyclerView.getContext(), false);
+        mRightHandle = new TextSelectionHandlePopup(mRecyclerView.getContext(), true);
+        mLeftHandle.setOnMoveListener(new HandleMoveListener(false));
+        mRightHandle.setOnMoveListener(new HandleMoveListener(true));
+    }
+
+    private void showHandle(TextSelectionHandlePopup handle, int index, int offset) {
+        TextView textView = findTextViewIn(index);
+        if (textView != null) {
+            int line = textView.getLayout().getLineForOffset(offset);
+            int y = textView.getLayout().getLineBottom(line);
+            float x = textView.getLayout().getPrimaryHorizontal(offset);
+            handle.show(textView, (int) x, y);
+        } else {
+            handle.hide();
+        }
+    }
+
+    private void showHandles() {
+        if (mLeftHandle == null)
+            createHandles();
+        showHandle(mLeftHandle, mSelectionStartIndex, mSelectionStartOffset);
+        showHandle(mRightHandle, mSelectionEndIndex, mSelectionEndOffset);
     }
 
     @Override
@@ -37,6 +70,7 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
         if (e.getActionMasked() == MotionEvent.ACTION_UP) {
             mRecyclerView.getParent().requestDisallowInterceptTouchEvent(false);
             mSelectionLongPressMode = false;
+            showHandles();
         }
 
         View view = rv.findChildViewUnder(e.getX(), e.getY());
@@ -181,6 +215,56 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
         if (vh == null)
             return null;
         return findTextViewIn(vh.itemView);
+    }
+
+
+    private class HandleMoveListener implements TextSelectionHandleView.MoveListener {
+
+        private boolean mRightHandle;
+        private boolean mCurrentlyRightHandle;
+
+        public HandleMoveListener(boolean rightHandle) {
+            mRightHandle = rightHandle;
+        }
+
+        @Override
+        public void onMoveStarted() {
+            mCurrentlyRightHandle = mRightHandle;
+        }
+
+        @Override
+        public void onMoved(float x, float y) {
+            mRecyclerView.getLocationOnScreen(mTmpLocation);
+            View view = mRecyclerView.findChildViewUnder(x - mTmpLocation[0],
+                    y - mTmpLocation[1]);
+            int index = mRecyclerView.getChildAdapterPosition(view);
+            TextView textView = findTextViewIn(view);
+            if (textView == null)
+                return;
+            view.getLocationOnScreen(mTmpLocation);
+            int offset = textView.getOffsetForPosition(x - mTmpLocation[0],
+                    y - mTmpLocation[1]);
+
+            if (mCurrentlyRightHandle) {
+                if (index < mSelectionStartIndex ||
+                        (index == mSelectionStartIndex && offset < mSelectionStartOffset)) {
+                    setSelection(index, offset, mSelectionStartIndex, mSelectionStartOffset);
+                    mCurrentlyRightHandle = false;
+                } else {
+                    setSelection(mSelectionStartIndex, mSelectionStartOffset, index, offset);
+                }
+            } else {
+                if (index > mSelectionEndIndex ||
+                        (index == mSelectionEndIndex && offset > mSelectionEndOffset)) {
+                    setSelection(mSelectionEndIndex, mSelectionEndOffset, index, offset);
+                    mCurrentlyRightHandle = true;
+                } else {
+                    setSelection(index, offset, mSelectionEndIndex, mSelectionEndOffset);
+                }
+            }
+            showHandles();
+        }
+
     }
 
 }
