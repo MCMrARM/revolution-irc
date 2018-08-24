@@ -277,6 +277,10 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         return mPreferences.getBoolean(PREF_CHAT_SHOW_DCC_SEND, true);
     }
 
+    public boolean getChatUseMutliSelect() {
+        return false;
+    }
+
     public boolean isNickAutocompleteButtonVisible() {
         return mPreferences.getBoolean(PREF_NICK_AUTOCOMPLETE_SHOW_BUTTON, false);
     }

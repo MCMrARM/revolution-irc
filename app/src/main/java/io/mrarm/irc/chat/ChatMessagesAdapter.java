@@ -22,6 +22,7 @@ import io.mrarm.irc.util.AlignToPointSpan;
 import io.mrarm.irc.util.LongPressSelectTouchListener;
 import io.mrarm.irc.util.MessageBuilder;
 import io.mrarm.irc.util.StyledAttributesHelper;
+import io.mrarm.irc.util.TextSelectionHelper;
 
 public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         implements LongPressSelectTouchListener.Listener {
@@ -30,9 +31,13 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     private ChatMessagesFragment mFragment;
     private List<MessageInfo> mMessages;
-    private LongPressSelectTouchListener mSelectListener;
+    private LongPressSelectTouchListener mMutliSelectListener;
+    private ChatSelectTouchListener mSelectListener;
     private Set<Integer> mSelectedItems = new TreeSet<>();
-
+    private int mTextSelectionStartIndex = -1;
+    private int mTextSelectionStartOffset = -1;
+    private int mTextSelectionEndIndex = -1;
+    private int mTextSelectionEndOffset = -1;
     private Drawable mItemBackground;
     private Drawable mSelectedItemBackground;
     private Typeface mTypeface;
@@ -70,8 +75,12 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         return mMessages != null && mMessages.size() > 0;
     }
 
-    public void setSelectListener(LongPressSelectTouchListener selectListener) {
+    public void setSelectListener(ChatSelectTouchListener selectListener) {
         mSelectListener = selectListener;
+    }
+
+    public void setMultiSelectListener(LongPressSelectTouchListener selectListener) {
+        mMutliSelectListener = selectListener;
         if (selectListener != null)
             selectListener.setListener(this);
     }
@@ -107,7 +116,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         int viewType = holder.getItemViewType();
         if (viewType == TYPE_MESSAGE) {
-            ((MessageHolder) holder).bind(mMessages.get(position), mSelectedItems.contains(position) || mSelectListener.isElementHightlighted(position));
+            ((MessageHolder) holder).bind(mMessages.get(position), mSelectedItems.contains(position) || (mMutliSelectListener != null ? mMutliSelectListener.isElementHightlighted(position) : false));
         }
     }
 
@@ -147,12 +156,16 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                     setSelected(!isSelected(), true);
             });
             v.setOnLongClickListener((View view) -> {
-                setSelected(true, true);
-                mSelectListener.startSelectMode(getAdapterPosition());
-                mFragment.showMessagesActionMenu();
+                if (mSelectListener != null) {
+                    mSelectListener.startLongPressSelect();
+                } else {
+                    setSelected(true, true);
+                    mMutliSelectListener.startSelectMode(getAdapterPosition());
+                    mFragment.showMessagesActionMenu();
+                }
                 return true;
             });
-            mText.setBackgroundDrawable(mItemBackground.getConstantState().newDrawable());
+            mText.setBackground(mItemBackground.getConstantState().newDrawable());
             mText.setMovementMethod(LinkMovementMethod.getInstance());
         }
 

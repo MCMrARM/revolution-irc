@@ -250,9 +250,17 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
 
         if (mAdapter != null) {
             mRecyclerView.setAdapter(mAdapter);
-            LongPressSelectTouchListener selectTouchListener = new LongPressSelectTouchListener(mRecyclerView);
-            mAdapter.setSelectListener(selectTouchListener);
-            mRecyclerView.addOnItemTouchListener(selectTouchListener);
+            if (SettingsHelper.getInstance(getContext()).getChatUseMutliSelect()) {
+                LongPressSelectTouchListener selectTouchListener =
+                        new LongPressSelectTouchListener(mRecyclerView);
+                mAdapter.setMultiSelectListener(selectTouchListener);
+                mRecyclerView.addOnItemTouchListener(selectTouchListener);
+            } else {
+                ChatSelectTouchListener selectTouchListener =
+                        new ChatSelectTouchListener(mRecyclerView);
+                mAdapter.setSelectListener(selectTouchListener);
+                mRecyclerView.addOnItemTouchListener(selectTouchListener);
+            }
         } else if (mStatusAdapter != null) {
             mRecyclerView.setAdapter(mStatusAdapter);
         }
