@@ -135,7 +135,7 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
                     .setPriority(NotificationCompat.PRIORITY_MIN)
                     .setOnlyAlertOnce(true)
                     .setContentIntent(PendingIntent.getActivity(this, IDLE_NOTIFICATION_ID, mainIntent, PendingIntent.FLAG_CANCEL_CURRENT))
-                    .addAction(R.drawable.ic_close, getString(R.string.action_exit), exitIntent); // TODO: render the close icon for older android versions
+                    .addAction(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ? R.drawable.ic_close : R.drawable.ic_notification_close, getString(R.string.action_exit), exitIntent);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                 notification.setSmallIcon(R.drawable.ic_server_connected);
             else
