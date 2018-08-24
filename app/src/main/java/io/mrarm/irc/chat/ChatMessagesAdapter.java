@@ -1,6 +1,5 @@
 package io.mrarm.irc.chat;
 
-import android.content.Context;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -23,7 +22,6 @@ import io.mrarm.irc.util.AlignToPointSpan;
 import io.mrarm.irc.util.LongPressSelectTouchListener;
 import io.mrarm.irc.util.MessageBuilder;
 import io.mrarm.irc.util.StyledAttributesHelper;
-import io.mrarm.irc.util.TextSelectionHelper;
 
 public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         implements LongPressSelectTouchListener.Listener, ChatSelectTouchListener.AdapterInterface {
@@ -155,8 +153,6 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             super(v);
             mText = v.findViewById(R.id.chat_message);
             v.setOnClickListener((View view) -> {
-                if (mSelectListener != null)
-                    mSelectListener.clearSelection();
                 if (mSelectedItems.size() > 0)
                     setSelected(!isSelected(), true);
             });

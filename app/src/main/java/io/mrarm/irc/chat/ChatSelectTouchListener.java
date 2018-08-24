@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Rect;
 import android.os.Build;
 import android.support.v7.widget.RecyclerView;
@@ -25,6 +26,9 @@ import io.mrarm.irc.view.TextSelectionHandleView;
 
 public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener {
 
+    private static final int MAX_CLICK_DURATION = 200;
+    private static final int MAX_CLICK_DISTANCE = 30;
+
     private RecyclerView mRecyclerView;
 
     private BaseActionModeCallback mActionModeCallback;
@@ -45,6 +49,9 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
 
     private int mLastTouchTextIndex;
     private int mLastTouchTextOffset;
+
+    private float mTouchDownX;
+    private float mTouchDownY;
 
     private TextSelectionHandlePopup mLeftHandle;
     private TextSelectionHandlePopup mRightHandle;
@@ -154,9 +161,20 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
 
     @Override
     public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-        if (e.getActionMasked() == MotionEvent.ACTION_DOWN)
+        if (e.getActionMasked() == MotionEvent.ACTION_DOWN) {
+            mTouchDownX = e.getX();
+            mTouchDownY = e.getY();
             hideActionModeForSelection();
-        if (e.getActionMasked() == MotionEvent.ACTION_UP) {
+        }
+        if (e.getActionMasked() == MotionEvent.ACTION_UP ||
+                e.getActionMasked() == MotionEvent.ACTION_CANCEL) {
+            if (!mSelectionLongPressMode &&
+                    e.getEventTime() - e.getDownTime() < MAX_CLICK_DURATION &&
+                    Math.sqrt(Math.pow(e.getX() - mTouchDownX, 2) +
+                            Math.pow(e.getY() - mTouchDownY, 2)) < MAX_CLICK_DISTANCE *
+                            Resources.getSystem().getDisplayMetrics().density) {
+                clearSelection();
+            }
             mRecyclerView.getParent().requestDisallowInterceptTouchEvent(false);
             mSelectionLongPressMode = false;
             if (mSelectionStartIndex != -1) {
@@ -185,6 +203,8 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
     }
 
     public void startLongPressSelect() {
+        clearSelection();
+
         TextView textView = findTextViewIn(mLastTouchTextIndex);
         if (textView == null)
             return;
@@ -238,6 +258,7 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
         mSelectionStartOffset = -1;
         mSelectionEndIndex = -1;
         mSelectionEndOffset = -1;
+        showHandles();
     }
 
     public void setSelection(int startIndex, int startOffset, int endIndex, int endOffset) {
