@@ -8,4 +8,10 @@
         android:title="@string/action_copy"
         app:showAsAction="always" />
 
+    <item
+        android:id="@+id/action_share"
+        android:icon="@drawable/ic_share_white"
+        android:title="@string/action_share"
+        app:showAsAction="always" />
+
 </menu>

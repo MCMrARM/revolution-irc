@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
@@ -463,7 +464,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         }
     }
 
-    public void copySelectedMessages() {
+    private CharSequence getSelectedMessages() {
         Set<Integer> items = mAdapter.getSelectedItems();
         SpannableStringBuilder builder = new SpannableStringBuilder();
         boolean first = true;
@@ -474,9 +475,23 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                 builder.append('\n');
             builder.append(MessageBuilder.getInstance(getContext()).buildMessage(mMessages.get(msgIndex)));
         }
-        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-        clipboard.setPrimaryClip(ClipData.newPlainText("IRC Messages", builder));
+        return builder;
     }
+
+    public void copySelectedMessages() {
+        CharSequence messages = getSelectedMessages();
+        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+        clipboard.setPrimaryClip(ClipData.newPlainText("IRC Messages", messages));
+    }
+
+    public void shareSelectedMessages() {
+        CharSequence messages = getSelectedMessages();
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.putExtra(Intent.EXTRA_TEXT, messages);
+        intent.setType("text/plain");
+        mRecyclerView.getContext().startActivity(intent);
+    }
+
 
     private MessagesActionModeCallback mMessagesActionModeCallback;
 
@@ -503,6 +518,10 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             switch (item.getItemId()) {
                 case R.id.action_copy:
                     copySelectedMessages();
+                    mode.finish();
+                    return true;
+                case R.id.action_share:
+                    shareSelectedMessages();
                     mode.finish();
                     return true;
                 default:

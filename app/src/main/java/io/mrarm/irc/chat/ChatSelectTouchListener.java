@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.os.Build;
@@ -503,6 +504,14 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
                             .getSystemService(Context.CLIPBOARD_SERVICE);
                     clipboard.setPrimaryClip(
                             ClipData.newPlainText("IRC Messages", getSelectedText()));
+                    clearSelection();
+                    mode.finish();
+                    return true;
+                case R.id.action_share:
+                    Intent intent = new Intent(Intent.ACTION_SEND);
+                    intent.putExtra(Intent.EXTRA_TEXT, getSelectedText());
+                    intent.setType("text/plain");
+                    mRecyclerView.getContext().startActivity(intent);
                     clearSelection();
                     mode.finish();
                     return true;
