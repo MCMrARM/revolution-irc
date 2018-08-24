@@ -120,6 +120,8 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
         }
 
         View view = rv.findChildViewUnder(e.getX(), e.getY());
+        if (view == null)
+            return mSelectionLongPressMode;
         int index = rv.getChildAdapterPosition(view);
         TextView textView = findTextViewIn(view);
         if (textView == null)
@@ -337,6 +339,8 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
             mRecyclerView.getLocationOnScreen(mTmpLocation);
             View view = mRecyclerView.findChildViewUnder(x - mTmpLocation[0],
                     y - mTmpLocation[1]);
+            if (view == null)
+                return;
             int index = mRecyclerView.getChildAdapterPosition(view);
             TextView textView = findTextViewIn(view);
             if (textView == null)
