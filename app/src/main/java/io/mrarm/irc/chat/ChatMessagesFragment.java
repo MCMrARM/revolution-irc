@@ -258,6 +258,13 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             } else {
                 ChatSelectTouchListener selectTouchListener =
                         new ChatSelectTouchListener(mRecyclerView);
+                selectTouchListener.setActionModeStateCallback((android.view.ActionMode actionMode,
+                                                                boolean b) -> {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                            actionMode.getType() == android.view.ActionMode.TYPE_FLOATING)
+                        return;
+                    ((ChatFragment) getParentFragment()).setTabsHidden(b);
+                });
                 mAdapter.setSelectListener(selectTouchListener);
                 mRecyclerView.addOnItemTouchListener(selectTouchListener);
             }

@@ -80,6 +80,10 @@ public class TextSelectionHandleView extends View {
                     mMoveListener.onMoved(event.getRawX() + mMoveOffsetX,
                             event.getRawY() + mMoveOffsetY);
                 return true;
+            case MotionEvent.ACTION_UP:
+                if (mMoveListener != null)
+                    mMoveListener.onMoveFinished();
+                return true;
         }
         return false;
     }
@@ -87,6 +91,8 @@ public class TextSelectionHandleView extends View {
     public interface MoveListener {
 
         void onMoveStarted();
+
+        void onMoveFinished();
 
         void onMoved(float x, float y);
 

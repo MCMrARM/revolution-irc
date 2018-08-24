@@ -1,7 +1,18 @@
 package io.mrarm.irc.chat;
 
+import android.annotation.TargetApi;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.graphics.Rect;
+import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
@@ -14,6 +25,10 @@ import io.mrarm.irc.view.TextSelectionHandleView;
 public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener {
 
     private RecyclerView mRecyclerView;
+
+    private BaseActionModeCallback mActionModeCallback;
+    private ActionModeCallback2 mActionModeCallback2;
+    private ActionModeStateCallback mActionModeStateCallback;
 
     private int mSelectionStartIndex = -1;
     private int mSelectionStartOffset = -1;
@@ -32,11 +47,19 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
     private TextSelectionHandlePopup mRightHandle;
 
     private int[] mTmpLocation = new int[2];
+    private int[] mTmpLocation2 = new int[2];
 
     public ChatSelectTouchListener(RecyclerView recyclerView) {
         mRecyclerView = recyclerView;
+        mActionModeCallback = new BaseActionModeCallback();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            mActionModeCallback2 = new ActionModeCallback2(mActionModeCallback);
         recyclerView.getViewTreeObserver().addOnScrollChangedListener(this::showHandles);
         recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(this::showHandles);
+    }
+
+    public void setActionModeStateCallback(ActionModeStateCallback callback) {
+        mActionModeStateCallback = callback;
     }
 
     private void createHandles() {
@@ -65,12 +88,31 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
         showHandle(mRightHandle, mSelectionEndIndex, mSelectionEndOffset);
     }
 
+    private void showActionMode() {
+        if (mActionModeCallback.mCurrentActionMode != null)
+            return;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            mRecyclerView.startActionMode(mActionModeCallback2, ActionMode.TYPE_FLOATING);
+        } else {
+            mRecyclerView.startActionMode(mActionModeCallback);
+        }
+    }
+
+    private void hideActionModeForSelection() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                mActionModeCallback.mCurrentActionMode != null)
+            mActionModeCallback.mCurrentActionMode.finish();
+    }
+
     @Override
     public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+        if (e.getActionMasked() == MotionEvent.ACTION_DOWN)
+            hideActionModeForSelection();
         if (e.getActionMasked() == MotionEvent.ACTION_UP) {
             mRecyclerView.getParent().requestDisallowInterceptTouchEvent(false);
             mSelectionLongPressMode = false;
             showHandles();
+            showActionMode();
         }
 
         View view = rv.findChildViewUnder(e.getX(), e.getY());
@@ -129,7 +171,32 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
         mRecyclerView.getParent().requestDisallowInterceptTouchEvent(true);
     }
 
+    public CharSequence getSelectedText() {
+        if (mSelectionStartIndex == -1)
+            return "";
+        SpannableStringBuilder builder = new SpannableStringBuilder();
+        boolean first = true;
+        for (int i = mSelectionStartIndex; i <= mSelectionEndIndex; i++) {
+            if (first)
+                first = false;
+            else
+                builder.append('\n');
+            CharSequence text = ((AdapterInterface) mRecyclerView.getAdapter()).getTextAt(i);
+            if (i == mSelectionStartIndex && i == mSelectionEndIndex)
+                builder.append(text.subSequence(mSelectionStartOffset, mSelectionEndOffset));
+            else if (i == mSelectionStartIndex)
+                builder.append(text.subSequence(mSelectionStartOffset, text.length()));
+            else if (i == mSelectionEndIndex)
+                builder.append(text.subSequence(0, mSelectionEndOffset));
+            else
+                builder.append(text);
+        }
+        return builder;
+    }
+
     public void clearSelection() {
+        if (mActionModeCallback.mCurrentActionMode != null)
+            mActionModeCallback.mCurrentActionMode.finish();
         if (mSelectionStartIndex != -1) {
             for (int i = mSelectionStartIndex; i <= mSelectionEndIndex; i++) {
                 TextView textView = findTextViewIn(i);
@@ -255,7 +322,14 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
         }
 
         @Override
+        public void onMoveFinished() {
+            showActionMode();
+        }
+
+        @Override
         public void onMoved(float x, float y) {
+            hideActionModeForSelection();
+
             mRecyclerView.getLocationOnScreen(mTmpLocation);
             View view = mRecyclerView.findChildViewUnder(x - mTmpLocation[0],
                     y - mTmpLocation[1]);
@@ -287,6 +361,123 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
             showHandles();
         }
 
+    }
+
+    public class BaseActionModeCallback implements ActionMode.Callback {
+
+        private ActionMode mCurrentActionMode;
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            mCurrentActionMode = mode;
+            MenuInflater inflater = mode.getMenuInflater();
+            inflater.inflate(R.menu.menu_context_messages, menu);
+            mActionModeStateCallback.onActionModeStateChanged(mode, true);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.action_copy:
+                    ClipboardManager clipboard = (ClipboardManager) mRecyclerView.getContext()
+                            .getSystemService(Context.CLIPBOARD_SERVICE);
+                    clipboard.setPrimaryClip(
+                            ClipData.newPlainText("IRC Messages", getSelectedText()));
+                    clearSelection();
+                    mode.finish();
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            mActionModeStateCallback.onActionModeStateChanged(mode, false);
+            mCurrentActionMode = null;
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M ||
+                    mode.getType() != ActionMode.TYPE_FLOATING)
+                clearSelection();
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.M)
+    public class ActionModeCallback2 extends ActionMode.Callback2 {
+
+        private BaseActionModeCallback mActionMode;
+
+        ActionModeCallback2(BaseActionModeCallback actionMode) {
+            mActionMode = actionMode;
+        }
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            return mActionMode.onCreateActionMode(mode, menu);
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return mActionMode.onPrepareActionMode(mode, menu);
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            return mActionMode.onActionItemClicked(mode, item);
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            mActionMode.onDestroyActionMode(mode);
+        }
+
+        @Override
+        public void onGetContentRect(ActionMode mode, View view, Rect outRect) {
+            view.getLocationOnScreen(mTmpLocation);
+
+            TextView textViewStart = findTextViewIn(mSelectionStartIndex);
+            TextView textViewEnd = findTextViewIn(mSelectionEndIndex);
+            int lineStart = textViewStart != null ?
+                    textViewStart.getLayout().getLineForOffset(mSelectionStartOffset) : -1;
+            int lineEnd = textViewStart != null ?
+                    textViewStart.getLayout().getLineForOffset(mSelectionEndOffset) : -1;
+
+            outRect.top = 0;
+            if (textViewStart != null) {
+                textViewStart.getLocationOnScreen(mTmpLocation2);
+                outRect.top = mTmpLocation2[1] - mTmpLocation[1];
+                outRect.top += textViewStart.getLayout().getLineTop(lineStart);
+            }
+            outRect.bottom = view.getHeight();
+            if (textViewEnd != null) {
+                textViewEnd.getLocationOnScreen(mTmpLocation2);
+                outRect.bottom = mTmpLocation2[1] - mTmpLocation[1];
+                outRect.bottom += textViewStart.getLayout().getLineBottom(lineEnd);
+            }
+            outRect.left = 0;
+            outRect.right = view.getWidth();
+            if (textViewStart != null && textViewStart == textViewEnd && lineStart == lineEnd) {
+                textViewStart.getLocationOnScreen(mTmpLocation2);
+                outRect.left = mTmpLocation2[0] - mTmpLocation[0];
+                outRect.left += textViewStart.getLayout().getPrimaryHorizontal(mSelectionStartOffset);
+                outRect.right = mTmpLocation2[0] - mTmpLocation[0];
+                outRect.right += textViewStart.getLayout().getPrimaryHorizontal(mSelectionEndOffset);
+            }
+        }
+    }
+
+
+    public interface ActionModeStateCallback {
+        void onActionModeStateChanged(ActionMode mode, boolean visible);
+    }
+
+    public interface AdapterInterface {
+        CharSequence getTextAt(int position);
     }
 
 }

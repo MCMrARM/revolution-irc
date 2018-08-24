@@ -1,5 +1,6 @@
 package io.mrarm.irc.chat;
 
+import android.content.Context;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -25,7 +26,7 @@ import io.mrarm.irc.util.StyledAttributesHelper;
 import io.mrarm.irc.util.TextSelectionHelper;
 
 public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
-        implements LongPressSelectTouchListener.Listener {
+        implements LongPressSelectTouchListener.Listener, ChatSelectTouchListener.AdapterInterface {
 
     private static final int TYPE_MESSAGE = 0;
 
@@ -114,6 +115,12 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         if (viewType == TYPE_MESSAGE) {
             ((MessageHolder) holder).bind(mMessages.get(position), position);
         }
+    }
+
+    @Override
+    public CharSequence getTextAt(int position) {
+        return MessageBuilder.getInstance(mFragment.getContext())
+                .buildMessage(mMessages.get(position));
     }
 
     @Override
