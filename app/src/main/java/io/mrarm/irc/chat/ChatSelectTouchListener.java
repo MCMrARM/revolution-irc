@@ -38,17 +38,17 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
 
     private RecyclerViewScrollerRunnable mScroller;
 
-    private int mSelectionStartIndex = -1;
+    private long mSelectionStartId = -1;
     private int mSelectionStartOffset = -1;
-    private int mSelectionEndIndex = -1;
+    private long mSelectionEndId = -1;
     private int mSelectionEndOffset = -1;
 
     private boolean mSelectionLongPressMode = false;
-    private int mSelectionLongPressIndex = -1;
+    private long mSelectionLongPressId = -1;
     private int mSelectionLongPressStart = -1;
     private int mSelectionLongPressEnd = -1;
 
-    private int mLastTouchTextIndex;
+    private long mLastTouchTextId;
     private int mLastTouchTextOffset;
 
     private float mTouchDownX;
@@ -100,8 +100,8 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
         mRightHandle.setOnMoveListener(new HandleMoveListener(true));
     }
 
-    private void showHandle(TextSelectionHandlePopup handle, int index, int offset) {
-        TextView textView = findTextViewIn(index);
+    private void showHandle(TextSelectionHandlePopup handle, long id, int offset) {
+        TextView textView = findTextViewByItemId(id);
         if (textView != null) {
             int line = textView.getLayout().getLineForOffset(offset);
             int y = textView.getLayout().getLineBottom(line);
@@ -117,9 +117,9 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
             createHandles();
         if (mSelectionLongPressMode)
             return;
-        showHandle(mLeftHandle, mSelectionStartIndex, mSelectionStartOffset);
-        showHandle(mRightHandle, mSelectionEndIndex, mSelectionEndOffset);
-        if (!mLeftHandle.isVisible() && !mRightHandle.isVisible() && mSelectionStartIndex != -1)
+        showHandle(mLeftHandle, mSelectionStartId, mSelectionStartOffset);
+        showHandle(mRightHandle, mSelectionEndId, mSelectionEndOffset);
+        if (!mLeftHandle.isVisible() && !mRightHandle.isVisible() && mSelectionStartId != -1)
             clearSelection();
     }
 
@@ -143,6 +143,7 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
         View view = mRecyclerView.findChildViewUnder(x, y);
         if (view == null)
             return mSelectionLongPressMode;
+        long id = mRecyclerView.getChildItemId(view);
         int index = mRecyclerView.getChildAdapterPosition(view);
         TextView textView = findTextViewIn(view);
         if (textView == null)
@@ -151,21 +152,21 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
         float viewX = rawX - mTmpLocation[0];
         float viewY = rawY - mTmpLocation[1];
 
-        mLastTouchTextIndex = index;
+        mLastTouchTextId = id;
         mLastTouchTextOffset = textView.getOffsetForPosition(viewX, viewY);
         if (mSelectionLongPressMode) {
             long sel = TextSelectionHelper.getWordAt(textView.getText(), mLastTouchTextOffset,
                     mLastTouchTextOffset + 1);
             int selStart = TextSelectionHelper.unpackTextRangeStart(sel);
             int selEnd = TextSelectionHelper.unpackTextRangeEnd(sel);
-            if (mLastTouchTextIndex > mSelectionLongPressIndex ||
-                    (mLastTouchTextIndex == mSelectionLongPressIndex &&
-                            selEnd >= mSelectionLongPressStart)) {
-                setSelection(mSelectionLongPressIndex, mSelectionLongPressStart,
-                        mLastTouchTextIndex, selEnd);
+            int selLongPressIndex = getItemPosition(mSelectionLongPressId);
+            if (index > selLongPressIndex ||
+                    (index == selLongPressIndex && selEnd >= mSelectionLongPressStart)) {
+                setSelection(mSelectionLongPressId, mSelectionLongPressStart,
+                        mLastTouchTextId, selEnd);
             } else {
-                setSelection(mLastTouchTextIndex, selStart,
-                        mSelectionLongPressIndex, mSelectionLongPressEnd);
+                setSelection(mLastTouchTextId, selStart,
+                        mSelectionLongPressId, mSelectionLongPressEnd);
             }
             return true;
         }
@@ -190,7 +191,7 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
             }
             mRecyclerView.getParent().requestDisallowInterceptTouchEvent(false);
             mSelectionLongPressMode = false;
-            if (mSelectionStartIndex != -1) {
+            if (mSelectionStartId != -1) {
                 showHandles();
                 showActionMode();
             }
@@ -218,38 +219,40 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
     public void startLongPressSelect() {
         clearSelection();
 
-        TextView textView = findTextViewIn(mLastTouchTextIndex);
+        TextView textView = findTextViewByItemId(mLastTouchTextId);
         if (textView == null)
             return;
 
         mSelectionLongPressMode = true;
-        mSelectionLongPressIndex = mLastTouchTextIndex;
+        mSelectionLongPressId = mLastTouchTextId;
 
         long sel = TextSelectionHelper.getWordAt(textView.getText(), mLastTouchTextOffset,
                 mLastTouchTextOffset + 1);
         mSelectionLongPressStart = TextSelectionHelper.unpackTextRangeStart(sel);
         mSelectionLongPressEnd = TextSelectionHelper.unpackTextRangeEnd(sel);
-        setSelection(mSelectionLongPressIndex, mSelectionLongPressStart,
-                mSelectionLongPressIndex, mSelectionLongPressEnd);
+        setSelection(mSelectionLongPressId, mSelectionLongPressStart,
+                mSelectionLongPressId, mSelectionLongPressEnd);
         mRecyclerView.getParent().requestDisallowInterceptTouchEvent(true);
     }
 
     public CharSequence getSelectedText() {
-        if (mSelectionStartIndex == -1)
+        if (mSelectionStartId == -1)
             return "";
         SpannableStringBuilder builder = new SpannableStringBuilder();
         boolean first = true;
-        for (int i = mSelectionStartIndex; i <= mSelectionEndIndex; i++) {
+        int selStartIndex = getItemPosition(mSelectionStartId);
+        int selEndIndex = getItemPosition(mSelectionEndId);
+        for (int i = selStartIndex; i <= selEndIndex; i++) {
             if (first)
                 first = false;
             else
                 builder.append('\n');
             CharSequence text = ((AdapterInterface) mRecyclerView.getAdapter()).getTextAt(i);
-            if (i == mSelectionStartIndex && i == mSelectionEndIndex)
+            if (i == selStartIndex && i == selEndIndex)
                 builder.append(text.subSequence(mSelectionStartOffset, mSelectionEndOffset));
-            else if (i == mSelectionStartIndex)
+            else if (i == selStartIndex)
                 builder.append(text.subSequence(mSelectionStartOffset, text.length()));
-            else if (i == mSelectionEndIndex)
+            else if (i == selEndIndex)
                 builder.append(text.subSequence(0, mSelectionEndOffset));
             else
                 builder.append(text);
@@ -260,46 +263,52 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
     public void clearSelection() {
         if (mActionModeCallback.mCurrentActionMode != null)
             mActionModeCallback.mCurrentActionMode.finish();
-        if (mSelectionStartIndex != -1) {
-            for (int i = mSelectionStartIndex; i <= mSelectionEndIndex; i++) {
-                TextView textView = findTextViewIn(i);
+        if (mSelectionStartId != -1) {
+            int selStartIndex = getItemPosition(mSelectionStartId);
+            int selEndIndex = getItemPosition(mSelectionEndId);
+            for (int i = selStartIndex; i <= selEndIndex; i++) {
+                TextView textView = findTextViewByPosition(i);
                 if (textView != null)
                     TextSelectionHelper.removeSelection((Spannable) textView.getText());
             }
         }
-        mSelectionStartIndex = -1;
+        mSelectionStartId = -1;
         mSelectionStartOffset = -1;
-        mSelectionEndIndex = -1;
+        mSelectionEndId = -1;
         mSelectionEndOffset = -1;
         showHandles();
     }
 
-    public void setSelection(int startIndex, int startOffset, int endIndex, int endOffset) {
-        if (mSelectionStartIndex != -1 && startIndex < mSelectionEndIndex &&
-                endIndex > mSelectionStartIndex) {
-            if (startIndex > mSelectionStartIndex) {
-                for (int i = mSelectionStartIndex; i < startIndex; i++) {
-                    TextView textView = findTextViewIn(i);
+    public void setSelection(long startId, int startOffset, long endId, int endOffset) {
+        int startIndex = getItemPosition(startId);
+        int endIndex = getItemPosition(endId);
+        int oldStartIndex = getItemPosition(mSelectionStartId);
+        int oldEndIndex = getItemPosition(mSelectionEndId);
+
+        if (mSelectionStartId != -1 && startIndex <= oldEndIndex && endIndex >= oldStartIndex) {
+            if (startIndex > oldStartIndex) {
+                for (int i = oldStartIndex; i < startIndex; i++) {
+                    TextView textView = findTextViewByPosition(i);
                     if (textView != null)
                         TextSelectionHelper.removeSelection((Spannable) textView.getText());
                 }
-            } else if (startIndex < mSelectionStartIndex) {
-                for (int i = startIndex + 1; i <= mSelectionStartIndex; i++) {
-                    TextView textView = findTextViewIn(i);
+            } else if (startIndex < oldStartIndex) {
+                for (int i = startIndex + 1; i <= oldStartIndex; i++) {
+                    TextView textView = findTextViewByPosition(i);
                     if (textView != null)
                         TextSelectionHelper.setSelection(textView.getContext(),
                                 (Spannable) textView.getText(), 0, textView.length());
                 }
             }
-            if (endIndex < mSelectionEndIndex) {
-                for (int i = endIndex + 1; i <= mSelectionEndIndex; i++) {
-                    TextView textView = findTextViewIn(i);
+            if (endIndex < oldEndIndex) {
+                for (int i = endIndex + 1; i <= oldEndIndex; i++) {
+                    TextView textView = findTextViewByPosition(i);
                     if (textView != null)
                         TextSelectionHelper.removeSelection((Spannable) textView.getText());
                 }
-            } else if (endIndex > mSelectionEndIndex) {
-                for (int i = mSelectionEndIndex; i < endIndex; i++) {
-                    TextView textView = findTextViewIn(i);
+            } else if (endIndex > oldEndIndex) {
+                for (int i = oldEndIndex; i < endIndex; i++) {
+                    TextView textView = findTextViewByPosition(i);
                     if (textView != null)
                         TextSelectionHelper.setSelection(textView.getContext(),
                                 (Spannable) textView.getText(), 0, textView.length());
@@ -309,27 +318,27 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
             clearSelection();
 
             for (int i = startIndex + 1; i < endIndex; i++) {
-                TextView textView = findTextViewIn(i);
+                TextView textView = findTextViewByPosition(i);
                 if (textView != null)
                     TextSelectionHelper.setSelection(textView.getContext(),
                             (Spannable) textView.getText(), 0, textView.length());
             }
         }
-        mSelectionStartIndex = startIndex;
+        mSelectionStartId = startId;
         mSelectionStartOffset = startOffset;
-        mSelectionEndIndex = endIndex;
+        mSelectionEndId = endId;
         mSelectionEndOffset = endOffset;
         if (startIndex == endIndex) {
-            TextView textView = findTextViewIn(startIndex);
+            TextView textView = findTextViewByItemId(startId);
             if (textView != null)
                 TextSelectionHelper.setSelection(textView.getContext(),
                         (Spannable) textView.getText(), startOffset, endOffset);
         } else {
-            TextView textView = findTextViewIn(startIndex);
+            TextView textView = findTextViewByItemId(startId);
             if (textView != null)
                 TextSelectionHelper.setSelection(textView.getContext(),
                         (Spannable) textView.getText(), startOffset, textView.length());
-            textView = findTextViewIn(endIndex);
+            textView = findTextViewByItemId(endId);
             if (textView != null)
                 TextSelectionHelper.setSelection(textView.getContext(),
                         (Spannable) textView.getText(), 0, endOffset);
@@ -340,14 +349,18 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
         TextView textView = findTextViewIn(view);
         if (textView == null)
             return;
-        if (position >= mSelectionStartIndex && position <= mSelectionEndIndex) {
-            if (mSelectionStartIndex == mSelectionEndIndex)
+        int selStartIndex = ((AdapterInterface) mRecyclerView.getAdapter())
+                .getItemPosition(mSelectionStartId);
+        int selEndIndex = ((AdapterInterface) mRecyclerView.getAdapter())
+                .getItemPosition(mSelectionEndId);
+        if (position >= selStartIndex && position <= selEndIndex) {
+            if (selStartIndex == selEndIndex)
                 TextSelectionHelper.setSelection(textView.getContext(),
                         (Spannable) textView.getText(), mSelectionStartOffset, mSelectionEndOffset);
-            else if (position == mSelectionStartIndex)
+            else if (position == selStartIndex)
                 TextSelectionHelper.setSelection(textView.getContext(),
                         (Spannable) textView.getText(), mSelectionStartOffset, textView.length());
-            else if (position == mSelectionEndOffset)
+            else if (position == selEndIndex)
                 TextSelectionHelper.setSelection(textView.getContext(),
                         (Spannable) textView.getText(), 0, mSelectionEndOffset);
             else
@@ -363,11 +376,22 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
         return view.findViewById(R.id.chat_message);
     }
 
-    private TextView findTextViewIn(int position) {
-        RecyclerView.ViewHolder vh = mRecyclerView.findViewHolderForAdapterPosition(position);
+    private TextView findTextViewByPosition(int pos) {
+        RecyclerView.ViewHolder vh = mRecyclerView.findViewHolderForAdapterPosition(pos);
         if (vh == null)
             return null;
         return findTextViewIn(vh.itemView);
+    }
+
+    private TextView findTextViewByItemId(long id) {
+        RecyclerView.ViewHolder vh = mRecyclerView.findViewHolderForItemId(id);
+        if (vh == null)
+            return null;
+        return findTextViewIn(vh.itemView);
+    }
+
+    private int getItemPosition(long id) {
+        return ((AdapterInterface) mRecyclerView.getAdapter()).getItemPosition(id);
     }
 
 
@@ -399,6 +423,7 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
                     y - mTmpLocation[1]);
             if (view == null)
                 return;
+            long id = mRecyclerView.getChildItemId(view);
             int index = mRecyclerView.getChildAdapterPosition(view);
             TextView textView = findTextViewIn(view);
             if (textView == null)
@@ -408,20 +433,22 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
                     y - mTmpLocation[1]);
 
             if (mCurrentlyRightHandle) {
-                if (index < mSelectionStartIndex ||
-                        (index == mSelectionStartIndex && offset < mSelectionStartOffset)) {
-                    setSelection(index, offset, mSelectionStartIndex, mSelectionStartOffset);
+                int selStartIndex = getItemPosition(mSelectionStartId);
+                if (index < selStartIndex ||
+                        (index == selStartIndex && offset < mSelectionStartOffset)) {
+                    setSelection(id, offset, mSelectionStartId, mSelectionStartOffset);
                     mCurrentlyRightHandle = false;
                 } else {
-                    setSelection(mSelectionStartIndex, mSelectionStartOffset, index, offset);
+                    setSelection(mSelectionStartId, mSelectionStartOffset, id, offset);
                 }
             } else {
-                if (index > mSelectionEndIndex ||
-                        (index == mSelectionEndIndex && offset > mSelectionEndOffset)) {
-                    setSelection(mSelectionEndIndex, mSelectionEndOffset, index, offset);
+                int selEndIndex = getItemPosition(mSelectionEndId);
+                if (index > selEndIndex ||
+                        (index == selEndIndex && offset > mSelectionEndOffset)) {
+                    setSelection(mSelectionEndId, mSelectionEndOffset, id, offset);
                     mCurrentlyRightHandle = true;
                 } else {
-                    setSelection(index, offset, mSelectionEndIndex, mSelectionEndOffset);
+                    setSelection(id, offset, mSelectionEndId, mSelectionEndOffset);
                 }
             }
             showHandles();
@@ -506,8 +533,8 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
         public void onGetContentRect(ActionMode mode, View view, Rect outRect) {
             view.getLocationOnScreen(mTmpLocation);
 
-            TextView textViewStart = findTextViewIn(mSelectionStartIndex);
-            TextView textViewEnd = findTextViewIn(mSelectionEndIndex);
+            TextView textViewStart = findTextViewByItemId(mSelectionStartId);
+            TextView textViewEnd = findTextViewByItemId(mSelectionEndId);
             int lineStart = textViewStart != null ?
                     textViewStart.getLayout().getLineForOffset(mSelectionStartOffset) : -1;
             int lineEnd = textViewStart != null ?
@@ -544,6 +571,7 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
 
     public interface AdapterInterface {
         CharSequence getTextAt(int position);
+        int getItemPosition(long id);
     }
 
 }

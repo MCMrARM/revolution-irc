@@ -37,6 +37,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private Drawable mSelectedItemBackground;
     private Typeface mTypeface;
     private int mFontSize;
+    private long mItemIdOffset = -1000000000L;
 
     public ChatMessagesAdapter(ChatMessagesFragment fragment, List<MessageInfo> messages) {
         mFragment = fragment;
@@ -49,6 +50,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         ta.recycle();
 
         setMessages(messages);
+        setHasStableIds(true);
     }
 
     public void setMessageFont(Typeface typeface, int fontSize) {
@@ -63,6 +65,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     public void addMessagesToTop(List<MessageInfo> messages) {
         mMessages.addAll(0, messages);
+        mItemIdOffset += messages.size();
         notifyItemRangeInserted(0, messages.size());
     }
 
@@ -129,6 +132,16 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     @Override
     public int getItemViewType(int position) {
         return TYPE_MESSAGE;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position - mItemIdOffset;
+    }
+
+    @Override
+    public int getItemPosition(long id) {
+        return (int) (id + mItemIdOffset);
     }
 
     @Override
