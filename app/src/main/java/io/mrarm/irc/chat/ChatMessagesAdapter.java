@@ -193,7 +193,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             }
             mText.setBackground(selected
                     ? mSelectedItemBackground.getConstantState().newDrawable()
-                    : mItemBackground.getConstantState().newDrawable());
+                    : (mItemBackground != null ? mItemBackground.getConstantState().newDrawable() : null));
             if (mSelectedItems.size() == 0)
                 mFragment.hideMessagesActionMenu();
         }

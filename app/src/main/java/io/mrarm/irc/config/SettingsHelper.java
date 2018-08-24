@@ -47,6 +47,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     public static final String PREF_CHAT_SEND_BOX_HISTORY_SWIPE_MODE = "chat_send_box_history_swipe_mode";
     public static final String PREF_CHAT_SEND_BOX_ALWAYS_MULTILINE = "chat_send_box_always_multiline";
     public static final String PREF_CHAT_SHOW_DCC_SEND = "chat_show_dcc_send";
+    public static final String PREF_CHAT_MULTI_SELECT_MODE = "chat_show_multi_select_mode";
     public static final String PREF_MESSAGE_FORMAT = "message_format";
     public static final String PREF_MESSAGE_FORMAT_MENTION = "message_format_mention";
     public static final String PREF_MESSAGE_FORMAT_ACTION = "message_format_action";
@@ -277,8 +278,8 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         return mPreferences.getBoolean(PREF_CHAT_SHOW_DCC_SEND, true);
     }
 
-    public boolean getChatUseMutliSelect() {
-        return false;
+    public boolean getChatUseMultiSelect() {
+        return mPreferences.getBoolean(PREF_CHAT_MULTI_SELECT_MODE, false);
     }
 
     public boolean isNickAutocompleteButtonVisible() {

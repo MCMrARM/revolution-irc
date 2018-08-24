@@ -296,6 +296,8 @@
     <string name="pref_title_chat_box_always_multiline">Multiline send text box</string>
     <string name="pref_summary_chat_box_always_multiline">Enables word-wrap in the text box and replaces the send button with an enter in the IME.</string>
     <string name="pref_title_chat_box_history_swipe_mode">History swipe-based navigation mode</string>
+    <string name="pref_title_chat_mutli_scroll_mode">Use a batch message selection mode</string>
+    <string name="pref_summary_chat_mutli_scroll_mode">Always enables the old batch message selection mode</string>
 
     <string name="pref_title_nick_autocomplete_show_button">Show a button</string>
     <string name="pref_summary_nick_autocomplete_show_button">Show a nick autocomplete button</string>
