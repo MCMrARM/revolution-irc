@@ -197,7 +197,9 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
             }
         }
 
-        if (e.getY() < 0)
+        if (e.getActionMasked() == MotionEvent.ACTION_UP)
+            mScroller.setScrollDir(0);
+        else if (e.getY() < 0)
             mScroller.setScrollDir(-1);
         else if (e.getY() > mRecyclerView.getHeight())
             mScroller.setScrollDir(1);
@@ -399,9 +401,19 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
 
         private boolean mRightHandle;
         private boolean mCurrentlyRightHandle;
+        private RecyclerViewScrollerRunnable mScroller;
 
         public HandleMoveListener(boolean rightHandle) {
             mRightHandle = rightHandle;
+
+            mScroller = new RecyclerViewScrollerRunnable(mRecyclerView, (int scrollDir) -> {
+                mRecyclerView.getLocationOnScreen(mTmpLocation);
+                if (scrollDir < 0)
+                    onMoved(mTmpLocation[0], mTmpLocation[1] - 1);
+                else if (scrollDir > 0)
+                    onMoved(mTmpLocation[0] + mRecyclerView.getWidth(),
+                            mTmpLocation[1] + mRecyclerView.getHeight() + 1);
+            });
         }
 
         @Override
@@ -412,6 +424,7 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
         @Override
         public void onMoveFinished() {
             showActionMode();
+            mScroller.setScrollDir(0);
         }
 
         @Override
@@ -419,6 +432,14 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
             hideActionModeForSelection();
 
             mRecyclerView.getLocationOnScreen(mTmpLocation);
+
+            if (y - mTmpLocation[1] < 0)
+                mScroller.setScrollDir(-1);
+            else if (y - mTmpLocation[1] > mRecyclerView.getHeight())
+                mScroller.setScrollDir(1);
+            else
+                mScroller.setScrollDir(0);
+
             View view = mRecyclerView.findChildViewUnder(x - mTmpLocation[0],
                     y - mTmpLocation[1]);
             if (view == null)

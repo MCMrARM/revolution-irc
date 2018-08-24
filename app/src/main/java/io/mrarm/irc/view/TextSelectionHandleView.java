@@ -81,6 +81,7 @@ public class TextSelectionHandleView extends View {
                             event.getRawY() + mMoveOffsetY);
                 return true;
             case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
                 if (mMoveListener != null)
                     mMoveListener.onMoveFinished();
                 return true;
