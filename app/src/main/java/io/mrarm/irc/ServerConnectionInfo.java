@@ -22,6 +22,7 @@ import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.chatlib.irc.ServerConnectionData;
 import io.mrarm.chatlib.irc.cap.SASLCapability;
 import io.mrarm.chatlib.irc.cap.SASLOptions;
+import io.mrarm.chatlib.irc.dcc.DCCClientManager;
 import io.mrarm.chatlib.irc.dcc.DCCServerManager;
 import io.mrarm.chatlib.irc.filters.ZNCPlaybackMessageFilter;
 import io.mrarm.chatlib.irc.handlers.MessageCommandHandler;
@@ -47,6 +48,7 @@ public class ServerConnectionInfo {
     private SASLOptions mSASLOptions;
     private SQLiteMiscStorage mSQLiteMiscStorage;
     private DCCServerManager mDCCServerManager = new DCCServerManager();
+    private DCCClientManager mDCCClientManager;
     private boolean mExpandedInDrawer = true;
     private boolean mConnected = false;
     private boolean mConnecting = false;
@@ -69,6 +71,7 @@ public class ServerConnectionInfo {
         mConnectionRequest = connectionRequest;
         mSASLOptions = saslOptions;
         mNotificationData = new NotificationManager.ConnectionManager(this);
+        mDCCClientManager = new DCCManager.Client(manager.getContext());
         mChannels = joinChannels;
         if (mChannels != null)
             Collections.sort(mChannels, String::compareToIgnoreCase);
@@ -130,6 +133,7 @@ public class ServerConnectionInfo {
             MessageCommandHandler messageHandler = connection.getServerConnectionData()
                     .getCommandHandlerList().getHandler(MessageCommandHandler.class);
             messageHandler.setDCCServerManager(mDCCServerManager);
+            messageHandler.setDCCClientManager(mDCCClientManager);
             messageHandler.setCtcpVersionReply(mManager.getContext()
                     .getString(R.string.app_name), BuildConfig.VERSION_NAME, "Android");
             connection.addDisconnectListener((IRCConnection conn, Exception reason) -> {

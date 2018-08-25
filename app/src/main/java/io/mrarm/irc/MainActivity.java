@@ -531,7 +531,8 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
                 return;
             }
             ((ChatFragment) getCurrentFragment()).getConnectionInfo().getApiInstance().sendMessage(
-                    channel, DCCManager.buildSendMessage(name, upload.getPort(), size),
+                    channel, DCCUtils.buildSendMessage(DCCManager.getLocalIP(), name,
+                            upload.getPort(), size),
                     null, null);
             return;
         }

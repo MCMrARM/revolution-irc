@@ -1,9 +1,23 @@
 package io.mrarm.irc;
 
+import android.content.Context;
+import android.util.Log;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.nio.channels.FileChannel;
+import java.nio.channels.SocketChannel;
 import java.util.Enumeration;
+
+import io.mrarm.chatlib.irc.MessagePrefix;
+import io.mrarm.chatlib.irc.ServerConnectionData;
+import io.mrarm.chatlib.irc.dcc.DCCClient;
+import io.mrarm.chatlib.irc.dcc.DCCClientManager;
 
 public class DCCManager {
 
@@ -34,32 +48,31 @@ public class DCCManager {
         return null;
     }
 
-    public static String convertIPForDCC(String ip) {
-        int idx = 0;
-        long ret = 0;
-        for (int i = 0; i < 4; i++) {
-            int idx2 = ip.indexOf('.', idx);
-            if (i == 3 ? (idx2 != -1) : (idx2 == -1))
-                throw new IllegalArgumentException("Invalid IPv4 address");
-            ret = ret * 256 + Integer.parseInt(i == 3 ? ip.substring(idx) : ip.substring(idx, idx2));
-            idx = idx2 + 1;
-        }
-        return Long.toString(ret);
-    }
 
-    public static String buildSendMessage(String name, int port, long size) {
-        StringBuilder sendCmd = new StringBuilder();
-        sendCmd.append('\001');
-        sendCmd.append("DCC SEND ");
-        sendCmd.append(name);
-        sendCmd.append(' ');
-        sendCmd.append(convertIPForDCC(DCCManager.getLocalIP()));
-        sendCmd.append(' ');
-        sendCmd.append(port);
-        sendCmd.append(' ');
-        sendCmd.append(size);
-        sendCmd.append('\001');
-        return sendCmd.toString();
+    public static class Client extends DCCClientManager {
+
+        private Context context;
+
+        public Client(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        public void onFileOffered(ServerConnectionData connection, MessagePrefix sender,
+                                  String filename, String address, int port, long fileSize) {
+            try {
+                Log.d("DCCManager", "File offered: " + filename + " from " + address + ":" + port);
+                SocketChannel socket = SocketChannel.open(new InetSocketAddress(address, port));
+                File dstDir = context.getExternalFilesDir("Downloads");
+                dstDir.mkdirs();
+                FileChannel file = new FileOutputStream(new File(dstDir,
+                        filename.replace('/', '_'))).getChannel();
+                new DCCClient(socket, file, 0L, fileSize);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
 }
