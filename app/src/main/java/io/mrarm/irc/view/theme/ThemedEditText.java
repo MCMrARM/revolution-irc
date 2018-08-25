@@ -6,6 +6,8 @@ import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.ColorUtils;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.AppCompatEditText;
@@ -108,7 +110,7 @@ public class ThemedEditText extends AppCompatEditText {
                 sFieldEditorCursorDrawable.setAccessible(true);
             }
             Drawable[] drawables = new Drawable[2];
-            drawables[0] = editText.getContext().getResources().getDrawable(res).mutate();
+            drawables[0] = ContextCompat.getDrawable(editText.getContext(), res).mutate();
             drawables[0].setColorFilter(color, PorterDuff.Mode.SRC_IN);
             drawables[1] = drawables[0];
             sFieldEditorCursorDrawable.set(editor, drawables);
@@ -127,7 +129,7 @@ public class ThemedEditText extends AppCompatEditText {
                             EDITOR_SELECT_HANDLES_DRAWABLE_FIELDS[i]);
                     sFieldEditorSelectHandleDrawables[i].setAccessible(true);
                 }
-                Drawable drawable = editText.getContext().getResources().getDrawable(res).mutate();
+                Drawable drawable = ContextCompat.getDrawable(editText.getContext(), res).mutate();
                 drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
                 sFieldEditorSelectHandleDrawables[i].set(editor, drawable);
             } catch (Throwable ignored) {
