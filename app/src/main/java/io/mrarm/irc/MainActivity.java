@@ -45,6 +45,7 @@ import java.util.UUID;
 import io.mrarm.chatlib.ChatApi;
 import io.mrarm.chatlib.dto.NickWithPrefix;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
+import io.mrarm.chatlib.irc.dcc.DCCServer;
 import io.mrarm.chatlib.irc.dcc.DCCServerManager;
 import io.mrarm.chatlib.irc.dcc.DCCUtils;
 import io.mrarm.irc.chat.ChannelInfoAdapter;
@@ -515,6 +516,8 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
             String name = DCCUtils.escapeFilename(cursor.getString(nameIndex));
             long size = cursor.isNull(sizeIndex) ? -1 : cursor.getLong(sizeIndex);
 
+            boolean reverse = true;
+
             String channel = ((ChatFragment) getCurrentFragment()).getCurrentChannel();
             DCCServerManager.UploadEntry upload;
             try {
@@ -523,17 +526,23 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
                     throw new IOException();
                 if (size == -1)
                     size = desc.getStatSize();
-                upload = ((ChatFragment) getCurrentFragment()).getConnectionInfo()
-                        .getDCCServerManager().startUpload(channel, name, () -> new FileInputStream(
-                                desc.getFileDescriptor()).getChannel().position(0));
+
+                DCCServer.FileChannelFactory channelFactory = () -> new FileInputStream(
+                        desc.getFileDescriptor()).getChannel().position(0);
+                if (reverse)
+                    upload = ((ChatFragment) getCurrentFragment()).getConnectionInfo()
+                            .getDCCServerManager().addReverseUpload(channel, name, channelFactory);
+                else
+                    upload = ((ChatFragment) getCurrentFragment()).getConnectionInfo()
+                            .getDCCServerManager().startUpload(channel, name, channelFactory);
             } catch (IOException e) {
                 Toast.makeText(this, R.string.error_file_open, Toast.LENGTH_SHORT).show();
                 return;
             }
-            ((ChatFragment) getCurrentFragment()).getConnectionInfo().getApiInstance().sendMessage(
-                    channel, DCCUtils.buildSendMessage(DCCManager.getLocalIP(), name,
-                            upload.getPort(), size),
-                    null, null);
+            ((ChatFragment) getCurrentFragment()).getConnectionInfo().getApiInstance()
+                    .sendMessage(channel, DCCUtils.buildSendMessage(
+                            DCCManager.getLocalIP(), name, 0, size, upload.getReverseId()),
+                            null, null);
             return;
         }
         super.onActivityResult(requestCode, resultCode, data);
