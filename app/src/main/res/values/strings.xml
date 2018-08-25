@@ -593,8 +593,14 @@
     </string-array>
 
     <!-- IRC link handler -->
+
     <string name="title_activity_irc_link">Join channel</string>
     <string name="irc_link_pick_header">Select a connection to join %2$s on %1$s</string>
     <string name="irc_link_show_all">Show other connections</string>
+
+    <!-- DCC -->
+
+    <string name="title_activity_dcc">DCC transfers</string>
+    <string name="dcc_active_upload_transfer_status">Uploading to %s</string>
 
 </resources>

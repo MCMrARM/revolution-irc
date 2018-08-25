@@ -32,11 +32,8 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
-import java.io.FileDescriptor;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -45,6 +42,7 @@ import java.util.UUID;
 import io.mrarm.chatlib.ChatApi;
 import io.mrarm.chatlib.dto.NickWithPrefix;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
+import io.mrarm.chatlib.irc.ServerConnectionData;
 import io.mrarm.chatlib.irc.dcc.DCCServer;
 import io.mrarm.chatlib.irc.dcc.DCCServerManager;
 import io.mrarm.chatlib.irc.dcc.DCCUtils;
@@ -529,12 +527,14 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
 
                 DCCServer.FileChannelFactory channelFactory = () -> new FileInputStream(
                         desc.getFileDescriptor()).getChannel().position(0);
+                DCCServerManager dccServer = DCCManager.getInstance(this).getServer();
+                ServerConnectionData connection = ((ServerConnectionApi) ((ChatFragment)
+                        getCurrentFragment()).getConnectionInfo().getApiInstance())
+                        .getServerConnectionData();
                 if (reverse)
-                    upload = ((ChatFragment) getCurrentFragment()).getConnectionInfo()
-                            .getDCCServerManager().addReverseUpload(channel, name, channelFactory);
+                    upload = dccServer.addReverseUpload(connection, channel, name, channelFactory);
                 else
-                    upload = ((ChatFragment) getCurrentFragment()).getConnectionInfo()
-                            .getDCCServerManager().startUpload(channel, name, channelFactory);
+                    upload = dccServer.startUpload(connection, channel, name, channelFactory);
             } catch (IOException e) {
                 Toast.makeText(this, R.string.error_file_open, Toast.LENGTH_SHORT).show();
                 return;

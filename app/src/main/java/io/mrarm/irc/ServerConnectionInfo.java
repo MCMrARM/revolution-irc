@@ -22,8 +22,6 @@ import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.chatlib.irc.ServerConnectionData;
 import io.mrarm.chatlib.irc.cap.SASLCapability;
 import io.mrarm.chatlib.irc.cap.SASLOptions;
-import io.mrarm.chatlib.irc.dcc.DCCClientManager;
-import io.mrarm.chatlib.irc.dcc.DCCServerManager;
 import io.mrarm.chatlib.irc.filters.ZNCPlaybackMessageFilter;
 import io.mrarm.chatlib.irc.handlers.MessageCommandHandler;
 import io.mrarm.chatlib.message.MessageStorageApi;
@@ -47,8 +45,6 @@ public class ServerConnectionInfo {
     private IRCConnectionRequest mConnectionRequest;
     private SASLOptions mSASLOptions;
     private SQLiteMiscStorage mSQLiteMiscStorage;
-    private DCCServerManager mDCCServerManager = new DCCServerManager();
-    private DCCClientManager mDCCClientManager;
     private boolean mExpandedInDrawer = true;
     private boolean mConnected = false;
     private boolean mConnecting = false;
@@ -71,7 +67,6 @@ public class ServerConnectionInfo {
         mConnectionRequest = connectionRequest;
         mSASLOptions = saslOptions;
         mNotificationData = new NotificationManager.ConnectionManager(this);
-        mDCCClientManager = new DCCManager.Client(manager.getContext());
         mChannels = joinChannels;
         if (mChannels != null)
             Collections.sort(mChannels, String::compareToIgnoreCase);
@@ -132,8 +127,9 @@ public class ServerConnectionInfo {
                     new ZNCPlaybackMessageFilter(connection.getServerConnectionData()));
             MessageCommandHandler messageHandler = connection.getServerConnectionData()
                     .getCommandHandlerList().getHandler(MessageCommandHandler.class);
-            messageHandler.setDCCServerManager(mDCCServerManager);
-            messageHandler.setDCCClientManager(mDCCClientManager);
+            DCCManager dccManager = DCCManager.getInstance(getConnectionManager().getContext());
+            messageHandler.setDCCServerManager(dccManager.getServer());
+            messageHandler.setDCCClientManager(dccManager.getClient());
             messageHandler.setCtcpVersionReply(mManager.getContext()
                     .getString(R.string.app_name), BuildConfig.VERSION_NAME, "Android");
             connection.addDisconnectListener((IRCConnection conn, Exception reason) -> {
@@ -308,10 +304,6 @@ public class ServerConnectionInfo {
 
     public synchronized SQLiteMiscStorage getSQLiteMiscStorage() {
         return mSQLiteMiscStorage;
-    }
-
-    public DCCServerManager getDCCServerManager() {
-        return mDCCServerManager;
     }
 
     public boolean isConnected() {

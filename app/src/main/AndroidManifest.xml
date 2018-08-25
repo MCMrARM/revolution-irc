@@ -35,8 +35,8 @@
         </activity>
         <activity
             android:name=".IRCLinkActivity"
-            android:label="@string/title_activity_irc_link"
-            android:configChanges="keyboardHidden|orientation|screenSize|screenLayout">
+            android:configChanges="keyboardHidden|orientation|screenSize|screenLayout"
+            android:label="@string/title_activity_irc_link">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -112,6 +112,15 @@
             android:name=".setup.BackupCompleteActivity"
             android:label="@string/title_activity_backup"
             android:theme="@style/AppTheme.NoActionBar.OpaqueStatusBar" />
+        <activity
+            android:name=".DCCActivity"
+            android:label="@string/title_activity_dcc">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
         <service android:name=".IRCService" />
         <service

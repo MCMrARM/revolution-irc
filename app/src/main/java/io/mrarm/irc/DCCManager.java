@@ -12,14 +12,114 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import io.mrarm.chatlib.irc.MessagePrefix;
 import io.mrarm.chatlib.irc.ServerConnectionData;
 import io.mrarm.chatlib.irc.dcc.DCCClient;
 import io.mrarm.chatlib.irc.dcc.DCCClientManager;
+import io.mrarm.chatlib.irc.dcc.DCCServer;
+import io.mrarm.chatlib.irc.dcc.DCCServerManager;
 
-public class DCCManager {
+public class DCCManager implements DCCServerManager.UploadListener {
+
+    private static DCCManager sInstance;
+
+    public static DCCManager getInstance(Context context) {
+        if (sInstance == null)
+            sInstance = new DCCManager(context.getApplicationContext());
+        return sInstance;
+    }
+
+    private final Context mContext;
+    private final DCCServerManager mServer;
+    private final DCCClientManager mClient;
+    private final Map<DCCServer, DCCServerManager.UploadEntry> mUploads = new HashMap();
+    private final List<DCCServer.UploadSession> mSessions = new ArrayList<>();
+
+    public DCCManager(Context context) {
+        mContext = context;
+        mServer = new DCCServerManager();
+        mClient = new ClientImpl();
+        mServer.addUploadListener(this);
+    }
+
+    public DCCServerManager getServer() {
+        return mServer;
+    }
+
+    public DCCClientManager getClient() {
+        return mClient;
+    }
+
+    @Override
+    public void onUploadCreated(DCCServerManager.UploadEntry uploadEntry) {
+        synchronized (mUploads) {
+            mUploads.put(uploadEntry.getServer(), uploadEntry);
+        }
+    }
+
+    @Override
+    public void onUploadDestroyed(DCCServerManager.UploadEntry uploadEntry) {
+        synchronized (mUploads) {
+            mUploads.remove(uploadEntry.getServer());
+        }
+    }
+
+    @Override
+    public void onSessionCreated(DCCServer dccServer, DCCServer.UploadSession uploadSession) {
+        synchronized (mSessions) {
+            mSessions.add(uploadSession);
+        }
+    }
+
+    @Override
+    public void onSessionDestroyed(DCCServer dccServer, DCCServer.UploadSession uploadSession) {
+        synchronized (mSessions) {
+            mSessions.remove(uploadSession);
+        }
+    }
+
+    public String getUploadName(DCCServer server) {
+        synchronized (mUploads) {
+            DCCServerManager.UploadEntry ent = mUploads.get(server);
+            if (ent == null)
+                return null;
+            return ent.getFileName();
+        }
+    }
+
+    public List<DCCServer.UploadSession> getSessions() {
+        synchronized (mSessions) {
+            return new ArrayList<>(mSessions);
+        }
+    }
+
+    private class ClientImpl extends DCCClientManager {
+
+        @Override
+        public void onFileOffered(ServerConnectionData connection, MessagePrefix sender,
+                                  String filename, String address, int port, long fileSize) {
+            try {
+                Log.d("DCCManager", "File offered: " + filename + " from " + address + ":" + port);
+                SocketChannel socket = SocketChannel.open(new InetSocketAddress(address, port));
+                File dstDir = mContext.getExternalFilesDir("Downloads");
+                dstDir.mkdirs();
+                FileChannel file = new FileOutputStream(new File(dstDir,
+                        filename.replace('/', '_'))).getChannel();
+                new DCCClient(socket, file, 0L, fileSize);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+
 
     public static String getLocalIP() {
         try {
@@ -48,31 +148,5 @@ public class DCCManager {
         return null;
     }
 
-
-    public static class Client extends DCCClientManager {
-
-        private Context context;
-
-        public Client(Context context) {
-            this.context = context;
-        }
-
-        @Override
-        public void onFileOffered(ServerConnectionData connection, MessagePrefix sender,
-                                  String filename, String address, int port, long fileSize) {
-            try {
-                Log.d("DCCManager", "File offered: " + filename + " from " + address + ":" + port);
-                SocketChannel socket = SocketChannel.open(new InetSocketAddress(address, port));
-                File dstDir = context.getExternalFilesDir("Downloads");
-                dstDir.mkdirs();
-                FileChannel file = new FileOutputStream(new File(dstDir,
-                        filename.replace('/', '_'))).getChannel();
-                new DCCClient(socket, file, 0L, fileSize);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-    }
 
 }
