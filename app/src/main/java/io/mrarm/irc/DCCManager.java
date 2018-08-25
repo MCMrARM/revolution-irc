@@ -99,6 +99,10 @@ public class DCCManager implements DCCServerManager.UploadListener {
         }
     }
 
+    public Object getSessionsSyncObject() {
+        return mSessions;
+    }
+
     private class ClientImpl extends DCCClientManager {
 
         @Override
