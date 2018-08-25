@@ -197,15 +197,16 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
                 showActionMode();
             }
         }
-
-        if (e.getActionMasked() == MotionEvent.ACTION_UP)
-            mScroller.setScrollDir(0);
-        else if (e.getY() < 0)
-            mScroller.setScrollDir(-1);
-        else if (e.getY() > mRecyclerView.getHeight())
-            mScroller.setScrollDir(1);
-        else
-            mScroller.setScrollDir(0);
+        if (mSelectionLongPressMode) {
+            if (e.getActionMasked() == MotionEvent.ACTION_UP)
+                mScroller.setScrollDir(0);
+            else if (e.getY() < 0)
+                mScroller.setScrollDir(-1);
+            else if (e.getY() > mRecyclerView.getHeight())
+                mScroller.setScrollDir(1);
+            else
+                mScroller.setScrollDir(0);
+        }
 
         return handleSelection(e.getX(), e.getY(), e.getRawX(), e.getRawY());
     }
