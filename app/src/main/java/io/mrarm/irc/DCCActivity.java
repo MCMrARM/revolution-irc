@@ -18,6 +18,7 @@ public class DCCActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mAdapter = new DCCTransferListAdapter(this);
         mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.addItemDecoration(mAdapter.createItemDecoration());
         updateActiveProgress();
     }
 

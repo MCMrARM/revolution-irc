@@ -1,5 +1,6 @@
 package io.mrarm.irc;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -14,20 +15,27 @@ import java.util.List;
 
 import io.mrarm.chatlib.irc.dcc.DCCServer;
 import io.mrarm.chatlib.irc.dcc.DCCServerManager;
+import io.mrarm.irc.util.AdvancedDividerItemDecoration;
 
 public class DCCTransferListAdapter extends RecyclerView.Adapter implements DCCServerManager.UploadListener {
 
     private static final int TYPE_TRANSFER_ACTIVE = 0;
 
+    private Activity mActivity;
     private List<DCCServer.UploadSession> mUploadSessions;
 
-    public DCCTransferListAdapter(Context context) {
-        DCCManager.getInstance(context).getServer().addUploadListener(this);
-        mUploadSessions = DCCManager.getInstance(context).getSessions();
+    public DCCTransferListAdapter(Activity activity) {
+        mActivity = activity;
+        DCCManager.getInstance(activity).getServer().addUploadListener(this);
+        mUploadSessions = DCCManager.getInstance(activity).getSessions();
     }
 
     public void unregisterListeners() {
-        DCCManager.getInstance(null).getServer().removeUploadListener(this);
+        DCCManager.getInstance(mActivity).getServer().removeUploadListener(this);
+    }
+
+    public ItemDecoration createItemDecoration() {
+        return new ItemDecoration(mActivity);
     }
 
     @NonNull
@@ -44,7 +52,7 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements DCCS
     }
 
     @Override
-    public synchronized int getItemCount() {
+    public int getItemCount() {
         return mUploadSessions.size();
     }
 
@@ -73,25 +81,37 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements DCCS
 
     @Override
     public void onSessionCreated(DCCServer dccServer, DCCServer.UploadSession uploadSession) {
-        synchronized (this) {
+        mActivity.runOnUiThread(() -> {
             if (!mUploadSessions.contains(uploadSession)) {
                 mUploadSessions.add(uploadSession);
                 notifyItemInserted(mUploadSessions.size() - 1);
             }
-        }
+        });
     }
 
     @Override
     public void onSessionDestroyed(DCCServer dccServer, DCCServer.UploadSession uploadSession) {
-        synchronized (this) {
+        mActivity.runOnUiThread(() -> {
             int idx = mUploadSessions.indexOf(uploadSession);
             if (idx == -1)
                 return;
             mUploadSessions.remove(idx);
             notifyItemRemoved(idx);
-        }
+        });
     }
 
+    public static class ItemDecoration extends AdvancedDividerItemDecoration {
+
+        public ItemDecoration(Context context) {
+            super(context);
+        }
+
+        @Override
+        public boolean hasDivider(RecyclerView parent, View view) {
+            return true;
+        }
+
+    }
 
     public static final class ActiveTransferHolder extends RecyclerView.ViewHolder {
 
