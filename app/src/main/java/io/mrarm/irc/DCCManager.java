@@ -47,18 +47,21 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
 
     private final Context mContext;
     private final DCCServerManager mServer;
-    private final Map<DCCServer, DCCServerManager.UploadEntry> mUploads = new HashMap();
+    private final Map<DCCServer, DCCServerManager.UploadEntry> mUploads = new HashMap<>();
     private final List<DCCServer.UploadSession> mSessions = new ArrayList<>();
     private final List<DownloadInfo> mDownloads = new ArrayList<>();
     private final List<DownloadListener> mDownloadListeners = new ArrayList<>();
     private File mDownloadDirectory;
+    private final DCCNotificationManager mNotificationManager;
 
     public DCCManager(Context context) {
         mContext = context;
+        mNotificationManager = new DCCNotificationManager(mContext);
         mDownloadDirectory = mContext.getExternalFilesDir("Downloads");
         mDownloadDirectory.mkdirs();
         mServer = new DCCServerManager();
         mServer.addUploadListener(this);
+        mServer.addUploadListener(mNotificationManager);
     }
 
     public DCCServerManager getServer() {
@@ -205,6 +208,7 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
         return mSessions;
     }
 
+
     public class DownloadInfo {
 
         private final UUID mServerUUID;
@@ -218,6 +222,7 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
         private boolean mPending = true;
         private DCCClient mClient;
         private DCCReverseClient mReverseClient;
+        private int mNotificationId;
 
         private DownloadInfo(ServerConnectionInfo server, MessagePrefix sender, String fileName,
                              long fileSize, String address, int port) {
