@@ -17,13 +17,6 @@
         android:text="Placeholder"
         tools:ignore="HardcodedText" />
 
-    <ProgressBar
-        android:id="@+id/progress"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/name" />
-
     <ImageView
         android:id="@+id/status_icon"
         android:layout_width="wrap_content"
@@ -38,11 +31,12 @@
         android:id="@+id/status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/progress"
+        android:layout_below="@id/name"
         android:layout_toRightOf="@id/status_icon"
         android:layout_toEndOf="@id/status_icon"
         android:layout_marginStart="2dp"
         android:layout_marginEnd="2dp"
+        android:layout_marginTop="4dp"
         android:text="Placeholder"
         tools:ignore="HardcodedText" />
 

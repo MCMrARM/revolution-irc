@@ -20,18 +20,29 @@ import io.mrarm.irc.util.AdvancedDividerItemDecoration;
 public class DCCTransferListAdapter extends RecyclerView.Adapter implements DCCServerManager.UploadListener {
 
     private static final int TYPE_TRANSFER_ACTIVE = 0;
+    private static final int TYPE_TRANSFER_PENDING = 1;
 
     private Activity mActivity;
+    private DCCManager mDCCManager;
     private List<DCCServer.UploadSession> mUploadSessions;
+    private List<DCCServerManager.UploadEntry> mPendingUploads;
 
     public DCCTransferListAdapter(Activity activity) {
         mActivity = activity;
-        DCCManager.getInstance(activity).getServer().addUploadListener(this);
-        mUploadSessions = DCCManager.getInstance(activity).getSessions();
+        mDCCManager = DCCManager.getInstance(activity);
+        mDCCManager.getServer().addUploadListener(this);
+        mUploadSessions = mDCCManager.getUploadSessions();
+        mPendingUploads = mDCCManager.getUploads();
+        for (DCCServer.UploadSession session : mUploadSessions) {
+            DCCServerManager.UploadEntry ent = mDCCManager.getUploadEntry(session.getServer());
+            if (ent == null)
+                continue;
+            mPendingUploads.remove(ent);
+        }
     }
 
     public void unregisterListeners() {
-        DCCManager.getInstance(mActivity).getServer().removeUploadListener(this);
+        mDCCManager.getServer().removeUploadListener(this);
     }
 
     public ItemDecoration createItemDecoration() {
@@ -41,23 +52,40 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements DCCS
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.dcc_transfer_active_item, parent, false);
-        return new ActiveTransferHolder(view);
+        if (viewType == TYPE_TRANSFER_ACTIVE) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.dcc_transfer_active_item, parent, false);
+            return new ActiveTransferHolder(view);
+        } else if (viewType == TYPE_TRANSFER_PENDING) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.dcc_transfer_pending_item, parent, false);
+            return new PendingTransferHolder(view);
+        }
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        ((ActiveTransferHolder) holder).bind(mUploadSessions.get(position));
+        if (position >= 0 && position < mUploadSessions.size())
+            ((ActiveTransferHolder) holder).bind(mUploadSessions.get(position));
+        if (position >= getPendingUploadsStart() &&
+                position < getPendingUploadsStart() + mPendingUploads.size())
+            ((PendingTransferHolder) holder).bind(mPendingUploads.get(position));
     }
 
     @Override
     public int getItemCount() {
+        return mUploadSessions.size() + mPendingUploads.size();
+    }
+
+    private int getPendingUploadsStart() {
         return mUploadSessions.size();
     }
 
     @Override
     public int getItemViewType(int position) {
+        if (position >= getPendingUploadsStart())
+            return TYPE_TRANSFER_PENDING;
         return TYPE_TRANSFER_ACTIVE;
     }
 
@@ -71,12 +99,33 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements DCCS
         }
     }
 
+    private void addPendingUpload(DCCServerManager.UploadEntry entry) {
+        if (mPendingUploads.contains(entry))
+            return;
+        mPendingUploads.add(entry);
+        notifyItemInserted(getPendingUploadsStart() + mPendingUploads.size() - 1);
+    }
+
+    public void removePendingUpload(DCCServerManager.UploadEntry entry) {
+        int idx = mPendingUploads.indexOf(entry);
+        if (idx == -1)
+            return;
+        mPendingUploads.remove(idx);
+        notifyItemRemoved(getPendingUploadsStart() + idx);
+    }
+
     @Override
     public void onUploadCreated(DCCServerManager.UploadEntry uploadEntry) {
+        mActivity.runOnUiThread(() -> {
+            addPendingUpload(uploadEntry);
+        });
     }
 
     @Override
     public void onUploadDestroyed(DCCServerManager.UploadEntry uploadEntry) {
+        mActivity.runOnUiThread(() -> {
+            removePendingUpload(uploadEntry);
+        });
     }
 
     @Override
@@ -86,6 +135,7 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements DCCS
                 mUploadSessions.add(uploadSession);
                 notifyItemInserted(mUploadSessions.size() - 1);
             }
+            removePendingUpload(mDCCManager.getUploadEntry(uploadSession.getServer()));
         });
     }
 
@@ -97,6 +147,11 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements DCCS
                 return;
             mUploadSessions.remove(idx);
             notifyItemRemoved(idx);
+            for (DCCServer.UploadSession ent : mUploadSessions) {
+                if (ent.getServer() == uploadSession.getServer())
+                    return;
+            }
+            addPendingUpload(mDCCManager.getUploadEntry(uploadSession.getServer()));
         });
     }
 
@@ -142,6 +197,26 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements DCCS
             mProgressBar.setMax(100000);
             mProgressBar.setProgress((int)
                     (mSession.getAcknowledgedSize() * 100000L / mSession.getTotalSize()));
+        }
+
+    }
+
+    public static final class PendingTransferHolder extends RecyclerView.ViewHolder {
+
+        private TextView mName;
+        private TextView mStatus;
+
+        public PendingTransferHolder(View itemView) {
+            super(itemView);
+            mName = itemView.findViewById(R.id.name);
+            mStatus = itemView.findViewById(R.id.status);
+        }
+
+        public void bind(DCCServerManager.UploadEntry entry) {
+            mName.setText(DCCManager.getInstance(mName.getContext())
+                    .getUploadName(entry.getServer()));
+            mStatus.setText(mStatus.getContext().getString(
+                    R.string.dcc_active_upload_pending_status));
         }
 
     }

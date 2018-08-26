@@ -602,5 +602,6 @@
 
     <string name="title_activity_dcc">DCC transfers</string>
     <string name="dcc_active_upload_transfer_status">Uploading to %s</string>
+    <string name="dcc_active_upload_pending_status">Waiting for connection…</string>
 
 </resources>

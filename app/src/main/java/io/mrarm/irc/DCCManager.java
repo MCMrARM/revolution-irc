@@ -84,6 +84,12 @@ public class DCCManager implements DCCServerManager.UploadListener {
         }
     }
 
+    public DCCServerManager.UploadEntry getUploadEntry(DCCServer server) {
+        synchronized (mUploads) {
+            return mUploads.get(server);
+        }
+    }
+
     public String getUploadName(DCCServer server) {
         synchronized (mUploads) {
             DCCServerManager.UploadEntry ent = mUploads.get(server);
@@ -93,7 +99,13 @@ public class DCCManager implements DCCServerManager.UploadListener {
         }
     }
 
-    public List<DCCServer.UploadSession> getSessions() {
+    public List<DCCServerManager.UploadEntry> getUploads() {
+        synchronized (mUploads) {
+            return new ArrayList<>(mUploads.values());
+        }
+    }
+
+    public List<DCCServer.UploadSession> getUploadSessions() {
         synchronized (mSessions) {
             return new ArrayList<>(mSessions);
         }
