@@ -129,7 +129,7 @@ public class ServerConnectionInfo {
                     .getCommandHandlerList().getHandler(MessageCommandHandler.class);
             DCCManager dccManager = DCCManager.getInstance(getConnectionManager().getContext());
             messageHandler.setDCCServerManager(dccManager.getServer());
-            messageHandler.setDCCClientManager(dccManager.getClient());
+            messageHandler.setDCCClientManager(dccManager.createClient(this));
             messageHandler.setCtcpVersionReply(mManager.getContext()
                     .getString(R.string.app_name), BuildConfig.VERSION_NAME, "Android");
             connection.addDisconnectListener((IRCConnection conn, Exception reason) -> {

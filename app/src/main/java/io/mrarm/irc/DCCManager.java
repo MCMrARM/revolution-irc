@@ -22,6 +22,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import io.mrarm.chatlib.irc.MessagePrefix;
 import io.mrarm.chatlib.irc.ServerConnectionData;
@@ -43,7 +44,6 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
 
     private final Context mContext;
     private final DCCServerManager mServer;
-    private final DCCClientManager mClient;
     private final Map<DCCServer, DCCServerManager.UploadEntry> mUploads = new HashMap();
     private final List<DCCServer.UploadSession> mSessions = new ArrayList<>();
     private final List<DownloadInfo> mDownloads = new ArrayList<>();
@@ -55,7 +55,6 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
         mDownloadDirectory = mContext.getExternalFilesDir("Downloads");
         mDownloadDirectory.mkdirs();
         mServer = new DCCServerManager();
-        mClient = new ClientImpl();
         mServer.addUploadListener(this);
     }
 
@@ -63,8 +62,8 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
         return mServer;
     }
 
-    public DCCClientManager getClient() {
-        return mClient;
+    public DCCClientManager createClient(ServerConnectionInfo server) {
+        return new ClientImpl(server);
     }
 
     public void addDownloadListener(DownloadListener listener) {
@@ -177,6 +176,8 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
 
     public class DownloadInfo {
 
+        private final UUID mServerUUID;
+        private final String mServerName;
         private final MessagePrefix mSender;
         private final String mFileName;
         private final long mFileSize;
@@ -185,13 +186,19 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
         private boolean mPending = true;
         private DCCClient mClient;
 
-        private DownloadInfo(MessagePrefix sender, String fileName, long fileSize,
-                            String address, int port) {
+        private DownloadInfo(ServerConnectionInfo server, MessagePrefix sender, String fileName,
+                             long fileSize, String address, int port) {
+            mServerUUID = server.getUUID();
+            mServerName = server.getName();
             mSender = sender;
             mFileName = fileName;
             mFileSize = fileSize;
             mAddress = address;
             mPort = port;
+        }
+
+        public String getServerName() {
+            return mServerName;
         }
 
         public MessagePrefix getSender() {
@@ -252,7 +259,7 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
             return new AlertDialog.Builder(context)
                     .setTitle(title)
                     .setMessage(context.getString(R.string.dcc_approve_download_body,
-                            mSender.toString(), "TODO"))
+                            mSender.toString(), getServerName()))
                     .setPositiveButton(R.string.action_accept,
                             (DialogInterface dialog, int which) -> approve())
                     .setNegativeButton(R.string.action_reject,
@@ -320,12 +327,18 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
 
     private class ClientImpl extends DCCClientManager {
 
+        private ServerConnectionInfo mServer;
+
+        public ClientImpl(ServerConnectionInfo server) {
+            mServer = server;
+        }
+
         @Override
         public void onFileOffered(ServerConnectionData connection, MessagePrefix sender,
                                   String fileName, String address, int port, long fileSize) {
             Log.d("DCCManager", "File offered: " + fileName +
                     " from " + address + ":" + port);
-            onDownloadCreated(new DownloadInfo(sender, fileName, fileSize, address, port));
+            onDownloadCreated(new DownloadInfo(mServer, sender, fileName, fileSize, address, port));
         }
 
     }
