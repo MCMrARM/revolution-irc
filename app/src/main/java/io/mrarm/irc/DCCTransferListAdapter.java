@@ -236,13 +236,6 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements
             mStatusIcon.setImageResource(R.drawable.ic_file_download_white_24dp);
             mName.setText(download.getFileName());
             updateProgress();
-            if (download.getClient() != null) {
-                InetSocketAddress addr = (InetSocketAddress) download.getClient()
-                        .getRemoteAddress();
-                mStatus.setText(mStatus.getContext().getString(
-                        R.string.dcc_active_download_transfer_status,
-                        addr.getAddress().getHostAddress() + ":" + addr.getPort()));
-            }
         }
 
         public void bind(DCCServer.UploadSession session) {
@@ -260,14 +253,26 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements
 
         public void updateProgress() {
             if (mDownload != null) {
-                if (mDownload.getClient() != null) {
+                if (mDownload.isPending()) {
+                    mProgressBar.setIndeterminate(true);
+                    mStatus.setText(mStatus.getContext().getString(
+                            R.string.dcc_active_waiting_for_approval));
+                } else if (mDownload.getClient() != null) {
                     mProgressBar.setIndeterminate(false);
                     mProgressBar.setMax(100000);
                     mProgressBar.setProgress((int)
                             (mDownload.getClient().getDownloadedSize() * 100000L /
                                     mDownload.getClient().getExpectedSize()));
+
+                    InetSocketAddress addr = (InetSocketAddress) mDownload.getClient()
+                            .getRemoteAddress();
+                    mStatus.setText(mStatus.getContext().getString(
+                            R.string.dcc_active_download_transfer_status,
+                            addr.getAddress().getHostAddress() + ":" + addr.getPort()));
                 } else {
                     mProgressBar.setIndeterminate(true);
+                    mStatus.setText(mStatus.getContext().getString(
+                            R.string.dcc_active_waiting_for_connection));
                 }
             }
             if (mSession != null) {
@@ -295,7 +300,7 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements
             mName.setText(DCCManager.getInstance(mName.getContext())
                     .getUploadName(entry.getServer()));
             mStatus.setText(mStatus.getContext().getString(
-                    R.string.dcc_active_upload_pending_status));
+                    R.string.dcc_active_waiting_for_connection));
         }
 
     }

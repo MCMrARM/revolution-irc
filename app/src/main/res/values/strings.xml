@@ -605,7 +605,8 @@
     <string name="title_activity_dcc">DCC transfers</string>
     <string name="dcc_active_upload_transfer_status">Uploading to %s</string>
     <string name="dcc_active_download_transfer_status">Downloading from %s</string>
-    <string name="dcc_active_upload_pending_status">Waiting for connection…</string>
+    <string name="dcc_active_waiting_for_connection">Waiting for connection…</string>
+    <string name="dcc_active_waiting_for_approval">Waiting for user approval…</string>
 
     <string name="dcc_approve_download_title">DCC file: %s</string>
     <string name="dcc_approve_download_title_with_size">DCC file: %s (%s)</string>
