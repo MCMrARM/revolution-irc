@@ -40,6 +40,8 @@ public class DCCManager implements DCCServerManager.UploadListener {
     private final DCCClientManager mClient;
     private final Map<DCCServer, DCCServerManager.UploadEntry> mUploads = new HashMap();
     private final List<DCCServer.UploadSession> mSessions = new ArrayList<>();
+    private final List<DownloadInfo> mDownloads = new ArrayList<>();
+    private final List<DownloadListener> mDownloadListeners = new ArrayList<>();
 
     public DCCManager(Context context) {
         mContext = context;
@@ -54,6 +56,18 @@ public class DCCManager implements DCCServerManager.UploadListener {
 
     public DCCClientManager getClient() {
         return mClient;
+    }
+
+    public void addDownloadListener(DownloadListener listener) {
+        synchronized (mDownloads) {
+            mDownloadListeners.add(listener);
+        }
+    }
+
+    public void removeDownloadListener(DownloadListener listener) {
+        synchronized (mDownloads) {
+            mDownloadListeners.remove(listener);
+        }
     }
 
     @Override
@@ -84,6 +98,22 @@ public class DCCManager implements DCCServerManager.UploadListener {
         }
     }
 
+    public void onDownloadCreated(DownloadInfo download) {
+        synchronized (mDownloads) {
+            mDownloads.add(download);
+            for (DownloadListener listener : mDownloadListeners)
+                listener.onDownloadCreated(download);
+        }
+    }
+
+    public void onDownloadDestroyed(DownloadInfo download) {
+        synchronized (mDownloads) {
+            mDownloads.remove(download);
+            for (DownloadListener listener : mDownloadListeners)
+                listener.onDownloadDestroyed(download);
+        }
+    }
+
     public DCCServerManager.UploadEntry getUploadEntry(DCCServer server) {
         synchronized (mUploads) {
             return mUploads.get(server);
@@ -111,8 +141,43 @@ public class DCCManager implements DCCServerManager.UploadListener {
         }
     }
 
+    public List<DownloadInfo> getDownloads() {
+        synchronized (mSessions) {
+            return new ArrayList<>(mDownloads);
+        }
+    }
+
     public Object getSessionsSyncObject() {
         return mSessions;
+    }
+
+    public static class DownloadInfo {
+
+        private final MessagePrefix mSender;
+        private final String mFileName;
+        private DCCClient mClient;
+
+        public DownloadInfo(MessagePrefix sender, String filename) {
+            mSender = sender;
+            mFileName = filename;
+        }
+
+        public MessagePrefix getSender() {
+            return mSender;
+        }
+
+        public String getFileName() {
+            return mFileName;
+        }
+
+        public boolean isPending() {
+            return (mClient == null);
+        }
+
+        public DCCClient getClient() {
+            return mClient;
+        }
+
     }
 
     private class ClientImpl extends DCCClientManager {
@@ -120,6 +185,7 @@ public class DCCManager implements DCCServerManager.UploadListener {
         @Override
         public void onFileOffered(ServerConnectionData connection, MessagePrefix sender,
                                   String filename, String address, int port, long fileSize) {
+            DownloadInfo download = new DownloadInfo(sender, filename);
             try {
                 Log.d("DCCManager", "File offered: " + filename + " from " + address + ":" + port);
                 SocketChannel socket = SocketChannel.open(new InetSocketAddress(address, port));
@@ -127,11 +193,20 @@ public class DCCManager implements DCCServerManager.UploadListener {
                 dstDir.mkdirs();
                 FileChannel file = new FileOutputStream(new File(dstDir,
                         filename.replace('/', '_'))).getChannel();
-                new DCCClient(socket, file, 0L, fileSize);
+                download.mClient = new DCCClient(socket, file, 0L, fileSize);
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            onDownloadCreated(download);
         }
+
+    }
+
+    public interface DownloadListener {
+
+        void onDownloadCreated(DownloadInfo download);
+
+        void onDownloadDestroyed(DownloadInfo download);
 
     }
 

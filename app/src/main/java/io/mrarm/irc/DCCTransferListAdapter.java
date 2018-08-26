@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -17,7 +18,8 @@ import io.mrarm.chatlib.irc.dcc.DCCServer;
 import io.mrarm.chatlib.irc.dcc.DCCServerManager;
 import io.mrarm.irc.util.AdvancedDividerItemDecoration;
 
-public class DCCTransferListAdapter extends RecyclerView.Adapter implements DCCServerManager.UploadListener {
+public class DCCTransferListAdapter extends RecyclerView.Adapter implements
+        DCCServerManager.UploadListener, DCCManager.DownloadListener {
 
     private static final int TYPE_TRANSFER_ACTIVE = 0;
     private static final int TYPE_TRANSFER_PENDING = 1;
@@ -25,13 +27,16 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements DCCS
     private Activity mActivity;
     private DCCManager mDCCManager;
     private List<DCCServer.UploadSession> mUploadSessions;
+    private List<DCCManager.DownloadInfo> mDownloads;
     private List<DCCServerManager.UploadEntry> mPendingUploads;
 
     public DCCTransferListAdapter(Activity activity) {
         mActivity = activity;
         mDCCManager = DCCManager.getInstance(activity);
         mDCCManager.getServer().addUploadListener(this);
+        mDCCManager.addDownloadListener(this);
         mUploadSessions = mDCCManager.getUploadSessions();
+        mDownloads = mDCCManager.getDownloads();
         mPendingUploads = mDCCManager.getUploads();
         for (DCCServer.UploadSession session : mUploadSessions) {
             DCCServerManager.UploadEntry ent = mDCCManager.getUploadEntry(session.getServer());
@@ -43,6 +48,7 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements DCCS
 
     public void unregisterListeners() {
         mDCCManager.getServer().removeUploadListener(this);
+        mDCCManager.removeDownloadListener(this);
     }
 
     public ItemDecoration createItemDecoration() {
@@ -68,23 +74,32 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements DCCS
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (position >= 0 && position < mUploadSessions.size())
             ((ActiveTransferHolder) holder).bind(mUploadSessions.get(position));
+        if (position >= getDownloadsStart() &&
+                position < getDownloadsStart() + mDownloads.size())
+            ((ActiveTransferHolder) holder).bind(mDownloads.get(position - getDownloadsStart()));
         if (position >= getPendingUploadsStart() &&
                 position < getPendingUploadsStart() + mPendingUploads.size())
-            ((PendingTransferHolder) holder).bind(mPendingUploads.get(position));
+            ((PendingTransferHolder) holder).bind(
+                    mPendingUploads.get(position - getPendingUploadsStart()));
     }
 
     @Override
     public int getItemCount() {
-        return mUploadSessions.size() + mPendingUploads.size();
+        return mUploadSessions.size() + mDownloads.size() + mPendingUploads.size();
+    }
+
+    private int getDownloadsStart() {
+        return mUploadSessions.size();
     }
 
     private int getPendingUploadsStart() {
-        return mUploadSessions.size();
+        return mUploadSessions.size() + mDownloads.size();
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (position >= getPendingUploadsStart())
+        if (position >= getPendingUploadsStart() &&
+                position < getPendingUploadsStart() + mPendingUploads.size())
             return TYPE_TRANSFER_PENDING;
         return TYPE_TRANSFER_ACTIVE;
     }
@@ -155,6 +170,27 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements DCCS
         });
     }
 
+    @Override
+    public void onDownloadCreated(DCCManager.DownloadInfo download) {
+        mActivity.runOnUiThread(() -> {
+            if (!mDownloads.contains(download)) {
+                mDownloads.add(download);
+                notifyItemInserted(getDownloadsStart() + mDownloads.size() - 1);
+            }
+        });
+    }
+
+    @Override
+    public void onDownloadDestroyed(DCCManager.DownloadInfo download) {
+        mActivity.runOnUiThread(() -> {
+            int idx = mDownloads.indexOf(download);
+            if (idx == -1)
+                return;
+            mDownloads.remove(idx);
+            notifyItemRemoved(getDownloadsStart() + idx);
+        });
+    }
+
     public static class ItemDecoration extends AdvancedDividerItemDecoration {
 
         public ItemDecoration(Context context) {
@@ -172,18 +208,38 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements DCCS
 
         private TextView mName;
         private ProgressBar mProgressBar;
+        private ImageView mStatusIcon;
         private TextView mStatus;
+        private DCCManager.DownloadInfo mDownload;
         private DCCServer.UploadSession mSession;
 
         public ActiveTransferHolder(View itemView) {
             super(itemView);
             mName = itemView.findViewById(R.id.name);
             mProgressBar = itemView.findViewById(R.id.progress);
+            mStatusIcon = itemView.findViewById(R.id.status_icon);
             mStatus = itemView.findViewById(R.id.status);
         }
 
+        public void bind(DCCManager.DownloadInfo download) {
+            mDownload = download;
+            mSession = null;
+            mStatusIcon.setImageResource(R.drawable.ic_file_download_white_24dp);
+            mName.setText(download.getFileName());
+            updateProgress();
+            if (download.getClient() != null) {
+                InetSocketAddress addr = (InetSocketAddress) download.getClient()
+                        .getRemoteAddress();
+                mStatus.setText(mStatus.getContext().getString(
+                        R.string.dcc_active_download_transfer_status,
+                        addr.getAddress().getHostAddress() + ":" + addr.getPort()));
+            }
+        }
+
         public void bind(DCCServer.UploadSession session) {
+            mDownload = null;
             mSession = session;
+            mStatusIcon.setImageResource(R.drawable.ic_file_upload_white_16dp);
             mName.setText(DCCManager.getInstance(mName.getContext())
                     .getUploadName(session.getServer()));
             updateProgress();
@@ -194,9 +250,23 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements DCCS
         }
 
         public void updateProgress() {
-            mProgressBar.setMax(100000);
-            mProgressBar.setProgress((int)
-                    (mSession.getAcknowledgedSize() * 100000L / mSession.getTotalSize()));
+            if (mDownload != null) {
+                if (mDownload.getClient() != null) {
+                    mProgressBar.setIndeterminate(false);
+                    mProgressBar.setMax(100000);
+                    mProgressBar.setProgress((int)
+                            (mDownload.getClient().getDownloadedSize() * 100000L /
+                                    mDownload.getClient().getExpectedSize()));
+                } else {
+                    mProgressBar.setIndeterminate(true);
+                }
+            }
+            if (mSession != null) {
+                mProgressBar.setIndeterminate(false);
+                mProgressBar.setMax(100000);
+                mProgressBar.setProgress((int)
+                        (mSession.getAcknowledgedSize() * 100000L / mSession.getTotalSize()));
+            }
         }
 
     }
