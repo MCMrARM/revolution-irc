@@ -109,6 +109,18 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
     public void onSessionDestroyed(DCCServer dccServer, DCCServer.UploadSession uploadSession) {
         synchronized (mSessions) {
             mSessions.remove(uploadSession);
+            boolean shouldClose = uploadSession.getAcknowledgedSize()
+                    >= uploadSession.getTotalSize();
+            if (shouldClose) {
+                for (DCCServer.UploadSession s : mSessions) {
+                    if (s.getServer() == dccServer) {
+                        shouldClose = false;
+                        break;
+                    }
+                }
+            }
+            if (shouldClose)
+                mServer.cancelUpload(mUploads.get(dccServer));
         }
     }
 
@@ -222,7 +234,6 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
         private boolean mPending = true;
         private DCCClient mClient;
         private DCCReverseClient mReverseClient;
-        private int mNotificationId;
 
         private DownloadInfo(ServerConnectionInfo server, MessagePrefix sender, String fileName,
                              long fileSize, String address, int port) {
