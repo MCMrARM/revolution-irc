@@ -15,11 +15,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import io.mrarm.chatlib.irc.dcc.DCCClient;
 import io.mrarm.chatlib.irc.dcc.DCCServer;
 import io.mrarm.chatlib.irc.dcc.DCCServerManager;
 import io.mrarm.irc.util.FormatUtils;
 
-public class DCCNotificationManager implements DCCServerManager.UploadListener {
+public class DCCNotificationManager implements DCCServerManager.UploadListener,
+        DCCManager.DownloadListener {
 
     private static final String NOTIFICATION_CHANNEL = "DCCTransfers";
     public static final String NOTIFICATION_GROUP_DCC = "dcc";
@@ -34,6 +36,7 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener {
     private final Map<DCCServer, Integer> mUploadNotificationIds = new HashMap<>();
     private final Map<DCCServer.UploadSession, Integer> mSessionNotificationIds = new HashMap<>();
     private final Set<Integer> mDisplayedNotificationIds = new HashSet<>();
+    private final Map<DCCManager.DownloadInfo, Integer> mDownloadNotificationIds = new HashMap<>();
     private boolean mNotificationUpdateQueued = false;
     private final Runnable mNotificationUpdateRunnable = this::updateNotifications;
 
@@ -92,6 +95,25 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener {
                 createUploadNotification(DCCManager.getInstance(mContext)
                         .getUploadEntry(dccServer));
         });
+    }
+
+    @Override
+    public synchronized void onDownloadCreated(DCCManager.DownloadInfo download) {
+        mDownloadNotificationIds.put(download, mNextNotificationId++);
+        mHandler.post(() -> createDownloadNotification(download));
+    }
+
+    @Override
+    public synchronized void onDownloadDestroyed(DCCManager.DownloadInfo download) {
+        Integer nid = mDownloadNotificationIds.remove(download);
+        mDownloadNotificationIds.remove(download);
+        if (nid != null)
+            mHandler.post(() -> cancelNotification(nid));
+    }
+
+    @Override
+    public void onDownloadUpdated(DCCManager.DownloadInfo download) {
+        mHandler.post(() -> createDownloadNotification(download));
     }
 
     private synchronized boolean shouldUpdateNotifications() {
@@ -201,6 +223,39 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener {
                         "/" + FormatUtils.formatByteSize(uploadSession.getTotalSize(), unit))
                 .setSmallIcon(R.drawable.ic_notification_upload)
                 .setOngoing(true);
+        if (isNotificationGroupingEnabled())
+            builder.setGroup(NOTIFICATION_GROUP_DCC);
+        mDisplayedNotificationIds.add(id);
+        mNotificationManager.notify(id, builder.build());
+        createSummaryNotification();
+        postNotificationUpdate();
+    }
+
+    private synchronized void createDownloadNotification(DCCManager.DownloadInfo download) {
+        Integer id = mDownloadNotificationIds.get(download);
+        if (id == null)
+            return;
+        createNotificationChannel();
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext,
+                NOTIFICATION_CHANNEL)
+                .setContentTitle(download.getFileName())
+                .setSmallIcon(R.drawable.ic_notification_download)
+                .setOngoing(true);
+        if (download.isPending()) {
+            builder.setContentText(mContext.getString(R.string.dcc_active_waiting_for_approval));
+            // TODO: add approve and decline buttons straight to the notification
+        } else if (download.getClient() != null) {
+            DCCClient client = download.getClient();
+            int unit = FormatUtils.getByteFormatUnit(client.getExpectedSize());
+            builder
+                    .setProgress(100000, (int) (client.getDownloadedSize() * 100000L /
+                            client.getExpectedSize()), false)
+                    .setContentText(FormatUtils.formatByteSize(client.getDownloadedSize(), unit) +
+                            "/" + FormatUtils.formatByteSize(client.getExpectedSize(), unit));
+        } else {
+            builder.setContentText(mContext.getString(R.string.dcc_active_waiting_for_connection))
+                    .setProgress(0, 0, true);
+        }
         if (isNotificationGroupingEnabled())
             builder.setGroup(NOTIFICATION_GROUP_DCC);
         mDisplayedNotificationIds.add(id);

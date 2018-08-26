@@ -62,6 +62,7 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
         mServer = new DCCServerManager();
         mServer.addUploadListener(this);
         mServer.addUploadListener(mNotificationManager);
+        addDownloadListener(mNotificationManager);
     }
 
     public DCCServerManager getServer() {
