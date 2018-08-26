@@ -25,7 +25,7 @@ import io.mrarm.chatlib.irc.dcc.DCCClientManager;
 import io.mrarm.chatlib.irc.dcc.DCCServer;
 import io.mrarm.chatlib.irc.dcc.DCCServerManager;
 
-public class DCCManager implements DCCServerManager.UploadListener {
+public class DCCManager implements DCCServerManager.UploadListener, DCCClient.CloseListener {
 
     private static DCCManager sInstance;
 
@@ -114,6 +114,21 @@ public class DCCManager implements DCCServerManager.UploadListener {
         }
     }
 
+    @Override
+    public void onClosed(DCCClient dccClient) {
+        synchronized (mDownloads) {
+            for (int i = mDownloads.size() - 1; i >= 0; --i) {
+                DownloadInfo download = mDownloads.get(i);
+                if (download.getClient() == dccClient) {
+                    mDownloads.remove(i);
+                    for (DownloadListener listener : mDownloadListeners)
+                        listener.onDownloadDestroyed(download);
+                    return;
+                }
+            }
+        }
+    }
+
     public DCCServerManager.UploadEntry getUploadEntry(DCCServer server) {
         synchronized (mUploads) {
             return mUploads.get(server);
@@ -193,7 +208,9 @@ public class DCCManager implements DCCServerManager.UploadListener {
                 dstDir.mkdirs();
                 FileChannel file = new FileOutputStream(new File(dstDir,
                         filename.replace('/', '_'))).getChannel();
-                download.mClient = new DCCClient(socket, file, 0L, fileSize);
+                download.mClient = new DCCClient(file, 0L, fileSize);
+                download.mClient.setCloseListener(DCCManager.this);
+                download.mClient.start(socket);
             } catch (IOException e) {
                 e.printStackTrace();
             }
