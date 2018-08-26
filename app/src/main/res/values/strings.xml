@@ -98,6 +98,8 @@
     <string name="action_reply">Reply</string>
     <string name="action_share">Share</string>
     <string name="action_dcc_send">Send a file using DCC</string>
+    <string name="action_accept">Accept</string>
+    <string name="action_reject">Reject</string>
 
     <string name="action_delete_confirm_title">Are you sure?</string>
     <string name="action_delete_confirm_body">Are you sure you want to delete %s? This cannot be undone.</string>
@@ -604,5 +606,9 @@
     <string name="dcc_active_upload_transfer_status">Uploading to %s</string>
     <string name="dcc_active_download_transfer_status">Downloading from %s</string>
     <string name="dcc_active_upload_pending_status">Waiting for connection…</string>
+
+    <string name="dcc_approve_download_title">DCC file: %s</string>
+    <string name="dcc_approve_download_title_with_size">DCC file: %s (%s)</string>
+    <string name="dcc_approve_download_body">%s (from server: %s) has sent you a file.\n\nWarning: This download will be transmitted over an insecure &amp; unencrypted connection. Accepting this download will allow the other party to see your IP address. You should accept it only if you trust this user.</string>
 
 </resources>

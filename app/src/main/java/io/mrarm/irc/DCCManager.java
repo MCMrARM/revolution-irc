@@ -1,7 +1,12 @@
 package io.mrarm.irc;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.os.AsyncTask;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -24,6 +29,7 @@ import io.mrarm.chatlib.irc.dcc.DCCClient;
 import io.mrarm.chatlib.irc.dcc.DCCClientManager;
 import io.mrarm.chatlib.irc.dcc.DCCServer;
 import io.mrarm.chatlib.irc.dcc.DCCServerManager;
+import io.mrarm.irc.util.FormatUtils;
 
 public class DCCManager implements DCCServerManager.UploadListener, DCCClient.CloseListener {
 
@@ -42,9 +48,12 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
     private final List<DCCServer.UploadSession> mSessions = new ArrayList<>();
     private final List<DownloadInfo> mDownloads = new ArrayList<>();
     private final List<DownloadListener> mDownloadListeners = new ArrayList<>();
+    private File mDownloadDirectory;
 
     public DCCManager(Context context) {
         mContext = context;
+        mDownloadDirectory = mContext.getExternalFilesDir("Downloads");
+        mDownloadDirectory.mkdirs();
         mServer = new DCCServerManager();
         mClient = new ClientImpl();
         mServer.addUploadListener(this);
@@ -166,15 +175,23 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
         return mSessions;
     }
 
-    public static class DownloadInfo {
+    public class DownloadInfo {
 
         private final MessagePrefix mSender;
         private final String mFileName;
+        private final long mFileSize;
+        private final String mAddress;
+        private final int mPort;
+        private boolean mPending = true;
         private DCCClient mClient;
 
-        public DownloadInfo(MessagePrefix sender, String filename) {
+        private DownloadInfo(MessagePrefix sender, String fileName, long fileSize,
+                            String address, int port) {
             mSender = sender;
-            mFileName = filename;
+            mFileName = fileName;
+            mFileSize = fileSize;
+            mAddress = address;
+            mPort = port;
         }
 
         public MessagePrefix getSender() {
@@ -185,36 +202,130 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
             return mFileName;
         }
 
-        public boolean isPending() {
-            return (mClient == null);
+        public long getFileSize() {
+            return mFileSize;
         }
 
-        public DCCClient getClient() {
+        public boolean isPending() {
+            return mPending;
+        }
+
+        public synchronized DCCClient getClient() {
             return mClient;
         }
 
+        public void approve() {
+            if (!mPending)
+                return;
+            mPending = false;
+            AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
+                try {
+                    SocketChannel socket = SocketChannel.open(
+                            new InetSocketAddress(mAddress, mPort));
+                    FileChannel file = new FileOutputStream(new File(mDownloadDirectory,
+                            mFileName.replace('/', '_'))).getChannel();
+                    synchronized (this) {
+                        mClient = new DCCClient(file, 0L, mFileSize);
+                    }
+                    mClient.setCloseListener(DCCManager.this);
+                    mClient.start(socket);
+                } catch (IOException e) {
+                    Toast.makeText(mContext, R.string.error_generic, Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                }
+            });
+        }
+
+        public void reject() {
+            if (!mPending)
+                return;
+            onDownloadDestroyed(this);
+        }
+
+        public AlertDialog createDownloadApprovalDialog(Context context) {
+            String title;
+            if (getFileSize() > 0)
+                title = context.getString(R.string.dcc_approve_download_title_with_size,
+                        getFileName(), FormatUtils.formatByteSize(getFileSize()));
+            else
+                title = context.getString(R.string.dcc_approve_download_title, getFileName());
+            return new AlertDialog.Builder(context)
+                    .setTitle(title)
+                    .setMessage(context.getString(R.string.dcc_approve_download_body,
+                            mSender.toString(), "TODO"))
+                    .setPositiveButton(R.string.action_accept,
+                            (DialogInterface dialog, int which) -> approve())
+                    .setNegativeButton(R.string.action_reject,
+                            (DialogInterface dialog, int which) -> reject())
+                    .setOnCancelListener((DialogInterface dialog) -> reject())
+                    .create();
+        }
+
+    }
+
+    public static class ActivityDialogHandler implements DownloadListener {
+
+        private Activity mActivity;
+        private AlertDialog mCurrentDialog;
+
+        public ActivityDialogHandler(Activity activity) {
+            mActivity = activity;
+        }
+
+        public void onResume() {
+            DCCManager.getInstance(mActivity).addDownloadListener(this);
+            showDialogsIfNeeded();
+        }
+
+        public void onPause() {
+            DCCManager.getInstance(mActivity).removeDownloadListener(this);
+            if (mCurrentDialog != null) {
+                mCurrentDialog.cancel();
+                mCurrentDialog = null;
+            }
+        }
+
+        private void showDialog(AlertDialog dialog) {
+            if (mCurrentDialog != null)
+                mCurrentDialog.cancel();
+            mCurrentDialog = dialog;
+            dialog.setOnDismissListener((DialogInterface i) -> {
+                mCurrentDialog = null;
+                showDialogsIfNeeded();
+            });
+            dialog.show();
+        }
+
+        private void showDialogsIfNeeded() {
+            for (DownloadInfo download : DCCManager.getInstance(mActivity).getDownloads()) {
+                if (download.isPending())
+                    showDialog(download.createDownloadApprovalDialog(mActivity));
+            }
+        }
+
+        @Override
+        public void onDownloadCreated(DownloadInfo download) {
+            if (download.isPending()) {
+                mActivity.runOnUiThread(() -> {
+                    if (mCurrentDialog == null && download.isPending()) // download is still pending
+                        showDialog(download.createDownloadApprovalDialog(mActivity));
+                });
+            }
+        }
+
+        @Override
+        public void onDownloadDestroyed(DownloadInfo download) {
+        }
     }
 
     private class ClientImpl extends DCCClientManager {
 
         @Override
         public void onFileOffered(ServerConnectionData connection, MessagePrefix sender,
-                                  String filename, String address, int port, long fileSize) {
-            DownloadInfo download = new DownloadInfo(sender, filename);
-            try {
-                Log.d("DCCManager", "File offered: " + filename + " from " + address + ":" + port);
-                SocketChannel socket = SocketChannel.open(new InetSocketAddress(address, port));
-                File dstDir = mContext.getExternalFilesDir("Downloads");
-                dstDir.mkdirs();
-                FileChannel file = new FileOutputStream(new File(dstDir,
-                        filename.replace('/', '_'))).getChannel();
-                download.mClient = new DCCClient(file, 0L, fileSize);
-                download.mClient.setCloseListener(DCCManager.this);
-                download.mClient.start(socket);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            onDownloadCreated(download);
+                                  String fileName, String address, int port, long fileSize) {
+            Log.d("DCCManager", "File offered: " + fileName +
+                    " from " + address + ":" + port);
+            onDownloadCreated(new DownloadInfo(sender, fileName, fileSize, address, port));
         }
 
     }

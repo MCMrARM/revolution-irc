@@ -75,6 +75,8 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
     private Dialog mCurrentDialog;
     private ChannelInfoAdapter mChannelInfoAdapter;
     private boolean mAppExiting;
+    private DCCManager.ActivityDialogHandler mDCCDialogHandler =
+            new DCCManager.ActivityDialogHandler(this);
 
     public static Intent getLaunchIntent(Context context, ServerConnectionInfo server, String channel) {
         Intent intent = new Intent(context, MainActivity.class);
@@ -240,6 +242,7 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
     protected void onResume() {
         super.onResume();
         WarningHelper.setActivity(this);
+        mDCCDialogHandler.onResume();
         if (getCurrentFragment() instanceof ChatFragment && !ServerConnectionManager
                 .getInstance(this).hasConnection(((ChatFragment) getCurrentFragment())
                         .getConnectionInfo().getUUID())) {
@@ -251,6 +254,7 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
     protected void onPause() {
         super.onPause();
         WarningHelper.setActivity(null);
+        mDCCDialogHandler.onPause();
     }
 
     @Override
