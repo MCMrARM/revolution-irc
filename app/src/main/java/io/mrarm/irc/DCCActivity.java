@@ -9,6 +9,8 @@ public class DCCActivity extends AppCompatActivity {
 
     private RecyclerView mRecyclerView;
     private DCCTransferListAdapter mAdapter;
+    private DCCManager.ActivityDialogHandler mDCCDialogHandler =
+            new DCCManager.ActivityDialogHandler(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,6 +22,18 @@ public class DCCActivity extends AppCompatActivity {
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.addItemDecoration(mAdapter.createItemDecoration());
         updateActiveProgress();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mDCCDialogHandler.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mDCCDialogHandler.onPause();
     }
 
     @Override
