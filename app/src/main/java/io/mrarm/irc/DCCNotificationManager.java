@@ -54,10 +54,14 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener {
 
     @Override
     public synchronized void onUploadDestroyed(DCCServerManager.UploadEntry uploadEntry) {
-        mUploadSessions.remove(uploadEntry.getServer());
+        List<DCCServer.UploadSession> list = mUploadSessions.remove(uploadEntry.getServer());
         Integer nid = mUploadNotificationIds.remove(uploadEntry.getServer());
-        if (nid != null)
-            mHandler.post(() -> cancelNotification(nid));
+        mHandler.post(() -> {
+            if (nid != null)
+                cancelNotification(nid);
+        });
+        for (DCCServer.UploadSession session : list)
+            onSessionDestroyed(uploadEntry.getServer(), session);
     }
 
     @Override
@@ -78,15 +82,16 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener {
                                                 DCCServer.UploadSession uploadSession) {
         Integer nid = mSessionNotificationIds.remove(uploadSession);
         List<DCCServer.UploadSession> list = mUploadSessions.get(dccServer);
-        list.remove(uploadSession);
-        if (list.size() == 0) {
-            mHandler.post(() -> {
-                if (nid != null)
-                    cancelNotification(nid);
+        if (list != null)
+            list.remove(uploadSession);
+        boolean shouldCreateUploadNot = (list != null && list.size() == 0);
+        mHandler.post(() -> {
+            if (nid != null)
+                cancelNotification(nid);
+            if (shouldCreateUploadNot)
                 createUploadNotification(DCCManager.getInstance(mContext)
                         .getUploadEntry(dccServer));
-            });
-        }
+        });
     }
 
     private synchronized boolean shouldUpdateNotifications() {
