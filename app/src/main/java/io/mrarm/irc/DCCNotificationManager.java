@@ -17,6 +17,7 @@ import java.util.Set;
 
 import io.mrarm.chatlib.irc.dcc.DCCServer;
 import io.mrarm.chatlib.irc.dcc.DCCServerManager;
+import io.mrarm.irc.util.FormatUtils;
 
 public class DCCNotificationManager implements DCCServerManager.UploadListener {
 
@@ -33,6 +34,8 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener {
     private final Map<DCCServer, Integer> mUploadNotificationIds = new HashMap<>();
     private final Map<DCCServer.UploadSession, Integer> mSessionNotificationIds = new HashMap<>();
     private final Set<Integer> mDisplayedNotificationIds = new HashSet<>();
+    private boolean mNotificationUpdateQueued = false;
+    private final Runnable mNotificationUpdateRunnable = this::updateNotifications;
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());
 
@@ -60,22 +63,63 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener {
     @Override
     public synchronized void onSessionCreated(DCCServer dccServer,
                                               DCCServer.UploadSession uploadSession) {
+        mSessionNotificationIds.put(uploadSession, mNextNotificationId++);
         mUploadSessions.get(dccServer).add(uploadSession);
         mHandler.post(() -> {
             Integer nid = mUploadNotificationIds.get(uploadSession.getServer());
             if (nid != null)
                 cancelNotification(nid);
+            createUploadNotification(uploadSession);
         });
     }
 
     @Override
     public synchronized void onSessionDestroyed(DCCServer dccServer,
                                                 DCCServer.UploadSession uploadSession) {
+        Integer nid = mSessionNotificationIds.remove(uploadSession);
         List<DCCServer.UploadSession> list = mUploadSessions.get(dccServer);
         list.remove(uploadSession);
-        if (list.size() == 0)
-            mHandler.post(() -> createUploadNotification(DCCManager.getInstance(mContext)
-                    .getUploadEntry(dccServer)));
+        if (list.size() == 0) {
+            mHandler.post(() -> {
+                if (nid != null)
+                    cancelNotification(nid);
+                createUploadNotification(DCCManager.getInstance(mContext)
+                        .getUploadEntry(dccServer));
+            });
+        }
+    }
+
+    private synchronized boolean shouldUpdateNotifications() {
+        for (List<DCCServer.UploadSession> sessionList : mUploadSessions.values()) {
+            if (sessionList.size() > 0)
+                return true;
+        }
+        return false;
+    }
+
+    private synchronized void updateNotifications() {
+        mNotificationUpdateQueued = false;
+        if (!shouldUpdateNotifications())
+            return;
+        for (List<DCCServer.UploadSession> sessionList : mUploadSessions.values()) {
+            for (DCCServer.UploadSession session : sessionList)
+                createUploadNotification(session);
+        }
+        postNotificationUpdate();
+    }
+
+    private void postNotificationUpdate() {
+        if (!mNotificationUpdateQueued) {
+            mHandler.postDelayed(mNotificationUpdateRunnable, 500L);
+            mNotificationUpdateQueued = true;
+        }
+    }
+
+    private void cancelNotificationUpdate() {
+        if (mNotificationUpdateQueued) {
+            mHandler.removeCallbacks(mNotificationUpdateRunnable);
+            mNotificationUpdateQueued = false;
+        }
     }
 
     private boolean isNotificationGroupingEnabled() {
@@ -112,6 +156,8 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener {
                 mNotificationManager.cancel(DCC_SUMMARY_NOTIFICATION_ID);
             mNotificationManager.cancel(notificationId);
         }
+        if (mNotificationUpdateQueued && !shouldUpdateNotifications())
+            cancelNotificationUpdate();
     }
 
     private synchronized void createUploadNotification(DCCServerManager.UploadEntry uploadEntry) {
@@ -130,6 +176,32 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener {
         mDisplayedNotificationIds.add(id);
         mNotificationManager.notify(id, builder.build());
         createSummaryNotification();
+    }
+
+    private synchronized void createUploadNotification(DCCServer.UploadSession uploadSession) {
+        Integer id = mSessionNotificationIds.get(uploadSession);
+        if (id == null)
+            return;
+        createNotificationChannel();
+        DCCServerManager.UploadEntry entry = DCCManager.getInstance(mContext)
+                .getUploadEntry(uploadSession.getServer());
+        int unit = FormatUtils.getByteFormatUnit(uploadSession.getTotalSize());
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext,
+                NOTIFICATION_CHANNEL)
+                .setContentTitle(entry.getFileName())
+                .setProgress(100000, (int) (uploadSession.getAcknowledgedSize() * 100000L /
+                        uploadSession.getTotalSize()), false)
+                .setContentText(
+                        FormatUtils.formatByteSize(uploadSession.getAcknowledgedSize(), unit) +
+                        "/" + FormatUtils.formatByteSize(uploadSession.getTotalSize(), unit))
+                .setSmallIcon(R.drawable.ic_notification_upload)
+                .setOngoing(true);
+        if (isNotificationGroupingEnabled())
+            builder.setGroup(NOTIFICATION_GROUP_DCC);
+        mDisplayedNotificationIds.add(id);
+        mNotificationManager.notify(id, builder.build());
+        createSummaryNotification();
+        postNotificationUpdate();
     }
 
 }
