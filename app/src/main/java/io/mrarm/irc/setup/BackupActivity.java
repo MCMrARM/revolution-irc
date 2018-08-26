@@ -2,7 +2,6 @@ package io.mrarm.irc.setup;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import io.mrarm.irc.R;

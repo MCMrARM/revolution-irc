@@ -16,17 +16,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-import io.mrarm.chatlib.android.storage.SQLiteMessageStorageApi;
-import io.mrarm.chatlib.android.storage.SQLiteMiscStorage;
 import io.mrarm.chatlib.irc.IRCConnectionRequest;
-import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.chatlib.irc.cap.SASLOptions;
-import io.mrarm.chatlib.message.MessageStorageApi;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.setting.ReconnectIntervalSetting;
-import io.mrarm.irc.util.StubMessageStorageApi;
 
 public class ServerConnectionManager {
 

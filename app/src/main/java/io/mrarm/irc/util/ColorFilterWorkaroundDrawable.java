@@ -1,10 +1,8 @@
 // This file is under the public domain. If you want to use it in your project, go ahead.
 package io.mrarm.irc.util;
 
-import android.content.res.Resources;
 import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;

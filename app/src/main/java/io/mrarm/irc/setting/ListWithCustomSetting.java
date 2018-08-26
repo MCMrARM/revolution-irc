@@ -10,7 +10,6 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
-import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Toast;
 

@@ -3,8 +3,6 @@ package io.mrarm.irc;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.StatFs;
 import android.support.annotation.NonNull;
 

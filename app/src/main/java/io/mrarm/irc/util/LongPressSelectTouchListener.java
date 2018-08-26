@@ -1,14 +1,10 @@
 package io.mrarm.irc.util;
 
 import android.graphics.Rect;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.AnimationUtils;
-
-import io.mrarm.irc.R;
 
 public class LongPressSelectTouchListener implements RecyclerView.OnItemTouchListener {
 

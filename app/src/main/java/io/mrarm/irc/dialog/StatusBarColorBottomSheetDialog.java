@@ -5,9 +5,7 @@ import android.content.Context;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.BottomSheetDialog;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 
 import io.mrarm.irc.R;
