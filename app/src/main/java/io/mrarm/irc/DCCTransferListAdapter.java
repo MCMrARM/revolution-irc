@@ -191,6 +191,15 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements
         });
     }
 
+    @Override
+    public void onDownloadUpdated(DCCManager.DownloadInfo download) {
+        mActivity.runOnUiThread(() -> {
+            int idx = mDownloads.indexOf(download);
+            if (idx != -1)
+                notifyItemChanged(getDownloadsStart() + idx);
+        });
+    }
+
     public static class ItemDecoration extends AdvancedDividerItemDecoration {
 
         public ItemDecoration(Context context) {

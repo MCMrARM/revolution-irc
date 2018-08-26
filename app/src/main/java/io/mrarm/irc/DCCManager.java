@@ -28,11 +28,14 @@ import io.mrarm.chatlib.irc.MessagePrefix;
 import io.mrarm.chatlib.irc.ServerConnectionData;
 import io.mrarm.chatlib.irc.dcc.DCCClient;
 import io.mrarm.chatlib.irc.dcc.DCCClientManager;
+import io.mrarm.chatlib.irc.dcc.DCCReverseClient;
 import io.mrarm.chatlib.irc.dcc.DCCServer;
 import io.mrarm.chatlib.irc.dcc.DCCServerManager;
+import io.mrarm.chatlib.irc.dcc.DCCUtils;
 import io.mrarm.irc.util.FormatUtils;
 
-public class DCCManager implements DCCServerManager.UploadListener, DCCClient.CloseListener {
+public class DCCManager implements DCCServerManager.UploadListener, DCCClient.CloseListener,
+        DCCReverseClient.StateListener {
 
     private static DCCManager sInstance;
 
@@ -137,6 +140,34 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
         }
     }
 
+    @Override
+    public void onClosed(DCCReverseClient dccReverseClient) {
+        synchronized (mDownloads) {
+            for (int i = mDownloads.size() - 1; i >= 0; --i) {
+                DownloadInfo download = mDownloads.get(i);
+                if (download.getReverseClient() == dccReverseClient) {
+                    mDownloads.remove(i);
+                    for (DownloadListener listener : mDownloadListeners)
+                        listener.onDownloadDestroyed(download);
+                    return;
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onClientConnected(DCCReverseClient dccReverseClient, DCCClient dccClient) {
+        synchronized (mDownloads) {
+            for (DownloadInfo download : mDownloads) {
+                if (download.getReverseClient() == dccReverseClient) {
+                    for (DownloadListener listener : mDownloadListeners)
+                        listener.onDownloadUpdated(download);
+                    return;
+                }
+            }
+        }
+    }
+
     public DCCServerManager.UploadEntry getUploadEntry(DCCServer server) {
         synchronized (mUploads) {
             return mUploads.get(server);
@@ -183,8 +214,10 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
         private final long mFileSize;
         private final String mAddress;
         private final int mPort;
+        private final int mReverseUploadId;
         private boolean mPending = true;
         private DCCClient mClient;
+        private DCCReverseClient mReverseClient;
 
         private DownloadInfo(ServerConnectionInfo server, MessagePrefix sender, String fileName,
                              long fileSize, String address, int port) {
@@ -195,6 +228,18 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
             mFileSize = fileSize;
             mAddress = address;
             mPort = port;
+            mReverseUploadId = -1;
+        }
+        private DownloadInfo(ServerConnectionInfo server, MessagePrefix sender, String fileName,
+                             long fileSize, int reverseUploadId) {
+            mServerUUID = server.getUUID();
+            mServerName = server.getName();
+            mSender = sender;
+            mFileName = fileName;
+            mFileSize = fileSize;
+            mAddress = null;
+            mPort = -1;
+            mReverseUploadId = reverseUploadId;
         }
 
         public String getServerName() {
@@ -217,8 +262,61 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
             return mPending;
         }
 
+        public boolean isReverse() {
+            return mReverseUploadId != -1;
+        }
+
         public synchronized DCCClient getClient() {
+            if (mReverseClient != null)
+                return mReverseClient.getClient();
             return mClient;
+        }
+
+        public synchronized DCCReverseClient getReverseClient() {
+            return mReverseClient;
+        }
+
+        private void createClient() throws IOException {
+            ServerConnectionInfo connection = ServerConnectionManager.getInstance(mContext)
+                    .getConnection(mServerUUID);
+            if (connection == null)
+                throw new IOException("The connection doesn't exit");
+            FileChannel file = new FileOutputStream(new File(mDownloadDirectory,
+                    mFileName.replace('/', '_'))).getChannel();
+            try {
+                if (isReverse()) {
+                    synchronized (this) {
+                        mReverseClient = new DCCReverseClient(file, 0L, mFileSize);
+                    }
+                    mReverseClient.setStateListener(DCCManager.this);
+                    int port = mReverseClient.createServerSocket();
+                    String message = DCCUtils.buildSendMessage(getLocalIP(), mFileName, port,
+                            mFileSize, mReverseUploadId);
+                    connection.getApiInstance().sendMessage(mSender.getNick(), message, null, null);
+                } else {
+                    SocketChannel socket = SocketChannel.open(
+                            new InetSocketAddress(mAddress, mPort));
+                    synchronized (this) {
+                        mClient = new DCCClient(file, 0L, mFileSize);
+                    }
+                    mClient.setCloseListener(DCCManager.this);
+                    mClient.start(socket);
+                }
+            } catch (Exception e) {
+                try {
+                    file.close();
+                } catch (IOException ignored) {
+                }
+                synchronized (this) {
+                    if (mClient != null)
+                        mClient.close();
+                    mClient = null;
+                    if (mReverseClient != null)
+                        mReverseClient.close();
+                    mReverseClient = null;
+                }
+                throw e;
+            }
         }
 
         public void approve() {
@@ -227,18 +325,15 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
             mPending = false;
             AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
                 try {
-                    SocketChannel socket = SocketChannel.open(
-                            new InetSocketAddress(mAddress, mPort));
-                    FileChannel file = new FileOutputStream(new File(mDownloadDirectory,
-                            mFileName.replace('/', '_'))).getChannel();
-                    synchronized (this) {
-                        mClient = new DCCClient(file, 0L, mFileSize);
-                    }
-                    mClient.setCloseListener(DCCManager.this);
-                    mClient.start(socket);
+                    createClient();
                 } catch (IOException e) {
                     Toast.makeText(mContext, R.string.error_generic, Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
+                }
+
+                synchronized (mDownloads) {
+                    for (DownloadListener listener : mDownloadListeners)
+                        listener.onDownloadUpdated(this);
                 }
             });
         }
@@ -323,6 +418,10 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
         @Override
         public void onDownloadDestroyed(DownloadInfo download) {
         }
+
+        @Override
+        public void onDownloadUpdated(DownloadInfo download) {
+        }
     }
 
     private class ClientImpl extends DCCClientManager {
@@ -341,6 +440,12 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
             onDownloadCreated(new DownloadInfo(mServer, sender, fileName, fileSize, address, port));
         }
 
+        @Override
+        public void onFileOfferedUsingReverse(ServerConnectionData connection, MessagePrefix sender,
+                                              String fileName, long fileSize, int uploadId) {
+            Log.d("DCCManager", "File offered: " + fileName + " (reverse)");
+            onDownloadCreated(new DownloadInfo(mServer, sender, fileName, fileSize, uploadId));
+        }
     }
 
     public interface DownloadListener {
@@ -348,6 +453,8 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
         void onDownloadCreated(DownloadInfo download);
 
         void onDownloadDestroyed(DownloadInfo download);
+
+        void onDownloadUpdated(DownloadInfo download);
 
     }
 
