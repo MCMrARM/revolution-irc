@@ -211,6 +211,12 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
         }
     }
 
+    public boolean hasAnyDownloads() {
+        synchronized (mSessions) {
+            return !mDownloads.isEmpty();
+        }
+    }
+
     public List<DownloadInfo> getDownloads() {
         synchronized (mSessions) {
             return new ArrayList<>(mDownloads);

@@ -100,7 +100,10 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
     @Override
     public synchronized void onDownloadCreated(DCCManager.DownloadInfo download) {
         mDownloadNotificationIds.put(download, mNextNotificationId++);
-        mHandler.post(() -> createDownloadNotification(download));
+        mHandler.post(() -> {
+            createDownloadNotification(download);
+            postNotificationUpdate();
+        });
     }
 
     @Override
@@ -117,6 +120,8 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
     }
 
     private synchronized boolean shouldUpdateNotifications() {
+        if (DCCManager.getInstance(mContext).hasAnyDownloads())
+            return true;
         for (List<DCCServer.UploadSession> sessionList : mUploadSessions.values()) {
             if (sessionList.size() > 0)
                 return true;
@@ -131,6 +136,9 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
         for (List<DCCServer.UploadSession> sessionList : mUploadSessions.values()) {
             for (DCCServer.UploadSession session : sessionList)
                 createUploadNotification(session);
+        }
+        for (DCCManager.DownloadInfo download : DCCManager.getInstance(mContext).getDownloads()) {
+            createDownloadNotification(download);
         }
         postNotificationUpdate();
     }
