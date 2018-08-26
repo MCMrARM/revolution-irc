@@ -509,7 +509,7 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CODE_PICK_FILE_DCC) {
+        if (requestCode == REQUEST_CODE_PICK_FILE_DCC && data != null && data.getData() != null) {
             Uri uri = data.getData();
             Cursor cursor = getContentResolver().query(uri, null, null, null, null);
             int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
