@@ -351,7 +351,7 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
                         getFileName(), FormatUtils.formatByteSize(getFileSize()));
             else
                 title = context.getString(R.string.dcc_approve_download_title, getFileName());
-            return new AlertDialog.Builder(context)
+            AlertDialog ret = new AlertDialog.Builder(context)
                     .setTitle(title)
                     .setMessage(context.getString(R.string.dcc_approve_download_body,
                             mSender.toString(), getServerName()))
@@ -361,6 +361,8 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
                             (DialogInterface dialog, int which) -> reject())
                     .setOnCancelListener((DialogInterface dialog) -> reject())
                     .create();
+            ret.setCanceledOnTouchOutside(false);
+            return ret;
         }
 
     }
@@ -382,14 +384,14 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
         public void onPause() {
             DCCManager.getInstance(mActivity).removeDownloadListener(this);
             if (mCurrentDialog != null) {
-                mCurrentDialog.cancel();
+                mCurrentDialog.dismiss();
                 mCurrentDialog = null;
             }
         }
 
         private void showDialog(AlertDialog dialog) {
             if (mCurrentDialog != null)
-                mCurrentDialog.cancel();
+                mCurrentDialog.dismiss();
             mCurrentDialog = dialog;
             dialog.setOnDismissListener((DialogInterface i) -> {
                 mCurrentDialog = null;
