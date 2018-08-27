@@ -243,6 +243,7 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
         private final int mPort;
         private final int mReverseUploadId;
         private boolean mPending = true;
+        private boolean mCancelled = false;
         private DCCClient mClient;
         private DCCReverseClient mReverseClient;
 
@@ -313,6 +314,8 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
             try {
                 if (isReverse()) {
                     synchronized (this) {
+                        if (mCancelled)
+                            throw new CancelledException();
                         mReverseClient = new DCCReverseClient(file, 0L, mFileSize);
                     }
                     mReverseClient.setStateListener(DCCManager.this);
@@ -324,6 +327,8 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
                     SocketChannel socket = SocketChannel.open(
                             new InetSocketAddress(mAddress, mPort));
                     synchronized (this) {
+                        if (mCancelled)
+                            throw new CancelledException();
                         mClient = new DCCClient(file, 0L, mFileSize);
                     }
                     mClient.setCloseListener(DCCManager.this);
@@ -353,6 +358,8 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
             AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
                 try {
                     createClient();
+                } catch (CancelledException e) {
+                    return;
                 } catch (IOException e) {
                     Toast.makeText(mContext, R.string.error_generic, Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
@@ -369,6 +376,24 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
             if (!mPending)
                 return;
             onDownloadDestroyed(this);
+        }
+
+        public void cancel() {
+            if (mPending) {
+                onDownloadDestroyed(this);
+            } else {
+                synchronized (this) {
+                    mCancelled = true;
+                    if (mClient != null) {
+                        mClient.close();
+                        mClient = null;
+                    }
+                    if (mReverseClient != null) {
+                        mReverseClient.close();
+                        mReverseClient = null;
+                    }
+                }
+            }
         }
 
         public AlertDialog createDownloadApprovalDialog(Context context) {
@@ -392,6 +417,12 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
             return ret;
         }
 
+    }
+
+    private static class CancelledException extends IOException {
+        public CancelledException() {
+            super();
+        }
     }
 
     public static class ActivityDialogHandler implements DownloadListener {

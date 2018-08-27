@@ -266,6 +266,8 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
                 .setSmallIcon(R.drawable.ic_notification_download)
                 .setContentIntent(getOpenTransfersIntent())
                 .setOngoing(true);
+        int cancelIcon = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ?
+                R.drawable.ic_close : R.drawable.ic_notification_close;
         if (download.isPending()) {
             builder.setContentText(mContext.getString(R.string.dcc_approve_notification_body));
             int acceptIcon = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ?
@@ -274,9 +276,7 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
                     PendingIntent.getBroadcast(mContext, id,
                             ActionReceiver.getApproveIntent(mContext, id, true),
                             PendingIntent.FLAG_CANCEL_CURRENT));
-            int rejectIcon = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ?
-                    R.drawable.ic_close : R.drawable.ic_notification_close;
-            builder.addAction(rejectIcon, mContext.getString(R.string.action_reject),
+            builder.addAction(cancelIcon, mContext.getString(R.string.action_reject),
                     PendingIntent.getBroadcast(mContext,
                             DCC_SECOND_INTENT_ID_START - DCC_NOTIFICATION_ID_START + id,
                             ActionReceiver.getApproveIntent(mContext, id, false),
@@ -288,10 +288,18 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
                     .setProgress(100000, (int) (client.getDownloadedSize() * 100000L /
                             client.getExpectedSize()), false)
                     .setContentText(FormatUtils.formatByteSize(client.getDownloadedSize(), unit) +
-                            "/" + FormatUtils.formatByteSize(client.getExpectedSize(), unit));
+                            "/" + FormatUtils.formatByteSize(client.getExpectedSize(), unit))
+                    .addAction(cancelIcon, mContext.getString(R.string.action_cancel),
+                            PendingIntent.getBroadcast(mContext, id,
+                                    ActionReceiver.getCancelIntent(mContext, id, false),
+                                    PendingIntent.FLAG_CANCEL_CURRENT));
         } else {
             builder.setContentText(mContext.getString(R.string.dcc_active_waiting_for_connection))
-                    .setProgress(0, 0, true);
+                    .setProgress(0, 0, true)
+                    .addAction(cancelIcon, mContext.getString(R.string.action_cancel),
+                            PendingIntent.getBroadcast(mContext, id,
+                                    ActionReceiver.getCancelIntent(mContext, id, false),
+                                    PendingIntent.FLAG_CANCEL_CURRENT));
         }
         if (isNotificationGroupingEnabled())
             builder.setGroup(NOTIFICATION_GROUP_DCC);
@@ -306,8 +314,17 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
         private static final String ARG_NOT_ID = "not_id";
         private static final String ARG_TYPE = "type";
 
+        private static final String TYPE_CANCEL = "cancel";
         private static final String TYPE_APPROVE = "approve";
         private static final String TYPE_REJECT = "reject";
+
+        public static Intent getCancelIntent(Context context, int notificationId,
+                                              boolean approve) {
+            Intent intent = new Intent(context, ActionReceiver.class);
+            intent.putExtra(ARG_NOT_ID, notificationId);
+            intent.putExtra(ARG_TYPE, TYPE_CANCEL);
+            return intent;
+        }
 
         public static Intent getApproveIntent(Context context, int notificationId,
                                               boolean approve) {
@@ -334,6 +351,8 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
                 ((DCCManager.DownloadInfo) notData).approve();
             } else if (type.equals(TYPE_REJECT) && notData instanceof DCCManager.DownloadInfo) {
                 ((DCCManager.DownloadInfo) notData).reject();
+            } else if (type.equals(TYPE_CANCEL) && notData instanceof DCCManager.DownloadInfo) {
+                ((DCCManager.DownloadInfo) notData).cancel();
             }
         }
 
