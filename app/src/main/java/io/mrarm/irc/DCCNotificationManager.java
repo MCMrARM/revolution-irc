@@ -1,5 +1,6 @@
 package io.mrarm.irc;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -173,6 +174,17 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
         return mOpenTransfersIntent;
     }
 
+    private NotificationCompat.Action createCancelAction(int notId) {
+        int cancelIcon = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ?
+                R.drawable.ic_close : R.drawable.ic_notification_close;
+        return new NotificationCompat.Action.Builder(cancelIcon,
+                mContext.getString(R.string.action_cancel),
+                PendingIntent.getBroadcast(mContext, notId,
+                        ActionReceiver.getCancelIntent(mContext, notId, false),
+                        PendingIntent.FLAG_CANCEL_CURRENT))
+                .build();
+    }
+
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
             return;
@@ -219,10 +231,11 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
                 .setContentText(mContext.getString(R.string.dcc_active_waiting_for_connection))
                 .setContentIntent(getOpenTransfersIntent())
                 .setSmallIcon(R.drawable.ic_notification_upload)
-                .setOngoing(true);
+                .setOngoing(true)
+                .addAction(createCancelAction(id));
         if (isNotificationGroupingEnabled())
             builder.setGroup(NOTIFICATION_GROUP_DCC);
-        mDisplayedNotificationIds.put(id, null);
+        mDisplayedNotificationIds.put(id, uploadEntry);
         mNotificationManager.notify(id, builder.build());
         createSummaryNotification();
     }
@@ -246,7 +259,8 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
                         "/" + FormatUtils.formatByteSize(uploadSession.getTotalSize(), unit))
                 .setContentIntent(getOpenTransfersIntent())
                 .setSmallIcon(R.drawable.ic_notification_upload)
-                .setOngoing(true);
+                .setOngoing(true)
+                .addAction(createCancelAction(id));
         if (isNotificationGroupingEnabled())
             builder.setGroup(NOTIFICATION_GROUP_DCC);
         mDisplayedNotificationIds.put(id, uploadSession);
@@ -266,16 +280,17 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
                 .setSmallIcon(R.drawable.ic_notification_download)
                 .setContentIntent(getOpenTransfersIntent())
                 .setOngoing(true);
-        int cancelIcon = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ?
-                R.drawable.ic_close : R.drawable.ic_notification_close;
         if (download.isPending()) {
-            builder.setContentText(mContext.getString(R.string.dcc_approve_notification_body));
+            builder.setContentText(mContext.getString(R.string.dcc_approve_notification_body,
+                    download.getSender(), download.getServerName()));
             int acceptIcon = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ?
                     R.drawable.ic_done_white : R.drawable.ic_notification_done;
             builder.addAction(acceptIcon, mContext.getString(R.string.action_accept),
                     PendingIntent.getBroadcast(mContext, id,
                             ActionReceiver.getApproveIntent(mContext, id, true),
                             PendingIntent.FLAG_CANCEL_CURRENT));
+            int cancelIcon = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ?
+                    R.drawable.ic_close : R.drawable.ic_notification_close;
             builder.addAction(cancelIcon, mContext.getString(R.string.action_reject),
                     PendingIntent.getBroadcast(mContext,
                             DCC_SECOND_INTENT_ID_START - DCC_NOTIFICATION_ID_START + id,
@@ -289,17 +304,11 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
                             client.getExpectedSize()), false)
                     .setContentText(FormatUtils.formatByteSize(client.getDownloadedSize(), unit) +
                             "/" + FormatUtils.formatByteSize(client.getExpectedSize(), unit))
-                    .addAction(cancelIcon, mContext.getString(R.string.action_cancel),
-                            PendingIntent.getBroadcast(mContext, id,
-                                    ActionReceiver.getCancelIntent(mContext, id, false),
-                                    PendingIntent.FLAG_CANCEL_CURRENT));
+                    .addAction(createCancelAction(id));
         } else {
             builder.setContentText(mContext.getString(R.string.dcc_active_waiting_for_connection))
                     .setProgress(0, 0, true)
-                    .addAction(cancelIcon, mContext.getString(R.string.action_cancel),
-                            PendingIntent.getBroadcast(mContext, id,
-                                    ActionReceiver.getCancelIntent(mContext, id, false),
-                                    PendingIntent.FLAG_CANCEL_CURRENT));
+                    .addAction(createCancelAction(id));
         }
         if (isNotificationGroupingEnabled())
             builder.setGroup(NOTIFICATION_GROUP_DCC);
@@ -351,8 +360,14 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
                 ((DCCManager.DownloadInfo) notData).approve();
             } else if (type.equals(TYPE_REJECT) && notData instanceof DCCManager.DownloadInfo) {
                 ((DCCManager.DownloadInfo) notData).reject();
-            } else if (type.equals(TYPE_CANCEL) && notData instanceof DCCManager.DownloadInfo) {
-                ((DCCManager.DownloadInfo) notData).cancel();
+            } else if (type.equals(TYPE_CANCEL)) {
+                if (notData instanceof DCCManager.DownloadInfo)
+                    ((DCCManager.DownloadInfo) notData).cancel();
+                else if (notData instanceof DCCServer.UploadSession)
+                    dccManager.getServer().cancelUpload(dccManager.getUploadEntry(
+                            ((DCCServer.UploadSession) notData).getServer()));
+                else if (notData instanceof DCCServerManager.UploadEntry)
+                    dccManager.getServer().cancelUpload((DCCServerManager.UploadEntry) notData);
             }
         }
 
