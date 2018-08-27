@@ -620,4 +620,9 @@
     <string name="dcc_system_downloads_permission_dialog_title">Downloads folder permission</string>
     <string name="dcc_system_downloads_permission_dialog_text">The permission to the Downloads folder has been denied, and therefore an application-internal downloads directory will be used. If this is not desired, please click Ask again.</string>
 
+    <string name="dcc_set_download_dir">Set download directory</string>
+    <string name="dcc_download_dir_application">Application</string>
+    <string name="dcc_download_dir_system">System</string>
+    <string name="dcc_download_dir_custom">Custom</string>
+
 </resources>

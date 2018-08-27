@@ -58,7 +58,9 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
     private static DCCManager sInstance;
 
     private static final String PREF_DCC_ASKED_FOR_PERMISSION = "dcc_storage_permission_asked";
+    private static final String PREF_DCC_ALWAYS_USE_APP_DOWNLOAD_DIR = "dcc_force_application_download_directory";
     private static final String PREF_DCC_DIRECTORY_OVERRIDE_URI = "dcc_download_directory_uri";
+    private static final String PREF_DCC_DIRECTORY_OVERRIDE_URI_SYSTEM = "dcc_download_directory_uri_system";
 
     public static DCCManager getInstance(Context context) {
         if (sInstance == null)
@@ -75,7 +77,9 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
     private final List<DownloadListener> mDownloadListeners = new ArrayList<>();
     private File mDownloadDirectory;
     private Uri mDownloadDirectoryOverrideURI;
+    private boolean mIsDownloadDirectoryOverrideURISystem;
     private final File mFallbackDownloadDirectory;
+    private boolean mAlwaysUseFallbackDir;
     private boolean mHasSystemDirectoryAccess;
     private final DCCNotificationManager mNotificationManager;
 
@@ -87,25 +91,52 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
         mNotificationManager = new DCCNotificationManager(mContext);
         mFallbackDownloadDirectory = mContext.getExternalFilesDir("downloads");
         mDownloadDirectory = mFallbackDownloadDirectory;
-        checkSystemDownloadsDirectoryAccess();
         mServer = new DCCServerManager();
         mServer.addUploadListener(this);
         mServer.addUploadListener(mNotificationManager);
         addDownloadListener(mNotificationManager);
+        mAlwaysUseFallbackDir = mPreferences.getBoolean(PREF_DCC_ALWAYS_USE_APP_DOWNLOAD_DIR, false);
         String uri = mPreferences.getString(PREF_DCC_DIRECTORY_OVERRIDE_URI, null);
-        if (uri != null)
+        if (uri != null) {
             mDownloadDirectoryOverrideURI = Uri.parse(uri);
+            mIsDownloadDirectoryOverrideURISystem = mPreferences.getBoolean(
+                    PREF_DCC_DIRECTORY_OVERRIDE_URI_SYSTEM, false);
+        }
+        checkSystemDownloadsDirectoryAccess();
     }
 
-    public void setOverrideDownloadDirectory(Uri uri) {
+    public void setAlwaysUseApplicationDownloadDirectory(boolean value) {
+        mAlwaysUseFallbackDir = value;
+        mPreferences.edit()
+                .putBoolean(PREF_DCC_ALWAYS_USE_APP_DOWNLOAD_DIR, value)
+                .apply();
+        checkSystemDownloadsDirectoryAccess();
+    }
+
+    public void setOverrideDownloadDirectory(Uri uri, boolean isSystem) {
         mDownloadDirectoryOverrideURI = uri;
         mPreferences.edit()
                 .putString(PREF_DCC_DIRECTORY_OVERRIDE_URI, uri.toString())
+                .putBoolean(PREF_DCC_DIRECTORY_OVERRIDE_URI_SYSTEM, isSystem)
                 .apply();
     }
 
+    public Uri getDownloadDirectoryOverrideURI() {
+        if (mAlwaysUseFallbackDir)
+            return null;
+        return mDownloadDirectoryOverrideURI;
+    }
+
+    public boolean isDownloadDirectoryOverrideURISystem() {
+        return mIsDownloadDirectoryOverrideURISystem;
+    }
+
+    public boolean isSystemDownloadDirectoryUsed() {
+        return mHasSystemDirectoryAccess;
+    }
+
     private void checkSystemDownloadsDirectoryAccess() {
-        if (mDownloadDirectoryOverrideURI != null) {
+        if (mDownloadDirectoryOverrideURI != null && !mAlwaysUseFallbackDir) {
             DocumentFile dir = DocumentFile.fromTreeUri(mContext,
                     mDownloadDirectoryOverrideURI);
             mHasSystemDirectoryAccess = dir.exists() && dir.canWrite();
@@ -114,7 +145,7 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
 
         File downloadsDir = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_DOWNLOADS);
-        if (downloadsDir != null && downloadsDir.canWrite()) {
+        if (downloadsDir != null && downloadsDir.canWrite() && !mAlwaysUseFallbackDir) {
             mDownloadDirectory = downloadsDir;
             mHasSystemDirectoryAccess = true;
         } else {
@@ -396,7 +427,7 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
             FileChannel file;
             String downloadFileName = getUnescapedFileName().replace('/', '_');
             String ext = getFileExtension();
-            if (mDownloadDirectoryOverrideURI != null) {
+            if (mDownloadDirectoryOverrideURI != null && !mAlwaysUseFallbackDir) {
                 DocumentFile dir = DocumentFile.fromTreeUri(mContext,
                         mDownloadDirectoryOverrideURI);
                 String mime = ext != null ? MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext)
@@ -620,7 +651,8 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
                     mActivity.getContentResolver().takePersistableUriPermission(data.getData(),
                             Intent.FLAG_GRANT_READ_URI_PERMISSION |
                                     Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                    DCCManager.getInstance(mActivity).setOverrideDownloadDirectory(data.getData());
+                    DCCManager.getInstance(mActivity).setOverrideDownloadDirectory(
+                            data.getData(), true);
                     onSystemDownloadPermissionRequestFinished();
                 } else {
                     showSystemDownloadsPermissionDenialDialog();
@@ -669,7 +701,7 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
             }
         }
 
-        private void askSystemDownloadsPermission(Runnable cb) {
+        public void askSystemDownloadsPermission(Runnable cb) {
             askSystemDownloadsPermission(cb, false);
         }
 
