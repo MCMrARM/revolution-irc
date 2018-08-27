@@ -16,6 +16,7 @@ import java.util.List;
 
 import io.mrarm.chatlib.irc.dcc.DCCServer;
 import io.mrarm.chatlib.irc.dcc.DCCServerManager;
+import io.mrarm.irc.dialog.MenuBottomSheetDialog;
 import io.mrarm.irc.util.AdvancedDividerItemDecoration;
 
 public class DCCTransferListAdapter extends RecyclerView.Adapter implements
@@ -115,7 +116,7 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements
     }
 
     private void addPendingUpload(DCCServerManager.UploadEntry entry) {
-        if (mPendingUploads.contains(entry))
+        if (entry == null || mPendingUploads.contains(entry))
             return;
         mPendingUploads.add(entry);
         notifyItemInserted(getPendingUploadsStart() + mPendingUploads.size() - 1);
@@ -228,6 +229,27 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements
             mProgressBar = itemView.findViewById(R.id.progress);
             mStatusIcon = itemView.findViewById(R.id.status_icon);
             mStatus = itemView.findViewById(R.id.status);
+            itemView.setOnClickListener((View v) -> openMenu());
+            itemView.setOnLongClickListener((View v) -> { openMenu(); return true; });
+        }
+
+        public void openMenu() {
+            MenuBottomSheetDialog dialog = new MenuBottomSheetDialog(itemView.getContext());
+            dialog.addItem(R.string.action_cancel, R.drawable.ic_close,
+                    (MenuBottomSheetDialog.Item item) -> {
+                        requestCancel();
+                        return true;
+                    });
+            dialog.show();
+        }
+
+        private void requestCancel() {
+            if (mDownload != null)
+                mDownload.cancel();
+            if (mSession != null) {
+                DCCManager manager = DCCManager.getInstance(itemView.getContext());
+                manager.getServer().cancelUpload(manager.getUploadEntry(mSession.getServer()));
+            }
         }
 
         public void bind(DCCManager.DownloadInfo download) {
@@ -289,14 +311,33 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements
 
         private TextView mName;
         private TextView mStatus;
+        private DCCServerManager.UploadEntry mEntry;
 
         public PendingTransferHolder(View itemView) {
             super(itemView);
             mName = itemView.findViewById(R.id.name);
             mStatus = itemView.findViewById(R.id.status);
+            itemView.setOnClickListener((View v) -> openMenu());
+            itemView.setOnLongClickListener((View v) -> { openMenu(); return true; });
+        }
+
+        public void openMenu() {
+            MenuBottomSheetDialog dialog = new MenuBottomSheetDialog(itemView.getContext());
+            dialog.addItem(R.string.action_cancel, R.drawable.ic_close,
+                    (MenuBottomSheetDialog.Item item) -> {
+                        requestCancel();
+                        return true;
+                    });
+            dialog.show();
+        }
+
+        private void requestCancel() {
+            DCCManager manager = DCCManager.getInstance(itemView.getContext());
+            manager.getServer().cancelUpload(mEntry);
         }
 
         public void bind(DCCServerManager.UploadEntry entry) {
+            mEntry = entry;
             mName.setText(DCCManager.getInstance(mName.getContext())
                     .getUploadName(entry.getServer()));
             mStatus.setText(mStatus.getContext().getString(
