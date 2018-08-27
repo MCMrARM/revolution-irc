@@ -65,6 +65,10 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
         addDownloadListener(mNotificationManager);
     }
 
+    public DCCNotificationManager getNotificationManager() {
+        return mNotificationManager;
+    }
+
     public DCCServerManager getServer() {
         return mServer;
     }

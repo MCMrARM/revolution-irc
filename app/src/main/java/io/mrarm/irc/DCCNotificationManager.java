@@ -2,7 +2,10 @@ package io.mrarm.irc;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -10,10 +13,8 @@ import android.support.v4.app.NotificationCompat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import io.mrarm.chatlib.irc.dcc.DCCClient;
 import io.mrarm.chatlib.irc.dcc.DCCServer;
@@ -26,8 +27,9 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
     private static final String NOTIFICATION_CHANNEL = "DCCTransfers";
     public static final String NOTIFICATION_GROUP_DCC = "dcc";
 
-    public static final int DCC_SUMMARY_NOTIFICATION_ID = 10000000;
-    public static final int DCC_NOTIFICATION_ID_START = DCC_SUMMARY_NOTIFICATION_ID + 1;
+    public static final int DCC_SUMMARY_NOTIFICATION_ID = 102;
+    public static final int DCC_NOTIFICATION_ID_START = 30000000;
+    public static final int DCC_SECOND_INTENT_ID_START = 40000000;
 
     private Context mContext;
     private NotificationManager mNotificationManager;
@@ -35,10 +37,11 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
     private final Map<DCCServer, List<DCCServer.UploadSession>> mUploadSessions = new HashMap<>();
     private final Map<DCCServer, Integer> mUploadNotificationIds = new HashMap<>();
     private final Map<DCCServer.UploadSession, Integer> mSessionNotificationIds = new HashMap<>();
-    private final Set<Integer> mDisplayedNotificationIds = new HashSet<>();
     private final Map<DCCManager.DownloadInfo, Integer> mDownloadNotificationIds = new HashMap<>();
+    private final Map<Integer, Object> mDisplayedNotificationIds = new HashMap<>();
     private boolean mNotificationUpdateQueued = false;
     private final Runnable mNotificationUpdateRunnable = this::updateNotifications;
+    private PendingIntent mOpenTransfersIntent;
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());
 
@@ -161,6 +164,15 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
     }
 
+    private PendingIntent getOpenTransfersIntent() {
+        if (mOpenTransfersIntent == null) {
+            Intent intent = new Intent(mContext, DCCActivity.class);
+            mOpenTransfersIntent = PendingIntent.getActivity(mContext, DCC_SUMMARY_NOTIFICATION_ID,
+                    intent, 0);
+        }
+        return mOpenTransfersIntent;
+    }
+
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
             return;
@@ -179,6 +191,7 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
                 .setContentTitle(mContext.getString(R.string.dcc_summary_notification_title))
                 .setContentText(mContext.getString(R.string.dcc_summary_notification_text,
                         mDisplayedNotificationIds.size()))
+                .setContentIntent(getOpenTransfersIntent())
                 .setSmallIcon(R.drawable.ic_notification_connected)
                 .setGroup(NOTIFICATION_GROUP_DCC)
                 .setGroupSummary(true);
@@ -186,7 +199,7 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
     }
 
     private synchronized void cancelNotification(Integer notificationId) {
-        if (mDisplayedNotificationIds.remove(notificationId)) {
+        if (mDisplayedNotificationIds.remove(notificationId) != null) {
             if (mDisplayedNotificationIds.size() == 0)
                 mNotificationManager.cancel(DCC_SUMMARY_NOTIFICATION_ID);
             mNotificationManager.cancel(notificationId);
@@ -204,11 +217,12 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
                 NOTIFICATION_CHANNEL)
                 .setContentTitle(uploadEntry.getFileName())
                 .setContentText(mContext.getString(R.string.dcc_active_waiting_for_connection))
+                .setContentIntent(getOpenTransfersIntent())
                 .setSmallIcon(R.drawable.ic_notification_upload)
                 .setOngoing(true);
         if (isNotificationGroupingEnabled())
             builder.setGroup(NOTIFICATION_GROUP_DCC);
-        mDisplayedNotificationIds.add(id);
+        mDisplayedNotificationIds.put(id, null);
         mNotificationManager.notify(id, builder.build());
         createSummaryNotification();
     }
@@ -228,12 +242,14 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
                         uploadSession.getTotalSize()), false)
                 .setContentText(
                         FormatUtils.formatByteSize(uploadSession.getAcknowledgedSize(), unit) +
+
                         "/" + FormatUtils.formatByteSize(uploadSession.getTotalSize(), unit))
+                .setContentIntent(getOpenTransfersIntent())
                 .setSmallIcon(R.drawable.ic_notification_upload)
                 .setOngoing(true);
         if (isNotificationGroupingEnabled())
             builder.setGroup(NOTIFICATION_GROUP_DCC);
-        mDisplayedNotificationIds.add(id);
+        mDisplayedNotificationIds.put(id, uploadSession);
         mNotificationManager.notify(id, builder.build());
         createSummaryNotification();
         postNotificationUpdate();
@@ -248,10 +264,23 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
                 NOTIFICATION_CHANNEL)
                 .setContentTitle(download.getFileName())
                 .setSmallIcon(R.drawable.ic_notification_download)
+                .setContentIntent(getOpenTransfersIntent())
                 .setOngoing(true);
         if (download.isPending()) {
-            builder.setContentText(mContext.getString(R.string.dcc_active_waiting_for_approval));
-            // TODO: add approve and decline buttons straight to the notification
+            builder.setContentText(mContext.getString(R.string.dcc_approve_notification_body));
+            int acceptIcon = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ?
+                    R.drawable.ic_done_white : R.drawable.ic_notification_done;
+            builder.addAction(acceptIcon, mContext.getString(R.string.action_accept),
+                    PendingIntent.getBroadcast(mContext, id,
+                            ActionReceiver.getApproveIntent(mContext, id, true),
+                            PendingIntent.FLAG_CANCEL_CURRENT));
+            int rejectIcon = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ?
+                    R.drawable.ic_close : R.drawable.ic_notification_close;
+            builder.addAction(rejectIcon, mContext.getString(R.string.action_reject),
+                    PendingIntent.getBroadcast(mContext,
+                            DCC_SECOND_INTENT_ID_START - DCC_NOTIFICATION_ID_START + id,
+                            ActionReceiver.getApproveIntent(mContext, id, false),
+                            PendingIntent.FLAG_CANCEL_CURRENT));
         } else if (download.getClient() != null) {
             DCCClient client = download.getClient();
             int unit = FormatUtils.getByteFormatUnit(client.getExpectedSize());
@@ -266,10 +295,48 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
         }
         if (isNotificationGroupingEnabled())
             builder.setGroup(NOTIFICATION_GROUP_DCC);
-        mDisplayedNotificationIds.add(id);
+        mDisplayedNotificationIds.put(id, download);
         mNotificationManager.notify(id, builder.build());
         createSummaryNotification();
         postNotificationUpdate();
+    }
+
+    public static class ActionReceiver extends BroadcastReceiver {
+
+        private static final String ARG_NOT_ID = "not_id";
+        private static final String ARG_TYPE = "type";
+
+        private static final String TYPE_APPROVE = "approve";
+        private static final String TYPE_REJECT = "reject";
+
+        public static Intent getApproveIntent(Context context, int notificationId,
+                                              boolean approve) {
+            Intent intent = new Intent(context, ActionReceiver.class);
+            intent.putExtra(ARG_NOT_ID, notificationId);
+            intent.putExtra(ARG_TYPE, approve ? TYPE_APPROVE : TYPE_REJECT);
+            return intent;
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String type = intent.getStringExtra(ARG_TYPE);
+            if (type == null)
+                return;
+
+            DCCManager dccManager = DCCManager.getInstance(context);
+            DCCNotificationManager manager = dccManager.getNotificationManager();
+            int notId = intent.getIntExtra(ARG_NOT_ID, -1);
+            Object notData = manager.mDisplayedNotificationIds.get(notId);
+            if (notData == null)
+                return;
+
+            if (type.equals(TYPE_APPROVE) && notData instanceof DCCManager.DownloadInfo) {
+                ((DCCManager.DownloadInfo) notData).approve();
+            } else if (type.equals(TYPE_REJECT) && notData instanceof DCCManager.DownloadInfo) {
+                ((DCCManager.DownloadInfo) notData).reject();
+            }
+        }
+
     }
 
 }
