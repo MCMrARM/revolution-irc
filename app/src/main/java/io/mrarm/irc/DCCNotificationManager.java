@@ -296,7 +296,7 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
         createNotificationChannel();
         NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext,
                 NOTIFICATION_CHANNEL)
-                .setContentTitle(download.getFileName())
+                .setContentTitle(download.getUnescapedFileName())
                 .setSmallIcon(R.drawable.ic_notification_download)
                 .setContentIntent(getOpenTransfersIntent())
                 .setOngoing(true);
@@ -376,7 +376,10 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
                 return;
 
             if (type.equals(TYPE_APPROVE) && notData instanceof DCCManager.DownloadInfo) {
-                ((DCCManager.DownloadInfo) notData).approve();
+                if (dccManager.needsAskSystemDownloadsPermission())
+                    context.startActivity(new Intent(context, DCCActivity.class));
+                else
+                    ((DCCManager.DownloadInfo) notData).approve();
             } else if (type.equals(TYPE_REJECT) && notData instanceof DCCManager.DownloadInfo) {
                 ((DCCManager.DownloadInfo) notData).reject();
             } else if (type.equals(TYPE_CANCEL)) {

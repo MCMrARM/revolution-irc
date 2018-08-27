@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
@@ -65,6 +66,8 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
     public static final String ARG_MANAGE_SERVERS = "manage_servers";
 
     private static final int REQUEST_CODE_PICK_FILE_DCC = 100;
+    private static final int REQUEST_CODE_DCC_FOLDER_PERMISSION = 101;
+    private static final int REQUEST_CODE_DCC_STORAGE_PERMISSION = 102;
 
     private NightModeRecreateHelper mNightModeHelper = new NightModeRecreateHelper(this);
     private LockableDrawerLayout mDrawerLayout;
@@ -76,7 +79,8 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
     private ChannelInfoAdapter mChannelInfoAdapter;
     private boolean mAppExiting;
     private DCCManager.ActivityDialogHandler mDCCDialogHandler =
-            new DCCManager.ActivityDialogHandler(this);
+            new DCCManager.ActivityDialogHandler(this, REQUEST_CODE_DCC_FOLDER_PERMISSION,
+                    REQUEST_CODE_DCC_STORAGE_PERMISSION);
 
     public static Intent getLaunchIntent(Context context, ServerConnectionInfo server, String channel) {
         Intent intent = new Intent(context, MainActivity.class);
@@ -549,7 +553,15 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
                             null, null);
             return;
         }
+        mDCCDialogHandler.onActivityResult(requestCode, resultCode, data);
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        mDCCDialogHandler.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override

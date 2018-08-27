@@ -100,6 +100,7 @@
     <string name="action_dcc_send">Send a file using DCC</string>
     <string name="action_accept">Accept</string>
     <string name="action_reject">Reject</string>
+    <string name="action_ask_again">Ask again</string>
 
     <string name="action_delete_confirm_title">Are you sure?</string>
     <string name="action_delete_confirm_body">Are you sure you want to delete %s? This cannot be undone.</string>
@@ -615,5 +616,8 @@
     <string name="dcc_approve_download_title">DCC file: %s</string>
     <string name="dcc_approve_download_title_with_size">DCC file: %s (%s)</string>
     <string name="dcc_approve_download_body">%s (from server: %s) has sent you a file.\n\nWarning: This download will be transmitted over an insecure &amp; unencrypted connection. Accepting this download will allow the other party to see your IP address. You should accept it only if you trust this user.</string>
+
+    <string name="dcc_system_downloads_permission_dialog_title">Downloads folder permission</string>
+    <string name="dcc_system_downloads_permission_dialog_text">The permission to the Downloads folder has been denied, and therefore an application-internal downloads directory will be used. If this is not desired, please click Ask again.</string>
 
 </resources>

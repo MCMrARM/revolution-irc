@@ -256,7 +256,7 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements
             mDownload = download;
             mSession = null;
             mStatusIcon.setImageResource(R.drawable.ic_file_download_white_24dp);
-            mName.setText(download.getFileName());
+            mName.setText(download.getUnescapedFileName());
             updateProgress();
         }
 

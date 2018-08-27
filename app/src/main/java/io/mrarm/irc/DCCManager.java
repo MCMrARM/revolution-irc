@@ -1,18 +1,34 @@
 package io.mrarm.irc;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.storage.StorageManager;
+import android.os.storage.StorageVolume;
+import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.provider.DocumentFile;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
@@ -41,6 +57,9 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
 
     private static DCCManager sInstance;
 
+    private static final String PREF_DCC_ASKED_FOR_PERMISSION = "dcc_storage_permission_asked";
+    private static final String PREF_DCC_DIRECTORY_OVERRIDE_URI = "dcc_download_directory_uri";
+
     public static DCCManager getInstance(Context context) {
         if (sInstance == null)
             sInstance = new DCCManager(context.getApplicationContext());
@@ -48,25 +67,70 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
     }
 
     private final Context mContext;
+    private final SharedPreferences mPreferences;
     private final DCCServerManager mServer;
     private final Map<DCCServer, DCCServerManager.UploadEntry> mUploads = new HashMap<>();
     private final List<DCCServer.UploadSession> mSessions = new ArrayList<>();
     private final List<DownloadInfo> mDownloads = new ArrayList<>();
     private final List<DownloadListener> mDownloadListeners = new ArrayList<>();
     private File mDownloadDirectory;
+    private Uri mDownloadDirectoryOverrideURI;
+    private final File mFallbackDownloadDirectory;
+    private boolean mHasSystemDirectoryAccess;
     private final DCCNotificationManager mNotificationManager;
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     public DCCManager(Context context) {
         mContext = context;
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         mNotificationManager = new DCCNotificationManager(mContext);
-        mDownloadDirectory = mContext.getExternalFilesDir("Downloads");
-        mDownloadDirectory.mkdirs();
+        mFallbackDownloadDirectory = mContext.getExternalFilesDir("downloads");
+        mDownloadDirectory = mFallbackDownloadDirectory;
+        checkSystemDownloadsDirectoryAccess();
         mServer = new DCCServerManager();
         mServer.addUploadListener(this);
         mServer.addUploadListener(mNotificationManager);
         addDownloadListener(mNotificationManager);
+        String uri = mPreferences.getString(PREF_DCC_DIRECTORY_OVERRIDE_URI, null);
+        if (uri != null)
+            mDownloadDirectoryOverrideURI = Uri.parse(uri);
+    }
+
+    public void setOverrideDownloadDirectory(Uri uri) {
+        mDownloadDirectoryOverrideURI = uri;
+        mPreferences.edit()
+                .putString(PREF_DCC_DIRECTORY_OVERRIDE_URI, uri.toString())
+                .apply();
+    }
+
+    private void checkSystemDownloadsDirectoryAccess() {
+        if (mDownloadDirectoryOverrideURI != null) {
+            DocumentFile dir = DocumentFile.fromTreeUri(mContext,
+                    mDownloadDirectoryOverrideURI);
+            mHasSystemDirectoryAccess = dir.exists() && dir.canWrite();
+            return;
+        }
+
+        File downloadsDir = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS);
+        if (downloadsDir != null && downloadsDir.canWrite()) {
+            mDownloadDirectory = downloadsDir;
+            mHasSystemDirectoryAccess = true;
+        } else {
+            mDownloadDirectory = mFallbackDownloadDirectory;
+            mHasSystemDirectoryAccess = false;
+        }
+        Log.d("DCCManager", "Download directory: " +
+                mDownloadDirectory.getAbsolutePath());
+    }
+
+    public boolean needsAskSystemDownloadsPermission() {
+        if (!mHasSystemDirectoryAccess)
+            checkSystemDownloadsDirectoryAccess();
+        return !mHasSystemDirectoryAccess &&
+                !mPreferences.getBoolean(PREF_DCC_ASKED_FOR_PERMISSION, false) &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
     }
 
     public DCCNotificationManager getNotificationManager() {
@@ -286,8 +350,20 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
             return mSender;
         }
 
-        public String getFileName() {
+        public String getRawFileName() {
             return mFileName;
+        }
+
+        public String getUnescapedFileName() {
+            return DCCUtils.unescapeFilename(mFileName);
+        }
+
+        private String getFileExtension() {
+            String fileName = getUnescapedFileName();
+            int iof = fileName.lastIndexOf('.');
+            if (iof == -1)
+                return null;
+            return fileName.substring(iof + 1);
         }
 
         public long getFileSize() {
@@ -317,8 +393,37 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
                     .getConnection(mServerUUID);
             if (connection == null)
                 throw new IOException("The connection doesn't exit");
-            FileChannel file = new FileOutputStream(new File(mDownloadDirectory,
-                    mFileName.replace('/', '_'))).getChannel();
+            FileChannel file;
+            String downloadFileName = getUnescapedFileName().replace('/', '_');
+            String ext = getFileExtension();
+            if (mDownloadDirectoryOverrideURI != null) {
+                DocumentFile dir = DocumentFile.fromTreeUri(mContext,
+                        mDownloadDirectoryOverrideURI);
+                String mime = ext != null ? MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext)
+                        : null;
+                if (mime == null)
+                    mime = "application/octet-stream";
+                DocumentFile docFile = dir.createFile(mime, downloadFileName);
+                OutputStream stream = mContext.getContentResolver().openOutputStream(
+                        docFile.getUri());
+                if (!(stream instanceof FileOutputStream))
+                    throw new IOException("stream is not a file");
+                file = ((FileOutputStream) stream).getChannel();
+                Log.d("DCCManager", "Starting a download: " + docFile.getUri().toString());
+            } else {
+                File filePath = new File(mDownloadDirectory, downloadFileName);
+                int attempt = 1;
+                while (filePath.exists()) {
+                    filePath = new File(mDownloadDirectory, (ext != null
+                            ? downloadFileName.substring(0,
+                            downloadFileName.length() - ext.length() - 1)
+                            : downloadFileName) + " (" + attempt + ")" +
+                            (ext != null ? "." + ext : ""));
+                    attempt++;
+                }
+                file = new FileOutputStream(filePath).getChannel();
+                Log.d("DCCManager", "Starting a download: " + filePath.getAbsolutePath());
+            }
             try {
                 if (isReverse()) {
                     synchronized (this) {
@@ -360,7 +465,7 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
         }
 
         public void approve() {
-            if (!mPending)
+            if (!mPending || mCancelled)
                 return;
             mPending = false;
             AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
@@ -381,7 +486,7 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
         }
 
         public void reject() {
-            if (!mPending)
+            if (!mPending || mCancelled)
                 return;
             onDownloadDestroyed(this);
         }
@@ -404,19 +509,26 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
             }
         }
 
-        public AlertDialog createDownloadApprovalDialog(Context context) {
+        public AlertDialog createDownloadApprovalDialog(Context context,
+                                                        ActivityDialogHandler handler) {
             String title;
             if (getFileSize() > 0)
                 title = context.getString(R.string.dcc_approve_download_title_with_size,
-                        getFileName(), FormatUtils.formatByteSize(getFileSize()));
+                        getUnescapedFileName(), FormatUtils.formatByteSize(getFileSize()));
             else
-                title = context.getString(R.string.dcc_approve_download_title, getFileName());
+                title = context.getString(R.string.dcc_approve_download_title,
+                        getUnescapedFileName());
             AlertDialog ret = new AlertDialog.Builder(context)
                     .setTitle(title)
                     .setMessage(context.getString(R.string.dcc_approve_download_body,
                             mSender.toString(), getServerName()))
                     .setPositiveButton(R.string.action_accept,
-                            (DialogInterface dialog, int which) -> approve())
+                            (DialogInterface dialog, int which) -> {
+                                if (needsAskSystemDownloadsPermission())
+                                    handler.askSystemDownloadsPermission(() -> approve());
+                                else
+                                    approve();
+                            })
                     .setNegativeButton(R.string.action_reject,
                             (DialogInterface dialog, int which) -> reject())
                     .setOnCancelListener((DialogInterface dialog) -> reject())
@@ -437,9 +549,16 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
 
         private Activity mActivity;
         private AlertDialog mCurrentDialog;
+        private int mStoragePermissionRequestCode;
+        private int mDownloadsPermissionRequestCode;
+        private List<Runnable> mStoragePermissionRequestCallbacks;
+        private boolean mPermissionRequestPending;
 
-        public ActivityDialogHandler(Activity activity) {
+        public ActivityDialogHandler(Activity activity, int storagePermissionRequestCode,
+                                     int downloadsPermissionRequestCode) {
             mActivity = activity;
+            mStoragePermissionRequestCode = storagePermissionRequestCode;
+            mDownloadsPermissionRequestCode = downloadsPermissionRequestCode;
         }
 
         public void onResume() {
@@ -467,9 +586,11 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
         }
 
         private void showDialogsIfNeeded() {
+            if (mCurrentDialog != null || mPermissionRequestPending)
+                return;
             for (DownloadInfo download : DCCManager.getInstance(mActivity).getDownloads()) {
                 if (download.isPending())
-                    showDialog(download.createDownloadApprovalDialog(mActivity));
+                    showDialog(download.createDownloadApprovalDialog(mActivity, this));
             }
         }
 
@@ -478,7 +599,7 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
             if (download.isPending()) {
                 mActivity.runOnUiThread(() -> {
                     if (mCurrentDialog == null && download.isPending()) // download is still pending
-                        showDialog(download.createDownloadApprovalDialog(mActivity));
+                        showDialog(download.createDownloadApprovalDialog(mActivity, this));
                 });
             }
         }
@@ -490,6 +611,92 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
         @Override
         public void onDownloadUpdated(DownloadInfo download) {
         }
+
+
+        protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+            if (requestCode == mDownloadsPermissionRequestCode &&
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                if (resultCode == Activity.RESULT_OK) {
+                    mActivity.getContentResolver().takePersistableUriPermission(data.getData(),
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION |
+                                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                    DCCManager.getInstance(mActivity).setOverrideDownloadDirectory(data.getData());
+                    onSystemDownloadPermissionRequestFinished();
+                } else {
+                    showSystemDownloadsPermissionDenialDialog();
+                }
+            }
+        }
+
+        public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                               @NonNull int[] grantResults) {
+            if (requestCode == mStoragePermissionRequestCode) {
+                String p = Manifest.permission.WRITE_EXTERNAL_STORAGE;
+                if (ContextCompat.checkSelfPermission(mActivity, p) !=
+                        PackageManager.PERMISSION_GRANTED &&
+                        ActivityCompat.shouldShowRequestPermissionRationale(mActivity, p)) {
+                    showSystemDownloadsPermissionDenialDialog();
+                } else {
+                    onSystemDownloadPermissionRequestFinished();
+                }
+            }
+        }
+
+        private void askSystemDownloadsPermission(Runnable cb, boolean noShowDenialDialog) {
+            if (cb != null) {
+                if (mStoragePermissionRequestCallbacks == null)
+                    mStoragePermissionRequestCallbacks = new ArrayList<>();
+                mStoragePermissionRequestCallbacks.add(cb);
+            }
+            mPermissionRequestPending = true;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                StorageManager manager = (StorageManager) mActivity
+                        .getSystemService(Context.STORAGE_SERVICE);
+                StorageVolume volume = manager.getPrimaryStorageVolume();
+                Intent intent = volume.createAccessIntent(Environment.DIRECTORY_DOWNLOADS);
+                intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+                mActivity.startActivityForResult(intent, mDownloadsPermissionRequestCode);
+            } else {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(mActivity,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE) && !noShowDenialDialog) {
+                    showSystemDownloadsPermissionDenialDialog();
+                } else {
+                    ActivityCompat.requestPermissions(mActivity,
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            mStoragePermissionRequestCode);
+                }
+            }
+        }
+
+        private void askSystemDownloadsPermission(Runnable cb) {
+            askSystemDownloadsPermission(cb, false);
+        }
+
+        private void onSystemDownloadPermissionRequestFinished() {
+            if (mStoragePermissionRequestCallbacks != null) {
+                DCCManager.getInstance(mActivity).checkSystemDownloadsDirectoryAccess();
+                for (Runnable r : mStoragePermissionRequestCallbacks)
+                    r.run();
+            }
+        }
+
+        private void showSystemDownloadsPermissionDenialDialog() {
+            new AlertDialog.Builder(mActivity)
+                    .setTitle(R.string.dcc_system_downloads_permission_dialog_title)
+                    .setMessage(R.string.dcc_system_downloads_permission_dialog_text)
+                    .setPositiveButton(R.string.action_ok, (DialogInterface i, int w) -> {
+                        DCCManager.getInstance(mActivity).mPreferences.edit()
+                                .putBoolean(PREF_DCC_ASKED_FOR_PERMISSION, true)
+                                .apply();
+                        onSystemDownloadPermissionRequestFinished();
+                    })
+                    .setNegativeButton(R.string.action_ask_again, (DialogInterface i, int w) -> {
+                        askSystemDownloadsPermission(null, true);
+                    })
+                    .show();
+        }
+
     }
 
     private class ClientImpl extends DCCClientManager {
