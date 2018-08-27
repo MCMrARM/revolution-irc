@@ -501,6 +501,8 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
             ((ChatFragment) getCurrentFragment()).getConnectionInfo().connect();
         } else if (id == R.id.action_format) {
             ((ChatFragment) getCurrentFragment()).getSendMessageHelper().setFormatBarVisible(true);
+        } else if (id == R.id.action_dcc_transfers) {
+            startActivity(new Intent(this, DCCActivity.class));
         } else if (id == R.id.action_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
         } else if (id == R.id.action_exit) {
