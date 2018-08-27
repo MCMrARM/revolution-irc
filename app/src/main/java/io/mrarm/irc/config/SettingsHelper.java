@@ -275,7 +275,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     }
 
     public boolean isChatDccSendVisible() {
-        return mPreferences.getBoolean(PREF_CHAT_SHOW_DCC_SEND, true);
+        return mPreferences.getBoolean(PREF_CHAT_SHOW_DCC_SEND, false);
     }
 
     public boolean getChatUseMultiSelect() {

@@ -418,6 +418,7 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
                 hasChanges = true;
             }
             MenuItem partItem = menu.findItem(R.id.action_part_channel);
+            boolean inDirectChat = false;
             if (fragment.getCurrentChannel() == null) {
                 if (partItem.isVisible())
                     hasChanges = true;
@@ -428,6 +429,7 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
                     hasChanges = true;
                 partItem.setVisible(true);
                 partItem.setTitle(R.string.action_close_direct);
+                inDirectChat = true;
             } else {
                 if (partItem.isVisible() || !partItem.getTitle().equals(getString(R.string.action_part_channel)))
                     hasChanges = true;
@@ -436,7 +438,7 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
             }
             boolean wasDccSendVisible = menu.findItem(R.id.action_dcc_send).isVisible();
             boolean dccSendVisible = SettingsHelper.getInstance(this).isChatDccSendVisible()
-                    && connected;
+                    && connected && inDirectChat;
             if (dccSendVisible != wasDccSendVisible) {
                 menu.findItem(R.id.action_dcc_send).setVisible(dccSendVisible);
                 hasChanges = true;

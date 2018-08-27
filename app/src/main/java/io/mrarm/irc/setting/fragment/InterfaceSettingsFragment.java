@@ -1,5 +1,6 @@
 package io.mrarm.irc.setting.fragment;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -14,6 +15,7 @@ import io.mrarm.irc.MessageFormatSettingsActivity;
 import io.mrarm.irc.R;
 import io.mrarm.irc.SettingsActivity;
 import io.mrarm.irc.config.SettingsHelper;
+import io.mrarm.irc.dialog.ThemedAlertDialog;
 import io.mrarm.irc.setting.CheckBoxSetting;
 import io.mrarm.irc.setting.ClickableSetting;
 import io.mrarm.irc.setting.FontSizeSetting;
@@ -93,6 +95,14 @@ public class InterfaceSettingsFragment extends SettingsListFragment
         a.add(new CheckBoxSetting(getString(R.string.pref_title_chat_mutli_scroll_mode),
                 getString(R.string.pref_summary_chat_mutli_scroll_mode), false)
                 .linkPreference(prefs, SettingsHelper.PREF_CHAT_MULTI_SELECT_MODE));
+        a.add(new CheckBoxSetting(getString(R.string.pref_title_chat_show_dcc_send),
+                getString(R.string.pref_summary_chat_show_dcc_send), false)
+                .linkPreference(prefs, SettingsHelper.PREF_CHAT_SHOW_DCC_SEND)
+                .addListener((EntryRecyclerViewAdapter.Entry entry) -> {
+                    boolean checked = ((CheckBoxSetting) entry).isChecked();
+                    if (checked)
+                        showDCCWarning((CheckBoxSetting) entry);
+                }));
 
         MessageSenderInfo testSender = new MessageSenderInfo(
                 getString(R.string.message_example_sender), "", "", null, null);
@@ -130,6 +140,21 @@ public class InterfaceSettingsFragment extends SettingsListFragment
         } else {
             builder.append(str);
         }
+    }
+
+
+    private void showDCCWarning(CheckBoxSetting setting) {
+        new ThemedAlertDialog.Builder(getContext())
+                .setTitle(R.string.dcc_enable_send_warning_title)
+                .setMessage(R.string.dcc_enable_send_warning_body)
+                .setPositiveButton(R.string.dcc_approve_download_enable_anyway, null)
+                .setNegativeButton(R.string.action_cancel, (DialogInterface di, int w) -> {
+                    setting.setChecked(false);
+                })
+                .setOnCancelListener((DialogInterface di) -> {
+                    setting.setChecked(false);
+                })
+                .show();
     }
 
 }

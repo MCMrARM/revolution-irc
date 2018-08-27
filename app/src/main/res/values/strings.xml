@@ -302,6 +302,8 @@
     <string name="pref_title_chat_box_history_swipe_mode">History swipe-based navigation mode</string>
     <string name="pref_title_chat_mutli_scroll_mode">Use a batch message selection mode</string>
     <string name="pref_summary_chat_mutli_scroll_mode">Always enables the old batch message selection mode</string>
+    <string name="pref_title_chat_show_dcc_send">Show DCC send button</string>
+    <string name="pref_summary_chat_show_dcc_send">Show a button to send a file using DCC in private chats</string>
 
     <string name="pref_title_nick_autocomplete_show_button">Show a button</string>
     <string name="pref_summary_nick_autocomplete_show_button">Show a nick autocomplete button</string>
@@ -616,6 +618,10 @@
     <string name="dcc_approve_download_title">DCC file: %s</string>
     <string name="dcc_approve_download_title_with_size">DCC file: %s (%s)</string>
     <string name="dcc_approve_download_body">%s (from server: %s) has sent you a file.\n\nWarning: This download will be transmitted over an insecure &amp; unencrypted connection. Accepting this download will allow the other party to see your IP address. You should accept it only if you trust this user.</string>
+    <string name="dcc_approve_download_enable_anyway">Enable anyway</string>
+
+    <string name="dcc_enable_send_warning_title">Security warning</string>
+    <string name="dcc_enable_send_warning_body">DCC is a legacy peer to peer file sharing protocol and the files are sent over an insecure and unencrypted connection. This means that all data sent using the feature can potentially be copied or manipulated by attackers, especially on public WiFi networks.\nAdditionally, due to the protocol\'s nature when you share files using DCC, you are also giving your IP address to the other party. DCC generally does not work when using mobile data, and may not work on some WiFi connections.\n\nBecause of this, we recommend that you instead use 3rd party sharing services and only share a link with the target user instead of DCC.</string>
 
     <string name="dcc_system_downloads_permission_dialog_title">Downloads folder permission</string>
     <string name="dcc_system_downloads_permission_dialog_text">The permission to the Downloads folder has been denied, and therefore an application-internal downloads directory will be used. If this is not desired, please click Ask again.</string>
