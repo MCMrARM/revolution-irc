@@ -67,8 +67,10 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
             if (nid != null)
                 cancelNotification(nid);
         });
-        for (DCCServer.UploadSession session : list)
-            onSessionDestroyed(uploadEntry.getServer(), session);
+        if (list != null) {
+            for (DCCServer.UploadSession session : list)
+                onSessionDestroyed(uploadEntry.getServer(), session);
+        }
     }
 
     @Override
@@ -95,9 +97,12 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
         mHandler.post(() -> {
             if (nid != null)
                 cancelNotification(nid);
-            if (shouldCreateUploadNot)
-                createUploadNotification(DCCManager.getInstance(mContext)
-                        .getUploadEntry(dccServer));
+            if (shouldCreateUploadNot) {
+                DCCServerManager.UploadEntry entry = DCCManager.getInstance(mContext)
+                        .getUploadEntry(dccServer);
+                if (entry != null)
+                    createUploadNotification(entry);
+            }
         });
     }
 
@@ -123,23 +128,27 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
         mHandler.post(() -> createDownloadNotification(download));
     }
 
-    private synchronized boolean shouldUpdateNotifications() {
+    private boolean shouldUpdateNotifications() {
         if (DCCManager.getInstance(mContext).hasAnyDownloads())
             return true;
-        for (List<DCCServer.UploadSession> sessionList : mUploadSessions.values()) {
-            if (sessionList.size() > 0)
-                return true;
+        synchronized (this) {
+            for (List<DCCServer.UploadSession> sessionList : mUploadSessions.values()) {
+                if (sessionList.size() > 0)
+                    return true;
+            }
+            return false;
         }
-        return false;
     }
 
-    private synchronized void updateNotifications() {
+    private void updateNotifications() {
         mNotificationUpdateQueued = false;
         if (!shouldUpdateNotifications())
             return;
-        for (List<DCCServer.UploadSession> sessionList : mUploadSessions.values()) {
-            for (DCCServer.UploadSession session : sessionList)
-                createUploadNotification(session);
+        synchronized (this) {
+            for (List<DCCServer.UploadSession> sessionList : mUploadSessions.values()) {
+                for (DCCServer.UploadSession session : sessionList)
+                    createUploadNotification(session);
+            }
         }
         for (DCCManager.DownloadInfo download : DCCManager.getInstance(mContext).getDownloads()) {
             createDownloadNotification(download);
@@ -180,7 +189,7 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
         return new NotificationCompat.Action.Builder(cancelIcon,
                 mContext.getString(R.string.action_cancel),
                 PendingIntent.getBroadcast(mContext, notId,
-                        ActionReceiver.getCancelIntent(mContext, notId, false),
+                        ActionReceiver.getCancelIntent(mContext, notId),
                         PendingIntent.FLAG_CANCEL_CURRENT))
                 .build();
     }
@@ -210,7 +219,7 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
         mNotificationManager.notify(DCC_SUMMARY_NOTIFICATION_ID, builder.build());
     }
 
-    private synchronized void cancelNotification(Integer notificationId) {
+    private void cancelNotification(Integer notificationId) {
         if (mDisplayedNotificationIds.remove(notificationId) != null) {
             if (mDisplayedNotificationIds.size() == 0)
                 mNotificationManager.cancel(DCC_SUMMARY_NOTIFICATION_ID);
@@ -220,8 +229,11 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
             cancelNotificationUpdate();
     }
 
-    private synchronized void createUploadNotification(DCCServerManager.UploadEntry uploadEntry) {
-        Integer id = mUploadNotificationIds.get(uploadEntry.getServer());
+    private void createUploadNotification(DCCServerManager.UploadEntry uploadEntry) {
+        Integer id;
+        synchronized (this) {
+            id = mUploadNotificationIds.get(uploadEntry.getServer());
+        }
         if (id == null)
             return;
         createNotificationChannel();
@@ -240,13 +252,18 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
         createSummaryNotification();
     }
 
-    private synchronized void createUploadNotification(DCCServer.UploadSession uploadSession) {
-        Integer id = mSessionNotificationIds.get(uploadSession);
+    private void createUploadNotification(DCCServer.UploadSession uploadSession) {
+        Integer id;
+        synchronized (this) {
+            id = mSessionNotificationIds.get(uploadSession);
+        }
         if (id == null)
             return;
-        createNotificationChannel();
         DCCServerManager.UploadEntry entry = DCCManager.getInstance(mContext)
                 .getUploadEntry(uploadSession.getServer());
+        if (entry == null)
+            return;
+        createNotificationChannel();
         int unit = FormatUtils.getByteFormatUnit(uploadSession.getTotalSize());
         NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext,
                 NOTIFICATION_CHANNEL)
@@ -269,8 +286,11 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
         postNotificationUpdate();
     }
 
-    private synchronized void createDownloadNotification(DCCManager.DownloadInfo download) {
-        Integer id = mDownloadNotificationIds.get(download);
+    private void createDownloadNotification(DCCManager.DownloadInfo download) {
+        Integer id;
+        synchronized (this) {
+            id = mDownloadNotificationIds.get(download);
+        }
         if (id == null)
             return;
         createNotificationChannel();
@@ -327,8 +347,7 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
         private static final String TYPE_APPROVE = "approve";
         private static final String TYPE_REJECT = "reject";
 
-        public static Intent getCancelIntent(Context context, int notificationId,
-                                              boolean approve) {
+        public static Intent getCancelIntent(Context context, int notificationId) {
             Intent intent = new Intent(context, ActionReceiver.class);
             intent.putExtra(ARG_NOT_ID, notificationId);
             intent.putExtra(ARG_TYPE, TYPE_CANCEL);

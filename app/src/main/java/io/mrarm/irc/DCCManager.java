@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.Toast;
@@ -53,6 +55,8 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
     private final List<DownloadListener> mDownloadListeners = new ArrayList<>();
     private File mDownloadDirectory;
     private final DCCNotificationManager mNotificationManager;
+
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     public DCCManager(Context context) {
         mContext = context;
@@ -112,10 +116,11 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
 
     @Override
     public void onSessionDestroyed(DCCServer dccServer, DCCServer.UploadSession uploadSession) {
+        DCCServerManager.UploadEntry entry;
+        boolean shouldClose;
         synchronized (mSessions) {
             mSessions.remove(uploadSession);
-            boolean shouldClose = uploadSession.getAcknowledgedSize()
-                    >= uploadSession.getTotalSize();
+            shouldClose = uploadSession.getAcknowledgedSize() >= uploadSession.getTotalSize();
             if (shouldClose) {
                 for (DCCServer.UploadSession s : mSessions) {
                     if (s.getServer() == dccServer) {
@@ -124,9 +129,12 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
                     }
                 }
             }
-            if (shouldClose)
-                mServer.cancelUpload(mUploads.get(dccServer));
         }
+        synchronized (mUploads) {
+            entry = mUploads.get(dccServer);
+        }
+        if (shouldClose && entry != null)
+            mHandler.post(() -> mServer.cancelUpload(entry));
     }
 
     public void onDownloadCreated(DownloadInfo download) {
