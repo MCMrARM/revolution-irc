@@ -2,16 +2,20 @@ package io.mrarm.irc;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 public class DCCActivity extends AppCompatActivity {
+
+    private static final int REQUEST_CODE_PICK_CUSTOM_DIRECTORY = 3;
 
     private RecyclerView mRecyclerView;
     private DCCTransferListAdapter mAdapter;
@@ -76,7 +80,15 @@ public class DCCActivity extends AppCompatActivity {
                             dccManager.setAlwaysUseApplicationDownloadDirectory(false);
                             mDCCDialogHandler.askSystemDownloadsPermission(null);
                         } else if (which == 2) {
-                            // TODO:
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                                intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+                                startActivityForResult(intent, REQUEST_CODE_PICK_CUSTOM_DIRECTORY);
+                            } else {
+                                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                                intent.setType("*/*");
+                                startActivityForResult(intent, REQUEST_CODE_PICK_CUSTOM_DIRECTORY);
+                            }
                         }
                         i.dismiss();
                     })
@@ -89,6 +101,20 @@ public class DCCActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE_PICK_CUSTOM_DIRECTORY && data != null &&
+                data.getData() != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                getContentResolver().takePersistableUriPermission(data.getData(),
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION |
+                                Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            }
+
+            Log.d("DCCActivity", "Picked custom directory: " + data.getData());
+            DCCManager dccManager = DCCManager.getInstance(this);
+            dccManager.setAlwaysUseApplicationDownloadDirectory(false);
+            dccManager.setOverrideDownloadDirectory(data.getData(), false);
+            return;
+        }
         mDCCDialogHandler.onActivityResult(requestCode, resultCode, data);
         super.onActivityResult(requestCode, resultCode, data);
     }

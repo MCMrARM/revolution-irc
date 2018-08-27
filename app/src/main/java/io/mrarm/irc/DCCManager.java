@@ -115,6 +115,7 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
 
     public void setOverrideDownloadDirectory(Uri uri, boolean isSystem) {
         mDownloadDirectoryOverrideURI = uri;
+        mIsDownloadDirectoryOverrideURISystem = isSystem;
         mPreferences.edit()
                 .putString(PREF_DCC_DIRECTORY_OVERRIDE_URI, uri.toString())
                 .putBoolean(PREF_DCC_DIRECTORY_OVERRIDE_URI_SYSTEM, isSystem)
@@ -132,7 +133,8 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
     }
 
     public boolean isSystemDownloadDirectoryUsed() {
-        return mHasSystemDirectoryAccess;
+        return mHasSystemDirectoryAccess && (mDownloadDirectoryOverrideURI == null ||
+                mIsDownloadDirectoryOverrideURISystem);
     }
 
     private void checkSystemDownloadsDirectoryAccess() {
