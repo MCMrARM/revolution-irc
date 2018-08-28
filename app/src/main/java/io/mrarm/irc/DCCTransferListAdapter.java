@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v4.provider.DocumentFile;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -453,7 +455,17 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements
         }
 
         private void delete() {
-            throw new UnsupportedOperationException();
+            if (mFileUri != null && mFileUri.length() > 0) {
+                Uri uri = Uri.parse(mFileUri);
+                DocumentFile file;
+                if (uri.getScheme().equals("file"))
+                    file = DocumentFile.fromFile(new File(uri.getPath()));
+                else
+                    file = DocumentFile.fromSingleUri(itemView.getContext(), uri);
+                if (file.exists())
+                    file.delete();
+            }
+            DCCManager.getInstance(itemView.getContext()).getHistory().removeEntry(mEntryId);
         }
 
         public void bind(DCCHistory.Entry entry) {
