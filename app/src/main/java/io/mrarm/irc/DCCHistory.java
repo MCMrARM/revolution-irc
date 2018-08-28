@@ -182,7 +182,8 @@ public class DCCHistory {
             this.fileName = download.getUnescapedFileName();
             this.fileSize = download.getFileSize();
 
-            this.fileUri = download.getDownloadedTo().toString();
+            if (download.getDownloadedTo() != null)
+                this.fileUri = download.getDownloadedTo().toString();
         }
 
         public Entry(DCCServerManager.UploadEntry upload, DCCServer.UploadSession session,

@@ -474,9 +474,14 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements
             mName.setText(entry.fileName);
             if (entry.entryType == DCCHistory.TYPE_DOWNLOAD) {
                 mStatusIcon.setImageResource(R.drawable.ic_file_download_white_16dp);
-                mStatus.setText(itemView.getResources().getString(R.string.dcc_history_download,
-                        entry.userNick, FormatUtils.formatByteSize(entry.fileSize),
-                        entry.remoteAddress));
+                if (entry.fileUri != null && entry.remoteAddress != null)
+                    mStatus.setText(itemView.getResources().getString(R.string.dcc_history_download,
+                            entry.userNick, FormatUtils.formatByteSize(entry.fileSize),
+                            entry.remoteAddress));
+                else
+                    mStatus.setText(itemView.getResources().getString(
+                            R.string.dcc_history_download_failed,
+                            entry.userNick, FormatUtils.formatByteSize(entry.fileSize)));
             } else {
                 mStatusIcon.setImageResource(R.drawable.ic_file_upload_white_16dp);
                 mStatus.setText(itemView.getResources().getString(R.string.dcc_history_upload,
