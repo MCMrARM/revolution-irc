@@ -281,32 +281,38 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
 
     @Override
     public void onClosed(DCCClient dccClient) {
+        DownloadInfo download = null;
         synchronized (mDownloads) {
             for (int i = mDownloads.size() - 1; i >= 0; --i) {
-                DownloadInfo download = mDownloads.get(i);
+                download = mDownloads.get(i);
                 if (download.getClient() == dccClient) {
                     mDownloads.remove(i);
                     for (DownloadListener listener : mDownloadListeners)
                         listener.onDownloadDestroyed(download);
-                    return;
+                    break;
                 }
             }
         }
+        if (download != null)
+            mHistory.addEntry(new DCCHistory.Entry(download, new Date()));
     }
 
     @Override
     public void onClosed(DCCReverseClient dccReverseClient) {
+        DownloadInfo download = null;
         synchronized (mDownloads) {
             for (int i = mDownloads.size() - 1; i >= 0; --i) {
-                DownloadInfo download = mDownloads.get(i);
+                download = mDownloads.get(i);
                 if (download.getReverseClient() == dccReverseClient) {
                     mDownloads.remove(i);
                     for (DownloadListener listener : mDownloadListeners)
                         listener.onDownloadDestroyed(download);
-                    return;
+                    break;
                 }
             }
         }
+        if (download != null)
+            mHistory.addEntry(new DCCHistory.Entry(download, new Date()));
     }
 
     @Override

@@ -2,34 +2,42 @@ package io.mrarm.irc;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.List;
 
 import io.mrarm.chatlib.irc.dcc.DCCServer;
 import io.mrarm.chatlib.irc.dcc.DCCServerManager;
 import io.mrarm.irc.dialog.MenuBottomSheetDialog;
 import io.mrarm.irc.util.AdvancedDividerItemDecoration;
+import io.mrarm.irc.util.FormatUtils;
 
 public class DCCTransferListAdapter extends RecyclerView.Adapter implements
         DCCServerManager.UploadListener, DCCManager.DownloadListener {
 
     private static final int TYPE_TRANSFER_ACTIVE = 0;
     private static final int TYPE_TRANSFER_PENDING = 1;
+    private static final int TYPE_HISTORY_ENTRY = 2;
 
-    private Activity mActivity;
+    private final Activity mActivity;
     private DCCManager mDCCManager;
     private List<DCCServer.UploadSession> mUploadSessions;
     private List<DCCManager.DownloadInfo> mDownloads;
     private List<DCCServerManager.UploadEntry> mPendingUploads;
+    private int mHistoryCount;
+    private final List<DCCHistory.Entry> mHistoryUploads = new ArrayList<>();
 
     public DCCTransferListAdapter(Activity activity) {
         mActivity = activity;
@@ -45,6 +53,7 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements
                 continue;
             mPendingUploads.remove(ent);
         }
+        mHistoryCount = mDCCManager.getHistory().getEntryCount();
     }
 
     public void unregisterListeners() {
@@ -67,6 +76,10 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.dcc_transfer_pending_item, parent, false);
             return new PendingTransferHolder(view);
+        } else if (viewType == TYPE_HISTORY_ENTRY) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.dcc_transfer_pending_item, parent, false);
+            return new HistoryEntryHolder(view);
         }
         throw new UnsupportedOperationException();
     }
@@ -75,18 +88,21 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (position >= 0 && position < mUploadSessions.size())
             ((ActiveTransferHolder) holder).bind(mUploadSessions.get(position));
-        if (position >= getDownloadsStart() &&
+        else if (position >= getDownloadsStart() &&
                 position < getDownloadsStart() + mDownloads.size())
             ((ActiveTransferHolder) holder).bind(mDownloads.get(position - getDownloadsStart()));
-        if (position >= getPendingUploadsStart() &&
+        else if (position >= getPendingUploadsStart() &&
                 position < getPendingUploadsStart() + mPendingUploads.size())
             ((PendingTransferHolder) holder).bind(
                     mPendingUploads.get(position - getPendingUploadsStart()));
+        else if (position >= getHistoryStart())
+            ((HistoryEntryHolder) holder).bind(getHistoryEntry(position - getHistoryStart()));
+
     }
 
     @Override
     public int getItemCount() {
-        return mUploadSessions.size() + mDownloads.size() + mPendingUploads.size();
+        return mUploadSessions.size() + mDownloads.size() + mPendingUploads.size() + mHistoryCount;
     }
 
     private int getDownloadsStart() {
@@ -97,11 +113,28 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements
         return mUploadSessions.size() + mDownloads.size();
     }
 
+    public int getHistoryStart() {
+        return mUploadSessions.size() + mDownloads.size() + mPendingUploads.size();
+    }
+
+    private DCCHistory.Entry getHistoryEntry(int index) {
+        if (index >= mHistoryUploads.size()) {
+            int limit = ((index + 1 - mHistoryUploads.size() + 10 - 1) / 10) * 10;
+            mHistoryUploads.addAll(mDCCManager.getHistory()
+                    .getEntries(mHistoryUploads.size(), limit));
+        }
+        if (index >= mHistoryUploads.size())
+            return null;
+        return mHistoryUploads.get(index);
+    }
+
     @Override
     public int getItemViewType(int position) {
         if (position >= getPendingUploadsStart() &&
                 position < getPendingUploadsStart() + mPendingUploads.size())
             return TYPE_TRANSFER_PENDING;
+        if (position >= getHistoryStart())
+            return TYPE_HISTORY_ENTRY;
         return TYPE_TRANSFER_ACTIVE;
     }
 
@@ -255,7 +288,7 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements
         public void bind(DCCManager.DownloadInfo download) {
             mDownload = download;
             mSession = null;
-            mStatusIcon.setImageResource(R.drawable.ic_file_download_white_24dp);
+            mStatusIcon.setImageResource(R.drawable.ic_file_download_white_16dp);
             mName.setText(download.getUnescapedFileName());
             updateProgress();
         }
@@ -342,6 +375,75 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements
                     .getUploadName(entry.getServer()));
             mStatus.setText(mStatus.getContext().getString(
                     R.string.dcc_active_waiting_for_connection));
+        }
+
+    }
+
+    public static final class HistoryEntryHolder extends RecyclerView.ViewHolder {
+
+        private TextView mName;
+        private TextView mStatus;
+        private ImageView mStatusIcon;
+        private String mFileUri;
+
+        public HistoryEntryHolder(View itemView) {
+            super(itemView);
+            mName = itemView.findViewById(R.id.name);
+            mStatus = itemView.findViewById(R.id.status);
+            mStatusIcon = itemView.findViewById(R.id.status_icon);
+            itemView.setOnClickListener((View v) -> open());
+            itemView.setOnLongClickListener((View v) -> { openMenu(); return true; });
+        }
+
+        public void open() {
+            if (mFileUri != null && mFileUri.length() > 0) {
+                Uri uri = Uri.parse(mFileUri);
+                String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
+                        MimeTypeMap.getFileExtensionFromUrl(uri.toString()));
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                intent.setDataAndType(uri, mimeType);
+                itemView.getContext().startActivity(intent);
+            } else {
+                openMenu();
+            }
+        }
+
+        public void openMenu() {
+            MenuBottomSheetDialog dialog = new MenuBottomSheetDialog(itemView.getContext());
+            if (mFileUri != null && mFileUri.length() > 0) {
+                dialog.addItem(R.string.action_open, R.drawable.ic_open_in_new,
+                        (MenuBottomSheetDialog.Item item) -> {
+                            open();
+                            return true;
+                        });
+            }
+            dialog.addItem(R.string.action_delete, R.drawable.ic_delete,
+                    (MenuBottomSheetDialog.Item item) -> {
+                        delete();
+                        return true;
+                    });
+            dialog.show();
+        }
+
+        private void delete() {
+            throw new UnsupportedOperationException();
+        }
+
+        public void bind(DCCHistory.Entry entry) {
+            mFileUri = entry.fileUri;
+            mName.setText(entry.fileName);
+            if (entry.entryType == DCCHistory.TYPE_DOWNLOAD) {
+                mStatusIcon.setImageResource(R.drawable.ic_file_download_white_16dp);
+                mStatus.setText(itemView.getResources().getString(R.string.dcc_history_download,
+                        entry.userNick, FormatUtils.formatByteSize(entry.fileSize),
+                        entry.remoteAddress));
+            } else {
+                mStatusIcon.setImageResource(R.drawable.ic_file_upload_white_16dp);
+                mStatus.setText(itemView.getResources().getString(R.string.dcc_history_upload,
+                        entry.userNick, FormatUtils.formatByteSize(entry.fileSize),
+                        entry.remoteAddress));
+            }
         }
 
     }

@@ -58,7 +58,8 @@ public class DCCHistory {
                 COLUMN_USER_NICK + " TEXT," +
                 COLUMN_REMOTE_ADDRESS + " TEXT," +
                 COLUMN_FILE_NAME + " TEXT," +
-                COLUMN_FILE_SIZE + " INTEGER" +
+                COLUMN_FILE_SIZE + " INTEGER," +
+                COLUMN_FILE_URI + " TEXT" +
                 ")");
     }
 
@@ -87,15 +88,15 @@ public class DCCHistory {
         Cursor cursor = mDatabase.rawQuery("SELECT COUNT(*) FROM " + TABLE_DCC_HISTORY,
                 null);
         cursor.moveToFirst();
-        return cursor.getInt(1);
+        return cursor.getInt(0);
     }
 
     public synchronized List<Entry> getEntries(int offset, int limit) {
         List<Entry> entries = new ArrayList<>();
         Cursor cursor = mDatabase.rawQuery("SELECT * FROM " + TABLE_DCC_HISTORY +
                 " ORDER BY " + COLUMN_DATE + " DESC" +
-                (offset != -1 ? " OFFSET " + offset : "") +
-                (limit != -1 ? " LIMIT " + limit : ""), null);
+                (limit != -1 ? " LIMIT " + limit : "") +
+                (offset != -1 ? " OFFSET " + offset : ""), null);
         int columnId = cursor.getColumnIndex(COLUMN_ID);
         int columnType = cursor.getColumnIndex(COLUMN_ENTRY_TYPE);
         int columnDate = cursor.getColumnIndex(COLUMN_DATE);

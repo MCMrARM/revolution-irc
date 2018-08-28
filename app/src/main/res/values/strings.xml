@@ -614,6 +614,8 @@
     <string name="dcc_active_waiting_for_connection">Waiting for connection…</string>
     <string name="dcc_active_waiting_for_approval">Waiting for user approval…</string>
     <string name="dcc_approve_notification_body">%s (from server: %s) has sent you a file</string>
+    <string name="dcc_history_upload">Uploaded %2$s to %3$s (%1$s)</string>
+    <string name="dcc_history_download">Downloaded %2$s from %3$s (%1$s)</string>
 
     <string name="dcc_approve_download_title">DCC file: %s</string>
     <string name="dcc_approve_download_title_with_size">DCC file: %s (%s)</string>
