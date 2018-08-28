@@ -41,6 +41,7 @@ public class DCCHistory {
 
     private final File mPath;
     private SQLiteDatabase mDatabase;
+    private List<HistoryListener> mListeners = new ArrayList<>();
 
     public DCCHistory(Context context) {
         mPath = getFile(context);
@@ -63,6 +64,14 @@ public class DCCHistory {
                 ")");
     }
 
+    public synchronized void addListener(HistoryListener listener) {
+        mListeners.add(listener);
+    }
+
+    public synchronized void removeListener(HistoryListener listener) {
+        mListeners.remove(listener);
+    }
+
     public synchronized void addEntry(Entry entry) {
         ContentValues values = new ContentValues();
         values.put(COLUMN_ENTRY_TYPE, entry.entryType);
@@ -77,11 +86,15 @@ public class DCCHistory {
         if (entry.fileUri != null)
             values.put(COLUMN_FILE_URI, entry.fileUri);
         entry.entryId = mDatabase.insert(TABLE_DCC_HISTORY, null, values);
+        for (HistoryListener listener : mListeners)
+            listener.onHistoryEntryCreated(entry);
     }
 
     public synchronized void removeEntry(long id) {
         mDatabase.delete(TABLE_DCC_HISTORY, COLUMN_ID + "=?",
                 new String[] { String.valueOf(id) });
+        for (HistoryListener listener : mListeners)
+            listener.onHistoryEntryRemoved(id);
     }
 
     public synchronized int getEntryCount() {
@@ -122,6 +135,14 @@ public class DCCHistory {
             entries.add(entry);
         }
         return entries;
+    }
+
+    public interface HistoryListener {
+
+        void onHistoryEntryCreated(Entry entry);
+
+        void onHistoryEntryRemoved(long entryId);
+
     }
 
 

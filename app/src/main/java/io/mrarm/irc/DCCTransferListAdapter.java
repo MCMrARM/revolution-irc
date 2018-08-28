@@ -25,7 +25,7 @@ import io.mrarm.irc.util.AdvancedDividerItemDecoration;
 import io.mrarm.irc.util.FormatUtils;
 
 public class DCCTransferListAdapter extends RecyclerView.Adapter implements
-        DCCServerManager.UploadListener, DCCManager.DownloadListener {
+        DCCServerManager.UploadListener, DCCManager.DownloadListener, DCCHistory.HistoryListener {
 
     private static final int TYPE_TRANSFER_ACTIVE = 0;
     private static final int TYPE_TRANSFER_PENDING = 1;
@@ -54,11 +54,13 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements
             mPendingUploads.remove(ent);
         }
         mHistoryCount = mDCCManager.getHistory().getEntryCount();
+        mDCCManager.getHistory().addListener(this);
     }
 
     public void unregisterListeners() {
         mDCCManager.getServer().removeUploadListener(this);
         mDCCManager.removeDownloadListener(this);
+        mDCCManager.getHistory().removeListener(this);
     }
 
     public ItemDecoration createItemDecoration() {
@@ -234,6 +236,29 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements
         });
     }
 
+    @Override
+    public void onHistoryEntryCreated(DCCHistory.Entry entry) {
+        mActivity.runOnUiThread(() -> {
+            mHistoryCount++;
+            mHistoryUploads.add(0, entry);
+            notifyItemInserted(getDownloadsStart());
+        });
+    }
+
+    @Override
+    public void onHistoryEntryRemoved(long entryId) {
+        mActivity.runOnUiThread(() -> {
+            for (int i = 0; i < mHistoryUploads.size(); i++) {
+                if (mHistoryUploads.get(i).entryId == entryId) {
+                    mHistoryUploads.remove(i);
+                    mHistoryCount--;
+                    notifyItemRemoved(getDownloadsStart() + i);
+                    return;
+                }
+            }
+        });
+    }
+
     public static class ItemDecoration extends AdvancedDividerItemDecoration {
 
         public ItemDecoration(Context context) {
@@ -385,6 +410,7 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements
         private TextView mStatus;
         private ImageView mStatusIcon;
         private String mFileUri;
+        private long mEntryId;
 
         public HistoryEntryHolder(View itemView) {
             super(itemView);
@@ -431,6 +457,7 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements
         }
 
         public void bind(DCCHistory.Entry entry) {
+            mEntryId = entry.entryId;
             mFileUri = entry.fileUri;
             mName.setText(entry.fileName);
             if (entry.entryType == DCCHistory.TYPE_DOWNLOAD) {
