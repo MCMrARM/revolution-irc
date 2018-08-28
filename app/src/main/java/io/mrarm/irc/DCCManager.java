@@ -36,6 +36,7 @@ import java.net.SocketException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +44,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import io.mrarm.chatlib.irc.MessagePrefix;
+import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.chatlib.irc.ServerConnectionData;
 import io.mrarm.chatlib.irc.dcc.DCCClient;
 import io.mrarm.chatlib.irc.dcc.DCCClientManager;
@@ -71,7 +73,9 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
     private final Context mContext;
     private final SharedPreferences mPreferences;
     private final DCCServerManager mServer;
+    private final DCCHistory mHistory;
     private final Map<DCCServer, DCCServerManager.UploadEntry> mUploads = new HashMap<>();
+    private final Map<DCCServerManager.UploadEntry, UploadServerInfo> mUploadServers = new HashMap<>();
     private final List<DCCServer.UploadSession> mSessions = new ArrayList<>();
     private final List<DownloadInfo> mDownloads = new ArrayList<>();
     private final List<DownloadListener> mDownloadListeners = new ArrayList<>();
@@ -91,6 +95,7 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
         mNotificationManager = new DCCNotificationManager(mContext);
         mFallbackDownloadDirectory = mContext.getExternalFilesDir("downloads");
         mDownloadDirectory = mFallbackDownloadDirectory;
+        mHistory = new DCCHistory(context);
         mServer = new DCCServerManager();
         mServer.addUploadListener(this);
         mServer.addUploadListener(mNotificationManager);
@@ -174,6 +179,10 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
         return mServer;
     }
 
+    public DCCHistory getHistory() {
+        return mHistory;
+    }
+
     public DCCClientManager createClient(ServerConnectionInfo server) {
         return new ClientImpl(server);
     }
@@ -194,6 +203,19 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
     public void onUploadCreated(DCCServerManager.UploadEntry uploadEntry) {
         synchronized (mUploads) {
             mUploads.put(uploadEntry.getServer(), uploadEntry);
+
+            ServerConnectionData connection = uploadEntry.getConnection();
+            ServerConnectionInfo connectionInfo = null;
+            for (ServerConnectionInfo info : ServerConnectionManager.getInstance(mContext)
+                    .getConnections()) {
+                if (((ServerConnectionApi) info.getApiInstance()).getServerConnectionData()
+                        == connection) {
+                    connectionInfo = info;
+                    break;
+                }
+            }
+            mUploadServers.put(uploadEntry, connectionInfo != null
+                    ? new UploadServerInfo(connectionInfo) : null);
         }
     }
 
@@ -201,6 +223,7 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
     public void onUploadDestroyed(DCCServerManager.UploadEntry uploadEntry) {
         synchronized (mUploads) {
             mUploads.remove(uploadEntry.getServer());
+            mUploadServers.remove(uploadEntry);
         }
     }
 
@@ -214,6 +237,7 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
     @Override
     public void onSessionDestroyed(DCCServer dccServer, DCCServer.UploadSession uploadSession) {
         DCCServerManager.UploadEntry entry;
+        UploadServerInfo uploadServerInfo;
         boolean shouldClose;
         synchronized (mSessions) {
             mSessions.remove(uploadSession);
@@ -229,9 +253,13 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
         }
         synchronized (mUploads) {
             entry = mUploads.get(dccServer);
+            uploadServerInfo = mUploadServers.get(entry);
         }
         if (shouldClose && entry != null)
             mHandler.post(() -> mServer.cancelUpload(entry));
+        if (entry != null && uploadServerInfo != null)
+            mHistory.addEntry(new DCCHistory.Entry(entry, uploadSession, uploadServerInfo,
+                    new Date()));
     }
 
     public void onDownloadCreated(DownloadInfo download) {
@@ -248,6 +276,7 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
             for (DownloadListener listener : mDownloadListeners)
                 listener.onDownloadDestroyed(download);
         }
+        mHistory.addEntry(new DCCHistory.Entry(download, new Date()));
     }
 
     @Override
@@ -299,6 +328,12 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
         }
     }
 
+    public UploadServerInfo getUploadServerInfo(DCCServerManager.UploadEntry upload) {
+        synchronized (mUploads) {
+            return mUploadServers.get(upload);
+        }
+    }
+
     public String getUploadName(DCCServer server) {
         synchronized (mUploads) {
             DCCServerManager.UploadEntry ent = mUploads.get(server);
@@ -337,6 +372,30 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
     }
 
 
+    public class UploadServerInfo {
+
+        private final UUID mServerUUID;
+        private final String mServerName;
+
+        public UploadServerInfo(UUID uuid, String serverName) {
+            this.mServerUUID = uuid;
+            this.mServerName = serverName;
+        }
+        public UploadServerInfo(ServerConnectionInfo connectionInfo) {
+            this.mServerUUID = connectionInfo.getUUID();
+            this.mServerName = connectionInfo.getName();
+        }
+
+        public UUID getServerUUID() {
+            return mServerUUID;
+        }
+
+        public String getServerName() {
+            return mServerName;
+        }
+
+    }
+
     public class DownloadInfo {
 
         private final UUID mServerUUID;
@@ -351,6 +410,7 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
         private boolean mCancelled = false;
         private DCCClient mClient;
         private DCCReverseClient mReverseClient;
+        private Uri mDownloadedTo;
 
         private DownloadInfo(ServerConnectionInfo server, MessagePrefix sender, String fileName,
                              long fileSize, String address, int port) {
@@ -379,6 +439,10 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
             return mServerName;
         }
 
+        public UUID getServerUUID() {
+            return mServerUUID;
+        }
+
         public MessagePrefix getSender() {
             return mSender;
         }
@@ -401,6 +465,10 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
 
         public long getFileSize() {
             return mFileSize;
+        }
+
+        public synchronized Uri getDownloadedTo() {
+            return mDownloadedTo;
         }
 
         public boolean isPending() {
@@ -442,6 +510,9 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
                 if (!(stream instanceof FileOutputStream))
                     throw new IOException("stream is not a file");
                 file = ((FileOutputStream) stream).getChannel();
+                synchronized (this) {
+                    mDownloadedTo = docFile.getUri();
+                }
                 Log.d("DCCManager", "Starting a download: " + docFile.getUri().toString());
             } else {
                 File filePath = new File(mDownloadDirectory, downloadFileName);
@@ -455,6 +526,9 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
                     attempt++;
                 }
                 file = new FileOutputStream(filePath).getChannel();
+                synchronized (this) {
+                    mDownloadedTo = Uri.fromFile(filePath);
+                }
                 Log.d("DCCManager", "Starting a download: " + filePath.getAbsolutePath());
             }
             try {
