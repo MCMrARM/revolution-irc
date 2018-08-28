@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v4.content.FileProvider;
 import android.support.v4.provider.DocumentFile;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -426,6 +427,9 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements
         public void open() {
             if (mFileUri != null && mFileUri.length() > 0) {
                 Uri uri = Uri.parse(mFileUri);
+                if (uri.getScheme().equals("file"))
+                    uri = FileProvider.getUriForFile(itemView.getContext(),
+                            "io.mrarm.irc.fileprovider", new File(uri.getPath()));
                 String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
                         MimeTypeMap.getFileExtensionFromUrl(uri.toString()));
                 Intent intent = new Intent(Intent.ACTION_VIEW);
