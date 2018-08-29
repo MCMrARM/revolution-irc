@@ -539,7 +539,8 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
                     Intent intent = new Intent(Intent.ACTION_SEND);
                     intent.putExtra(Intent.EXTRA_TEXT, getSelectedText());
                     intent.setType("text/plain");
-                    mRecyclerView.getContext().startActivity(intent);
+                    mRecyclerView.getContext().startActivity(Intent.createChooser(intent,
+                            mRecyclerView.getContext().getString(R.string.message_share_title)));
                     clearSelection();
                     mode.finish();
                     return true;

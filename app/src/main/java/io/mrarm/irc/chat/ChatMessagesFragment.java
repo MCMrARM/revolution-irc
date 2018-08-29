@@ -491,7 +491,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.putExtra(Intent.EXTRA_TEXT, messages);
         intent.setType("text/plain");
-        mRecyclerView.getContext().startActivity(intent);
+        mRecyclerView.getContext().startActivity(Intent.createChooser(intent,
+                getString(R.string.message_share_title)));
     }
 
 
