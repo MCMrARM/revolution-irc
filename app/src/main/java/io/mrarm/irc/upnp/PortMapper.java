@@ -17,6 +17,8 @@ import io.mrarm.irc.upnp.rpc.AddAnyPortMappingResponse;
 import io.mrarm.irc.upnp.rpc.AddPortMappingCall;
 import io.mrarm.irc.upnp.rpc.BaseAddPortMappingCall;
 import io.mrarm.irc.upnp.rpc.DeletePortMappingCall;
+import io.mrarm.irc.upnp.rpc.GetExternalIPAddressCall;
+import io.mrarm.irc.upnp.rpc.GetExternalIPAddressResponse;
 import io.mrarm.irc.upnp.rpc.UPnPRPCError;
 
 public class PortMapper {
@@ -53,6 +55,17 @@ public class PortMapper {
             URL serviceURL = new URL(new URL(response.getDescriptionLocation()),
                     service.getControlURL());
             String localIP = resolveLocalIP(serviceURL);
+            String externalIP;
+            try {
+                GetExternalIPAddressCall call =
+                        new GetExternalIPAddressCall(service.getServiceType());
+                GetExternalIPAddressResponse resp = call.send(serviceURL);
+                externalIP = resp.getNewExternalIPAddress();
+            } catch (Exception e) {
+                Log.w("PortMapper", "Failed to send GetExternalIPAddressCall request");
+                e.printStackTrace();
+                continue;
+            }
 
             // First try to bind using AddAnyPortMapping
             if (controlDescription != null &&
@@ -62,7 +75,7 @@ public class PortMapper {
                             new AddAnyPortMappingCall(service.getServiceType());
                     fillInCallData(call, request, localIP);
                     AddAnyPortMappingResponse resp = call.send(serviceURL);
-                    return new PortMappingResult(request, resp.getNewReservedPort(),
+                    return new PortMappingResult(request, externalIP, resp.getNewReservedPort(),
                             service.getServiceType(), serviceURL);
                 } catch (Exception e) {
                     Log.w("PortMapper", "Failed to send AddAnyPortMapping request");
@@ -80,7 +93,7 @@ public class PortMapper {
                     if (attempt != 0)
                         call.setNewExternalPort(1024 + new Random().nextInt(65535 - 1024));
                     call.send(serviceURL);
-                    return new PortMappingResult(request, call.getNewExternalPort(),
+                    return new PortMappingResult(request, externalIP, call.getNewExternalPort(),
                             service.getServiceType(), serviceURL);
                 } catch (Exception e) {
                     if (e instanceof UPnPRPCError) {
@@ -187,19 +200,25 @@ public class PortMapper {
 
         private PortMappingRequest mRequest;
         private int mExternalPort;
+        private String mExternalIP;
         private String mServiceType;
         private URL mServiceURL;
 
-        public PortMappingResult(PortMappingRequest request, int externalPort, String serviceType,
-                                 URL serviceURL) {
+        public PortMappingResult(PortMappingRequest request, String externalIP, int externalPort,
+                                 String serviceType, URL serviceURL) {
             mRequest = request;
             mExternalPort = externalPort;
+            mExternalIP = externalIP;
             mServiceType = serviceType;
             mServiceURL = serviceURL;
         }
 
         public PortMappingRequest getRequest() {
             return mRequest;
+        }
+
+        public String getExternalIP() {
+            return mExternalIP;
         }
 
         public int getExternalPort() {
