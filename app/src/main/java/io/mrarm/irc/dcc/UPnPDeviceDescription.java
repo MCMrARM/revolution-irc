@@ -73,10 +73,16 @@ public class UPnPDeviceDescription {
     public static class Service {
 
         private String mServiceType;
+        private String mControlURL;
 
         public String getServiceType() {
             return mServiceType;
         }
+
+        public String getControlURL() {
+            return mControlURL;
+        }
+
     }
 
 
@@ -193,6 +199,8 @@ public class UPnPDeviceDescription {
         public void endElement(String uri, String localName, String qName) {
             if (localName.equals("serviceType"))
                 mService.mServiceType = mContent.toString();
+            else if (localName.equals("controlURL"))
+                mService.mControlURL = mContent.toString();
             else if (localName.equals("service"))
                 mReader.setContentHandler(mParent);
         }
