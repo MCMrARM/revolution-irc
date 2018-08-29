@@ -4,13 +4,15 @@ import android.util.Log;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.security.InvalidParameterException;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -22,12 +24,15 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import io.mrarm.irc.dcc.XMLParseHelper;
+
 public abstract class UPnPRemoteCall {
 
     public static final String NS_SOAP = "http://schemas.xmlsoap.org/soap/envelope/";
 
 
-    public void send(URL serviceEndpoint) throws IOException, TransformerException {
+    protected Document doSend(URL serviceEndpoint) throws IOException, SAXException,
+            TransformerException, UPnPRPCError {
         if (!validate())
             throw new InvalidParameterException("Validation of the request failed");
         Document doc = buildDocument();
@@ -36,7 +41,7 @@ public abstract class UPnPRemoteCall {
         connection.setDoOutput(true);
         connection.addRequestProperty("Content-Type", "text/xml; charset=\"utf-8\"");
         connection.addRequestProperty("SOAPAction", "\"" + getSOAPAction() + "\"");
-        Log.d("UPnPRemoteCall", "Action: " + getSOAPAction());
+        Log.d("UPnPRemoteCall", "Request action: " + getSOAPAction());
         connection.setRequestProperty("Connection", "close");
 
         Transformer transformer = TransformerFactory.newInstance().newTransformer();
@@ -46,19 +51,40 @@ public abstract class UPnPRemoteCall {
         StringWriter xmlWriter = new StringWriter();
         transformer.transform(new DOMSource(doc), new StreamResult(xmlWriter));
         String xmlBodyString = xmlWriter.toString();
-        Log.d("UPnPRemoteCall", "Body: " + xmlBodyString);
+        Log.d("UPnPRemoteCall", "Request body: " + xmlBodyString);
         byte[] xmlBodyBytes = xmlBodyString.getBytes("UTF-8");
 
         connection.setFixedLengthStreamingMode(xmlBodyBytes.length);
         connection.getOutputStream().write(xmlBodyBytes);
-        Log.d("UPnPRemoteCall", "Resp: " + connection.getResponseCode());
+        Log.d("UPnPRemoteCall", "Response status: " + connection.getResponseCode());
 
         InputStream stream = connection.getErrorStream() != null ? connection.getErrorStream()
                 : connection.getInputStream();
-        byte[] buf = new byte[1024];
-        int r;
-        while ((r = stream.read(buf)) > 0)
-            System.out.println(new String(buf, 0, r, "UTF-8"));
+        ByteArrayOutputStream responseBytesBuilder = new ByteArrayOutputStream();
+        byte[] buf = new byte[1024 * 4];
+        int n;
+        while ((n = stream.read(buf)) >= 0) {
+            responseBytesBuilder.write(buf, 0, n);
+        }
+        byte[] responseBytes = responseBytesBuilder.toByteArray();
+        Log.d("UPnPRemoteCall", "Response: " +
+                new String(responseBytes, "UTF-8"));
+
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
+        Document ret;
+        try {
+            ret = factory.newDocumentBuilder().parse(new ByteArrayInputStream(responseBytes));
+        } catch (ParserConfigurationException e) {
+            throw new RuntimeException(e);
+        }
+        if (!ret.getDocumentElement().getLocalName().equals("Envelope"))
+            throw new IOException("Invalid reply");
+        Element body = XMLParseHelper.findChildElement(ret.getDocumentElement(), "Body");
+        Element fault = XMLParseHelper.findChildElement(body, "Fault");
+        if (fault != null)
+            throw new UPnPRPCError(fault);
+        return ret;
     }
 
     protected abstract boolean validate();

@@ -2,6 +2,12 @@ package io.mrarm.irc.dcc.rpc;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.net.URL;
+
+import javax.xml.transform.TransformerException;
 
 public class DeletePortMappingCall extends UPnPRemoteCall {
 
@@ -49,6 +55,12 @@ public class DeletePortMappingCall extends UPnPRemoteCall {
         addArgumentNode(ret, "NewExternalPort", String.valueOf(mNewExternalPort));
         addArgumentNode(ret, "NewProtocol", mNewProtocol);
         return ret;
+    }
+
+
+    public void send(URL serviceEndpoint) throws IOException, SAXException,
+            TransformerException, UPnPRPCError {
+        doSend(serviceEndpoint);
     }
 
 }

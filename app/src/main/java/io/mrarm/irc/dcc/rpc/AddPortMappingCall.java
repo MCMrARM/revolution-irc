@@ -1,89 +1,28 @@
 package io.mrarm.irc.dcc.rpc;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
-public class AddPortMappingCall extends UPnPRemoteCall {
+import java.io.IOException;
+import java.net.URL;
+
+import javax.xml.transform.TransformerException;
+
+public class AddPortMappingCall extends BaseAddPortMappingCall {
 
     public static final String ACTION_NAME = "AddPortMapping";
 
-    public static final String PROTOCOL_UDP = "UDP";
-    public static final String PROTOCOL_TCP = "TCP";
-
-    private final String mNamespace;
-    private String mNewRemoteHost;
-    private int mNewExternalPort; // required
-    private String mNewProtocol;
-    private int mNewInternalPort; // required
-    private String mNewInternalClient;
-    private boolean mNewEnabled = true;
-    private String mNewPortMappingDescription;
-    private int mNewLeaseDuration = 0;
-
     public AddPortMappingCall(String serviceType) {
-        mNamespace = serviceType;
-    }
-
-    public void setNewRemoteHost(String value) {
-        mNewRemoteHost = value;
-    }
-
-    public void setNewExternalPort(int value) {
-        mNewExternalPort = value;
-    }
-
-    public void setNewProtocol(String value) {
-        mNewProtocol = value;
-    }
-
-    public void setNewInternalPort(int value) {
-        mNewInternalPort = value;
-    }
-
-    public void setNewInternalClient(String value) {
-        mNewInternalClient = value;
-    }
-
-    public void setNewEnabled(boolean value) {
-        mNewEnabled = value;
-    }
-
-    public void setNewPortMappingDescription(String value) {
-        mNewPortMappingDescription = value;
-    }
-
-    public void setNewLeaseDuration(int value) {
-        mNewLeaseDuration = value;
-    }
-
-    @Override
-    protected boolean validate() {
-        return (mNewExternalPort != -1 && mNewProtocol != null && mNewInternalPort != -1 &&
-                mNewInternalClient != null);
+        super(serviceType);
     }
 
     protected String getActionName() {
         return ACTION_NAME;
     }
 
-    @Override
-    protected String getSOAPAction() {
-        return mNamespace + "#" + getActionName();
-    }
 
-    @Override
-    protected Element createRequest(Document document) {
-        Element ret = document.createElementNS(mNamespace, "u:" + getActionName());
-        addArgumentNode(ret, "NewRemoteHost", mNewRemoteHost != null ? mNewRemoteHost : "");
-        addArgumentNode(ret, "NewExternalPort", String.valueOf(mNewExternalPort));
-        addArgumentNode(ret, "NewProtocol", mNewProtocol);
-        addArgumentNode(ret, "NewInternalPort", String.valueOf(mNewInternalPort));
-        addArgumentNode(ret, "NewInternalClient", mNewInternalClient);
-        addArgumentNode(ret, "NewEnabled", mNewEnabled ? "1" : "0");
-        addArgumentNode(ret, "NewPortMappingDescription", mNewPortMappingDescription != null ?
-                mNewPortMappingDescription : "");
-        addArgumentNode(ret, "NewLeaseDuration", String.valueOf(mNewLeaseDuration));
-        return ret;
+    public void send(URL serviceEndpoint) throws IOException, SAXException, TransformerException,
+            UPnPRPCError {
+        doSend(serviceEndpoint);
     }
 
 }
