@@ -146,6 +146,8 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     @Override
     public void onElementSelected(RecyclerView recyclerView, int adapterPos) {
+        if (mSelectedItems.size() == 0)
+            mFragment.showMessagesActionMenu();
         mSelectedItems.add(adapterPos);
         onElementHighlighted(recyclerView, adapterPos, true);
     }
@@ -170,12 +172,10 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                     setSelected(!isSelected(), true);
             });
             v.setOnLongClickListener((View view) -> {
-                if (mSelectListener != null) {
+                if (mSelectListener != null && mSelectedItems.size() == 0) {
                     mSelectListener.startLongPressSelect();
                 } else {
-                    setSelected(true, true);
                     mMutliSelectListener.startSelectMode(getAdapterPosition());
-                    mFragment.showMessagesActionMenu();
                 }
                 return true;
             });

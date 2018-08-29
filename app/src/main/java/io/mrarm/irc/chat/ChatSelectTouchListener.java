@@ -20,6 +20,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import io.mrarm.irc.R;
+import io.mrarm.irc.util.LongPressSelectTouchListener;
 import io.mrarm.irc.util.RecyclerViewScrollerRunnable;
 import io.mrarm.irc.util.TextSelectionHandlePopup;
 import io.mrarm.irc.util.TextSelectionHelper;
@@ -50,6 +51,7 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
     private int mSelectionLongPressEnd = -1;
 
     private long mLastTouchTextId;
+    private boolean mLastTouchInText;
     private int mLastTouchTextOffset;
 
     private float mTouchDownX;
@@ -57,6 +59,8 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
 
     private TextSelectionHandlePopup mLeftHandle;
     private TextSelectionHandlePopup mRightHandle;
+
+    private LongPressSelectTouchListener mMultiSelectListener;
 
     private int[] mTmpLocation = new int[2];
     private int[] mTmpLocation2 = new int[2];
@@ -79,6 +83,10 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
         recyclerView.getViewTreeObserver().addOnScrollChangedListener(this::showHandles);
         recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(this::showHandles);
         recyclerView.addOnAttachStateChangeListener(this);
+    }
+
+    public void setMultiSelectListener(LongPressSelectTouchListener selectListener) {
+        mMultiSelectListener = selectListener;
     }
 
     @Override
@@ -149,12 +157,23 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
         TextView textView = findTextViewIn(view);
         if (textView == null)
             return mSelectionLongPressMode;
-        view.getLocationOnScreen(mTmpLocation);
+        textView.getLocationOnScreen(mTmpLocation);
         float viewX = rawX - mTmpLocation[0];
         float viewY = rawY - mTmpLocation[1];
 
+        float tViewY = Math.min(Math.max(viewY, 0), textView.getHeight() -
+                textView.getCompoundPaddingBottom()) - textView.getCompoundPaddingTop();
+        float tViewX = Math.min(Math.max(viewX, 0), textView.getWidth() -
+                textView.getCompoundPaddingRight()) - textView.getCompoundPaddingLeft();
+
         mLastTouchTextId = id;
-        mLastTouchTextOffset = textView.getOffsetForPosition(viewX, viewY);
+        int line = textView.getLayout().getLineForVertical((int) tViewY);
+        mLastTouchTextOffset = textView.getLayout().getOffsetForHorizontal(line, tViewX);
+        mLastTouchInText = viewX >= textView.getCompoundPaddingLeft() &&
+                viewX <= textView.getWidth() - textView.getCompoundPaddingEnd() &&
+                viewY >= textView.getCompoundPaddingTop() &&
+                viewY <= textView.getHeight() - textView.getCompoundPaddingBottom() &&
+                tViewX <= textView.getLayout().getLineWidth(line);
         if (mSelectionLongPressMode) {
             long sel = TextSelectionHelper.getWordAt(textView.getText(), mLastTouchTextOffset,
                     mLastTouchTextOffset + 1);
@@ -176,6 +195,8 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
 
     @Override
     public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+        if (((ChatMessagesAdapter) mRecyclerView.getAdapter()).getSelectedItems().size() > 0)
+            return false;
         if (e.getActionMasked() == MotionEvent.ACTION_DOWN) {
             mTouchDownX = e.getX();
             mTouchDownY = e.getY();
@@ -222,6 +243,12 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
 
     public void startLongPressSelect() {
         clearSelection();
+
+        ((ChatMessagesAdapter) mRecyclerView.getAdapter()).clearSelection(mRecyclerView);
+        if (!mLastTouchInText && mMultiSelectListener != null) {
+            mMultiSelectListener.startSelectMode(getItemPosition(mLastTouchTextId));
+            return;
+        }
 
         TextView textView = findTextViewByItemId(mLastTouchTextId);
         if (textView == null)

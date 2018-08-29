@@ -30,6 +30,7 @@ public class LongPressSelectTouchListener implements RecyclerView.OnItemTouchLis
         mSelectMode = true;
         mStartElementPos = startPos;
         mEndElementPos = -1;
+        mListener.onElementSelected(mRecyclerView, startPos);
     }
 
     public void setListener(Listener listener) {

@@ -251,23 +251,25 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
 
         if (mAdapter != null) {
             mRecyclerView.setAdapter(mAdapter);
-            if (SettingsHelper.getInstance(getContext()).getChatUseMultiSelect()) {
-                LongPressSelectTouchListener selectTouchListener =
-                        new LongPressSelectTouchListener(mRecyclerView);
-                mAdapter.setMultiSelectListener(selectTouchListener);
-                mRecyclerView.addOnItemTouchListener(selectTouchListener);
-            } else {
-                ChatSelectTouchListener selectTouchListener =
+
+            LongPressSelectTouchListener selectTouchListener =
+                    new LongPressSelectTouchListener(mRecyclerView);
+            mAdapter.setMultiSelectListener(selectTouchListener);
+            mRecyclerView.addOnItemTouchListener(selectTouchListener);
+
+            if (!SettingsHelper.getInstance(getContext()).getChatUseMultiSelect()) {
+                ChatSelectTouchListener newSelectTouchListener =
                         new ChatSelectTouchListener(mRecyclerView);
-                selectTouchListener.setActionModeStateCallback((android.view.ActionMode actionMode,
+                newSelectTouchListener.setMultiSelectListener(selectTouchListener);
+                newSelectTouchListener.setActionModeStateCallback((android.view.ActionMode actionMode,
                                                                 boolean b) -> {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
                             actionMode.getType() == android.view.ActionMode.TYPE_FLOATING)
                         return;
                     ((ChatFragment) getParentFragment()).setTabsHidden(b);
                 });
-                mAdapter.setSelectListener(selectTouchListener);
-                mRecyclerView.addOnItemTouchListener(selectTouchListener);
+                mAdapter.setSelectListener(newSelectTouchListener);
+                mRecyclerView.addOnItemTouchListener(newSelectTouchListener);
             }
         } else if (mStatusAdapter != null) {
             mRecyclerView.setAdapter(mStatusAdapter);
