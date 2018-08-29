@@ -288,7 +288,7 @@ public class MessageFormatSettingsActivity extends ThemedActivity {
 
     public static SpannableString buildPresetMessageFormat(Context context, int preset, boolean mention, boolean prefix) {
         if (preset == 0) {
-            SpannableString spannable = new SpannableString("  |" + (prefix ? " " : "") + " :  ");
+            SpannableString spannable = new SpannableString("\0 |" + (prefix ? "\0" : "") + "\0: \0");
             spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_TIMESTAMP), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
             spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_SENDER), 3, prefix ? 6 : 5, MessageBuilder.FORMAT_SPAN_FLAGS);
             spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_TIME), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
@@ -304,7 +304,7 @@ public class MessageFormatSettingsActivity extends ThemedActivity {
             return spannable;
         }
         if (preset == 1) {
-            SpannableString spannable = new SpannableString("  |<" + (prefix ? " " : "") + " >  ");
+            SpannableString spannable = new SpannableString("\0 |<" + (prefix ? "\0" : "") + "\0> \0");
             spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_TIMESTAMP), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
             spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_TIMESTAMP), 3, 4, MessageBuilder.FORMAT_SPAN_FLAGS);
             spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_SENDER), 4, prefix ? 6 : 5, MessageBuilder.FORMAT_SPAN_FLAGS);
@@ -326,7 +326,7 @@ public class MessageFormatSettingsActivity extends ThemedActivity {
 
     public static SpannableString buildActionPresetMessageFormat(Context context, int preset, boolean mention) {
         if (preset == 0 || preset == 1) {
-            SpannableString spannable = new SpannableString("  |*    ");
+            SpannableString spannable = new SpannableString("\0 |* \0 \0");
             spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_TIMESTAMP), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
             if (preset == 0)
                 spannable.setSpan(new StyleSpan(Typeface.ITALIC), 3, 8, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
@@ -348,7 +348,7 @@ public class MessageFormatSettingsActivity extends ThemedActivity {
 
     public static SpannableString buildNoticePresetMessageFormat(Context context, int preset) {
         if (preset == 0) {
-            SpannableString spannable = new SpannableString("  | :  ");
+            SpannableString spannable = new SpannableString("\0 |\0: \0");
             spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_TIMESTAMP), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
             spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_SENDER), 3, 7, MessageBuilder.FORMAT_SPAN_FLAGS);
             spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_TIME), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
@@ -359,7 +359,7 @@ public class MessageFormatSettingsActivity extends ThemedActivity {
             return spannable;
         }
         if (preset == 1) {
-            SpannableString spannable = new SpannableString("  |- -  ");
+            SpannableString spannable = new SpannableString("\0 |-\0- \0");
             spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_TIMESTAMP), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
             spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_SENDER), 3, 6, MessageBuilder.FORMAT_SPAN_FLAGS);
             spannable.setSpan(new MessageBuilder.MetaChipSpan(context, MessageBuilder.MetaChipSpan.TYPE_TIME), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
@@ -373,7 +373,7 @@ public class MessageFormatSettingsActivity extends ThemedActivity {
 
     public static SpannableString buildEventPresetMessageFormat(Context context, int preset) {
         if (preset == 0 || preset == 1) {
-            SpannableString spannable = new SpannableString("  |*  ");
+            SpannableString spannable = new SpannableString("\0 |* \0");
             spannable.setSpan(new MessageBuilder.MetaForegroundColorSpan(context, MessageBuilder.MetaForegroundColorSpan.COLOR_TIMESTAMP), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
             if (preset == 0)
                 spannable.setSpan(new StyleSpan(Typeface.ITALIC), 3, 6, MessageBuilder.FORMAT_SPAN_FLAGS);
@@ -390,7 +390,7 @@ public class MessageFormatSettingsActivity extends ThemedActivity {
         EditText editText = mTextFormatBar.getEditText();
         int sStart = editText.getSelectionStart();
         int sEnd = editText.getSelectionEnd();
-        SpannableString ss = new SpannableString(" ");
+        SpannableString ss = new SpannableString("\0");
         ss.setSpan(new MessageBuilder.MetaChipSpan(this, type), 0, 1, MessageBuilder.FORMAT_SPAN_FLAGS);
         editText.getText().replace(sStart, sEnd, ss);
         refreshExamples();
