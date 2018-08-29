@@ -414,6 +414,7 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
                                     " port mapping");
                         mUploadPortMappings.put(upload, mapping);
                     }
+                    mServer.setUploadPortForwarded(upload, mapping.getExternalPort());
                     server.getApiInstance().sendMessage(channel, DCCUtils.buildSendMessage(
                             mapping.getExternalIP(), fileName, mapping.getExternalPort(), fileSize),
                             null, null);
