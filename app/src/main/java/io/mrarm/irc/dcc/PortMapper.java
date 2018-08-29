@@ -62,7 +62,8 @@ public class PortMapper {
                             new AddAnyPortMappingCall(service.getServiceType());
                     fillInCallData(call, request, localIP);
                     AddAnyPortMappingResponse resp = call.send(serviceURL);
-                    return new PortMappingResult(resp.getNewReservedPort());
+                    return new PortMappingResult(request, resp.getNewReservedPort(),
+                            service.getServiceType(), serviceURL);
                 } catch (Exception e) {
                     Log.w("PortMapper", "Failed to send AddAnyPortMapping request");
                     e.printStackTrace();
@@ -79,7 +80,8 @@ public class PortMapper {
                     if (attempt != 0)
                         call.setNewExternalPort(1024 + new Random().nextInt(65535 - 1024));
                     call.send(serviceURL);
-                    return new PortMappingResult(call.getNewExternalPort());
+                    return new PortMappingResult(request, call.getNewExternalPort(),
+                            service.getServiceType(), serviceURL);
                 } catch (Exception e) {
                     if (e instanceof UPnPRPCError) {
                         Log.w("PortMapper", "UPnP Error: " +
@@ -111,10 +113,16 @@ public class PortMapper {
     public static void removePortMapping(String serviceType, URL serviceURL,
                                          int port, String protocol)
             throws IOException, TransformerException, UPnPRPCError, SAXException {
-        DeletePortMappingCall test = new DeletePortMappingCall(serviceType);
-        test.setNewExternalPort(port);
-        test.setNewProtocol(protocol);
-        test.send(serviceURL);
+        DeletePortMappingCall call = new DeletePortMappingCall(serviceType);
+        call.setNewExternalPort(port);
+        call.setNewProtocol(protocol);
+        call.send(serviceURL);
+    }
+
+    public static void removePortMapping(PortMappingResult result) throws UPnPRPCError,
+            SAXException, TransformerException, IOException {
+        removePortMapping(result.mServiceType, result.mServiceURL, result.getExternalPort(),
+                result.getRequest().mProtocol);
     }
 
     private static UPnPDeviceDescription.Service getWANService(
@@ -177,10 +185,21 @@ public class PortMapper {
 
     public static class PortMappingResult {
 
+        private PortMappingRequest mRequest;
         private int mExternalPort;
+        private String mServiceType;
+        private URL mServiceURL;
 
-        public PortMappingResult(int externalPort) {
+        public PortMappingResult(PortMappingRequest request, int externalPort, String serviceType,
+                                 URL serviceURL) {
+            mRequest = request;
             mExternalPort = externalPort;
+            mServiceType = serviceType;
+            mServiceURL = serviceURL;
+        }
+
+        public PortMappingRequest getRequest() {
+            return mRequest;
         }
 
         public int getExternalPort() {
