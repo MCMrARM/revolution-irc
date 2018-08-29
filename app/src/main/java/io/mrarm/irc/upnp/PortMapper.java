@@ -1,4 +1,4 @@
-package io.mrarm.irc.dcc;
+package io.mrarm.irc.upnp;
 
 import android.util.Log;
 
@@ -12,12 +12,12 @@ import java.util.Random;
 
 import javax.xml.transform.TransformerException;
 
-import io.mrarm.irc.dcc.rpc.AddAnyPortMappingCall;
-import io.mrarm.irc.dcc.rpc.AddAnyPortMappingResponse;
-import io.mrarm.irc.dcc.rpc.AddPortMappingCall;
-import io.mrarm.irc.dcc.rpc.BaseAddPortMappingCall;
-import io.mrarm.irc.dcc.rpc.DeletePortMappingCall;
-import io.mrarm.irc.dcc.rpc.UPnPRPCError;
+import io.mrarm.irc.upnp.rpc.AddAnyPortMappingCall;
+import io.mrarm.irc.upnp.rpc.AddAnyPortMappingResponse;
+import io.mrarm.irc.upnp.rpc.AddPortMappingCall;
+import io.mrarm.irc.upnp.rpc.BaseAddPortMappingCall;
+import io.mrarm.irc.upnp.rpc.DeletePortMappingCall;
+import io.mrarm.irc.upnp.rpc.UPnPRPCError;
 
 public class PortMapper {
 

@@ -1,4 +1,4 @@
-package io.mrarm.irc.dcc.rpc;
+package io.mrarm.irc.upnp.rpc;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -9,7 +9,7 @@ import java.net.URL;
 
 import javax.xml.transform.TransformerException;
 
-import io.mrarm.irc.dcc.XMLParseHelper;
+import io.mrarm.irc.upnp.XMLParseHelper;
 
 public class AddAnyPortMappingCall extends BaseAddPortMappingCall {
 

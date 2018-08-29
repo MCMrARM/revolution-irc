@@ -1,4 +1,4 @@
-package io.mrarm.irc.dcc;
+package io.mrarm.irc.upnp;
 
 public class UPnPTypes {
 

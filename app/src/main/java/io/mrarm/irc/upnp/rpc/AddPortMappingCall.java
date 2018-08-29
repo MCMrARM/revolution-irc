@@ -1,4 +1,4 @@
-package io.mrarm.irc.dcc.rpc;
+package io.mrarm.irc.upnp.rpc;
 
 import org.xml.sax.SAXException;
 

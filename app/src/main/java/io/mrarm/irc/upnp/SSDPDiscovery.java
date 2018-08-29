@@ -1,4 +1,4 @@
-package io.mrarm.irc.dcc;
+package io.mrarm.irc.upnp;
 
 import android.os.Build;
 import android.util.Log;

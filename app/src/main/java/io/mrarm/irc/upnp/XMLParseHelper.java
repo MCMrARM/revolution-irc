@@ -1,4 +1,4 @@
-package io.mrarm.irc.dcc;
+package io.mrarm.irc.upnp;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

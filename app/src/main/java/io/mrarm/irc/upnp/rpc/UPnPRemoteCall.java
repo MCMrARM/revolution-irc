@@ -1,4 +1,4 @@
-package io.mrarm.irc.dcc.rpc;
+package io.mrarm.irc.upnp.rpc;
 
 import android.util.Log;
 
@@ -24,7 +24,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import io.mrarm.irc.dcc.XMLParseHelper;
+import io.mrarm.irc.upnp.XMLParseHelper;
 
 public abstract class UPnPRemoteCall {
 
