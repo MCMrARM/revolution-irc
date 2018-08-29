@@ -52,6 +52,8 @@ import io.mrarm.chatlib.irc.dcc.DCCReverseClient;
 import io.mrarm.chatlib.irc.dcc.DCCServer;
 import io.mrarm.chatlib.irc.dcc.DCCServerManager;
 import io.mrarm.chatlib.irc.dcc.DCCUtils;
+import io.mrarm.irc.upnp.PortMapper;
+import io.mrarm.irc.upnp.rpc.AddPortMappingCall;
 import io.mrarm.irc.util.FormatUtils;
 
 public class DCCManager implements DCCServerManager.UploadListener, DCCClient.CloseListener,
@@ -76,6 +78,7 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
     private final DCCHistory mHistory;
     private final Map<DCCServer, DCCServerManager.UploadEntry> mUploads = new HashMap<>();
     private final Map<DCCServerManager.UploadEntry, UploadServerInfo> mUploadServers = new HashMap<>();
+    private final Map<DCCServerManager.UploadEntry, PortMapper.PortMappingResult> mUploadPortMappings = new HashMap<>();
     private final List<DCCServer.UploadSession> mSessions = new ArrayList<>();
     private final List<DownloadInfo> mDownloads = new ArrayList<>();
     private final List<DownloadListener> mDownloadListeners = new ArrayList<>();
@@ -224,6 +227,24 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
         synchronized (mUploads) {
             mUploads.remove(uploadEntry.getServer());
             mUploadServers.remove(uploadEntry);
+
+            PortMapper.PortMappingResult mapping;
+            if ((mapping = mUploadPortMappings.remove(uploadEntry)) != null) {
+                if (Thread.currentThread() == Looper.getMainLooper().getThread())
+                    AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> deleteUploadPortMapping(mapping));
+                else
+                    deleteUploadPortMapping(mapping);
+            }
+        }
+    }
+
+    private void deleteUploadPortMapping(PortMapper.PortMappingResult mapping) {
+        try {
+            PortMapper.removePortMapping(mapping);
+        } catch (Exception e) {
+            Log.w("DCCManager", "Failed to remove port mapping for port " +
+                    mapping.getExternalPort());
+            e.printStackTrace();
         }
     }
 
@@ -368,13 +389,67 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
     }
 
     public List<DownloadInfo> getDownloads() {
-        synchronized (mSessions) {
+        synchronized (mDownloads) {
             return new ArrayList<>(mDownloads);
         }
     }
 
-    public Object getSessionsSyncObject() {
-        return mSessions;
+    public void startUpload(ServerConnectionInfo server, String channel,
+                            DCCServer.FileChannelFactory file, String fileName, long fileSize) {
+        ServerConnectionData connectionData = ((ServerConnectionApi) server.getApiInstance())
+                .getServerConnectionData();
+
+        if (ServerConnectionManager.isWifiConnected(mContext)) {
+            AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
+                DCCServerManager.UploadEntry upload = null;
+                PortMapper.PortMappingResult mapping = null;
+                try {
+                    upload = mServer.startUpload(connectionData, channel, fileName, file);
+                    mapping = PortMapper.mapPort(new PortMapper.PortMappingRequest(
+                            AddPortMappingCall.PROTOCOL_TCP, upload.getPort(),
+                            upload.getPort(), "Revolution IRC DCC transfer"));
+                    synchronized (mUploads) {
+                        if (!mUploads.containsKey(upload.getServer()))
+                            throw new IOException("Upload cancelled while we were setting up" +
+                                    " port mapping");
+                        mUploadPortMappings.put(upload, mapping);
+                    }
+                    server.getApiInstance().sendMessage(channel, DCCUtils.buildSendMessage(
+                            mapping.getExternalIP(), fileName, mapping.getExternalPort(), fileSize),
+                            null, null);
+                } catch (IOException e) {
+                    e.printStackTrace();
+
+                    mHandler.post(() -> Toast
+                            .makeText(mContext, R.string.error_generic, Toast.LENGTH_SHORT).show());
+                    if (upload != null)
+                        mServer.cancelUpload(upload);
+                    if (mapping != null) {
+                        try {
+                            PortMapper.removePortMapping(mapping);
+                        } catch (Exception e2) {
+                            Log.w("DCCManager", "Failed to remove port mapping " +
+                                    "in error handler");
+                            e2.printStackTrace();
+                        }
+                    }
+
+                    // fall back to reverse DCC
+                    upload = mServer.addReverseUpload(connectionData, channel, fileName, file);
+                    server.getApiInstance().sendMessage(channel, DCCUtils.buildSendMessage(
+                            "0.0.0.0", fileName, 0, fileSize, upload.getReverseId()),
+                            null, null);
+                }
+            });
+        } else {
+            // fall back to reverse DCC
+            DCCServerManager.UploadEntry upload = mServer.addReverseUpload(
+                    connectionData, channel, fileName, file);
+            server.getApiInstance().sendMessage(channel, DCCUtils.buildSendMessage(
+                    "0.0.0.0", fileName, 0, fileSize,
+                    upload.getReverseId()),
+                    null, null);
+        }
     }
 
 
