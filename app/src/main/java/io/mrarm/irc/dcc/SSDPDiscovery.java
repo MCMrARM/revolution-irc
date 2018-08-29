@@ -40,6 +40,10 @@ public class SSDPDiscovery {
         mDiscoverySocket = new DatagramSocket(0);
     }
 
+    public void close() {
+        mDiscoverySocket.close();
+    }
+
     public void sendSearch(String deviceType, int waitSeconds) throws IOException {
         byte[] request = buildSearchRequest(deviceType, waitSeconds).getBytes("UTF-8");
         mDiscoverySocket.send(new DatagramPacket(request, request.length, BROADCAST_ADDR));
@@ -53,8 +57,9 @@ public class SSDPDiscovery {
     }
 
     public Response receive() throws IOException {
-        int timeout = mReceiveTimeout > 0
-                ? (int) (mReceiveTimeout - System.currentTimeMillis()) : 0;
+        int timeout = 0;
+        if (mReceiveTimeout > 0)
+            timeout = Math.max((int) (mReceiveTimeout - System.currentTimeMillis()), 1);
         mDiscoverySocket.setSoTimeout(timeout);
         try {
             mDiscoverySocket.receive(mReceivePacket);
