@@ -161,8 +161,10 @@ public class ChannelInfoAdapter extends RecyclerView.Adapter {
                 topicInfoTextView.setText(SpannableStringHelper.getText(
                         topicInfoTextView.getContext(), R.string.channel_topic_info,
                         topicSetByColored, topicSetOnStr));
+                topicInfoTextView.setVisibility(View.VISIBLE);
             } else {
                 topicInfoTextView.setText(null);
+                topicInfoTextView.setVisibility(View.GONE);
             }
         }
 
