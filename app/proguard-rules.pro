@@ -26,3 +26,7 @@
 
 -dontobfuscate
 -optimizations !code/allocation/variable
+
+-keep public class * extends io.mrarm.irc.util.EntryRecyclerViewAdapter$EntryHolder {
+    <init>(...);
+}
