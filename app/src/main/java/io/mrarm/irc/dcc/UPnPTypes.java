@@ -13,5 +13,7 @@ public class UPnPTypes {
             "WANIPConnection:1";
     public static final String UPNP_WAN_PPP_CONNECTION_V1 = UPNP_SERVICE_PREFIX +
             "WANPPPConnection:1";
+    public static final String UPNP_WAN_IP_CONNECTION_V2 = UPNP_SERVICE_PREFIX +
+            "WANIPConnection:2";
 
 }

@@ -74,6 +74,7 @@ public class UPnPDeviceDescription {
 
         private String mServiceType;
         private String mControlURL;
+        private String mSCPDURL;
 
         public String getServiceType() {
             return mServiceType;
@@ -81,6 +82,10 @@ public class UPnPDeviceDescription {
 
         public String getControlURL() {
             return mControlURL;
+        }
+
+        public String getSCPDURL() {
+            return mSCPDURL;
         }
 
     }
@@ -201,6 +206,8 @@ public class UPnPDeviceDescription {
                 mService.mServiceType = mContent.toString();
             else if (localName.equals("controlURL"))
                 mService.mControlURL = mContent.toString();
+            else if (localName.equals("SCPDURL"))
+                mService.mSCPDURL = mContent.toString();
             else if (localName.equals("service"))
                 mReader.setContentHandler(mParent);
         }

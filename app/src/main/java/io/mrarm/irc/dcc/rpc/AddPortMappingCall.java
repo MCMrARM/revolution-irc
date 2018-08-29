@@ -5,6 +5,8 @@ import org.w3c.dom.Element;
 
 public class AddPortMappingCall extends UPnPRemoteCall {
 
+    public static final String ACTION_NAME = "AddPortMapping";
+
     public static final String PROTOCOL_UDP = "UDP";
     public static final String PROTOCOL_TCP = "TCP";
 
@@ -60,14 +62,18 @@ public class AddPortMappingCall extends UPnPRemoteCall {
                 mNewInternalClient != null);
     }
 
+    protected String getActionName() {
+        return ACTION_NAME;
+    }
+
     @Override
     protected String getSOAPAction() {
-        return mNamespace + "#AddPortMapping";
+        return mNamespace + "#" + getActionName();
     }
 
     @Override
     protected Element createRequest(Document document) {
-        Element ret = document.createElementNS(mNamespace, "u:AddPortMapping");
+        Element ret = document.createElementNS(mNamespace, "u:" + getActionName());
         addArgumentNode(ret, "NewRemoteHost", mNewRemoteHost != null ? mNewRemoteHost : "");
         addArgumentNode(ret, "NewExternalPort", String.valueOf(mNewExternalPort));
         addArgumentNode(ret, "NewProtocol", mNewProtocol);
