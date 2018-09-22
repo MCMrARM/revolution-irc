@@ -154,8 +154,10 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
                 NotificationActionReceiver.getReplyIntent(context, mConnection, mChannel,
                         mNotificationId),
                 PendingIntent.FLAG_UPDATE_CURRENT);
+        int replyIcon = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ?
+                R.drawable.ic_reply : R.drawable.ic_notification_reply;
         NotificationCompat.Action replyAction = new NotificationCompat.Action.Builder(
-                R.drawable.ic_reply, context.getString(R.string.action_reply), replyIntent)
+                replyIcon, context.getString(R.string.action_reply), replyIntent)
                 .addRemoteInput(new RemoteInput.Builder(NotificationActionReceiver.KEY_REPLY_TEXT)
                         .setLabel(context.getString(R.string.action_reply))
                         .build())
