@@ -21,7 +21,7 @@
 
     <string name="message_host_info">Server name is %s, running %s. Supported user modes: %s, supported channel modes: %s</string>
     <string name="message_motd">Message of the Day</string>
-    <string name="message_whois">%s\'s user information</string>
+    <string name="message_whois">%s\'s user info</string>
 
     <string name="message_mode">%s %s</string>
     <string name="message_mode_set">set %s</string>
@@ -47,7 +47,7 @@
     <string name="message_ctcp_version">Received a CTCP version</string>
 
     <string name="command_error_not_found">No such command was found.</string>
-    <string name="command_error_internal">An internal error occurred when trying to process the command.</string>
+    <string name="command_error_internal">Could not process the command.</string>
 
     <string name="command_send_raw">Send as raw</string>
 
@@ -148,11 +148,11 @@
 
     <string name="connection_error_no_nick">No nick set</string>
 
-    <string name="connection_error_command_title">Error processing post-connect commands</string>
-    <string name="connection_error_command_notification_desc">An internal error has occurred while trying to process post-connect commands.</string>
+    <string name="connection_error_command_title">Error</string>
+    <string name="connection_error_command_notification_desc">Could not process post-connect commands.</string>
     <plurals name="connection_error_command_dialog_content">
-        <item quantity="one">An error has occurred processing the following command for the network \"%s\":\n\n%s</item>
-        <item quantity="other">An error has occurred processing the following commands for the network \"%s\":\n\n%s</item>
+        <item quantity="one">Could not process the following command for the network \"%s\":\n\n%s</item>
+        <item quantity="other">Could not process the following commands for the network \"%s\":\n\n%s</item>
     </plurals>
 
     <!-- Server list -->
@@ -170,7 +170,7 @@
 
     <string name="add_server">Add a new server</string>
     <string name="edit_server">Edit a server</string>
-    <string name="server_save_error">Failed to save server information</string>
+    <string name="server_save_error">Could not save server info</string>
     <string name="server_error_name_collision">A server with this name already exists</string>
     <string name="server_error_name_empty">Server name cannot be empty</string>
     <string name="server_error_invalid_address">Invalid address</string>
@@ -207,11 +207,11 @@
 
     <!-- Certificate error dialog -->
 
-    <string name="certificate_error">Failed to verify %s\'s certificate</string>
+    <string name="certificate_error">Could not verify %s\'s certificate</string>
     <string name="certificate_error_ignore">Accept and continue</string>
     <string name="certificate_bad_cert">The following certificate is not recognized by the system:</string>
     <string name="certificate_bad_hostname">The hostname provided in the certificate (%1$s) by the host does not match the hostname we are connecting to (%2$s).</string>
-    <string name="certificate_error_footer">You shouldn\'t accept this certificate if you aren\'t sure what this means.</string>
+    <string name="certificate_error_footer">Don\'t accept this certificate if you aren\'t sure what this means.</string>
     <string name="certificate_error_remember">Remember exception</string>
 
     <!-- Channel list -->
@@ -248,7 +248,7 @@
     <string name="text_and">" and "</string>
 
     <string name="error_generic">An error has occurred.</string>
-    <string name="error_file_open">Failed to open the file.</string>
+    <string name="error_file_open">Could not open the file.</string>
 
     <!-- Time -->
 
@@ -271,7 +271,7 @@
 
     <!-- User settings -->
 
-    <string name="pref_header_user">User information</string>
+    <string name="pref_header_user">User info</string>
 
     <string name="pref_title_default_nick">Default nicknames</string>
     <string name="pref_title_default_user">Default user</string>
@@ -286,13 +286,13 @@
 
     <string name="pref_header_interface">Interface</string>
 
-    <string name="pref_title_dark_theme">Dark theme</string>
+    <string name="pref_title_dark_theme">Dark</string>
     <string name="pref_summary_dark_theme">Apply a dark theme to the interface</string>
     <string name="pref_title_primary_color">Primary color</string>
     <string name="pref_title_accent_color">Accent color</string>
     <string name="pref_title_font">Font</string>
     <string name="pref_title_font_size">Font size</string>
-    <string name="pref_title_hide_join_part">Hide Join/Part messages</string>
+    <string name="pref_title_hide_join_part">Hide join/part messages</string>
     <string name="pref_summary_hide_join_part">Hide all join and leave (part/quit) messages.</string>
     <string name="pref_title_autocorrect">Enable text auto-correct</string>
     <string name="pref_summary_autocorrect">Enable the keyboard-provided auto-correct</string>
@@ -300,7 +300,7 @@
     <string name="pref_title_message_format">Message format</string>
     <string name="pref_title_nick_autocomplete">Nick/channel autocomplete</string>
     <string name="pref_title_chat_box_always_multiline">Multiline send text box</string>
-    <string name="pref_summary_chat_box_always_multiline">Enables word-wrap in the text box and replaces the send button with an enter in the IME.</string>
+    <string name="pref_summary_chat_box_always_multiline">Enables word-wrap in the text box and replaces the send button with \"↵\" in the IME.</string>
     <string name="pref_title_chat_box_history_swipe_mode">History swipe-based navigation mode</string>
     <string name="pref_title_chat_mutli_scroll_mode">Use a batch message selection mode</string>
     <string name="pref_summary_chat_mutli_scroll_mode">Always enables the old batch message selection mode</string>
@@ -315,7 +315,7 @@
     <string name="pref_summary_nick_autocomplete_suggestions">Show nick suggestions after typing at least two characters</string>
     <string name="pref_title_nick_autocomplete_at_suggestions">Suggest nicks after a \'@\'</string>
     <string name="pref_summary_nick_autocomplete_at_suggestions">Show nick suggestions after a \'@\' character</string>
-    <string name="pref_title_nick_autocomplete_at_suggestions_remove_at">Automatically remove the \'@\'</string>
+    <string name="pref_title_nick_autocomplete_at_suggestions_remove_at">Remove the \'@\' automatically</string>
     <string name="pref_summary_nick_autocomplete_at_suggestions_remove_at">Remove the \'@\' character after selecting a suggestion</string>
     <string name="pref_title_channel_autocomplete_suggestions">Suggest channels</string>
     <string name="pref_summary_channel_autocomplete_suggestions">Show channel suggestions after typing a \'#\' character</string>
@@ -386,7 +386,7 @@
     <string name="pref_header_notifications">Notifications</string>
 
     <string name="notification_custom_rules">Custom rules</string>
-    <string name="notification_tip_no_custom_rules">There are no custom rules. You can add one with the plus button in the bottom right corner.</string>
+    <string name="notification_tip_no_custom_rules">There are no custom rules. You can add one with the \"+\" button in the bottom right corner.</string>
     <string name="notification_custom_rule_deleted">Notification rule deleted.</string>
     <string name="notification_rule_name_collision">A notification rule with this name already exists</string>
     <string name="notification_rule_regex_invalid">Invalid Regex</string>
@@ -446,12 +446,12 @@
     <!-- Reconnect settings -->
 
     <string name="pref_header_reconnect">Reconnection</string>
-    <string name="pref_title_auto_reconnect">Automatically reconnect</string>
-    <string name="pref_description_auto_reconnect">Automatically attempt reconnection after a connection loss</string>
+    <string name="pref_title_auto_reconnect">Reconnect automatically</string>
+    <string name="pref_description_auto_reconnect">Attempt reconnection automatically following a loss of connection</string>
     <string name="pref_title_reconnect_connchg">Track connectivity changes</string>
-    <string name="pref_description_reconnect_connchg">Automatically attempt reconnection after a connectivity change</string>
-    <string name="pref_title_reconnect_wifi">Only reconnect on WiFi</string>
-    <string name="pref_description_reconnect_wifi">Only attempt reconnection while using a WiFi connection</string>
+    <string name="pref_description_reconnect_connchg">Attempt reconnection automatically after a connectivity change</string>
+    <string name="pref_title_reconnect_wifi">Only reconnect on Wi-Fi</string>
+    <string name="pref_description_reconnect_wifi">Only attempt reconnection while using a Wi-Fi connection</string>
     <string name="pref_title_reconnect_pattern">Reconnection interval</string>
     <string name="reconnect_header_interval">Interval</string>
     <string name="reconnect_header_tries">Tries</string>
@@ -471,8 +471,8 @@
 
     <string name="pref_title_ping_enabled">Periodically send a heartbeat</string>
     <string name="pref_description_ping_enabled">Periodically send a heartbeat (ping) to the server in order to make sure the connection is still alive. This may increase battery drain.</string>
-    <string name="pref_title_ping_wifi">Only send a heartbeat on WiFi</string>
-    <string name="pref_description_ping_wifi">Only send a heartbeat when using a WiFi connection</string>
+    <string name="pref_title_ping_wifi">Only send a heartbeat on Wi-Fi</string>
+    <string name="pref_description_ping_wifi">Only send a heartbeat when using a Wi-Fi connection</string>
     <string name="pref_title_ping_interval">Heartbeat interval</string>
 
     <!-- Command aliases settings -->
@@ -503,7 +503,7 @@
     <string name="pref_storage_configuration_title">Configuration</string>
 
     <string name="pref_storage_reset_configuration">Reset configuration</string>
-    <string name="pref_storage_reset_configuration_confirm">Are you sure you want to reset the application\'s configuration? All server and chat history data will be lost.</string>
+    <string name="pref_storage_reset_configuration_confirm">Are you sure you want to reset the app\'s configuration? All server and chat history data will be lost.</string>
 
     <string name="pref_storage_clear_all_chat_logs">Delete all chat logs</string>
     <string name="pref_storage_clear_all_chat_logs_confirm">Are you sure you want to delete all chat logs?</string>
@@ -535,17 +535,17 @@
     <string name="title_activity_backup_progress">Creating a backup</string>
     <string name="title_activity_backup_progress_restore">Restoring a backup</string>
 
-    <string name="backup_desc">To be able to restore the application settings later, for example after a system reinstall you might want to create a configuration backup and save it somewhere safe.</string>
-    <string name="backup_password_text">The backup will contain all of your settings, including server information and unencrypted passwords. It is recommended to set a password that will be required to restore the data from the backup.</string>
+    <string name="backup_desc">To be able to restore the app settings later, for example following a system reinstall you might want to create a configuration backup and save it somewhere safe.</string>
+    <string name="backup_password_text">The backup will contain all of your settings, including server info and unencrypted passwords. It is recommended to set a password that will be required to restore the data from the backup.</string>
     <string name="backup_restore_password_text">The specified backup is protected with a password. To be able to restore it, you need to enter the password.</string>
 
-    <string name="backup_created">The backup file was successfully created.</string>
-    <string name="backup_cancelled">Backup creation has been cancelled.</string>
-    <string name="backup_restored">The backup file was successfully restored.</string>
-    <string name="backup_restore_cancelled">Restoration has been cancelled.</string>
+    <string name="backup_created">Backup file created.</string>
+    <string name="backup_cancelled">Backup creation cancelled.</string>
+    <string name="backup_restored">Backup file restored.</string>
+    <string name="backup_restore_cancelled">Restoration cancelled.</string>
     <string name="backup_restore_invalid">The specified backup file is invalid.</string>
     <string name="backup_restore_invalid_password">Invalid password</string>
-    <string name="backup_restore_password_not_empty">The password must not be empty</string>
+    <string name="backup_restore_password_not_empty">The password can not be empty</string>
 
     <!-- Setup -->
 
@@ -622,17 +622,17 @@
 
     <string name="dcc_approve_download_title">DCC file: %s</string>
     <string name="dcc_approve_download_title_with_size">DCC file: %s (%s)</string>
-    <string name="dcc_approve_download_body">%s (from server: %s) has sent you a file.\n\nWarning: This download will be transmitted over an insecure &amp; unencrypted connection. Accepting this download will allow the other party to see your IP address. You should accept it only if you trust this user.</string>
+    <string name="dcc_approve_download_body">%s (from server: %s) has sent you a file.\n\nWarning: This download will be transmitted over an insecure &amp; unencrypted connection. Accepting this download will allow the other party to see your IP address. Only accept if you trust this user.</string>
     <string name="dcc_approve_download_enable_anyway">Enable anyway</string>
 
     <string name="dcc_enable_send_warning_title">Security warning</string>
-    <string name="dcc_enable_send_warning_body">DCC is a legacy peer to peer file sharing protocol and the files are sent over an insecure and unencrypted connection. This means that all data sent using the feature can potentially be copied or manipulated by attackers, especially on public WiFi networks.\nAdditionally, due to the protocol\'s nature when you share files using DCC, you are also giving your IP address to the other party. DCC generally does not work when using mobile data, and may not work on some WiFi connections.\n\nBecause of this, we recommend that you instead use 3rd party sharing services and only share a link with the target user instead of DCC.</string>
+    <string name="dcc_enable_send_warning_body">DCC is a legacy peer to peer file sharing protocol and the files are sent over an insecure and unencrypted connection. This means that all data sent using the feature can potentially be copied or manipulated by attackers, especially on public Wi-Fi networks.\nAdditionally, due to the protocol\'s nature when you share files using DCC, you are also giving your IP address to the other party. DCC generally does not work when using mobile data, and may not work on some Wi-Fi connections.\n\nBecause of this, we recommend that you instead use 3rd party sharing services and only share a link with the target user instead of DCC.</string>
 
     <string name="dcc_system_downloads_permission_dialog_title">Downloads folder permission</string>
-    <string name="dcc_system_downloads_permission_dialog_text">The permission to the Downloads folder has been denied, and therefore an application-internal downloads directory will be used. If this is not desired, please click Ask again.</string>
+    <string name="dcc_system_downloads_permission_dialog_text">The permission to the Downloads folder has been denied, and therefore an app-internal downloads directory will be used. If this is not desired, please click \"Ask again\".</string>
 
     <string name="dcc_set_download_dir">Set download directory</string>
-    <string name="dcc_download_dir_application">Application</string>
+    <string name="dcc_download_dir_application">App</string>
     <string name="dcc_download_dir_system">System</string>
     <string name="dcc_download_dir_custom">Custom</string>
 
