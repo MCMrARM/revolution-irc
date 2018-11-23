@@ -41,7 +41,10 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
     public static void start(Context context) {
         Intent intent = new Intent(context, IRCService.class);
         intent.setAction(ACTION_START_FOREGROUND);
-        context.startService(intent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            context.startForegroundService(intent);
+        else
+            context.startService(intent);
     }
     public static void stop(Context context) {
         context.stopService(new Intent(context, IRCService.class));
