@@ -1,405 +1,504 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-<string name="abc_action_bar_home_description">Navigate home</string>
-<string name="abc_action_bar_up_description">Navigate up</string>
-<string name="abc_action_menu_overflow_description">More options</string>
-<string name="abc_action_mode_done">Done</string>
-<string name="abc_activity_chooser_view_see_all">See all</string>
-<string name="abc_activitychooserview_choose_application">Choose an app</string>
-<string name="abc_capital_off">OFF</string>
-<string name="abc_capital_on">ON</string>
-<string name="abc_font_family_body_1_material">sans-serif</string>
-<string name="abc_font_family_body_2_material">sans-serif-medium</string>
-<string name="abc_font_family_button_material">sans-serif-medium</string>
-<string name="abc_font_family_caption_material">sans-serif</string>
-<string name="abc_font_family_display_1_material">sans-serif</string>
-<string name="abc_font_family_display_2_material">sans-serif</string>
-<string name="abc_font_family_display_3_material">sans-serif</string>
-<string name="abc_font_family_display_4_material">sans-serif-light</string>
-<string name="abc_font_family_headline_material">sans-serif</string>
-<string name="abc_font_family_menu_material">sans-serif</string>
-<string name="abc_font_family_subhead_material">sans-serif</string>
-<string name="abc_font_family_title_material">sans-serif-medium</string>
-<string name="abc_search_hint">Search…</string>
-<string name="abc_searchview_description_clear">Clear query</string>
-<string name="abc_searchview_description_query">Search query</string>
-<string name="abc_searchview_description_search">البحث</string>
-<string name="abc_searchview_description_submit">Submit query</string>
-<string name="abc_searchview_description_voice">Voice search</string>
-<string name="abc_shareactionprovider_share_with">Share with</string>
-<string name="abc_shareactionprovider_share_with_application">Share with %s</string>
-<string name="abc_toolbar_collapse_description">Collapse</string>
-<string name="action_accept">Accept</string>
-<string name="action_add_below">Add below</string>
-<string name="action_add_rule">إضافة قاعدة</string>
-<string name="action_ask_again">Ask again</string>
-<string name="action_back">العودة</string>
-<string name="action_cancel">إلغاء</string>
-<string name="action_clear_all">مسح الكل</string>
-<string name="action_clone">نسخ</string>
-<string name="action_close">إغلاق</string>
-<string name="action_close_direct">Close conversation</string>
-<string name="action_connect">إتصال</string>
-<string name="action_continue">مواصلة</string>
-<string name="action_copy">نسخ</string>
-<string name="action_dcc_send">Send a file using DCC</string>
-<string name="action_delete">حذف</string>
-<string name="action_delete_confirm_body">Are you sure you want to delete %s? This cannot be undone.</string>
-<string name="action_delete_confirm_title">أمتأكد ؟</string>
-<string name="action_disconnect">Disconnect</string>
-<string name="action_disconnect_and_close">Disconnect and close</string>
-<string name="action_done">Done</string>
-<string name="action_edit">تعديل</string>
-<string name="action_exit">خروج</string>
-<string name="action_expand">Expand</string>
-<string name="action_finish">Finish</string>
-<string name="action_join_channel">الإلتحاق بقناة</string>
-<string name="action_message_user">Message user</string>
-<string name="action_ok">OK</string>
-<string name="action_open">فتح</string>
-<string name="action_part_channel">مغادرة القناة</string>
-<string name="action_reconnect">إعادة الإتصال</string>
-<string name="action_reject">Reject</string>
-<string name="action_reorder">Reorder</string>
-<string name="action_reply">Reply</string>
-<string name="action_reset">Reset</string>
-<string name="action_search">البحث</string>
-<string name="action_search_ellipsis">البحث…</string>
-<string name="action_servers">إدارة السيرفرات</string>
-<string name="action_settings">الإعدادات</string>
-<string name="action_share">Share</string>
-<string name="action_sort">Sort</string>
-<string name="action_sort_member_count">Sort by member count</string>
-<string name="action_sort_name">Sort by name</string>
-<string name="action_sort_none">Do not sort</string>
-<string name="action_undo">Undo</string>
-<string name="add_server">إضافة سيرفر جديد</string>
-<string name="app_name">Revolution IRC</string>
-<string name="appbar_scrolling_view_behavior">android.support.design.widget.AppBarLayout$ScrollingViewBehavior</string>
-<string name="backup_cancelled">Backup creation has been cancelled.</string>
-<string name="backup_create">إنشاء نسخة احتياطية جديدة</string>
-<string name="backup_created">The backup file was successfully created.</string>
-<string name="backup_desc">To be able to restore the application settings later, for example after a system reinstall you might want to create a configuration backup and save it somewhere safe.</string>
-<string name="backup_password_text">The backup will contain all of your settings, including server information and unencrypted passwords. It is recommended to set a password that will be required to restore the data from the backup.</string>
-<string name="backup_restore">استرجاع نسخة احتياطية</string>
-<string name="backup_restore_cancelled">Restoration has been cancelled.</string>
-<string name="backup_restore_invalid">The specified backup file is invalid.</string>
-<string name="backup_restore_invalid_password">الكلمة السرية غير صالحة</string>
-<string name="backup_restore_password_not_empty">The password must not be empty</string>
-<string name="backup_restore_password_text">The specified backup is protected with a password. To be able to restore it, you need to enter the password.</string>
-<string name="backup_restored">The backup file was successfully restored.</string>
-<string name="bottom_sheet_behavior">android.support.design.widget.BottomSheetBehavior</string>
-<string name="certificate_bad_cert">The following certificate is not recognized by the system:</string>
-<string name="certificate_bad_hostname">The hostname provided in the certificate (%1$s) by the host does not match the hostname we are connecting to (%2$s).</string>
-<string name="certificate_error">"Failed to verify %s's certificate"</string>
-<string name="certificate_error_footer">"You shouldn't accept this certificate if you aren't sure what this means."</string>
-<string name="certificate_error_ignore">Accept and continue</string>
-<string name="certificate_error_remember">Remember exception</string>
-<string name="certificate_manager_empty">There are no custom certificates saved.</string>
-<string name="channel_members">الأعضاء</string>
-<string name="channel_topic">الموضوع</string>
-<string name="channel_topic_info" formatted="false">set by %s on %s</string>
-<string name="channel_topic_none">No topic was set</string>
-<string name="character_counter_pattern">%1$d / %2$d</string>
-<string name="color_picker_title">إختر لونًا</string>
-<string name="command_error_internal">An internal error occurred when trying to process the command.</string>
-<string name="command_error_not_found">No such command was found.</string>
-<string name="command_send_raw">Send as raw</string>
-<string name="connection_error_command_notification_desc">An internal error has occurred while trying to process post-connect commands.</string>
-<string name="connection_error_command_title">Error processing post-connect commands</string>
-<string name="connection_error_no_nick">No nick set</string>
-<string name="dcc_active_download_transfer_status">Downloading from %s</string>
-<string name="dcc_active_upload_transfer_status">Uploading to %s</string>
-<string name="dcc_active_waiting_for_approval">Waiting for user approval…</string>
-<string name="dcc_active_waiting_for_connection">Waiting for connection…</string>
-<string name="dcc_approve_download_body" formatted="false">"%s (from server: %s) has sent you a file.
+    <string name="app_name">Revolution IRC</string>
 
-Warning: This download will be transmitted over an insecure &amp; unencrypted connection. Accepting this download will allow the other party to see your IP address. You should accept it only if you trust this user."</string>
-<string name="dcc_approve_download_enable_anyway">Enable anyway</string>
-<string name="dcc_approve_download_title">DCC file: %s</string>
-<string name="dcc_approve_download_title_with_size" formatted="false">DCC file: %s (%s)</string>
-<string name="dcc_approve_notification_body" formatted="false">%s (from server: %s) has sent you a file</string>
-<string name="dcc_download_dir_application">التطبيق</string>
-<string name="dcc_download_dir_custom">Custom</string>
-<string name="dcc_download_dir_system">النظام</string>
-<string name="dcc_enable_send_warning_body">"DCC is a legacy peer to peer file sharing protocol and the files are sent over an insecure and unencrypted connection. This means that all data sent using the feature can potentially be copied or manipulated by attackers, especially on public WiFi networks.
-Additionally, due to the protocol's nature when you share files using DCC, you are also giving your IP address to the other party. DCC generally does not work when using mobile data, and may not work on some WiFi connections.
+    <!-- Chat -->
 
-Because of this, we recommend that you instead use 3rd party sharing services and only share a link with the target user instead of DCC."</string>
-<string name="dcc_enable_send_warning_title">Security warning</string>
-<string name="dcc_history_download">Downloaded %2$s from %3$s (%1$s)</string>
-<string name="dcc_history_download_failed">Failed to downloaded %2$s from %1$s</string>
-<string name="dcc_history_upload">Uploaded %2$s to %3$s (%1$s)</string>
-<string name="dcc_set_download_dir">Set download directory</string>
-<string name="dcc_summary_notification_text">%d transfers in progress</string>
-<string name="dcc_summary_notification_title">DCC transfers in progress</string>
-<string name="dcc_system_downloads_permission_dialog_text">The permission to the Downloads folder has been denied, and therefore an application-internal downloads directory will be used. If this is not desired, please click Ask again.</string>
-<string name="dcc_system_downloads_permission_dialog_title">Downloads folder permission</string>
-<string name="edit_command_alias_channel">القناة</string>
-<string name="edit_command_alias_error_name_collision">A command alias with this name and syntax already exists.</string>
-<string name="edit_command_alias_syntax">Syntax</string>
-<string name="edit_command_alias_type">النوع</string>
-<string name="edit_server">تعديل السيرفر</string>
-<string name="entry_comment">تعليق</string>
-<string name="entry_name">الإسم</string>
-<string name="entry_password">الكلمة السرية</string>
-<string name="entry_text">النص</string>
-<string name="entry_username">إسم المستخدِم</string>
-<string name="error_file_open">Failed to open the file.</string>
-<string name="error_generic">An error has occurred.</string>
-<string name="font_size_sample_text">This is a sample text to reflect how the font size will look in the chat. You can change it using the slider below.</string>
-<string name="format_bold">Bold</string>
-<string name="format_clear">Clear formatting</string>
-<string name="format_fill_color">لون الخلفية</string>
-<string name="format_italic">Italic</string>
-<string name="format_text_color">لون النص</string>
-<string name="format_underline">Underline</string>
-<string name="irc_link_pick_header">Select a connection to join %2$s on %1$s</string>
-<string name="irc_link_show_all">Show other connections</string>
-<string name="message_ctcp_ping">Received a CTCP ping</string>
-<string name="message_ctcp_version">Received a CTCP version</string>
-<string name="message_disconnected">Disconnected</string>
-<string name="message_example_message">This is an example message.</string>
-<string name="message_example_sender">sender-nick</string>
-<string name="message_format">Format</string>
-<string name="message_format_action">Action (me) message format</string>
-<string name="message_format_action_mention">Action (me) message with mention format</string>
-<string name="message_format_add_chip">Add format chip</string>
-<string name="message_format_date">Time format</string>
-<string name="message_format_date_fixed_width">Fixed-width</string>
-<string name="message_format_date_invalid">Invalid date/time format</string>
-<string name="message_format_event">Event (join/leave/etc.) message format</string>
-<string name="message_format_event_hostname">Display the user hostname</string>
-<string name="message_format_message">رسالة</string>
-<string name="message_format_message_add">رسالة</string>
-<string name="message_format_normal">Message format</string>
-<string name="message_format_normal_mention">Message with mention format</string>
-<string name="message_format_notice">Notice message format</string>
-<string name="message_format_sender">sender</string>
-<string name="message_format_sender_add">المرسِل</string>
-<string name="message_format_sender_color">لون الإسم المستعار</string>
-<string name="message_format_sender_prefix">prefix</string>
-<string name="message_format_sender_prefix_add">Sender prefix</string>
-<string name="message_format_time">الوقت</string>
-<string name="message_format_time_add">الوقت</string>
-<string name="message_format_wrap_anchor_add">Wrap anchor</string>
-<string name="message_hint">إبعث رسالة</string>
-<string name="message_host_info" formatted="false">Server name is %s, running %s. Supported user modes: %s, supported channel modes: %s</string>
-<string name="message_join">%s has joined</string>
-<string name="message_kick" formatted="false">%s has kicked %s (%s)</string>
-<string name="message_mode" formatted="false">%s %s</string>
-<string name="message_mode_channel_ban">a ban on %s</string>
-<string name="message_mode_channel_value" formatted="false">"channel mode '%s' to %s"</string>
-<string name="message_mode_gave">gave %s</string>
-<string name="message_mode_gave_to" formatted="false">%s to %s</string>
-<string name="message_mode_nick_admin">channel admin status</string>
-<string name="message_mode_nick_half_op">channel half-operator status</string>
-<string name="message_mode_nick_op">channel operator status</string>
-<string name="message_mode_nick_voice">voice</string>
-<string name="message_mode_removed">removed %s</string>
-<string name="message_mode_removed_from" formatted="false">%s from %s</string>
-<string name="message_mode_set">set %s</string>
-<string name="message_mode_unset">unset %s</string>
-<string name="message_motd">رسالة اليوم</string>
-<string name="message_nick_change" formatted="false">%s is now known as %s</string>
-<string name="message_part" formatted="false">%s has left (%s)</string>
-<string name="message_part_no_message">%s has left</string>
-<string name="message_quit" formatted="false">%s has disconnected (%s)</string>
-<string name="message_sent">تن إرسال الرسالة</string>
-<string name="message_share_title">Share the chat messages</string>
-<string name="message_topic">الموضوع: %s</string>
-<string name="message_topic_by" formatted="false">Topic: %s, set by %s</string>
-<string name="message_topic_whotime" formatted="false">Topic was set by %s on %s</string>
-<string name="message_whois">"%s's user information"</string>
-<string name="navigation_drawer_close">Close navigation drawer</string>
-<string name="navigation_drawer_open">Open navigation drawer</string>
-<string name="notification_action_required">User action required</string>
-<string name="notification_android_settings_link">More settings…</string>
-<string name="notification_channel_dcc">@string/title_activity_dcc</string>
-<string name="notification_channel_group_default">Default notification rules</string>
-<string name="notification_channel_group_system">Miscellaneous notifications</string>
-<string name="notification_channel_group_user">User notification rules</string>
-<string name="notification_channel_idle">Status Notification</string>
-<string name="notification_channel_warning">Warning Notifications</string>
-<string name="notification_color">LED Color</string>
-<string name="notification_custom_rule_deleted">Notification rule deleted.</string>
-<string name="notification_custom_rules">Custom rules</string>
-<string name="notification_header_applies_to">Applies to</string>
-<string name="notification_header_match">Match</string>
-<string name="notification_header_options">الخيارات</string>
-<string name="notification_match_case">Case sensitive</string>
-<string name="notification_match_mode">Mode</string>
-<string name="notification_mention">Use mention formatting</string>
-<string name="notification_priority">Priority</string>
-<string name="notification_rule_chan_messages">Channel messages</string>
-<string name="notification_rule_chan_notice">Channel notices</string>
-<string name="notification_rule_direct">Private messages</string>
-<string name="notification_rule_name_collision">A notification rule with this name already exists</string>
-<string name="notification_rule_nick">Nick mentions</string>
-<string name="notification_rule_notice">Private notices</string>
-<string name="notification_rule_regex_invalid">Invalid Regex</string>
-<string name="notification_rule_server">السيرفر</string>
-<string name="notification_rule_summary_any_channel">any channel</string>
-<string name="notification_rule_summary_any_nick">any nick</string>
-<string name="notification_rule_summary_any_server">Any server</string>
-<string name="notification_rule_zncplayback">Disable ZNC playback notifications</string>
-<string name="notification_show">Show notification</string>
-<string name="notification_sound">الصوت</string>
-<string name="notification_tip_no_custom_rules">There are no custom rules. You can add one with the plus button in the bottom right corner.</string>
-<string name="notification_vibration">الإهتزاز</string>
-<string name="password_toggle_content_description">Toggle password visibility</string>
-<string name="path_password_eye">M12,4.5C7,4.5 2.73,7.61 1,12c1.73,4.39 6,7.5 11,7.5s9.27,-3.11 11,-7.5c-1.73,-4.39 -6,-7.5 -11,-7.5zM12,17c-2.76,0 -5,-2.24 -5,-5s2.24,-5 5,-5 5,2.24 5,5 -2.24,5 -5,5zM12,9c-1.66,0 -3,1.34 -3,3s1.34,3 3,3 3,-1.34 3,-3 -1.34,-3 -3,-3z</string>
-<string name="path_password_eye_mask_strike_through">M2,4.27 L19.73,22 L22.27,19.46 L4.54,1.73 L4.54,1 L23,1 L23,23 L1,23 L1,4.27 Z</string>
-<string name="path_password_eye_mask_visible">M2,4.27 L2,4.27 L4.54,1.73 L4.54,1.73 L4.54,1 L23,1 L23,23 L1,23 L1,4.27 Z</string>
-<string name="path_password_strike_through">M3.27,4.27 L19.74,20.74</string>
-<string name="please_wait_generic">يُرجى الإنتظار…</string>
-<string name="pref_description_auto_reconnect">Automatically attempt reconnection after a connection loss</string>
-<string name="pref_description_ping_enabled">Periodically send a heartbeat (ping) to the server in order to make sure the connection is still alive. This may increase battery drain.</string>
-<string name="pref_description_ping_wifi">Only send a heartbeat when using a WiFi connection</string>
-<string name="pref_description_reconnect_connchg">Automatically attempt reconnection after a connectivity change</string>
-<string name="pref_description_reconnect_wifi">Only attempt reconnection while using a WiFi connection</string>
-<string name="pref_header_backup">النسخ الإحتياطي</string>
-<string name="pref_header_command_aliases">إختصارات الأوامر</string>
-<string name="pref_header_interface">الواجهة</string>
-<string name="pref_header_notifications">الإشعارات</string>
-<string name="pref_header_reconnect">إعادة الإتصال</string>
-<string name="pref_header_storage">التخزين</string>
-<string name="pref_header_storage_limits">الحدود</string>
-<string name="pref_header_user">معلومات المستخدِم</string>
-<string name="pref_storage_change_limits">تعديل الحدّ</string>
-<string name="pref_storage_change_server_limit">Change server limit</string>
-<string name="pref_storage_chat_logs_title">سِجلّ المحادثات</string>
-<string name="pref_storage_clear_all_chat_logs">Delete all chat logs</string>
-<string name="pref_storage_clear_all_chat_logs_confirm">Are you sure you want to delete all chat logs?</string>
-<string name="pref_storage_clear_server_chat_logs">Delete server chat history</string>
-<string name="pref_storage_configuration_title">الضبط</string>
-<string name="pref_storage_limit_def_server_title">Per-server chat history storage limit</string>
-<string name="pref_storage_limit_global_title">Global chat history storage limit</string>
-<string name="pref_storage_limit_notice">Please note that those are soft limits and sometimes might be exceeded.</string>
-<string name="pref_storage_limit_server_title">Server chat storage limit</string>
-<string name="pref_storage_no_limit">دون حدود</string>
-<string name="pref_storage_remove_server_limit">Reset custom server limit</string>
-<string name="pref_storage_reset_configuration">إعادة تعيين الإعدادات</string>
-<string name="pref_storage_reset_configuration_confirm">"Are you sure you want to reset the application's configuration? All server and chat history data will be lost."</string>
-<string name="pref_storage_set_server_limit">Set server limit</string>
-<string name="pref_summary_autocorrect">Enable the keyboard-provided auto-correct</string>
-<string name="pref_summary_channel_autocomplete_suggestions">"Show channel suggestions after typing a '#' character"</string>
-<string name="pref_summary_chat_box_always_multiline">Enables word-wrap in the text box and replaces the send button with an enter in the IME.</string>
-<string name="pref_summary_chat_mutli_scroll_mode">Always enables the old batch message selection mode</string>
-<string name="pref_summary_chat_show_dcc_send">Show a button to send a file using DCC in private chats</string>
-<string name="pref_summary_dark_theme">Apply a dark theme to the interface</string>
-<string name="pref_summary_hide_join_part">Hide all join and leave (part/quit) messages.</string>
-<string name="pref_summary_nick_autocomplete_at_suggestions">"Show nick suggestions after a '@' character"</string>
-<string name="pref_summary_nick_autocomplete_at_suggestions_remove_at">"Remove the '@' character after selecting a suggestion"</string>
-<string name="pref_summary_nick_autocomplete_double_tap">Double tap the text field to complete the nick or channel</string>
-<string name="pref_summary_nick_autocomplete_show_button">Show a nick autocomplete button</string>
-<string name="pref_summary_nick_autocomplete_suggestions">Show nick suggestions after typing at least two characters</string>
-<string name="pref_title_accent_color">Accent color</string>
-<string name="pref_title_appbar_compact_mode">Hide the network name header</string>
-<string name="pref_title_auto_reconnect">Automatically reconnect</string>
-<string name="pref_title_autocorrect">Enable text auto-correct</string>
-<string name="pref_title_channel_autocomplete_suggestions">Suggest channels</string>
-<string name="pref_title_chat_box_always_multiline">Multiline send text box</string>
-<string name="pref_title_chat_box_history_swipe_mode">History swipe-based navigation mode</string>
-<string name="pref_title_chat_mutli_scroll_mode">Use a batch message selection mode</string>
-<string name="pref_title_chat_show_dcc_send">Show DCC send button</string>
-<string name="pref_title_dark_theme">سمة داكنة</string>
-<string name="pref_title_default_nick">Default nicknames</string>
-<string name="pref_title_default_part_message">Channel leave message</string>
-<string name="pref_title_default_quit_message">Disconnect (quit) message</string>
-<string name="pref_title_default_realname">Default real name</string>
-<string name="pref_title_default_user">Default user</string>
-<string name="pref_title_font">الخط</string>
-<string name="pref_title_font_size">حجم الخط</string>
-<string name="pref_title_hide_join_part">Hide Join/Part messages</string>
-<string name="pref_title_message_format">Message format</string>
-<string name="pref_title_nick_autocomplete">Nick/channel autocomplete</string>
-<string name="pref_title_nick_autocomplete_at_suggestions">"Suggest nicks after a '@'"</string>
-<string name="pref_title_nick_autocomplete_at_suggestions_remove_at">"Automatically remove the '@'"</string>
-<string name="pref_title_nick_autocomplete_double_tap">Double tap the text field</string>
-<string name="pref_title_nick_autocomplete_show_button">إظهار زر</string>
-<string name="pref_title_nick_autocomplete_suggestions">Suggest nicks</string>
-<string name="pref_title_ping_enabled">Periodically send a heartbeat</string>
-<string name="pref_title_ping_interval">Heartbeat interval</string>
-<string name="pref_title_ping_wifi">Only send a heartbeat on WiFi</string>
-<string name="pref_title_primary_color">اللون الأولي</string>
-<string name="pref_title_reconnect_connchg">Track connectivity changes</string>
-<string name="pref_title_reconnect_pattern">Reconnection interval</string>
-<string name="pref_title_reconnect_wifi">Only reconnect on WiFi</string>
-<string name="pref_value_default_part_message">Leaving</string>
-<string name="pref_value_default_quit_message">المُغادَرة</string>
-<string name="reconnect_header_interval">Interval</string>
-<string name="reconnect_header_tries">Tries</string>
-<string name="search_menu_title">البحث</string>
-<string name="server_address">عنوان السيرفر</string>
-<string name="server_authentication_mode">أسلوب المصادقة</string>
-<string name="server_channels">الإلتحاق التلقائي بالقنوات</string>
-<string name="server_commands">التشغيل التلقائي للأوامر</string>
-<string name="server_encoding">Encoding</string>
-<string name="server_error_invalid_address">Invalid address</string>
-<string name="server_error_invalid_port">Invalid port</string>
-<string name="server_error_name_collision">A server with this name already exists</string>
-<string name="server_error_name_empty">Server name cannot be empty</string>
-<string name="server_list_connecting">جارٍ الإتصال…</string>
-<string name="server_list_disconnected">Disconnected</string>
-<string name="server_list_header_active">Active</string>
-<string name="server_list_header_inactive">Inactive</string>
-<string name="server_manage_custom_certs">Manage custom certificates</string>
-<string name="server_nicks">الأسماء المستعارة</string>
-<string name="server_password_unchanged">Unchanged</string>
-<string name="server_port">المَنفذ</string>
-<string name="server_realname">الإسم الحقيقي</string>
-<string name="server_rejoin_channels">الإلتحاق التلقائي بالقنوات المفتوحة</string>
-<string name="server_save_error">Failed to save server information</string>
-<string name="server_ssl">استخدم SSL</string>
-<string name="server_user">المستخدِم</string>
-<string name="service_title">Connected to IRC</string>
-<string name="status_bar_notification_info_overflow">999+</string>
-<string name="tab_server">السيرفر</string>
-<string name="text_and">" and "</string>
-<string name="text_comma">", "</string>
-<string name="title_activity_add_command_alias">Add a command alias</string>
-<string name="title_activity_add_ignore_entry">Add an ignore entry</string>
-<string name="title_activity_backup">النسخ الإحتياطي</string>
-<string name="title_activity_backup_password">قم بإدخال كلمة سرية</string>
-<string name="title_activity_backup_password_restore">ادخل الكلمة السرية</string>
-<string name="title_activity_backup_progress">Creating a backup</string>
-<string name="title_activity_backup_progress_restore">Restoring a backup</string>
-<string name="title_activity_certificate_manager">Certificate list</string>
-<string name="title_activity_channel_list">Channel list</string>
-<string name="title_activity_dcc">DCC transfers</string>
-<string name="title_activity_edit_command_alias">Edit a command alias</string>
-<string name="title_activity_edit_ignore_entry">Edit an ignore entry</string>
-<string name="title_activity_edit_notification_settings">Notification settings</string>
-<string name="title_activity_ignore_list">Ignore list</string>
-<string name="title_activity_ignore_list_network">Ignore list for %s</string>
-<string name="title_activity_irc_link">الإلتحاق بقناة</string>
-<string name="title_activity_message_format_settings">Message format</string>
-<string name="title_activity_restore">Restore</string>
-<string name="title_activity_settings">الإعدادات</string>
-<string name="title_activity_view_command_alias">View a command alias</string>
-<string name="user_account">الحساب</string>
-<string name="user_away">Away message</string>
-<string name="user_channels">القنوات</string>
-<string name="user_hostname">لست المضيف</string>
-<string name="user_idle">Idle time</string>
-<string name="user_info_copied">Copied %s to clipboard.</string>
-<string name="user_nick">الإسم المستعار</string>
-<string name="user_secure">Connection security status</string>
-<string name="user_secure_desc">This user is using a secure connection</string>
-<string name="user_server">السيرفر</string>
-<string name="user_server_format" formatted="false">%s (%s)</string>
-<string name="user_server_op">Server operator status</string>
-<string name="user_server_op_desc">This user is an IRC server operator</string>
-<string name="user_title_away">%s (away)</string>
-<string name="value_always">Always</string>
-<string name="value_any">Any</string>
-<string name="value_custom">Custom</string>
-<string name="value_custom_specific">Custom (%s)</string>
-<string name="value_default">Default</string>
-<string name="value_never">Never</string>
-<string name="value_none">لا شيء</string>
-<string name="value_not_set">Not set</string>
-<string name="value_preset">Preset</string>
-<string name="value_total">المساحة الإجمالية</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="tab_server">السيرفر</string>
+    <string name="message_hint">إبعث رسالة</string>
+    <string name="message_disconnected">Disconnected</string>
+    <string name="message_join">%s has joined</string>
+    <string name="message_kick">%s has kicked %s (%s)</string>
+    <string name="message_part">%s has left (%s)</string>
+    <string name="message_part_no_message">%s has left</string>
+    <string name="message_quit">%s has disconnected (%s)</string>
+    <string name="message_nick_change">%s is now known as %s</string>
+    <string name="message_topic">الموضوع: %s</string>
+    <string name="message_topic_whotime">Topic was set by %s on %s</string>
+    <string name="message_topic_by">Topic: %s, set by %s</string>
+
+    <string name="message_host_info">Server name is %s, running %s. Supported user modes: %s, supported channel modes: %s</string>
+    <string name="message_motd">رسالة اليوم</string>
+    <string name="message_whois">"%s\'s user information"</string>
+
+    <string name="message_mode">%s %s</string>
+    <string name="message_mode_set">set %s</string>
+    <string name="message_mode_unset">unset %s</string>
+    <string name="message_mode_gave">gave %s</string>
+    <string name="message_mode_removed">removed %s</string>
+
+    <string name="message_mode_gave_to">%s to %s</string>
+    <string name="message_mode_removed_from">%s from %s</string>
+
+    <string name="message_mode_channel_value">"channel mode \'%s\' to %s"</string>
+    <string name="message_mode_channel_ban">a ban on %s</string>
+    <string name="message_mode_nick_admin">channel admin status</string>
+    <string name="message_mode_nick_op">channel operator status</string>
+    <string name="message_mode_nick_half_op">channel half-operator status</string>
+    <string name="message_mode_nick_voice">voice</string>
+
+    <string name="message_ctcp_ping">Received a CTCP ping</string>
+    <string name="message_ctcp_version">Received a CTCP version</string>
+
+    <string name="command_error_not_found">No such command was found.</string>
+    <string name="command_error_internal">An internal error occurred when trying to process the command.</string>
+
+    <string name="command_send_raw">Send as raw</string>
+
+    <string name="channel_topic">الموضوع</string>
+    <string name="channel_topic_info">set by %s on %s</string>
+    <string name="channel_topic_none">No topic was set</string>
+    <string name="channel_members">الأعضاء</string>
+
+    <string name="message_sent">تن إرسال الرسالة</string>
+
+    <string name="message_share_title">Share the chat messages</string>
+
+    <!-- Actions -->
+
+    <string name="action_ok">حسنًا</string>
+    <string name="action_done">تم</string>
+    <string name="action_delete">حذف</string>
+    <string name="action_edit">تعديل</string>
+    <string name="action_cancel">إلغاء</string>
+    <string name="action_expand">توسيع</string>
+    <string name="action_settings">الإعدادات</string>
+    <string name="action_connect">إتصال</string>
+    <string name="action_disconnect">قطع الإتصال</string>
+    <string name="action_reconnect">إعادة الإتصال</string>
+    <string name="action_open">فتح</string>
+    <string name="action_back">العودة</string>
+    <string name="action_close">إغلاق</string>
+    <string name="action_disconnect_and_close">إقطع الإتصال ثم اغلق</string>
+    <string name="action_servers">إدارة السيرفرات</string>
+    <string name="action_add_below">Add below</string>
+    <string name="action_add_rule">إضافة قاعدة</string>
+    <string name="action_reorder">إعادة الترتيب</string>
+    <string name="action_undo">إلغاء</string>
+    <string name="action_copy">نسخ</string>
+    <string name="action_clone">نسخ</string>
+    <string name="action_continue">مواصلة</string>
+    <string name="action_finish">انتهى</string>
+    <string name="action_search">البحث</string>
+    <string name="action_search_ellipsis">البحث…</string>
+    <string name="action_sort">Sort</string>
+    <string name="action_sort_none">مِن دون ترتيب</string>
+    <string name="action_sort_name">Sort by name</string>
+    <string name="action_join_channel">الإلتحاق بقناة</string>
+    <string name="action_message_user">راسل المستخدِم</string>
+    <string name="action_part_channel">مغادرة القناة</string>
+    <string name="action_close_direct">إغلاق المحادثة</string>
+    <string name="action_clear_all">مسح الكل</string>
+    <string name="action_reset">Reset</string>
+    <string name="action_exit">خروج</string>
+    <string name="action_reply">الرد</string>
+    <string name="action_share">شارك</string>
+    <string name="action_dcc_send">Send a file using DCC</string>
+    <string name="action_accept">موافق</string>
+    <string name="action_reject">Reject</string>
+    <string name="action_ask_again">أطلب مرة أخرى</string>
+
+    <string name="action_delete_confirm_title">أمتأكد ؟</string>
+    <string name="action_delete_confirm_body">Are you sure you want to delete %s? This cannot be undone.</string>
+
+    <!-- Format -->
+
+    <string name="format_bold">Bold</string>
+    <string name="format_italic">مائل</string>
+    <string name="format_underline">تسطير</string>
+    <string name="format_text_color">لون النص</string>
+    <string name="format_fill_color">لون الخلفية</string>
+    <string name="format_clear">Clear formatting</string>
+
+    <!-- Service -->
+
+    <string name="service_title">Connected to IRC</string>
+
+    <string name="notification_action_required">User action required</string>
+
+    <string name="notification_channel_group_system">Miscellaneous notifications</string>
+    <string name="notification_channel_group_default">Default notification rules</string>
+    <string name="notification_channel_group_user">User notification rules</string>
+    <string name="notification_channel_idle">Status Notification</string>
+    <string name="notification_channel_warning">Warning Notifications</string>
+
+    <!-- Connection errors -->
+
+    <string name="connection_error_no_nick">No nick set</string>
+
+    <string name="connection_error_command_title">Error processing post-connect commands</string>
+    <string name="connection_error_command_notification_desc">An internal error has occurred while trying to process post-connect commands.</string>
+
+    <!-- Server list -->
+
+    <string name="server_list_header_active">Active</string>
+    <string name="server_list_header_inactive">Inactive</string>
+    <string name="server_list_connecting">جارٍ الإتصال…</string>
+    <string name="server_list_disconnected">Disconnected</string>
+
+    <!-- Add server -->
+
+    <string name="add_server">إضافة سيرفر جديد</string>
+    <string name="edit_server">تعديل السيرفر</string>
+    <string name="server_save_error">Failed to save server information</string>
+    <string name="server_error_name_collision">A server with this name already exists</string>
+    <string name="server_error_name_empty">Server name cannot be empty</string>
+    <string name="server_error_invalid_address">Invalid address</string>
+    <string name="server_error_invalid_port">Invalid port</string>
+    <string name="server_address">عنوان السيرفر</string>
+    <string name="server_port">المَنفذ</string>
+    <string name="server_ssl">استخدم SSL</string>
+    <string name="server_manage_custom_certs">Manage custom certificates</string>
+    <string name="server_password_unchanged">Unchanged</string>
+    <string name="server_authentication_mode">أسلوب المصادقة</string>
+    <string name="server_channels">الإلتحاق التلقائي بالقنوات</string>
+    <string name="server_rejoin_channels">الإلتحاق التلقائي بالقنوات المفتوحة</string>
+    <string name="server_commands">التشغيل التلقائي للأوامر</string>
+    <string name="server_encoding">Encoding</string>
+    <string name="server_nicks">الأسماء المستعارة</string>
+    <string name="server_user">المستخدِم</string>
+    <string name="server_realname">الإسم الحقيقي</string>
+
+
+    <!-- Certificate manager -->
+
+    <string name="title_activity_certificate_manager">Certificate list</string>
+
+    <string name="certificate_manager_empty">There are no custom certificates saved.</string>
+
+    <!-- Certificate error dialog -->
+
+    <string name="certificate_error">"Failed to verify %s\'s certificate"</string>
+    <string name="certificate_error_ignore">أوافق و أريد المواصلة</string>
+    <string name="certificate_bad_cert">The following certificate is not recognized by the system:</string>
+    <string name="certificate_bad_hostname">The hostname provided in the certificate (%1$s) by the host does not match the hostname we are connecting to (%2$s).</string>
+    <string name="certificate_error_footer">"You shouldn\'t accept this certificate if you aren\'t sure what this means."</string>
+    <string name="certificate_error_remember">Remember exception</string>
+
+    <!-- Channel list -->
+
+    <string name="title_activity_channel_list">Channel list</string>
+    <string name="action_sort_member_count">Sort by member count</string>
+
+
+    <!-- Settings -->
+
+    <string name="title_activity_settings">الإعدادات</string>
+
+    <string name="value_default">Default</string>
+    <string name="value_custom">Custom</string>
+    <string name="value_custom_specific">Custom (%s)</string>
+    <string name="value_none">لا شيء</string>
+    <string name="value_any">Any</string>
+    <string name="value_always">Always</string>
+    <string name="value_never">Never</string>
+    <string name="value_preset">Preset</string>
+    <string name="value_not_set">Not set</string>
+    <string name="value_total">المساحة الإجمالية</string>
+    <string name="entry_name">الإسم</string>
+    <string name="entry_text">النص</string>
+    <string name="entry_username">إسم المستخدِم</string>
+    <string name="entry_password">الكلمة السرية</string>
+    <string name="entry_comment">تعليق</string>
+
+    <string name="text_comma">", "</string>
+    <string name="text_and">" and "</string>
+
+    <string name="error_generic">حدث هناك خطأ.</string>
+    <string name="error_file_open">Failed to open the file.</string>
+
+    <!-- Time -->
+
+
+    <!-- User settings -->
+
+    <string name="pref_header_user">معلومات المستخدِم</string>
+
+    <string name="pref_title_default_nick">Default nicknames</string>
+    <string name="pref_title_default_user">Default user</string>
+    <string name="pref_title_default_realname">Default real name</string>
+    <string name="pref_title_default_quit_message">Disconnect (quit) message</string>
+    <string name="pref_title_default_part_message">Channel leave message</string>
+
+    <string name="pref_value_default_quit_message">المُغادَرة</string>
+    <string name="pref_value_default_part_message">Leaving</string>
+
+    <!-- Interface settings -->
+
+    <string name="pref_header_interface">الواجهة</string>
+
+    <string name="pref_title_dark_theme">سمة داكنة</string>
+    <string name="pref_summary_dark_theme">Apply a dark theme to the interface</string>
+    <string name="pref_title_primary_color">اللون الأولي</string>
+    <string name="pref_title_accent_color">Accent color</string>
+    <string name="pref_title_font">الخط</string>
+    <string name="pref_title_font_size">حجم الخط</string>
+    <string name="pref_title_hide_join_part">Hide Join/Part messages</string>
+    <string name="pref_summary_hide_join_part">Hide all join and leave (part/quit) messages.</string>
+    <string name="pref_title_autocorrect">Enable text auto-correct</string>
+    <string name="pref_summary_autocorrect">Enable the keyboard-provided auto-correct</string>
+    <string name="pref_title_appbar_compact_mode">Hide the network name header</string>
+    <string name="pref_title_message_format">Message format</string>
+    <string name="pref_title_nick_autocomplete">Nick/channel autocomplete</string>
+    <string name="pref_title_chat_box_always_multiline">Multiline send text box</string>
+    <string name="pref_summary_chat_box_always_multiline">Enables word-wrap in the text box and replaces the send button with an enter in the IME.</string>
+    <string name="pref_title_chat_box_history_swipe_mode">History swipe-based navigation mode</string>
+    <string name="pref_title_chat_mutli_scroll_mode">Use a batch message selection mode</string>
+    <string name="pref_summary_chat_mutli_scroll_mode">Always enables the old batch message selection mode</string>
+    <string name="pref_title_chat_show_dcc_send">Show DCC send button</string>
+    <string name="pref_summary_chat_show_dcc_send">Show a button to send a file using DCC in private chats</string>
+
+    <string name="pref_title_nick_autocomplete_show_button">إظهار زر</string>
+    <string name="pref_summary_nick_autocomplete_show_button">Show a nick autocomplete button</string>
+    <string name="pref_title_nick_autocomplete_double_tap">Double tap the text field</string>
+    <string name="pref_summary_nick_autocomplete_double_tap">Double tap the text field to complete the nick or channel</string>
+    <string name="pref_title_nick_autocomplete_suggestions">Suggest nicks</string>
+    <string name="pref_summary_nick_autocomplete_suggestions">Show nick suggestions after typing at least two characters</string>
+    <string name="pref_title_nick_autocomplete_at_suggestions">"Suggest nicks after a \'@\'"</string>
+    <string name="pref_summary_nick_autocomplete_at_suggestions">"Show nick suggestions after a \'@\' character"</string>
+    <string name="pref_title_nick_autocomplete_at_suggestions_remove_at">"Automatically remove the \'@\'"</string>
+    <string name="pref_summary_nick_autocomplete_at_suggestions_remove_at">"Remove the \'@\' character after selecting a suggestion"</string>
+    <string name="pref_title_channel_autocomplete_suggestions">Suggest channels</string>
+    <string name="pref_summary_channel_autocomplete_suggestions">"Show channel suggestions after typing a \'#\' character"</string>
+
+    <string name="font_size_sample_text">This is a sample text to reflect how the font size will look in the chat. You can change it using the slider below.</string>
+
+
+
+    <!-- Message format -->
+
+    <string name="title_activity_message_format_settings">Message format</string>
+
+    <string name="message_format">Format</string>
+
+    <string name="message_format_date">Time format</string>
+    <string name="message_format_date_fixed_width">Fixed-width</string>
+    <string name="message_format_normal">Message format</string>
+    <string name="message_format_normal_mention">Message with mention format</string>
+    <string name="message_format_action">Action (me) message format</string>
+    <string name="message_format_action_mention">Action (me) message with mention format</string>
+    <string name="message_format_notice">Notice message format</string>
+    <string name="message_format_event">Event (join/leave/etc.) message format</string>
+    <string name="message_format_event_hostname">Display the user hostname</string>
+    <string name="message_format_date_invalid">Invalid date/time format</string>
+
+    <string name="message_format_time">الوقت</string>
+    <string name="message_format_sender">sender</string>
+    <string name="message_format_message">رسالة</string>
+    <string name="message_format_sender_prefix">prefix</string>
+    <string name="message_format_time_add">الوقت</string>
+    <string name="message_format_sender_add">المرسِل</string>
+    <string name="message_format_message_add">رسالة</string>
+    <string name="message_format_wrap_anchor_add">Wrap anchor</string>
+    <string name="message_format_sender_prefix_add">Sender prefix</string>
+
+    <string name="message_format_add_chip">Add format chip</string>
+    <string name="message_format_sender_color">لون الإسم المستعار</string>
+
+    <string name="message_example_sender">sender-nick</string>
+    <string name="message_example_message">This is an example message.</string>
+
+
+    <!-- Notification settings -->
+
+    <string name="pref_header_notifications">الإشعارات</string>
+
+    <string name="notification_custom_rules">Custom rules</string>
+    <string name="notification_tip_no_custom_rules">There are no custom rules. You can add one with the plus button in the bottom right corner.</string>
+    <string name="notification_custom_rule_deleted">Notification rule deleted.</string>
+    <string name="notification_rule_name_collision">A notification rule with this name already exists</string>
+    <string name="notification_rule_regex_invalid">Invalid Regex</string>
+
+    <string name="notification_rule_nick">Nick mentions</string>
+    <string name="notification_rule_chan_messages">Channel messages</string>
+    <string name="notification_rule_direct">Private messages</string>
+    <string name="notification_rule_notice">Private notices</string>
+    <string name="notification_rule_chan_notice">Channel notices</string>
+    <string name="notification_rule_zncplayback">Disable ZNC playback notifications</string>
+
+    <string name="title_activity_edit_notification_settings">Notification settings</string>
+
+    <string name="notification_header_match">Match</string>
+    <string name="notification_match_mode">Mode</string>
+    <string name="notification_match_case">Case sensitive</string>
+
+
+    <string name="notification_header_applies_to">Applies to</string>
+    <string name="notification_rule_server">السيرفر</string>
+    <string name="notification_rule_summary_any_server">Any server</string>
+    <string name="notification_rule_summary_any_channel">any channel</string>
+    <string name="notification_rule_summary_any_nick">any nick</string>
+
+    <string name="notification_header_options">الخيارات</string>
+    <string name="notification_mention">Use mention formatting</string>
+    <string name="notification_show">Show notification</string>
+    <string name="notification_sound">الصوت</string>
+    <string name="notification_vibration">الإهتزاز</string>
+    <string name="notification_priority">Priority</string>
+    <string name="notification_color">LED Color</string>
+    <string name="notification_android_settings_link">More settings…</string>
+
+
+    <!-- Reconnect settings -->
+
+    <string name="pref_header_reconnect">إعادة الإتصال</string>
+    <string name="pref_title_auto_reconnect">Automatically reconnect</string>
+    <string name="pref_description_auto_reconnect">Automatically attempt reconnection after a connection loss</string>
+    <string name="pref_title_reconnect_connchg">Track connectivity changes</string>
+    <string name="pref_description_reconnect_connchg">Automatically attempt reconnection after a connectivity change</string>
+    <string name="pref_title_reconnect_wifi">Only reconnect on WiFi</string>
+    <string name="pref_description_reconnect_wifi">Only attempt reconnection while using a WiFi connection</string>
+    <string name="pref_title_reconnect_pattern">Reconnection interval</string>
+    <string name="reconnect_header_interval">Interval</string>
+    <string name="reconnect_header_tries">Tries</string>
+
+
+
+    <!-- Ping settings (currently under reconnect settings) -->
+
+    <string name="pref_title_ping_enabled">Periodically send a heartbeat</string>
+    <string name="pref_description_ping_enabled">Periodically send a heartbeat (ping) to the server in order to make sure the connection is still alive. This may increase battery drain.</string>
+    <string name="pref_title_ping_wifi">Only send a heartbeat on WiFi</string>
+    <string name="pref_description_ping_wifi">Only send a heartbeat when using a WiFi connection</string>
+    <string name="pref_title_ping_interval">Heartbeat interval</string>
+
+    <!-- Command aliases settings -->
+
+    <string name="pref_header_command_aliases">إختصارات الأوامر</string>
+    <string name="title_activity_edit_command_alias">Edit a command alias</string>
+    <string name="title_activity_add_command_alias">Add a command alias</string>
+    <string name="title_activity_view_command_alias">View a command alias</string>
+
+    <string name="edit_command_alias_error_name_collision">A command alias with this name and syntax already exists.</string>
+
+    <string name="edit_command_alias_type">النوع</string>
+    <string name="edit_command_alias_syntax">Syntax</string>
+    <string name="edit_command_alias_channel">القناة</string>
+
+
+    <!-- Storage settings -->
+
+    <string name="pref_header_storage">التخزين</string>
+
+    <string name="pref_storage_chat_logs_title">سِجلّ المحادثات</string>
+    <string name="pref_storage_change_limits">تعديل الحدّ</string>
+    <string name="pref_storage_configuration_title">الضبط</string>
+
+    <string name="pref_storage_reset_configuration">إعادة تعيين الإعدادات</string>
+    <string name="pref_storage_reset_configuration_confirm">"Are you sure you want to reset the application\'s configuration? All server and chat history data will be lost."</string>
+
+    <string name="pref_storage_clear_all_chat_logs">Delete all chat logs</string>
+    <string name="pref_storage_clear_all_chat_logs_confirm">Are you sure you want to delete all chat logs?</string>
+
+    <string name="pref_storage_clear_server_chat_logs">Delete server chat history</string>
+
+    <string name="pref_header_storage_limits">الحدود</string>
+    <string name="pref_storage_limit_global_title">Global chat history storage limit</string>
+    <string name="pref_storage_limit_def_server_title">Per-server chat history storage limit</string>
+    <string name="pref_storage_no_limit">دون حدود</string>
+    <string name="pref_storage_limit_notice">Please note that those are soft limits and sometimes might be exceeded.</string>
+
+    <string name="pref_storage_set_server_limit">Set server limit</string>
+    <string name="pref_storage_change_server_limit">Change server limit</string>
+    <string name="pref_storage_remove_server_limit">Reset custom server limit</string>
+    <string name="pref_storage_limit_server_title">Server chat storage limit</string>
+
+    <!-- Backup settings -->
+
+    <string name="pref_header_backup">النسخ الإحتياطي</string>
+
+    <string name="backup_create">إنشاء نسخة احتياطية جديدة</string>
+    <string name="backup_restore">استرجاع نسخة احتياطية</string>
+
+    <string name="title_activity_backup">النسخ الإحتياطي</string>
+    <string name="title_activity_restore">Restore</string>
+    <string name="title_activity_backup_password">قم بإدخال كلمة سرية</string>
+    <string name="title_activity_backup_password_restore">ادخل الكلمة السرية</string>
+    <string name="title_activity_backup_progress">Creating a backup</string>
+    <string name="title_activity_backup_progress_restore">Restoring a backup</string>
+
+    <string name="backup_desc">To be able to restore the application settings later, for example after a system reinstall you might want to create a configuration backup and save it somewhere safe.</string>
+    <string name="backup_password_text">The backup will contain all of your settings, including server information and unencrypted passwords. It is recommended to set a password that will be required to restore the data from the backup.</string>
+    <string name="backup_restore_password_text">The specified backup is protected with a password. To be able to restore it, you need to enter the password.</string>
+
+    <string name="backup_created">The backup file was successfully created.</string>
+    <string name="backup_cancelled">Backup creation has been cancelled.</string>
+    <string name="backup_restored">The backup file was successfully restored.</string>
+    <string name="backup_restore_cancelled">Restoration has been cancelled.</string>
+    <string name="backup_restore_invalid">The specified backup file is invalid.</string>
+    <string name="backup_restore_invalid_password">الكلمة السرية غير صالحة</string>
+    <string name="backup_restore_password_not_empty">The password must not be empty</string>
+
+    <!-- Setup -->
+
+    <string name="please_wait_generic">يُرجى الإنتظار…</string>
+
+    <!-- Ignore list -->
+
+    <string name="title_activity_ignore_list">Ignore list</string>
+    <string name="title_activity_ignore_list_network">Ignore list for %s</string>
+    <string name="title_activity_edit_ignore_entry">Edit an ignore entry</string>
+    <string name="title_activity_add_ignore_entry">Add an ignore entry</string>
+
+    <!-- User info -->
+
+    <string name="user_title_away">%s (away)</string>
+    <string name="user_nick">الإسم المستعار</string>
+    <string name="user_hostname">لست المضيف</string>
+    <string name="user_server">السيرفر</string>
+    <string name="user_server_format">%s (%s)</string>
+    <string name="user_channels">القنوات</string>
+    <string name="user_idle">Idle time</string>
+    <string name="user_server_op">Server operator status</string>
+    <string name="user_server_op_desc">This user is an IRC server operator</string>
+    <string name="user_secure">Connection security status</string>
+    <string name="user_secure_desc">This user is using a secure connection</string>
+    <string name="user_account">الحساب</string>
+    <string name="user_away">Away message</string>
+
+    <string name="user_info_copied">Copied %s to clipboard.</string>
+
+    <!-- Color picker -->
+
+    <string name="color_picker_title">إختر لونًا</string>
+
+
+    <!-- IRC link handler -->
+
+    <string name="title_activity_irc_link">الإلتحاق بقناة</string>
+    <string name="irc_link_pick_header">Select a connection to join %2$s on %1$s</string>
+    <string name="irc_link_show_all">Show other connections</string>
+
+    <!-- DCC -->
+
+    <string name="title_activity_dcc">DCC transfers</string>
+    <string name="dcc_summary_notification_title">DCC transfers in progress</string>
+    <string name="dcc_summary_notification_text">%d transfers in progress</string>
+    <string name="dcc_active_upload_transfer_status">Uploading to %s</string>
+    <string name="dcc_active_download_transfer_status">Downloading from %s</string>
+    <string name="dcc_active_waiting_for_connection">Waiting for connection…</string>
+    <string name="dcc_active_waiting_for_approval">Waiting for user approval…</string>
+    <string name="dcc_approve_notification_body">%s (from server: %s) has sent you a file</string>
+    <string name="dcc_history_upload">Uploaded %2$s to %3$s (%1$s)</string>
+    <string name="dcc_history_download">Downloaded %2$s from %3$s (%1$s)</string>
+    <string name="dcc_history_download_failed">Failed to downloaded %2$s from %1$s</string>
+
+    <string name="dcc_approve_download_title">DCC file: %s</string>
+    <string name="dcc_approve_download_title_with_size">DCC file: %s (%s)</string>
+    <string name="dcc_approve_download_body">"%s (from server: %s) has sent you a file.  Warning: This download will be transmitted over an insecure &amp; unencrypted connection. Accepting this download will allow the other party to see your IP address. You should accept it only if you trust this user."</string>
+    <string name="dcc_approve_download_enable_anyway">Enable anyway</string>
+
+    <string name="dcc_enable_send_warning_title">إنذار أمان</string>
+    <string name="dcc_enable_send_warning_body">"DCC is a legacy peer to peer file sharing protocol and the files are sent over an insecure and unencrypted connection. This means that all data sent using the feature can potentially be copied or manipulated by attackers, especially on public WiFi networks. Additionally, due to the protocol\'s nature when you share files using DCC, you are also giving your IP address to the other party. DCC generally does not work when using mobile data, and may not work on some WiFi connections.  Because of this, we recommend that you instead use 3rd party sharing services and only share a link with the target user instead of DCC."</string>
+
+    <string name="dcc_system_downloads_permission_dialog_title">Downloads folder permission</string>
+    <string name="dcc_system_downloads_permission_dialog_text">.</string>
+
+    <string name="dcc_set_download_dir">اختيار مجلد التنزيل</string>
+    <string name="dcc_download_dir_application">التطبيق</string>
+    <string name="dcc_download_dir_system">النظام</string>
+    <string name="dcc_download_dir_custom">مخصص</string>
+
 </resources>
