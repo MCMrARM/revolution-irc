@@ -19,6 +19,8 @@ public class ThemeResourceFileBuilder {
     private static int sessionThemeIndex = 0;
 
     private static ResTable createTheme(Context ctx) {
+        ThemeHelper themeHelper = ThemeHelper.getInstance(ctx);
+
         ResTable table = new ResTable();
         ResTable.Package pkg = new ResTable.Package(0x7e, "io.mrarm.irc.theme");
 
@@ -26,13 +28,13 @@ public class ThemeResourceFileBuilder {
         pkg.addType(colorTypeSpec);
         ResTable.Type colorType = new ResTable.Type(1, new ResTable.Config());
         ResTable.Entry colorPrimary = new ResTable.Entry(0, "colorPrimary",
-                new ResValue.Integer(ResValue.TYPE_INT_COLOR_ARGB8, ThemeHelper.getPrimaryColor(ctx)));
+                new ResValue.Integer(ResValue.TYPE_INT_COLOR_ARGB8, themeHelper.getPrimaryColor()));
         colorType.addEntry(colorPrimary);
         ResTable.Entry colorPrimaryDark = new ResTable.Entry(1, "colorPrimaryDark",
-                new ResValue.Integer(ResValue.TYPE_INT_COLOR_ARGB8, ThemeHelper.getPrimaryDarkColor(ctx)));
+                new ResValue.Integer(ResValue.TYPE_INT_COLOR_ARGB8, themeHelper.getPrimaryDarkColor()));
         colorType.addEntry(colorPrimaryDark);
         ResTable.Entry colorAccent = new ResTable.Entry(2, "colorAccent",
-                new ResValue.Integer(ResValue.TYPE_INT_COLOR_ARGB8, ThemeHelper.getAccentColor(ctx)));
+                new ResValue.Integer(ResValue.TYPE_INT_COLOR_ARGB8, themeHelper.getAccentColor()));
         colorType.addEntry(colorAccent);
         pkg.addType(colorType);
 

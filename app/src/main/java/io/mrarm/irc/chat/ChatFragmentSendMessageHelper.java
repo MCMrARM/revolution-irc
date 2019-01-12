@@ -105,7 +105,7 @@ public class ChatFragmentSendMessageHelper implements SendMessageHelper.Callback
         mSendText.addTextChangedListener(mSendTextMultilineHelper);
         mSendText.addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
             if (s.length() > 0)
-                ImageViewTintUtils.setTint(mSendIcon, ThemeHelper.getAccentColor(mFragment.getContext()));
+                ImageViewTintUtils.setTint(mSendIcon, ThemeHelper.getInstance(mFragment.getContext()).getAccentColor());
             else
                 ImageViewTintUtils.setTint(mSendIcon, 0x54000000);
             mClientCommandErrorContainer.setVisibility(View.GONE); // hide the error

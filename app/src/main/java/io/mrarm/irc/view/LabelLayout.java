@@ -78,7 +78,7 @@ public class LabelLayout extends FrameLayout {
         } finally {
             ta.recycle();
         }
-        mTextColorFocused = ThemeHelper.getAccentColor(context);
+        mTextColorFocused = ThemeHelper.getInstance(context).getAccentColor();
         mTextPaint.setColor(mTextColorUnfocused.getColorForState(getDrawableState(), mTextColorUnfocused.getDefaultColor()));
 
         mAnimator = ValueAnimator.ofFloat(0.f, 1.f);

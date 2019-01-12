@@ -5,25 +5,29 @@ import android.support.v7.app.AppCompatActivity;
 
 import io.mrarm.irc.util.ThemeHelper;
 
-public class ThemedActivity extends AppCompatActivity {
+public class ThemedActivity extends AppCompatActivity implements ThemeHelper.ThemeChangeListener {
 
-    private int mCurrentPrimaryColor;
-    private int mCurrentAccentColor;
     private int mAppTheme;
+    private boolean mThemeChanged;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        mCurrentPrimaryColor = ThemeHelper.getPrimaryColor(this);
-        mCurrentAccentColor = ThemeHelper.getAccentColor(this);
-        ThemeHelper.applyThemeToActivity(this, mAppTheme);
+        ThemeHelper helper = ThemeHelper.getInstance(this);
+        helper.addThemeChangeListener(this);
+        helper.applyThemeToActivity(this, mAppTheme);
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    protected void onDestroy() {
+        ThemeHelper.getInstance(this).removeThemeChangeListener(this);
+        super.onDestroy();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        if (ThemeHelper.getPrimaryColor(this) != mCurrentPrimaryColor ||
-                ThemeHelper.getAccentColor(this) != mCurrentAccentColor)
+        if (mThemeChanged)
             recreate();
     }
 
@@ -31,6 +35,11 @@ public class ThemedActivity extends AppCompatActivity {
     public void setTheme(int resid) {
         super.setTheme(resid);
         mAppTheme = resid;
+    }
+
+    @Override
+    public void onThemeChanged() {
+        mThemeChanged = true;
     }
 
 }

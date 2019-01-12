@@ -43,7 +43,7 @@ public class StaticLabelTextInputLayout extends TextInputLayout {
                 new int[] { android.R.attr.textColorHint });
         mTextColorUnfocused = ta.getColor(android.R.attr.textColorHint, 0);
         ta.recycle();
-        mTextColorFocused = ThemeHelper.getAccentColor(context);
+        mTextColorFocused = ThemeHelper.getInstance(context).getAccentColor();
         mTextPaint.setColor(mTextColorUnfocused);
     }
 

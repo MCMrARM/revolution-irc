@@ -2,50 +2,88 @@ package io.mrarm.irc.util;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import io.mrarm.irc.R;
 import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.thememonkey.Theme;
 
-public class ThemeHelper {
+public class ThemeHelper implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private static Theme currentTheme = null;
+    private static ThemeHelper instance;
 
-    public static int getPrimaryColor(Context ctx) {
-        int def = StyledAttributesHelper.getColor(ctx, R.attr.colorPrimary, 0);
-        return SettingsHelper.getInstance(ctx).getColor(SettingsHelper.PREF_COLOR_PRIMARY, def);
+    public static ThemeHelper getInstance(Context context) {
+        if (instance == null)
+            instance = new ThemeHelper(context.getApplicationContext());
+        return instance;
     }
 
-    public static boolean hasCustomPrimaryColor(Context ctx) {
-        return SettingsHelper.getInstance(ctx).hasColor(SettingsHelper.PREF_COLOR_PRIMARY);
+
+    private Context context;
+    private Theme currentTheme;
+    private List<ThemeChangeListener> themeChangeListeners = new ArrayList<>();
+
+    public ThemeHelper(Context context) {
+        this.context = context;
+
+        SettingsHelper.getInstance(context).addPreferenceChangeListener(
+                SettingsHelper.PREF_COLOR_PRIMARY, this);
+        SettingsHelper.getInstance(context).addPreferenceChangeListener(
+                SettingsHelper.PREF_COLOR_ACCENT, this);
     }
 
-    public static int getPrimaryDarkColor(Context ctx) {
-        if (!hasCustomPrimaryColor(ctx))
-            return StyledAttributesHelper.getColor(ctx, R.attr.colorPrimaryDark, 0);
-        int color = getPrimaryColor(ctx);
+    public void addThemeChangeListener(ThemeChangeListener listener) {
+        themeChangeListeners.add(listener);
+    }
+
+    public void removeThemeChangeListener(ThemeChangeListener listener) {
+        themeChangeListeners.remove(listener);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        currentTheme = null;
+        for (ThemeChangeListener listener : themeChangeListeners)
+            listener.onThemeChanged();
+    }
+
+    public int getPrimaryColor() {
+        int def = StyledAttributesHelper.getColor(context, R.attr.colorPrimary, 0);
+        return SettingsHelper.getInstance(context).getColor(SettingsHelper.PREF_COLOR_PRIMARY, def);
+    }
+
+    public boolean hasCustomPrimaryColor() {
+        return SettingsHelper.getInstance(context).hasColor(SettingsHelper.PREF_COLOR_PRIMARY);
+    }
+
+    public int getPrimaryDarkColor() {
+        if (!hasCustomPrimaryColor())
+            return StyledAttributesHelper.getColor(context, R.attr.colorPrimaryDark, 0);
+        int color = getPrimaryColor();
         float[] hsv = new float[3];
         Color.colorToHSV(color, hsv);
         hsv[2] *= 0.8f;
         return Color.HSVToColor(hsv);
     }
 
-    public static boolean hasCustomAccentColor(Context ctx) {
-        return SettingsHelper.getInstance(ctx).hasColor(SettingsHelper.PREF_COLOR_ACCENT);
+    public boolean hasCustomAccentColor() {
+        return SettingsHelper.getInstance(context).hasColor(SettingsHelper.PREF_COLOR_ACCENT);
     }
 
-    public static int getAccentColor(Context ctx) {
-        int def = StyledAttributesHelper.getColor(ctx, R.attr.colorAccent, 0);
-        return SettingsHelper.getInstance(ctx).getColor(SettingsHelper.PREF_COLOR_ACCENT, def);
+    public int getAccentColor() {
+        int def = StyledAttributesHelper.getColor(context, R.attr.colorAccent, 0);
+        return SettingsHelper.getInstance(context).getColor(SettingsHelper.PREF_COLOR_ACCENT, def);
     }
 
 
-    public static void applyThemeToActivity(Activity activity, int appThemeId) {
+    public void applyThemeToActivity(Activity activity, int appThemeId) {
         if (currentTheme == null) {
-            if (hasCustomAccentColor(activity) || hasCustomAccentColor(activity)) {
+            if (hasCustomAccentColor() || hasCustomAccentColor()) {
                 File themeFile = ThemeResourceFileBuilder.createThemeZipFile(activity);
                 currentTheme = new Theme(activity.getApplicationContext(),
                         themeFile.getAbsolutePath());
@@ -58,6 +96,13 @@ public class ThemeHelper {
             activity.setTheme(ThemeResourceFileBuilder.getNoActionBarThemeId());
         else
             activity.setTheme(ThemeResourceFileBuilder.getPrimaryThemeId());
+    }
+
+
+    public interface ThemeChangeListener {
+
+        void onThemeChanged();
+
     }
 
 }

@@ -66,7 +66,7 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         int color = ta.getColor(R.attr.colorControlHighlight, 0);
         color = ColorUtils.setAlphaComponent(color, Color.alpha(color) / 2);
         mChannelSelectedBackground = new ColorDrawable(color);
-        mSelectedForegroundColor = ThemeHelper.getAccentColor(context);
+        mSelectedForegroundColor = ThemeHelper.getInstance(context).getAccentColor();
         mDefaultForegroundColor = ta.getColor(android.R.attr.textColorPrimary, 0);
         ta.recycle();
     }
