@@ -277,7 +277,7 @@ public class ServerConnectionInfo {
                 && !hasWifi))
             return;
         if (helper.shouldReconnectOnConnectivityChange()) {
-            connect(); // this will be ignored if we are already corrected
+            connect(); // this will be ignored if we are already connected
         } else if (mReconnectQueueTime != -1L) {
             long reconnectDelay = mManager.getReconnectDelay(mCurrentReconnectAttempt++);
             if (reconnectDelay == -1)

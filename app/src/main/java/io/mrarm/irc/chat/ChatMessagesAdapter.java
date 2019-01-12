@@ -30,7 +30,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     private ChatMessagesFragment mFragment;
     private List<MessageInfo> mMessages;
-    private LongPressSelectTouchListener mMutliSelectListener;
+    private LongPressSelectTouchListener mMultiSelectListener;
     private ChatSelectTouchListener mSelectListener;
     private Set<Integer> mSelectedItems = new TreeSet<>();
     private Drawable mItemBackground;
@@ -78,7 +78,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     }
 
     public void setMultiSelectListener(LongPressSelectTouchListener selectListener) {
-        mMutliSelectListener = selectListener;
+        mMultiSelectListener = selectListener;
         if (selectListener != null)
             selectListener.setListener(this);
     }
@@ -175,7 +175,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 if (mSelectListener != null && mSelectedItems.size() == 0) {
                     mSelectListener.startLongPressSelect();
                 } else {
-                    mMutliSelectListener.startSelectMode(getAdapterPosition());
+                    mMultiSelectListener.startSelectMode(getAdapterPosition());
                 }
                 return true;
             });
@@ -213,9 +213,9 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             if (mFontSize != -1)
                 mText.setTextSize(TypedValue.COMPLEX_UNIT_SP, mFontSize);
 
-            if (mMutliSelectListener != null)
+            if (mMultiSelectListener != null)
                 setSelected(mSelectedItems.contains(position) ||
-                        mMutliSelectListener.isElementHightlighted(position), false);
+                        mMultiSelectListener.isElementHightlighted(position), false);
 
             if (NotificationManager.getInstance().shouldMessageUseMentionFormatting(mFragment.getConnectionInfo(), mFragment.getChannelName(), message))
                 mText.setText(AlignToPointSpan.apply(mText, MessageBuilder.getInstance(mText.getContext()).buildMessageWithMention(message)));
