@@ -128,7 +128,7 @@
         <item quantity="other">connecting to %d networks</item>
     </plurals>
     <plurals name="service_status_disconnected">
-        <item quantity="one">disconnected fom %d network</item>
+        <item quantity="one">disconnected from %d network</item>
         <item quantity="other">disconnected from %d networks</item>
     </plurals>
     <plurals name="notify_multiple_messages">
@@ -179,7 +179,7 @@
     <string name="server_port">Port</string>
     <string name="server_ssl">Use SSL</string>
     <plurals name="server_manage_custom_certs_text">
-        <item quantity="one">%d custom certificates saved</item>
+        <item quantity="one">%d custom certificate saved</item>
         <item quantity="other">%d custom certificates saved</item>
     </plurals>
     <string name="server_manage_custom_certs">Manage custom certificates</string>
@@ -610,7 +610,10 @@
     <string name="title_activity_dcc">DCC transfers</string>
     <string name="notification_channel_dcc">@string/title_activity_dcc</string>
     <string name="dcc_summary_notification_title">DCC transfers in progress</string>
-    <string name="dcc_summary_notification_text">%d transfers in progress</string>
+    <plurals name="dcc_summary_notification_text">
+        <item quantity="one">%d transfer in progress</item>
+        <item quantity="other">%d transfers in progress</item>
+    </plurals>
     <string name="dcc_active_upload_transfer_status">Uploading to %s</string>
     <string name="dcc_active_download_transfer_status">Downloading from %s</string>
     <string name="dcc_active_waiting_for_connection">Waiting for connection…</string>
