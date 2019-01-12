@@ -2,13 +2,12 @@ package io.mrarm.irc.view;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.support.v7.widget.AppCompatSpinner;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.SpinnerAdapter;
 
-import io.mrarm.irc.view.theme.ThemedSpinner;
-
-public class AutoResizeSpinner extends ThemedSpinner {
+public class AutoResizeSpinner extends AppCompatSpinner {
 
     private final Rect mTempRect = new Rect();
     private final LayoutParams mDefaultLayoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -27,9 +28,8 @@ import io.mrarm.irc.util.SelectableRecyclerViewAdapter;
 import io.mrarm.irc.util.SimpleChipSpan;
 import io.mrarm.irc.util.SimpleTextWatcher;
 import io.mrarm.irc.util.StyledAttributesHelper;
-import io.mrarm.irc.view.theme.ThemedEditText;
 
-public class AutoRunCommandListEditText extends ThemedEditText
+public class AutoRunCommandListEditText extends AppCompatEditText
         implements ChatSuggestionsAdapter.OnItemClickListener {
 
     private static final String[] PASSWORD_LINE_PREFIXES = new String[] {

@@ -2,6 +2,7 @@ package io.mrarm.irc.view;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.support.v7.widget.AppCompatEditText;
 import android.text.Editable;
 import android.text.NoCopySpan;
 import android.text.Spanned;
@@ -11,9 +12,7 @@ import android.util.AttributeSet;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.mrarm.irc.view.theme.ThemedEditText;
-
-public class FormattableEditText extends ThemedEditText {
+public class FormattableEditText extends AppCompatEditText {
 
     private TextFormatBar mFormatBar;
     private boolean mSettingText = false;

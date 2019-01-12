@@ -3,6 +3,7 @@ package io.mrarm.irc.view;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.support.design.widget.TextInputLayout;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
@@ -11,9 +12,8 @@ import android.widget.LinearLayout;
 import io.mrarm.irc.R;
 import io.mrarm.irc.util.StyledAttributesHelper;
 import io.mrarm.irc.util.ThemeHelper;
-import io.mrarm.irc.view.theme.ThemedTextInputLayout;
 
-public class StaticLabelTextInputLayout extends ThemedTextInputLayout {
+public class StaticLabelTextInputLayout extends TextInputLayout {
 
     private boolean mForceShowHint = false;
     private boolean mWasHintEnabled = false;

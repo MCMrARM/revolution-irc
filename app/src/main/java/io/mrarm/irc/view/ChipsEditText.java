@@ -3,6 +3,7 @@ package io.mrarm.irc.view;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.AppCompatEditText;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.TextWatcher;
@@ -11,9 +12,8 @@ import android.util.AttributeSet;
 import java.util.Collection;
 
 import io.mrarm.irc.util.SimpleChipSpan;
-import io.mrarm.irc.view.theme.ThemedEditText;
 
-public class ChipsEditText extends ThemedEditText {
+public class ChipsEditText extends AppCompatEditText {
 
     public static final char SEPARATOR = ' ';
 
