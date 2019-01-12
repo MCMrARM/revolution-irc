@@ -575,7 +575,7 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
             ServerConnectionInfo connection = ServerConnectionManager.getInstance(mContext)
                     .getConnection(mServerUUID);
             if (connection == null)
-                throw new IOException("The connection doesn't exit");
+                throw new IOException("The connection doesn't exist");
             FileChannel file;
             String downloadFileName = getUnescapedFileName().replace('/', '_');
             String ext = getFileExtension();
