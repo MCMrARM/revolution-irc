@@ -99,8 +99,8 @@ public class InterfaceSettingsFragment extends SettingsListFragment
                 getResources().getStringArray(R.array.pref_entry_values_chat_history_swipe_mode),
                 SettingsHelper.SWIPE_LEFT_TO_RIGHT)
                 .linkPreference(prefs, SettingsHelper.PREF_CHAT_SEND_BOX_HISTORY_SWIPE_MODE));
-        a.add(new CheckBoxSetting(getString(R.string.pref_title_chat_mutli_scroll_mode),
-                getString(R.string.pref_summary_chat_mutli_scroll_mode), false)
+        a.add(new CheckBoxSetting(getString(R.string.pref_title_chat_multi_scroll_mode),
+                getString(R.string.pref_summary_chat_multi_scroll_mode), false)
                 .linkPreference(prefs, SettingsHelper.PREF_CHAT_MULTI_SELECT_MODE));
         a.add(new CheckBoxSetting(getString(R.string.pref_title_chat_show_dcc_send),
                 getString(R.string.pref_summary_chat_show_dcc_send), false)

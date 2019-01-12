@@ -219,7 +219,7 @@ public class UserBottomSheetDialog {
                 mTitle = itemView.findViewById(R.id.title);
                 mValue = itemView.findViewById(R.id.value);
                 itemView.setOnLongClickListener((View v) -> {
-                    copyValueToClipbord(v.getContext(), mTitle.getText(), mValue.getText());
+                    copyValueToClipboard(v.getContext(), mTitle.getText(), mValue.getText());
                     return true;
                 });
             }
@@ -342,7 +342,7 @@ public class UserBottomSheetDialog {
 
     }
 
-    private static void copyValueToClipbord(Context context, CharSequence key, CharSequence value) {
+    private static void copyValueToClipboard(Context context, CharSequence key, CharSequence value) {
         ClipboardManager clipboard = (ClipboardManager) context
                 .getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText(key, value);
@@ -353,7 +353,7 @@ public class UserBottomSheetDialog {
 
     private static View.OnLongClickListener createLongClickListener(Context context, int resId) {
         return (View v) -> {
-            copyValueToClipbord(context, context.getString(resId), ((TextView) v).getText());
+            copyValueToClipboard(context, context.getString(resId), ((TextView) v).getText());
             return true;
         };
     }

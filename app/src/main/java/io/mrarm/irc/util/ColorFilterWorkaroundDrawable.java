@@ -17,7 +17,7 @@ import android.support.annotation.Nullable;
  * This workarounds this bug by creating a new drawable when setting a color filter, and restoring
  * the original one when clearing the color filter.
  *
- * [1] https://github.com/androi/platform_frameworks_base/blob/4a81674b45b7250c4e2a80330371f7aa1c066d05/graphics/java/android/graphics/drawable/DrawableContainer.java#L173
+ * [1] https://github.com/android/platform_frameworks_base/blob/4a81674b45b7250c4e2a80330371f7aa1c066d05/graphics/java/android/graphics/drawable/DrawableContainer.java#L173
  * [2] https://github.com/android/platform_frameworks_base/blob/4a81674b45b7250c4e2a80330371f7aa1c066d05/graphics/java/android/graphics/drawable/DrawableContainer.java#L538
  *     https://github.com/android/platform_frameworks_base/blob/4a81674b45b7250c4e2a80330371f7aa1c066d05/graphics/java/android/graphics/drawable/DrawableContainer.java#L543
  */
