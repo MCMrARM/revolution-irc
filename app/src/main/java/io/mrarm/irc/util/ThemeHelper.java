@@ -80,6 +80,11 @@ public class ThemeHelper implements SharedPreferences.OnSharedPreferenceChangeLi
         return SettingsHelper.getInstance(context).getColor(SettingsHelper.PREF_COLOR_ACCENT, def);
     }
 
+    public boolean shouldUseLightToolbar() {
+        int c = getPrimaryColor();
+        return ((c >> 16) & 0xFF) > 140 && ((c >> 8) & 0xFF) > 140 && (c & 0xFF) > 140;
+    }
+
 
     public void applyThemeToActivity(Activity activity, int appThemeId) {
         if (currentTheme == null) {

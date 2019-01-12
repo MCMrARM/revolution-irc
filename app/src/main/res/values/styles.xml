@@ -5,14 +5,28 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
 
+        <item name="actionBarTheme">@style/AppTheme.AppBarOverlay</item>
+
         <item name="textFormatBarStyle">@style/TextFormatBar</item>
         <item name="recyclerViewScrollbarStyle">@style/RecyclerViewScrollbar</item>
+    </style>
+
+    <style name="AppTheme.CustomLightActionBar">
+        <item name="actionBarPopupTheme">@style/ThemeOverlay.AppCompat</item>
+        <item name="actionBarWidgetTheme">@null</item>
+        <item name="actionBarTheme">@style/ThemeOverlay.AppCompat.ActionBar</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="windowActionModeOverlay">true</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar.CustomLightActionBar">
+        <item name="actionBarPopupTheme">@style/ThemeOverlay.AppCompat</item>
+        <item name="actionBarWidgetTheme">@null</item>
+        <item name="actionBarTheme">@style/ThemeOverlay.AppCompat.ActionBar</item>
     </style>
 
     <style name="AppTheme.NoActionBar.OpaqueStatusBar" parent="AppTheme">

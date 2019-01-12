@@ -55,6 +55,11 @@ public class ThemeResourceFileBuilder {
         styleType.addEntry(appThemeNoActionBar);
         pkg.addType(styleType);
 
+        if (themeHelper.shouldUseLightToolbar()) {
+            appTheme.setParent(R.style.AppTheme_CustomLightActionBar);
+            appThemeNoActionBar.setParent(R.style.AppTheme_NoActionBar_CustomLightActionBar);
+        }
+
         table.addPackage(pkg);
         return table;
     }
