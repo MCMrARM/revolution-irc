@@ -2,10 +2,10 @@ package io.mrarm.irc.setting;
 
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 
 import io.mrarm.irc.R;
-import io.mrarm.irc.dialog.ThemedAlertDialog;
 
 public class ListSetting extends SimpleSetting {
 
@@ -92,7 +92,7 @@ public class ListSetting extends SimpleSetting {
         @Override
         public void onClick(View v) {
             ListSetting listEntry = getEntry();
-            new ThemedAlertDialog.Builder(v.getContext())
+            new AlertDialog.Builder(v.getContext())
                     .setTitle(listEntry.mName)
                     .setSingleChoiceItems(listEntry.mOptions, listEntry.mSelectedOption,
                             (DialogInterface i, int which) -> {

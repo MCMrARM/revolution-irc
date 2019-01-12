@@ -23,7 +23,6 @@ import io.mrarm.irc.MainActivity;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.config.CommandAliasManager;
-import io.mrarm.irc.dialog.ThemedAlertDialog;
 
 public class UserAutoRunCommandHelper implements ServerConnectionInfo.ChannelListChangeListener {
 
@@ -160,7 +159,7 @@ public class UserAutoRunCommandHelper implements ServerConnectionInfo.ChannelLis
         public void showDialog(Activity activity) {
             super.showDialog(activity);
             dismissDialog(activity);
-            ThemedAlertDialog.Builder dialog = new ThemedAlertDialog.Builder(activity);
+            AlertDialog.Builder dialog = new AlertDialog.Builder(activity);
             dialog.setTitle(R.string.connection_error_command_title);
 
             StringBuilder commands = new StringBuilder();

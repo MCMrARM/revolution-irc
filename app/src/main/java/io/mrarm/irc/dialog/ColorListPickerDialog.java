@@ -92,7 +92,7 @@ public class ColorListPickerDialog {
     }
 
     public void show() {
-        AlertDialog.Builder builder = new ThemedAlertDialog.Builder(mContext)
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext)
                 .setTitle(mTitle)
                 .setView(buildDialogView())
                 .setPositiveButton(mPositiveButtonText, mPositiveButtonListener);

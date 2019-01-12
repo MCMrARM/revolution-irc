@@ -10,6 +10,7 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Toast;
 
@@ -19,7 +20,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import io.mrarm.irc.R;
-import io.mrarm.irc.dialog.ThemedAlertDialog;
 
 public class ListWithCustomSetting extends ListSetting implements
         SettingsListAdapter.ActivityResultCallback {
@@ -222,7 +222,7 @@ public class ListWithCustomSetting extends ListSetting implements
                         R.string.value_custom_specific, entry.getCustomValue());
             entriesWithCustom[entriesWithCustom.length - 1] = v.getContext().getString(
                     R.string.value_custom);
-            new ThemedAlertDialog.Builder(v.getContext())
+            new AlertDialog.Builder(v.getContext())
                     .setTitle(entry.mName)
                     .setSingleChoiceItems(entriesWithCustom,
                             custom ? entries.length : entry.getSelectedOption(),

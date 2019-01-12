@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -15,7 +16,6 @@ import android.widget.TextView;
 
 import io.mrarm.irc.config.CommandAliasManager;
 import io.mrarm.irc.dialog.MenuBottomSheetDialog;
-import io.mrarm.irc.dialog.ThemedAlertDialog;
 import io.mrarm.irc.util.AdvancedDividerItemDecoration;
 import io.mrarm.irc.util.StyledAttributesHelper;
 
@@ -138,7 +138,7 @@ public class CommandAliasesAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     return true;
                 });
                 dialog.addItem(R.string.action_delete, R.drawable.ic_delete, (MenuBottomSheetDialog.Item item) -> {
-                    new ThemedAlertDialog.Builder(ctx)
+                    new AlertDialog.Builder(ctx)
                             .setTitle(R.string.action_delete_confirm_title)
                             .setMessage(ctx.getString(R.string.action_delete_confirm_body, mText.getText()))
                             .setPositiveButton(R.string.action_delete, (DialogInterface di2, int which2) -> {

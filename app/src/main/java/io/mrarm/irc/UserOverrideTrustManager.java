@@ -36,7 +36,6 @@ import javax.net.ssl.X509TrustManager;
 import io.mrarm.irc.config.ServerCertificateManager;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
-import io.mrarm.irc.dialog.ThemedAlertDialog;
 import io.mrarm.irc.util.SettableFuture;
 import io.mrarm.irc.util.WarningHelper;
 
@@ -191,7 +190,7 @@ public class UserOverrideTrustManager implements X509TrustManager, HostnameVerif
         @Override
         public void showDialog(Activity activity) {
             dismissDialog(null);
-            ThemedAlertDialog.Builder builder = new ThemedAlertDialog.Builder(activity);
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
             builder.setTitle(activity.getString(R.string.certificate_error, getServerName()));
             LayoutInflater inflater = activity.getLayoutInflater();
             View view = inflater.inflate(R.layout.bad_certificate_layout, null, false);

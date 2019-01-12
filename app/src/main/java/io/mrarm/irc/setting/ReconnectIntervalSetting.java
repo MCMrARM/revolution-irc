@@ -29,7 +29,6 @@ import java.util.List;
 
 import io.mrarm.irc.R;
 import io.mrarm.irc.config.SettingsHelper;
-import io.mrarm.irc.dialog.ThemedAlertDialog;
 import io.mrarm.irc.util.SimpleTextWatcher;
 
 public class ReconnectIntervalSetting extends SimpleSetting {
@@ -322,7 +321,7 @@ public class ReconnectIntervalSetting extends SimpleSetting {
             recyclerView.setLayoutManager(new LinearLayoutManager(itemView.getContext()));
             recyclerView.setAdapter(adapter);
 
-            AlertDialog dialog = new ThemedAlertDialog.Builder(v.getContext())
+            AlertDialog dialog = new AlertDialog.Builder(v.getContext())
                     .setPositiveButton(R.string.action_ok, (DialogInterface dialogInterface, int which) -> {
                         getEntry().setRules(rules);
                     })

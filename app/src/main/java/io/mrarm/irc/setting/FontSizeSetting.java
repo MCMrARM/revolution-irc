@@ -2,6 +2,7 @@ package io.mrarm.irc.setting;
 
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.support.v7.app.AlertDialog;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,7 +11,6 @@ import android.widget.TextView;
 
 import io.mrarm.irc.R;
 import io.mrarm.irc.config.SettingsHelper;
-import io.mrarm.irc.dialog.ThemedAlertDialog;
 
 public class FontSizeSetting extends SimpleSetting {
 
@@ -95,7 +95,7 @@ public class FontSizeSetting extends SimpleSetting {
             });
             seekBar.setProgress(Math.min(Math.max(fontSize - SEEKBAR_OFFSET, 0), seekBar.getMax()));
 
-            new ThemedAlertDialog.Builder(v.getContext())
+            new AlertDialog.Builder(v.getContext())
                     .setTitle(entry.mName)
                     .setView(view)
                     .setPositiveButton(R.string.action_ok, (DialogInterface di, int i) -> {

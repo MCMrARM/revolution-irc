@@ -59,7 +59,7 @@ public class MaterialColorPickerDialog {
                 }
             }
         });
-        AlertDialog dialog = new ThemedAlertDialog.Builder(mContext, R.style.MaterialColorPickerDialog)
+        AlertDialog dialog = new AlertDialog.Builder(mContext, R.style.MaterialColorPickerDialog)
                 .setView(view)
                 .show();
         picker.setColorPickListener((int color) -> {

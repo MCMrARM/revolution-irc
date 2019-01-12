@@ -16,7 +16,7 @@ import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.config.SettingsHelper;
 
-public class ServerStorageLimitDialog extends ThemedAlertDialog {
+public class ServerStorageLimitDialog extends AlertDialog {
 
     private ServerConfigData mServer;
     private SeekBar mSeekBar;

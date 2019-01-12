@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDelegate;
 import android.view.View;
 
@@ -15,7 +16,6 @@ import io.mrarm.irc.MessageFormatSettingsActivity;
 import io.mrarm.irc.R;
 import io.mrarm.irc.SettingsActivity;
 import io.mrarm.irc.config.SettingsHelper;
-import io.mrarm.irc.dialog.ThemedAlertDialog;
 import io.mrarm.irc.setting.CheckBoxSetting;
 import io.mrarm.irc.setting.ClickableSetting;
 import io.mrarm.irc.setting.FontSizeSetting;
@@ -144,7 +144,7 @@ public class InterfaceSettingsFragment extends SettingsListFragment
 
 
     private void showDCCWarning(CheckBoxSetting setting) {
-        new ThemedAlertDialog.Builder(getContext())
+        new AlertDialog.Builder(getContext())
                 .setTitle(R.string.dcc_enable_send_warning_title)
                 .setMessage(R.string.dcc_enable_send_warning_body)
                 .setPositiveButton(R.string.dcc_approve_download_enable_anyway, null)

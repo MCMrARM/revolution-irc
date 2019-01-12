@@ -3,6 +3,7 @@ package io.mrarm.irc.setting;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -10,7 +11,6 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 import io.mrarm.irc.R;
-import io.mrarm.irc.dialog.ThemedAlertDialog;
 
 public class IntervalSetting extends SimpleSetting {
 
@@ -86,7 +86,7 @@ public class IntervalSetting extends SimpleSetting {
             EditText text = view.findViewById(R.id.interval);
             setInterval(spinner, text, entry.getDuration());
 
-            new ThemedAlertDialog.Builder(v.getContext())
+            new AlertDialog.Builder(v.getContext())
                     .setTitle(entry.mName)
                     .setView(view)
                     .setPositiveButton(R.string.action_ok, (DialogInterface di, int i) -> {

@@ -2,13 +2,13 @@ package io.mrarm.irc.setting;
 
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 
 import java.util.Arrays;
 
 import io.mrarm.irc.R;
-import io.mrarm.irc.dialog.ThemedAlertDialog;
 import io.mrarm.irc.view.ChipsEditText;
 
 public class ChipsEditTextSetting extends SimpleSetting {
@@ -93,7 +93,7 @@ public class ChipsEditTextSetting extends SimpleSetting {
             if (entry.mItems != null)
                 text.setItems(Arrays.asList(entry.mItems));
             text.setHint(entry.mDefaultText);
-            new ThemedAlertDialog.Builder(v.getContext())
+            new AlertDialog.Builder(v.getContext())
                     .setTitle(entry.mName)
                     .setView(view)
                     .setPositiveButton(R.string.action_ok, (DialogInterface di, int i) -> {
