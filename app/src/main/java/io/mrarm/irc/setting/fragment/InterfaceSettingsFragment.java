@@ -43,20 +43,6 @@ public class InterfaceSettingsFragment extends SettingsListFragment
         SettingsListAdapter a = new SettingsListAdapter(this);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         a.setRequestCodeCounter(((SettingsActivity) getActivity()).getRequestCodeCounter());
-        a.add(new CheckBoxSetting(getString(R.string.pref_title_dark_theme),
-                getString(R.string.pref_summary_dark_theme), false)
-                .linkPreference(prefs, SettingsHelper.PREF_DARK_THEME)
-                .addListener((EntryRecyclerViewAdapter.Entry entry) -> {
-                    AppCompatDelegate.setDefaultNightMode(((CheckBoxSetting) entry).isChecked()
-                            ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
-                    getActivity().recreate();
-                }));
-        a.add(new MaterialColorSetting(getString(R.string.pref_title_primary_color))
-                .linkPreference(prefs, SettingsHelper.PREF_COLOR_PRIMARY)
-                .addListener((EntryRecyclerViewAdapter.Entry entry) -> getActivity().recreate() ));
-        a.add(new MaterialColorSetting(getString(R.string.pref_title_accent_color))
-                .linkPreference(prefs, SettingsHelper.PREF_COLOR_ACCENT)
-                .addListener((EntryRecyclerViewAdapter.Entry entry) -> getActivity().recreate() ));
         a.add(new ListWithCustomSetting(a, getString(R.string.pref_title_font),
                 getResources().getStringArray(R.array.pref_entries_font),
                 getResources().getStringArray(R.array.pref_entry_values_font), "default",

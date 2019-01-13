@@ -93,17 +93,23 @@ public class SimpleSetting extends SettingsListAdapter.Entry {
         public void bind(T entry) {
             itemView.setEnabled(entry.mEnabled);
             mName.setEnabled(entry.mEnabled);
-            mValue.setEnabled(entry.mEnabled);
             mName.setText(entry.mName);
-            setValueText(entry.mValue);
+            if (mValue != null) {
+                mValue.setEnabled(entry.mEnabled);
+                setValueText(entry.mValue);
+            }
         }
 
         protected void setValueText(CharSequence text) {
+            if (mValue == null)
+                return;
             mValue.setVisibility(text == null ? View.GONE : View.VISIBLE);
             mValue.setText(text);
         }
 
         protected void setValueText(int textId) {
+            if (mValue == null)
+                return;
             mValue.setVisibility(View.VISIBLE);
             mValue.setText(textId);
         }
