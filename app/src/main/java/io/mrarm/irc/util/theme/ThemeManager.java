@@ -4,11 +4,19 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.util.Log;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import io.mrarm.irc.R;
 import io.mrarm.irc.config.SettingsHelper;
@@ -16,6 +24,11 @@ import io.mrarm.irc.util.StyledAttributesHelper;
 import io.mrarm.thememonkey.Theme;
 
 public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeListener {
+
+    private static final String FILENAME_PREFIX = "theme-";
+    private static final String FILENAME_SUFFIX = ".json";
+
+    private static final String PREF_THEME_CUSTOM_PREFIX = "custom:";
 
     private static ThemeManager instance;
 
@@ -27,22 +40,62 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
 
 
     private Context context;
-    private Theme currentThemePatcher;
+    private File themesDir;
     private ThemeResInfo currentTheme;
+    private ThemeInfo currentCustomTheme;
+    private Theme currentCustomThemePatcher;
     private List<ThemeChangeListener> themeChangeListeners = new ArrayList<>();
     private ThemeResInfo fallbackTheme;
+    private Map<String, ThemeResInfo> baseThemes = new HashMap<>();
+    private Map<UUID, ThemeInfo> customThemes = new HashMap<>();
 
     public ThemeManager(Context context) {
         this.context = context;
+        themesDir = new File(context.getFilesDir(), "themes");
 
         fallbackTheme = new ThemeResInfo(R.style.AppTheme, R.style.AppTheme_NoActionBar);
+        baseThemes.put("default", fallbackTheme);
+        loadThemes();
 
         SettingsHelper.getInstance(context).addPreferenceChangeListener(
-                SettingsHelper.PREF_COLOR_PRIMARY, this);
-        SettingsHelper.getInstance(context).addPreferenceChangeListener(
-                SettingsHelper.PREF_COLOR_ACCENT, this);
+                SettingsHelper.PREF_THEME, this);
+        onSharedPreferenceChanged(null, SettingsHelper.PREF_THEME);
+    }
 
-        createTheme();
+    private void loadThemes() {
+        File[] themes = themesDir.listFiles();
+        if (themes == null)
+            return;
+        for (File themeFile : themes) {
+            String fileName = themeFile.getName();
+            if (fileName.startsWith(FILENAME_PREFIX) && fileName.endsWith(FILENAME_SUFFIX)) {
+                try {
+                    UUID uuid = UUID.fromString(fileName.substring(FILENAME_PREFIX.length(),
+                            fileName.length() - FILENAME_SUFFIX.length()));
+                    loadTheme(themeFile, uuid);
+                } catch (IOException | IllegalArgumentException e) {
+                    Log.w("ThemeManager", "Failed to load theme: " + fileName);
+                }
+            }
+        }
+    }
+
+    private ThemeInfo loadTheme(File themeFile, UUID uuid) throws IOException {
+        ThemeInfo theme = SettingsHelper.getGson().fromJson(
+                new BufferedReader(new FileReader(themeFile)), ThemeInfo.class);
+        theme.uuid = uuid;
+        theme.baseThemeInfo = baseThemes.get(theme.base);
+        if (theme.baseThemeInfo == null)
+            theme.baseThemeInfo = fallbackTheme;
+        customThemes.put(uuid, theme);
+        return theme;
+    }
+
+    public void saveTheme(ThemeInfo theme) throws IOException {
+        if (theme.uuid == null)
+            theme.uuid = UUID.randomUUID();
+        SettingsHelper.getGson().toJson(theme, new BufferedWriter(new FileWriter(
+                new File(themesDir, FILENAME_PREFIX + theme.uuid + FILENAME_SUFFIX))));
     }
 
     public void addThemeChangeListener(ThemeChangeListener listener) {
@@ -56,62 +109,38 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         currentTheme = null;
-        createTheme();
+        currentCustomTheme = null;
+        currentCustomThemePatcher = null;
+
+        String theme = SettingsHelper.getInstance(context).getTheme();
+        if (theme != null && theme.startsWith(PREF_THEME_CUSTOM_PREFIX)) {
+            try {
+                UUID uuid = UUID.fromString(
+                        theme.substring(PREF_THEME_CUSTOM_PREFIX.length()));
+                currentCustomTheme = customThemes.get(uuid);
+            } catch (IllegalArgumentException ignored) {
+            }
+        } else {
+            currentTheme = baseThemes.get(theme);
+        }
+        if (currentTheme == null && currentCustomTheme == null)
+            currentTheme = fallbackTheme;
+
         for (ThemeChangeListener listener : themeChangeListeners)
             listener.onThemeChanged();
     }
 
-    private void createTheme() {
-        ThemeInfo themeInfo = new ThemeInfo();
-        themeInfo.colors = new HashMap<>();
-        themeInfo.colors.put(ThemeInfo.COLOR_PRIMARY, getPrimaryColor());
-        themeInfo.colors.put(ThemeInfo.COLOR_PRIMARY_DARK, getPrimaryDarkColor());
-        themeInfo.colors.put(ThemeInfo.COLOR_ACCENT, getAccentColor());
-        themeInfo.lightToolbar = shouldUseLightToolbar();
-        ThemeResourceFileBuilder.CustomTheme theme = ThemeResourceFileBuilder
-                .createTheme(context, themeInfo, fallbackTheme);
-        currentTheme = theme;
-        File themeFile = ThemeResourceFileBuilder.createThemeZipFile(context, theme.getResTable());
-        currentThemePatcher = new Theme(context, themeFile.getAbsolutePath());
-    }
-
-    public int getPrimaryColor() {
-        int def = StyledAttributesHelper.getColor(context, R.attr.colorPrimary, 0);
-        return SettingsHelper.getInstance(context).getColor(SettingsHelper.PREF_COLOR_PRIMARY, def);
-    }
-
-    public boolean hasCustomPrimaryColor() {
-        return SettingsHelper.getInstance(context).hasColor(SettingsHelper.PREF_COLOR_PRIMARY);
-    }
-
-    public int getPrimaryDarkColor() {
-        if (!hasCustomPrimaryColor())
-            return StyledAttributesHelper.getColor(context, R.attr.colorPrimaryDark, 0);
-        int color = getPrimaryColor();
-        float[] hsv = new float[3];
-        Color.colorToHSV(color, hsv);
-        hsv[2] *= 0.8f;
-        return Color.HSVToColor(hsv);
-    }
-
-    public boolean hasCustomAccentColor() {
-        return SettingsHelper.getInstance(context).hasColor(SettingsHelper.PREF_COLOR_ACCENT);
-    }
-
-    public int getAccentColor() {
-        int def = StyledAttributesHelper.getColor(context, R.attr.colorAccent, 0);
-        return SettingsHelper.getInstance(context).getColor(SettingsHelper.PREF_COLOR_ACCENT, def);
-    }
-
-    public boolean shouldUseLightToolbar() {
-        int c = getPrimaryColor();
-        return ((c >> 16) & 0xFF) > 140 && ((c >> 8) & 0xFF) > 140 && (c & 0xFF) > 140;
-    }
-
-
     public void applyThemeToActivity(Activity activity) {
-        if (currentThemePatcher != null)
-            currentThemePatcher.applyToActivity(activity);
+        if (currentCustomThemePatcher == null && currentCustomTheme != null) {
+            ThemeResourceFileBuilder.CustomTheme theme = ThemeResourceFileBuilder
+                    .createTheme(context, currentCustomTheme);
+            currentTheme = theme;
+            File themeFile = ThemeResourceFileBuilder.createThemeZipFile(context,
+                    theme.getResTable());
+            currentCustomThemePatcher = new Theme(context, themeFile.getAbsolutePath());
+        }
+        if (currentCustomThemePatcher != null)
+            currentCustomThemePatcher.applyToActivity(activity);
     }
 
     public int getThemeIdToApply(int appThemeId) {

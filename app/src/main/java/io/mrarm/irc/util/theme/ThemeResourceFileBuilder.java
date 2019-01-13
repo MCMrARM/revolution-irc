@@ -46,8 +46,7 @@ public class ThemeResourceFileBuilder {
                 new ResValue.Reference(R.style.ThemeOverlay_AppCompat_ActionBar));
     }
 
-    public static CustomTheme createTheme(Context ctx, ThemeInfo theme,
-                                        ThemeManager.ThemeResInfo baseTheme) {
+    public static CustomTheme createTheme(Context ctx, ThemeInfo theme) {
         ResTable table = new ResTable();
         ResTable.Package pkg = new ResTable.Package(0x7e, "io.mrarm.irc.theme");
 
@@ -68,10 +67,10 @@ public class ThemeResourceFileBuilder {
         pkg.addType(styleTypeSpec);
         ResTable.Type styleType = new ResTable.Type(2, new ResTable.Config());
         ResTable.MapEntry appTheme = new ResTable.MapEntry(0, "AppTheme");
-        appTheme.setParent(baseTheme.getThemeResId());
+        appTheme.setParent(theme.baseThemeInfo.getThemeResId());
         styleType.addEntry(appTheme);
         ResTable.MapEntry appThemeNoActionBar = new ResTable.MapEntry(1, "AppTheme.NoActionBar");
-        appThemeNoActionBar.setParent(baseTheme.getThemeNoActionBarResId());
+        appThemeNoActionBar.setParent(theme.baseThemeInfo.getThemeNoActionBarResId());
         styleType.addEntry(appThemeNoActionBar);
         pkg.addType(styleType);
 

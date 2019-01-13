@@ -36,9 +36,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     public static final String PREF_PING_INTERVAL  = "ping_interval";
     public static final String PREF_DARK_THEME = "dark_theme";
     public static final String PREF_DRAWER_PINNED = "drawer_pinned";
-    public static final String PREF_COLOR_PREFIX = "color_";
-    public static final String PREF_COLOR_PRIMARY = PREF_COLOR_PREFIX + "primary";
-    public static final String PREF_COLOR_ACCENT = PREF_COLOR_PREFIX + "accent";
+    public static final String PREF_THEME = "theme";
     public static final String PREF_CHAT_FONT = "chat_font";
     public static final String PREF_CHAT_FONT_SIZE = "chat_font_size";
     public static final String PREF_CHAT_TEXT_AUTOCORRECT = "chat_text_autocorrect";
@@ -314,16 +312,8 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         return getLong(PREF_STORAGE_LIMIT_SERVER, StorageLimitsDialog.DEFAULT_LIMIT_SERVER);
     }
 
-    public int getColor(String colorName, int def) {
-        if (!colorName.startsWith(PREF_COLOR_PREFIX))
-            throw new RuntimeException("Invalid color name");
-        return mPreferences.getInt(colorName, def);
-    }
-
-    public boolean hasColor(String colorName) {
-        if (!colorName.startsWith(PREF_COLOR_PREFIX))
-            throw new RuntimeException("Invalid color name");
-        return mPreferences.contains(colorName);
+    public String getTheme() {
+        return mPreferences.getString(PREF_THEME, null);
     }
 
 

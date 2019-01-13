@@ -31,10 +31,8 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
                     getActivity().recreate();
                 }));
         a.add(new SingleLineMaterialColorSetting(getString(R.string.theme_primary_color))
-                .linkPreference(prefs, SettingsHelper.PREF_COLOR_PRIMARY)
                 .addListener((EntryRecyclerViewAdapter.Entry entry) -> getActivity().recreate() ));
         a.add(new SingleLineMaterialColorSetting(getString(R.string.theme_accent_color))
-                .linkPreference(prefs, SettingsHelper.PREF_COLOR_ACCENT)
                 .addListener((EntryRecyclerViewAdapter.Entry entry) -> getActivity().recreate() ));
         return a;
     }
