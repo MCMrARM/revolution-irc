@@ -1,5 +1,6 @@
 package io.mrarm.irc.setting.fragment;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -61,11 +62,7 @@ public class InterfaceSettingsFragment extends SettingsListFragment
                 .setOnClickListener((View v) -> {
                     ThemeInfo newTheme = createNewTheme();
                     ThemeManager.getInstance(getContext()).setTheme(newTheme);
-                    ThemeSettingsFragment fragment = new ThemeSettingsFragment();
-                    Bundle args = new Bundle();
-                    args.putString(ThemeSettingsFragment.ARG_THEME_UUID, newTheme.uuid.toString());
-                    fragment.setArguments(args);
-                    ((SettingsActivity) getActivity()).setFragment(fragment);
+                    openThemeEditor(newTheme);
                     getActivity().recreate();
                 }));
         a.add(new SettingsHeader(getString(R.string.pref_header_interface)));
@@ -133,17 +130,30 @@ public class InterfaceSettingsFragment extends SettingsListFragment
     private void createThemeList(SettingsListAdapter a) {
         ThemeManager themeManager = ThemeManager.getInstance(getContext());
         RadioButtonSetting.Group themeGroup = new RadioButtonSetting.Group();
+        SettingsListAdapter.SettingChangedListener recreateCb =
+                (EntryRecyclerViewAdapter.Entry e) -> getActivity().recreate();
         for (ThemeManager.BaseTheme theme : themeManager.getBaseThemes()) {
             int themeResId = theme.getThemeResId();
             a.add(new ThemeOptionSetting(getString(theme.getNameResId()),
-                    themeGroup, getBaseThemePrimaryColor(themeResId)));
+                    themeGroup, getBaseThemePrimaryColor(themeResId))
+                    .linkBaseTheme(theme).addListener(recreateCb));
         }
+        ThemeOptionSetting.EditCustomCallback editCb = this::openThemeEditor;
         for (ThemeInfo theme : themeManager.getCustomThemes()) {
             Integer primaryColor = theme.colors.get(ThemeInfo.COLOR_PRIMARY);
             if (primaryColor == null)
                 primaryColor = getBaseThemePrimaryColor(theme.baseThemeInfo.getThemeResId());
-            a.add(new ThemeOptionSetting(theme.name, themeGroup, primaryColor));
+            a.add(new ThemeOptionSetting(theme.name, themeGroup, primaryColor)
+                    .linkCustomTheme(theme, editCb).addListener(recreateCb));
         }
+    }
+
+    private void openThemeEditor(ThemeInfo theme) {
+        ThemeSettingsFragment fragment = new ThemeSettingsFragment();
+        Bundle args = new Bundle();
+        args.putString(ThemeSettingsFragment.ARG_THEME_UUID, theme.uuid.toString());
+        fragment.setArguments(args);
+        ((SettingsActivity) getActivity()).setFragment(fragment);
     }
 
     private ThemeInfo createNewTheme() {
@@ -220,10 +230,37 @@ public class InterfaceSettingsFragment extends SettingsListFragment
                 R.layout.settings_theme_option);
 
         private int overrideColor;
+        private ThemeManager.BaseTheme linkedBaseTheme;
+        private ThemeInfo linkedCustomTheme;
+        private EditCustomCallback editCallback;
 
         public ThemeOptionSetting(String name, RadioButtonSetting.Group group, int overrideColor) {
             super(name, group);
             this.overrideColor = overrideColor;
+        }
+
+        @Override
+        public void setChecked(boolean checked) {
+            super.setChecked(checked);
+            if (checked) {
+                if (linkedBaseTheme != null)
+                    ThemeManager.getInstance(null).setTheme(linkedBaseTheme);
+                if (linkedCustomTheme != null)
+                    ThemeManager.getInstance(null).setTheme(linkedCustomTheme);
+            }
+        }
+
+        public ThemeOptionSetting linkBaseTheme(ThemeManager.BaseTheme theme) {
+            setChecked(ThemeManager.getInstance(null).getCurrentTheme() == theme);
+            linkedBaseTheme = theme;
+            return this;
+        }
+
+        public ThemeOptionSetting linkCustomTheme(ThemeInfo theme, EditCustomCallback editCb) {
+            setChecked(ThemeManager.getInstance(null).getCurrentCustomTheme() == theme);
+            linkedCustomTheme = theme;
+            editCallback = editCb;
+            return this;
         }
 
         @Override
@@ -250,8 +287,23 @@ public class InterfaceSettingsFragment extends SettingsListFragment
                 else
                     CompoundButtonCompat.setButtonTintList(mCheckBox, mDefaultButtonTintList);
             }
+
+            @Override
+            public void onClick(View v) {
+                ThemeOptionSetting themeEntry = (ThemeOptionSetting) getEntry();
+                if (getEntry().isChecked() && themeEntry.editCallback != null) {
+                    themeEntry.editCallback.onEdit(themeEntry.linkedCustomTheme);
+                    return;
+                }
+                super.onClick(v);
+            }
         }
 
+        public interface EditCustomCallback {
+
+            void onEdit(ThemeInfo themeInfo);
+
+        }
 
     }
 
