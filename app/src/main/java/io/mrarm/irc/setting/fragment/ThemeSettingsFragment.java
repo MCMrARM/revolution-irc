@@ -121,7 +121,7 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
             super.setSelectedColor(color);
             mHasCustomColor = true;
             if (mTheme != null) {
-                mTheme.properties.put(mThemeProp, color);
+                mTheme.colors.put(mThemeProp, color);
             }
         }
 
@@ -135,7 +135,7 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
         }
 
         public ThemeColorSetting linkProperty(Context context, ThemeInfo theme, String prop) {
-            Integer color = theme.getInt(prop);
+            Integer color = theme.colors.get(prop);
             if (color != null) {
                 setSelectedColor(color);
             } else {

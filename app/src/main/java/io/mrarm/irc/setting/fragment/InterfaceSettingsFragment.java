@@ -140,7 +140,7 @@ public class InterfaceSettingsFragment extends SettingsListFragment
         }
         ThemeOptionSetting.EditCustomCallback editCb = this::openThemeEditor;
         for (ThemeInfo theme : themeManager.getCustomThemes()) {
-            Integer primaryColor = theme.getInt(ThemeInfo.COLOR_PRIMARY);
+            Integer primaryColor = theme.colors.get(ThemeInfo.COLOR_PRIMARY);
             if (primaryColor == null)
                 primaryColor = getBaseThemePrimaryColor(theme.baseThemeInfo.getThemeResId());
             a.add(new ThemeOptionSetting(theme.name, themeGroup, primaryColor)
