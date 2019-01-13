@@ -24,6 +24,7 @@ public class EntryRecyclerViewAdapter extends RecyclerView.Adapter<EntryRecycler
 
         private EntryRecyclerViewAdapter mOwner;
         private int mIndex;
+        private boolean mUpdatesDirectly;
 
         public abstract int getViewHolder();
 
@@ -34,8 +35,16 @@ public class EntryRecyclerViewAdapter extends RecyclerView.Adapter<EntryRecycler
             mIndex = index;
         }
 
+        /**
+         * Marks that this element has custom update logic and shouldn't use notifyItemChanged.
+         * @param updatesDirectly whether the element uses custom update logic
+         */
+        protected void setUpdatesDirectly(boolean updatesDirectly) {
+            mUpdatesDirectly = updatesDirectly;
+        }
+
         protected void onUpdated() {
-            if (mOwner != null && mIndex != -1)
+            if (mOwner != null && mIndex != -1 && !mUpdatesDirectly)
                 mOwner.notifyItemChanged(mIndex);
         }
 

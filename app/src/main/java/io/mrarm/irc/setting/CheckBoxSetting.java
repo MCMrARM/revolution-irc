@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.CompoundButton;
 
 import io.mrarm.irc.R;
+import io.mrarm.irc.util.EntryRecyclerViewAdapter;
 
 public class CheckBoxSetting extends SimpleSetting {
 
@@ -16,11 +17,13 @@ public class CheckBoxSetting extends SimpleSetting {
     public CheckBoxSetting(String name, boolean checked) {
         super(name, null);
         mChecked = checked;
+        setUpdatesDirectly(true);
     }
 
     public CheckBoxSetting(String name, String desc, boolean checked) {
         super(name, desc);
         mChecked = checked;
+        setUpdatesDirectly(true);
     }
 
     public CheckBoxSetting linkPreference(SharedPreferences prefs, String pref) {
@@ -48,9 +51,11 @@ public class CheckBoxSetting extends SimpleSetting {
     }
 
     public static class Holder extends SimpleSetting.Holder<CheckBoxSetting>
-            implements CompoundButton.OnCheckedChangeListener {
+            implements CompoundButton.OnCheckedChangeListener,
+            SettingsListAdapter.SettingChangedListener {
 
         protected CompoundButton mCheckBox;
+        private SimpleSetting oldEntry;
 
         public Holder(View itemView, SettingsListAdapter adapter) {
             super(itemView, adapter);
@@ -65,17 +70,34 @@ public class CheckBoxSetting extends SimpleSetting {
         @Override
         public void bind(CheckBoxSetting entry) {
             super.bind(entry);
-            mCheckBox.setEnabled(entry.isEnabled());
+            if (oldEntry != null)
+                oldEntry.removeListener(this);
+            oldEntry = entry;
+            entry.addListener(this);
+            onSettingChanged(entry);
+        }
+
+        @Override
+        public void onSettingChanged(EntryRecyclerViewAdapter.Entry entry) {
+            mCheckBox.setEnabled(getEntry().isEnabled());
             mCheckBox.setOnCheckedChangeListener(null);
-            mCheckBox.setChecked(entry.isChecked());
+            mCheckBox.setChecked(getEntry().isChecked());
             mCheckBox.setOnCheckedChangeListener(this);
+        }
+
+        @Override
+        public void unbind() {
+            super.unbind();
+            if (oldEntry != null) {
+                oldEntry.removeListener(this);
+                oldEntry = null;
+            }
         }
 
         @Override
         public void onClick(View v) {
             mCheckBox.setChecked(!mCheckBox.isChecked());
         }
-
     }
 
 }
