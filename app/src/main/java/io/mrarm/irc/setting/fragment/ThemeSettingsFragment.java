@@ -72,6 +72,18 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
         a.add(new ThemeBoolSetting(getString(R.string.theme_light_toolbar))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.PROP_LIGHT_TOOLBAR)
                 .addListener(applyListener));
+        a.add(new ThemeColorSetting(getString(R.string.theme_color_background))
+                .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_BACKGROUND)
+                .addListener(applyListener));
+        a.add(new ThemeColorSetting(getString(R.string.theme_color_background_floating))
+                .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_BACKGROUND_FLOATING)
+                .addListener(applyListener));
+        a.add(new ThemeColorSetting(getString(R.string.theme_color_text_primary))
+                .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_TEXT_PRIMARY)
+                .addListener(applyListener));
+        a.add(new ThemeColorSetting(getString(R.string.theme_color_text_secondary))
+                .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_TEXT_SECONDARY)
+                .addListener(applyListener));
         return a;
     }
 

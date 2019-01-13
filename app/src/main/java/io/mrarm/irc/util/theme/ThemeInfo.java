@@ -17,6 +17,10 @@ public class ThemeInfo {
     public static final String COLOR_PRIMARY = "colorPrimary";
     public static final String COLOR_PRIMARY_DARK = "colorPrimaryDark";
     public static final String COLOR_ACCENT = "colorAccent";
+    public static final String COLOR_BACKGROUND = "colorBackground";
+    public static final String COLOR_BACKGROUND_FLOATING = "colorBackgroundFloating";
+    public static final String COLOR_TEXT_PRIMARY = "textColorPrimary";
+    public static final String COLOR_TEXT_SECONDARY = "textColorSecondary";
 
     public static final String PROP_LIGHT_TOOLBAR = "lightToolbar";
 

@@ -387,7 +387,11 @@
     <string name="theme_color_primary">Primary color</string>
     <string name="theme_color_primary_dark">Primary dark color</string>
     <string name="theme_color_accent">Accent color</string>
-    <string name="theme_light_toolbar">Light Toolbar</string>
+    <string name="theme_light_toolbar">Light toolbar</string>
+    <string name="theme_color_background">Background color</string>
+    <string name="theme_color_background_floating">Background color (popups/floating)</string>
+    <string name="theme_color_text_primary">Primary text color</string>
+    <string name="theme_color_text_secondary">Secondary text color</string>
 
     <!-- Notification settings -->
 
