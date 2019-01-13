@@ -125,12 +125,12 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
             }
         }
 
-        private int getDefaultValue(Context context) {
-            List<Integer> attrs = ThemeAttrMapping.getColorAttrs(mThemeProp);
+        private static int getDefaultValue(Context context, ThemeInfo theme, String prop) {
+            List<Integer> attrs = ThemeAttrMapping.getColorAttrs(prop);
             if (attrs == null || attrs.size() == 0)
                 return 0;
             StyledAttributesHelper attrVals = StyledAttributesHelper.obtainStyledAttributes(context,
-                    mTheme.baseThemeInfo.getThemeResId(), new int[] { attrs.get(0) });
+                    theme.baseThemeInfo.getThemeResId(), new int[] { attrs.get(0) });
             return attrVals.getColor(attrs.get(0), 0);
         }
 
@@ -140,7 +140,7 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
                 setSelectedColor(color);
             } else {
                 mHasCustomColor = false;
-                super.setSelectedColor(getDefaultValue(context));
+                super.setSelectedColor(getDefaultValue(context, theme, prop));
             }
             mTheme = theme;
             mThemeProp = prop;
@@ -168,7 +168,7 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
             }
         }
 
-        private boolean getDefaultValue(Context context) {
+        private static boolean getDefaultValue(Context context) {
             return false;
         }
 
