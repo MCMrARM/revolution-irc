@@ -34,6 +34,7 @@ public class ThemeAttrMapping {
         mapColorToAttr(ThemeInfo.COLOR_PRIMARY_DARK, R.attr.colorPrimaryDark);
         mapColorToAttr(ThemeInfo.COLOR_ACCENT, R.attr.colorAccent);
         mapColorToAttr(ThemeInfo.COLOR_BACKGROUND, android.R.attr.colorBackground);
+        mapColorToAttr(ThemeInfo.COLOR_BACKGROUND, android.R.attr.windowBackground);
         mapColorToAttr(ThemeInfo.COLOR_BACKGROUND_FLOATING, R.attr.colorBackgroundFloating);
         mapColorToAttr(ThemeInfo.COLOR_TEXT_PRIMARY, android.R.attr.textColorPrimary);
         mapColorToAttr(ThemeInfo.COLOR_TEXT_SECONDARY, android.R.attr.textColorSecondary);
