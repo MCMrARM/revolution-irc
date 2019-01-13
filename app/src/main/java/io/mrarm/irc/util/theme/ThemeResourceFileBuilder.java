@@ -6,6 +6,10 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -18,58 +22,77 @@ public class ThemeResourceFileBuilder {
 
     private static int sessionThemeIndex = 0;
 
-    private static ResTable createTheme(Context ctx) {
-        ThemeHelper themeHelper = ThemeHelper.getInstance(ctx);
+    private static final Map<String, List<Integer>> colorToAttrs = new HashMap<>();
 
+    private static void mapColorToAttr(String colorName, int attr) {
+        List<Integer> l = colorToAttrs.get(colorName);
+        if (l == null) {
+            l = new ArrayList<>();
+            colorToAttrs.put(colorName, l);
+        }
+        l.add(attr);
+    }
+
+    static {
+        mapColorToAttr(ThemeInfo.COLOR_PRIMARY, R.attr.colorPrimary);
+        mapColorToAttr(ThemeInfo.COLOR_PRIMARY_DARK, R.attr.colorPrimaryDark);
+        mapColorToAttr(ThemeInfo.COLOR_ACCENT, R.attr.colorAccent);
+    }
+
+    private static void setUseLightActionBar(ResTable.MapEntry theme) {
+        theme.addValue(R.attr.actionBarPopupTheme,
+                new ResValue.Reference(R.style.ThemeOverlay_AppCompat));
+        theme.addValue(R.attr.actionBarTheme,
+                new ResValue.Reference(R.style.ThemeOverlay_AppCompat_ActionBar));
+    }
+
+    public static CustomTheme createTheme(Context ctx, ThemeInfo theme,
+                                        ThemeHelper.ThemeResInfo baseTheme) {
         ResTable table = new ResTable();
         ResTable.Package pkg = new ResTable.Package(0x7e, "io.mrarm.irc.theme");
 
-        ResTable.TypeSpec colorTypeSpec = new ResTable.TypeSpec(1, "color", new int[] { 0, 0, 0 });
+        ResTable.TypeSpec colorTypeSpec = new ResTable.TypeSpec(1, "color",
+                new int[theme.colors.size()] /* should be filled with zeros */);
         pkg.addType(colorTypeSpec);
         ResTable.Type colorType = new ResTable.Type(1, new ResTable.Config());
-        ResTable.Entry colorPrimary = new ResTable.Entry(0, "colorPrimary",
-                new ResValue.Integer(ResValue.TYPE_INT_COLOR_ARGB8, themeHelper.getPrimaryColor()));
-        colorType.addEntry(colorPrimary);
-        ResTable.Entry colorPrimaryDark = new ResTable.Entry(1, "colorPrimaryDark",
-                new ResValue.Integer(ResValue.TYPE_INT_COLOR_ARGB8, themeHelper.getPrimaryDarkColor()));
-        colorType.addEntry(colorPrimaryDark);
-        ResTable.Entry colorAccent = new ResTable.Entry(2, "colorAccent",
-                new ResValue.Integer(ResValue.TYPE_INT_COLOR_ARGB8, themeHelper.getAccentColor()));
-        colorType.addEntry(colorAccent);
+        List<String> colors = new ArrayList<>();
+        for (Map.Entry<String, Integer> p : theme.colors.entrySet()) {
+            ResTable.Entry colorPrimary = new ResTable.Entry(colors.size(), p.getKey(),
+                    new ResValue.Integer(ResValue.TYPE_INT_COLOR_ARGB8, p.getValue()));
+            colorType.addEntry(colorPrimary);
+            colors.add(p.getKey());
+        }
         pkg.addType(colorType);
 
         ResTable.TypeSpec styleTypeSpec = new ResTable.TypeSpec(2, "style", new int[] { 0, 0 });
         pkg.addType(styleTypeSpec);
         ResTable.Type styleType = new ResTable.Type(2, new ResTable.Config());
         ResTable.MapEntry appTheme = new ResTable.MapEntry(0, "AppTheme");
-        appTheme.setParent(R.style.AppTheme);
-        appTheme.addValue(R.attr.colorPrimary, new ResValue.Reference(pkg, colorTypeSpec, colorPrimary));
-        appTheme.addValue(R.attr.colorPrimaryDark, new ResValue.Reference(pkg, colorTypeSpec, colorPrimaryDark));
-        appTheme.addValue(R.attr.colorAccent, new ResValue.Reference(pkg, colorTypeSpec, colorAccent));
+        appTheme.setParent(baseTheme.getThemeResId());
         styleType.addEntry(appTheme);
-        ResTable.MapEntry appThemeNoActionBar = new ResTable.MapEntry(1, "AppTheme");
-        appThemeNoActionBar.setParent(R.style.AppTheme_NoActionBar);
-        appThemeNoActionBar.addValue(R.attr.colorPrimary, new ResValue.Reference(pkg, colorTypeSpec, colorPrimary));
-        appThemeNoActionBar.addValue(R.attr.colorPrimaryDark, new ResValue.Reference(pkg, colorTypeSpec, colorPrimaryDark));
-        appThemeNoActionBar.addValue(R.attr.colorAccent, new ResValue.Reference(pkg, colorTypeSpec, colorAccent));
+        ResTable.MapEntry appThemeNoActionBar = new ResTable.MapEntry(1, "AppTheme.NoActionBar");
+        appThemeNoActionBar.setParent(baseTheme.getThemeNoActionBarResId());
         styleType.addEntry(appThemeNoActionBar);
         pkg.addType(styleType);
 
-        if (themeHelper.shouldUseLightToolbar()) {
-            appTheme.setParent(R.style.AppTheme_CustomLightActionBar);
-            appThemeNoActionBar.setParent(R.style.AppTheme_NoActionBar_CustomLightActionBar);
+        for (int i = 0; i < colors.size(); i++) {
+            String color = colors.get(i);
+            List<Integer> resIds = colorToAttrs.get(color);
+            if (resIds == null)
+                continue;
+            for (int resId : resIds)
+                appTheme.addValue(resId, new ResValue.Reference(pkg, colorTypeSpec, i));
+            for (int resId : resIds)
+                appThemeNoActionBar.addValue(resId, new ResValue.Reference(pkg, colorTypeSpec, i));
+        }
+        if (theme.lightToolbar) {
+            setUseLightActionBar(appTheme);
+            setUseLightActionBar(appThemeNoActionBar);
         }
 
         table.addPackage(pkg);
-        return table;
-    }
-
-    public static int getPrimaryThemeId() {
-        return ResTable.makeReference(0x7e, 2, 0);
-    }
-
-    public static int getNoActionBarThemeId() {
-        return ResTable.makeReference(0x7e, 2, 1);
+        return new CustomTheme(ResTable.makeReference(pkg, styleTypeSpec, appTheme),
+                ResTable.makeReference(pkg, styleTypeSpec, appThemeNoActionBar), table);
     }
 
     private static void buildThemeZipFile(File zipPath, ResTable resTable) {
@@ -102,14 +125,30 @@ public class ThemeResourceFileBuilder {
             file.delete();
     }
 
-    public static File createThemeZipFile(Context context) {
+    public static File createThemeZipFile(Context context, ResTable resTable) {
         File dir = getThemesDir(context);
         dir.mkdirs();
         deleteOldThemeFiles(dir);
         File file = new File(dir, "theme." + sessionThemeIndex +  ".zip");
-        buildThemeZipFile(file, createTheme(context));
+        buildThemeZipFile(file, resTable);
         ++sessionThemeIndex;
         return file;
+    }
+
+
+    public static class CustomTheme extends ThemeHelper.ThemeResInfo {
+
+        private ResTable resTable;
+
+        public CustomTheme(int themeResId, int themeNoActionBarResId, ResTable resTable) {
+            super(themeResId, themeNoActionBarResId);
+            this.resTable = resTable;
+        }
+
+        public ResTable getResTable() {
+            return resTable;
+        }
+
     }
 
 }

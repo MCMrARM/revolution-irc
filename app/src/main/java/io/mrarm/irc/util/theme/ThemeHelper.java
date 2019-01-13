@@ -7,7 +7,9 @@ import android.graphics.Color;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import io.mrarm.irc.R;
 import io.mrarm.irc.config.SettingsHelper;
@@ -26,16 +28,22 @@ public class ThemeHelper implements SharedPreferences.OnSharedPreferenceChangeLi
 
 
     private Context context;
-    private Theme currentTheme;
+    private Theme currentThemePatcher;
+    private ThemeResInfo currentTheme;
     private List<ThemeChangeListener> themeChangeListeners = new ArrayList<>();
+    private ThemeResInfo fallbackTheme;
 
     public ThemeHelper(Context context) {
         this.context = context;
+
+        fallbackTheme = new ThemeResInfo(R.style.AppTheme, R.style.AppTheme_NoActionBar);
 
         SettingsHelper.getInstance(context).addPreferenceChangeListener(
                 SettingsHelper.PREF_COLOR_PRIMARY, this);
         SettingsHelper.getInstance(context).addPreferenceChangeListener(
                 SettingsHelper.PREF_COLOR_ACCENT, this);
+
+        createTheme();
     }
 
     public void addThemeChangeListener(ThemeChangeListener listener) {
@@ -49,8 +57,23 @@ public class ThemeHelper implements SharedPreferences.OnSharedPreferenceChangeLi
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         currentTheme = null;
+        createTheme();
         for (ThemeChangeListener listener : themeChangeListeners)
             listener.onThemeChanged();
+    }
+
+    private void createTheme() {
+        ThemeInfo themeInfo = new ThemeInfo();
+        themeInfo.colors = new HashMap<>();
+        themeInfo.colors.put(ThemeInfo.COLOR_PRIMARY, getPrimaryColor());
+        themeInfo.colors.put(ThemeInfo.COLOR_PRIMARY_DARK, getPrimaryDarkColor());
+        themeInfo.colors.put(ThemeInfo.COLOR_ACCENT, getAccentColor());
+        themeInfo.lightToolbar = shouldUseLightToolbar();
+        ThemeResourceFileBuilder.CustomTheme theme = ThemeResourceFileBuilder
+                .createTheme(context, themeInfo, fallbackTheme);
+        currentTheme = theme;
+        File themeFile = ThemeResourceFileBuilder.createThemeZipFile(context, theme.getResTable());
+        currentThemePatcher = new Theme(context, themeFile.getAbsolutePath());
     }
 
     public int getPrimaryColor() {
@@ -88,31 +111,44 @@ public class ThemeHelper implements SharedPreferences.OnSharedPreferenceChangeLi
 
 
     public void applyThemeToActivity(Activity activity) {
-        if (currentTheme == null) {
-            if (hasCustomAccentColor() || hasCustomAccentColor()) {
-                File themeFile = ThemeResourceFileBuilder.createThemeZipFile(activity);
-                currentTheme = new Theme(activity.getApplicationContext(),
-                        themeFile.getAbsolutePath());
-            } else {
-                return;
-            }
-        }
-        currentTheme.applyToActivity(activity);
+        if (currentThemePatcher != null)
+            currentThemePatcher.applyToActivity(activity);
     }
 
     public int getThemeIdToApply(int appThemeId) {
         if (currentTheme == null)
             return appThemeId;
         if (appThemeId == R.style.AppTheme_NoActionBar)
-            return ThemeResourceFileBuilder.getNoActionBarThemeId();
+            return currentTheme.getThemeNoActionBarResId();
         else
-            return ThemeResourceFileBuilder.getPrimaryThemeId();
+            return currentTheme.getThemeResId();
     }
 
 
     public interface ThemeChangeListener {
 
         void onThemeChanged();
+
+    }
+
+
+    public static class ThemeResInfo {
+
+        private int themeResId;
+        private int themeNoActionBarResId;
+
+        public ThemeResInfo(int themeResId, int themeNoActionBarResId) {
+            this.themeResId = themeResId;
+            this.themeNoActionBarResId = themeNoActionBarResId;
+        }
+
+        public int getThemeResId() {
+            return themeResId;
+        }
+
+        public int getThemeNoActionBarResId() {
+            return themeNoActionBarResId;
+        }
 
     }
 
