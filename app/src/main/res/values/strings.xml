@@ -381,6 +381,7 @@
 
     <string name="pref_header_theme">Theme</string>
 
+    <string name="theme_create_new">Create a new theme</string>
     <string name="theme_dark_theme">Dark theme</string>
     <string name="theme_primary_color">Primary color</string>
     <string name="theme_accent_color">Accent color</string>

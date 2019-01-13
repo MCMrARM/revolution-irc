@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatDelegate;
 import android.view.View;
 
 import java.util.Date;
+import java.util.Map;
 
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.dto.MessageSenderInfo;
@@ -29,6 +30,9 @@ import io.mrarm.irc.setting.SettingsHeader;
 import io.mrarm.irc.setting.SettingsListAdapter;
 import io.mrarm.irc.util.EntryRecyclerViewAdapter;
 import io.mrarm.irc.util.MessageBuilder;
+import io.mrarm.irc.util.StyledAttributesHelper;
+import io.mrarm.irc.util.theme.ThemeInfo;
+import io.mrarm.irc.util.theme.ThemeManager;
 
 public class InterfaceSettingsFragment extends SettingsListFragment
         implements NamedSettingsFragment {
@@ -48,10 +52,12 @@ public class InterfaceSettingsFragment extends SettingsListFragment
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         a.setRequestCodeCounter(((SettingsActivity) getActivity()).getRequestCodeCounter());
         a.add(new SettingsHeader(getString(R.string.pref_header_theme)));
-        RadioButtonSetting.Group themeGroup = new RadioButtonSetting.Group();
-        a.add(new ThemeOptionSetting("Red", themeGroup, 0xFFFF1744));
-        a.add(new ThemeOptionSetting("Green", themeGroup, 0xFF00E676));
-        a.add(new ThemeOptionSetting("Blue", themeGroup, 0xFF2979FF));
+        createThemeList(a);
+        a.add(new ClickableSetting(getString(R.string.theme_create_new), null)
+                .setOnClickListener((View v) -> {
+                    ((SettingsActivity) getActivity()).setFragment(
+                            new ThemeSettingsFragment());
+                }));
         a.add(new SettingsHeader(getString(R.string.pref_header_interface)));
         a.add(new ListWithCustomSetting(a, getString(R.string.pref_title_font),
                 getResources().getStringArray(R.array.pref_entries_font),
@@ -106,6 +112,29 @@ public class InterfaceSettingsFragment extends SettingsListFragment
         mSampleMessage = new MessageInfo(testSender, date,
                 getString(R.string.message_example_message), MessageInfo.MessageType.NORMAL);
         return a;
+    }
+
+    private int getBaseThemePrimaryColor(int resId) {
+        StyledAttributesHelper attrs = StyledAttributesHelper.obtainStyledAttributes(getContext(),
+                resId, new int[] { R.attr.colorPrimary });
+        return attrs.getColor(R.attr.colorPrimary, 0);
+    }
+
+    private void createThemeList(SettingsListAdapter a) {
+        ThemeManager themeManager = ThemeManager.getInstance(getContext());
+        RadioButtonSetting.Group themeGroup = new RadioButtonSetting.Group();
+        for (Map.Entry<String, ThemeManager.BaseTheme> theme :
+                themeManager.getBaseThemes().entrySet()) {
+            int themeResId = theme.getValue().getThemeResId();
+            a.add(new ThemeOptionSetting(getString(theme.getValue().getNameResId()),
+                    themeGroup, getBaseThemePrimaryColor(themeResId)));
+        }
+        for (ThemeInfo theme : themeManager.getCustomThemes()) {
+            Integer primaryColor = theme.colors.get(ThemeInfo.COLOR_PRIMARY);
+            if (primaryColor == null)
+                primaryColor = getBaseThemePrimaryColor(theme.baseThemeInfo.getThemeResId());
+            a.add(new ThemeOptionSetting(theme.name, themeGroup, primaryColor));
+        }
     }
 
     @Override

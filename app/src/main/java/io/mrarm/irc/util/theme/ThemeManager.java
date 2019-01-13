@@ -13,6 +13,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,15 +46,16 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
     private ThemeInfo currentCustomTheme;
     private Theme currentCustomThemePatcher;
     private List<ThemeChangeListener> themeChangeListeners = new ArrayList<>();
-    private ThemeResInfo fallbackTheme;
-    private Map<String, ThemeResInfo> baseThemes = new HashMap<>();
+    private BaseTheme fallbackTheme;
+    private Map<String, BaseTheme> baseThemes = new HashMap<>();
     private Map<UUID, ThemeInfo> customThemes = new HashMap<>();
 
     public ThemeManager(Context context) {
         this.context = context;
         themesDir = new File(context.getFilesDir(), "themes");
 
-        fallbackTheme = new ThemeResInfo(R.style.AppTheme, R.style.AppTheme_NoActionBar);
+        fallbackTheme = new BaseTheme(R.string.value_default,
+                R.style.AppTheme, R.style.AppTheme_NoActionBar);
         baseThemes.put("default", fallbackTheme);
         loadThemes();
 
@@ -96,6 +98,14 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
             theme.uuid = UUID.randomUUID();
         SettingsHelper.getGson().toJson(theme, new BufferedWriter(new FileWriter(
                 new File(themesDir, FILENAME_PREFIX + theme.uuid + FILENAME_SUFFIX))));
+    }
+
+    public Map<String, BaseTheme> getBaseThemes() {
+        return baseThemes;
+    }
+
+    public Collection<ThemeInfo> getCustomThemes() {
+        return customThemes.values();
     }
 
     public void addThemeChangeListener(ThemeChangeListener listener) {
@@ -176,6 +186,21 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
 
         public int getThemeNoActionBarResId() {
             return themeNoActionBarResId;
+        }
+
+    }
+
+    public static class BaseTheme extends ThemeResInfo {
+
+        private int nameResId;
+
+        public BaseTheme(int nameResId, int themeResId, int themeNoActionBarResId) {
+            super(themeResId, themeNoActionBarResId);
+            this.nameResId = nameResId;
+        }
+
+        public int getNameResId() {
+            return nameResId;
         }
 
     }
