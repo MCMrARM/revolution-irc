@@ -2,7 +2,6 @@ package io.mrarm.irc.setting;
 
 import android.content.SharedPreferences;
 import android.view.View;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
 import io.mrarm.irc.R;
@@ -51,7 +50,7 @@ public class CheckBoxSetting extends SimpleSetting {
     public static class Holder extends SimpleSetting.Holder<CheckBoxSetting>
             implements CompoundButton.OnCheckedChangeListener {
 
-        private CheckBox mCheckBox;
+        protected CompoundButton mCheckBox;
 
         public Holder(View itemView, SettingsListAdapter adapter) {
             super(itemView, adapter);

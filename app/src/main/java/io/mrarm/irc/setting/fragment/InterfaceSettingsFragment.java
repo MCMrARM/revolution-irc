@@ -3,7 +3,9 @@ package io.mrarm.irc.setting.fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.preference.PreferenceManager;
+import android.support.v4.widget.CompoundButtonCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDelegate;
 import android.view.View;
@@ -22,6 +24,8 @@ import io.mrarm.irc.setting.FontSizeSetting;
 import io.mrarm.irc.setting.ListSetting;
 import io.mrarm.irc.setting.ListWithCustomSetting;
 import io.mrarm.irc.setting.MaterialColorSetting;
+import io.mrarm.irc.setting.RadioButtonSetting;
+import io.mrarm.irc.setting.SettingsHeader;
 import io.mrarm.irc.setting.SettingsListAdapter;
 import io.mrarm.irc.util.EntryRecyclerViewAdapter;
 import io.mrarm.irc.util.MessageBuilder;
@@ -43,6 +47,12 @@ public class InterfaceSettingsFragment extends SettingsListFragment
         SettingsListAdapter a = new SettingsListAdapter(this);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         a.setRequestCodeCounter(((SettingsActivity) getActivity()).getRequestCodeCounter());
+        a.add(new SettingsHeader(getString(R.string.pref_header_theme)));
+        RadioButtonSetting.Group themeGroup = new RadioButtonSetting.Group();
+        a.add(new ThemeOptionSetting("Red", themeGroup, 0xFFFF1744));
+        a.add(new ThemeOptionSetting("Green", themeGroup, 0xFF00E676));
+        a.add(new ThemeOptionSetting("Blue", themeGroup, 0xFF2979FF));
+        a.add(new SettingsHeader(getString(R.string.pref_header_interface)));
         a.add(new ListWithCustomSetting(a, getString(R.string.pref_title_font),
                 getResources().getStringArray(R.array.pref_entries_font),
                 getResources().getStringArray(R.array.pref_entry_values_font), "default",
@@ -141,6 +151,48 @@ public class InterfaceSettingsFragment extends SettingsListFragment
                     setting.setChecked(false);
                 })
                 .show();
+    }
+
+
+    public static final class ThemeOptionSetting extends RadioButtonSetting {
+
+        private static final int sHolder = SettingsListAdapter.registerViewHolder(Holder.class,
+                R.layout.settings_theme_option);
+
+        private int overrideColor;
+
+        public ThemeOptionSetting(String name, RadioButtonSetting.Group group, int overrideColor) {
+            super(name, group);
+            this.overrideColor = overrideColor;
+        }
+
+        @Override
+        public int getViewHolder() {
+            return sHolder;
+        }
+
+        public static class Holder extends RadioButtonSetting.Holder {
+
+            private ColorStateList mDefaultButtonTintList;
+
+            public Holder(View itemView, SettingsListAdapter adapter) {
+                super(itemView, adapter);
+                mDefaultButtonTintList = CompoundButtonCompat.getButtonTintList(mCheckBox);
+            }
+
+            @Override
+            public void bind(CheckBoxSetting entry) {
+                super.bind(entry);
+                int overrideColor = ((ThemeOptionSetting) entry).overrideColor;
+                if (overrideColor != 0)
+                    CompoundButtonCompat.setButtonTintList(mCheckBox,
+                            ColorStateList.valueOf(overrideColor));
+                else
+                    CompoundButtonCompat.setButtonTintList(mCheckBox, mDefaultButtonTintList);
+            }
+        }
+
+
     }
 
 }
