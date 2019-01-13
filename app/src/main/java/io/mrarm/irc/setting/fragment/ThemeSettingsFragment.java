@@ -1,7 +1,15 @@
 package io.mrarm.irc.setting.fragment;
 
 import android.content.Context;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.View;
+import android.widget.EditText;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -28,17 +36,24 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
     private ListSetting baseSetting;
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        ThemeManager themeManager = ThemeManager.getInstance(getContext());
+        themeInfo = themeManager.getCustomTheme(
+                UUID.fromString(getArguments().getString(ARG_THEME_UUID)));
+
+        setHasOptionsMenu(true);
+    }
+
+    @Override
     public String getName() {
-        return getString(R.string.pref_header_theme);
+        return themeInfo.name;
     }
 
     @Override
     public SettingsListAdapter createAdapter() {
         ThemeManager themeManager = ThemeManager.getInstance(getContext());
-        themeInfo = themeManager.getCustomTheme(
-                UUID.fromString(getArguments().getString(ARG_THEME_UUID)));
-
-
         SettingsListAdapter a = new SettingsListAdapter(this);
         a.setRequestCodeCounter(((SettingsActivity) getActivity()).getRequestCodeCounter());
         Collection<ThemeManager.BaseTheme> baseThemes = themeManager.getBaseThemes();
@@ -95,6 +110,28 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
         } catch (IOException e) {
             Log.w("ThemeSettings", "Failed to save theme");
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_settings_theme, menu);
+        menu.findItem(R.id.action_rename).setOnMenuItemClickListener(item -> {
+            View view = LayoutInflater.from(getContext())
+                    .inflate(R.layout.dialog_edit_text, null);
+            EditText text = view.findViewById(R.id.edit_text);
+            text.setText(themeInfo.name);
+            new AlertDialog.Builder(getContext())
+                    .setTitle(R.string.action_rename)
+                    .setView(view)
+                    .setPositiveButton(R.string.action_ok, (dialog1, which) -> {
+                        themeInfo.name = text.getText().toString();
+                        ((SettingsActivity) getActivity()).updateTitle();
+                    })
+                    .setNegativeButton(R.string.action_cancel, null)
+                    .show();
+            return true;
+        });
     }
 
     private void onPropertyChanged() {

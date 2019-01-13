@@ -46,7 +46,7 @@ public class SettingsActivity extends ThemedActivity {
         return mRequestCodeCounter;
     }
 
-    private void updateTitle() {
+    public void updateTitle() {
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.content_frame);
         if (fragment == null)
             return;

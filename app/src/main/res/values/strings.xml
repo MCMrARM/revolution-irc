@@ -103,6 +103,7 @@
     <string name="action_accept">Accept</string>
     <string name="action_reject">Reject</string>
     <string name="action_ask_again">Ask again</string>
+    <string name="action_rename">Rename</string>
 
     <string name="action_delete_confirm_title">Are you sure?</string>
     <string name="action_delete_confirm_body">Are you sure you want to delete %s? This cannot be undone.</string>
@@ -238,6 +239,7 @@
     <string name="value_preset">Preset</string>
     <string name="value_not_set">Not set</string>
     <string name="value_total">Total</string>
+    <string name="value_copy">%s (copy)</string>
     <string name="entry_name">Name</string>
     <string name="entry_text">Text</string>
     <string name="entry_username">Username</string>

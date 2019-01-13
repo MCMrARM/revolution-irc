@@ -173,6 +173,7 @@ public class InterfaceSettingsFragment extends SettingsListFragment
         ThemeInfo newTheme = new ThemeInfo();
         newTheme.base = theme.getId();
         newTheme.baseThemeInfo = theme;
+        newTheme.name = getString(R.string.theme_custom_default_name);
         initNewTheme(newTheme);
         return newTheme;
     }
@@ -180,13 +181,13 @@ public class InterfaceSettingsFragment extends SettingsListFragment
     private ThemeInfo createNewTheme(ThemeInfo theme) {
         ThemeInfo newTheme = new ThemeInfo();
         newTheme.copyFrom(theme);
+        newTheme.name = getString(R.string.value_copy, theme.name);
         initNewTheme(newTheme);
         return newTheme;
     }
 
     private void initNewTheme(ThemeInfo newTheme) {
         ThemeManager themeManager = ThemeManager.getInstance(getContext());
-        newTheme.name = getString(R.string.theme_custom_default_name);
         try {
             themeManager.saveTheme(newTheme);
         } catch (IOException e) {
