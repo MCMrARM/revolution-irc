@@ -47,7 +47,7 @@ public class ThemeResourceFileBuilder {
     }
 
     public static CustomTheme createTheme(Context ctx, ThemeInfo theme,
-                                        ThemeHelper.ThemeResInfo baseTheme) {
+                                        ThemeManager.ThemeResInfo baseTheme) {
         ResTable table = new ResTable();
         ResTable.Package pkg = new ResTable.Package(0x7e, "io.mrarm.irc.theme");
 
@@ -136,7 +136,7 @@ public class ThemeResourceFileBuilder {
     }
 
 
-    public static class CustomTheme extends ThemeHelper.ThemeResInfo {
+    public static class CustomTheme extends ThemeManager.ThemeResInfo {
 
         private ResTable resTable;
 

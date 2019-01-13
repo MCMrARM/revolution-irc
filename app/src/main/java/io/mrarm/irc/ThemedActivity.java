@@ -3,22 +3,22 @@ package io.mrarm.irc;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import io.mrarm.irc.util.theme.ThemeHelper;
+import io.mrarm.irc.util.theme.ThemeManager;
 
-public class ThemedActivity extends AppCompatActivity implements ThemeHelper.ThemeChangeListener {
+public class ThemedActivity extends AppCompatActivity implements ThemeManager.ThemeChangeListener {
 
     private boolean mThemeChanged;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        ThemeHelper helper = ThemeHelper.getInstance(this);
+        ThemeManager helper = ThemeManager.getInstance(this);
         helper.addThemeChangeListener(this);
         super.onCreate(savedInstanceState);
     }
 
     @Override
     protected void onDestroy() {
-        ThemeHelper.getInstance(this).removeThemeChangeListener(this);
+        ThemeManager.getInstance(this).removeThemeChangeListener(this);
         super.onDestroy();
     }
 
@@ -31,7 +31,7 @@ public class ThemedActivity extends AppCompatActivity implements ThemeHelper.The
 
     @Override
     public void setTheme(int resid) {
-        ThemeHelper helper = ThemeHelper.getInstance(this);
+        ThemeManager helper = ThemeManager.getInstance(this);
         helper.applyThemeToActivity(this);
         super.setTheme(helper.getThemeIdToApply(resid));
     }

@@ -11,7 +11,6 @@ import android.widget.LinearLayout;
 
 import io.mrarm.irc.R;
 import io.mrarm.irc.util.StyledAttributesHelper;
-import io.mrarm.irc.util.theme.ThemeHelper;
 
 public class StaticLabelTextInputLayout extends TextInputLayout {
 

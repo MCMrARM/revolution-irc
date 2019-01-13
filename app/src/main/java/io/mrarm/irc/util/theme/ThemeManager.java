@@ -9,20 +9,19 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 import io.mrarm.irc.R;
 import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.util.StyledAttributesHelper;
 import io.mrarm.thememonkey.Theme;
 
-public class ThemeHelper implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private static ThemeHelper instance;
+    private static ThemeManager instance;
 
-    public static ThemeHelper getInstance(Context context) {
+    public static ThemeManager getInstance(Context context) {
         if (instance == null)
-            instance = new ThemeHelper(context.getApplicationContext());
+            instance = new ThemeManager(context.getApplicationContext());
         return instance;
     }
 
@@ -33,7 +32,7 @@ public class ThemeHelper implements SharedPreferences.OnSharedPreferenceChangeLi
     private List<ThemeChangeListener> themeChangeListeners = new ArrayList<>();
     private ThemeResInfo fallbackTheme;
 
-    public ThemeHelper(Context context) {
+    public ThemeManager(Context context) {
         this.context = context;
 
         fallbackTheme = new ThemeResInfo(R.style.AppTheme, R.style.AppTheme_NoActionBar);
