@@ -54,9 +54,9 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
         this.context = context;
         themesDir = new File(context.getFilesDir(), "themes");
 
-        fallbackTheme = new BaseTheme(R.string.value_default,
+        fallbackTheme = new BaseTheme("default", R.string.value_default,
                 R.style.AppTheme, R.style.AppTheme_NoActionBar);
-        baseThemes.put("default", fallbackTheme);
+        baseThemes.put(fallbackTheme.getId(), fallbackTheme);
         loadThemes();
 
         SettingsHelper.getInstance(context).addPreferenceChangeListener(
@@ -77,6 +77,7 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
                     loadTheme(themeFile, uuid);
                 } catch (IOException | IllegalArgumentException e) {
                     Log.w("ThemeManager", "Failed to load theme: " + fileName);
+                    themeFile.delete();
                 }
             }
         }
@@ -85,6 +86,8 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
     private ThemeInfo loadTheme(File themeFile, UUID uuid) throws IOException {
         ThemeInfo theme = SettingsHelper.getGson().fromJson(
                 new BufferedReader(new FileReader(themeFile)), ThemeInfo.class);
+        if (theme == null)
+            throw new IOException("Empty file");
         theme.uuid = uuid;
         theme.baseThemeInfo = baseThemes.get(theme.base);
         if (theme.baseThemeInfo == null)
@@ -94,18 +97,36 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
     }
 
     public void saveTheme(ThemeInfo theme) throws IOException {
-        if (theme.uuid == null)
+        if (theme.uuid == null) {
             theme.uuid = UUID.randomUUID();
+            customThemes.put(theme.uuid, theme);
+        }
         SettingsHelper.getGson().toJson(theme, new BufferedWriter(new FileWriter(
                 new File(themesDir, FILENAME_PREFIX + theme.uuid + FILENAME_SUFFIX))));
     }
 
-    public Map<String, BaseTheme> getBaseThemes() {
-        return baseThemes;
+    public Collection<BaseTheme> getBaseThemes() {
+        return baseThemes.values();
     }
 
     public Collection<ThemeInfo> getCustomThemes() {
         return customThemes.values();
+    }
+
+    public ThemeInfo getCustomTheme(UUID uuid) {
+        return customThemes.get(uuid);
+    }
+
+    public BaseTheme getFallbackTheme() {
+        return fallbackTheme;
+    }
+
+    public ThemeResInfo getCurrentTheme() {
+        return currentTheme;
+    }
+
+    public ThemeInfo getCurrentCustomTheme() {
+        return currentCustomTheme;
     }
 
     public void addThemeChangeListener(ThemeChangeListener listener) {
@@ -118,26 +139,53 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        currentTheme = null;
-        currentCustomTheme = null;
-        currentCustomThemePatcher = null;
-
         String theme = SettingsHelper.getInstance(context).getTheme();
         if (theme != null && theme.startsWith(PREF_THEME_CUSTOM_PREFIX)) {
             try {
                 UUID uuid = UUID.fromString(
                         theme.substring(PREF_THEME_CUSTOM_PREFIX.length()));
-                currentCustomTheme = customThemes.get(uuid);
+                applyTheme(customThemes.get(uuid));
             } catch (IllegalArgumentException ignored) {
             }
         } else {
-            currentTheme = baseThemes.get(theme);
+            applyTheme(baseThemes.get(theme));
         }
         if (currentTheme == null && currentCustomTheme == null)
             currentTheme = fallbackTheme;
 
         for (ThemeChangeListener listener : themeChangeListeners)
             listener.onThemeChanged();
+    }
+
+    private void applyTheme(BaseTheme theme) {
+        currentTheme = theme;
+        currentCustomTheme = null;
+        currentCustomThemePatcher = null;
+        if (theme == null)
+            currentTheme = fallbackTheme;
+    }
+
+    private void applyTheme(ThemeInfo theme) {
+        currentTheme = null;
+        currentCustomTheme = theme;
+        currentCustomThemePatcher = null;
+        if (theme == null)
+            currentTheme = fallbackTheme;
+    }
+
+    public void setTheme(BaseTheme theme) {
+        SettingsHelper.getInstance(context).setTheme(theme.getId());
+    }
+
+    public void setTheme(ThemeInfo theme) {
+        SettingsHelper.getInstance(context).setTheme(PREF_THEME_CUSTOM_PREFIX + theme.uuid);
+    }
+
+    public void invalidateCurrentCustomTheme() {
+        if (currentCustomTheme == null)
+            return;
+        currentTheme = null;
+        currentCustomThemePatcher = null;
     }
 
     public void applyThemeToActivity(Activity activity) {
@@ -192,11 +240,17 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
 
     public static class BaseTheme extends ThemeResInfo {
 
+        private String id;
         private int nameResId;
 
-        public BaseTheme(int nameResId, int themeResId, int themeNoActionBarResId) {
+        public BaseTheme(String id, int nameResId, int themeResId, int themeNoActionBarResId) {
             super(themeResId, themeNoActionBarResId);
+            this.id = id;
             this.nameResId = nameResId;
+        }
+
+        public String getId() {
+            return id;
         }
 
         public int getNameResId() {

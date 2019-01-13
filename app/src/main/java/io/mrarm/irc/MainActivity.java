@@ -102,8 +102,8 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
         mAppExiting = false;
         ((IRCApplication) getApplication()).addExitCallback(this);
 
-        if (SettingsHelper.getInstance(this).isNightModeEnabled())
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+//        if (SettingsHelper.getInstance(this).isNightModeEnabled())
+//            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);

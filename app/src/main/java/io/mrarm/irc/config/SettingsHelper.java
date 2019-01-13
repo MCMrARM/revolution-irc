@@ -34,7 +34,6 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     public static final String PREF_PING_ENABLED = "ping_enabled";
     public static final String PREF_PING_WIFI = "ping_wifi";
     public static final String PREF_PING_INTERVAL  = "ping_interval";
-    public static final String PREF_DARK_THEME = "dark_theme";
     public static final String PREF_DRAWER_PINNED = "drawer_pinned";
     public static final String PREF_THEME = "theme";
     public static final String PREF_CHAT_FONT = "chat_font";
@@ -214,10 +213,6 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         return mPreferences.getInt(PREF_PING_INTERVAL, 15 * 60 * 1000);
     }
 
-    public boolean isNightModeEnabled() {
-        return mPreferences.getBoolean(PREF_DARK_THEME, false);
-    }
-
     public boolean isDrawerPinned() {
         return mPreferences.getBoolean(PREF_DRAWER_PINNED, false);
     }
@@ -314,6 +309,12 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
 
     public String getTheme() {
         return mPreferences.getString(PREF_THEME, null);
+    }
+
+    public void setTheme(String name) {
+        mPreferences.edit()
+                .putString(PREF_THEME, name)
+                .apply();
     }
 
 

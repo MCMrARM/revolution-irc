@@ -1,5 +1,6 @@
 package io.mrarm.irc.util.theme;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -13,7 +14,14 @@ public class ThemeInfo {
     public String name;
     public String base;
     public transient ThemeManager.ThemeResInfo baseThemeInfo;
-    public Map<String, Integer> colors;
+    public Map<String, Integer> colors = new HashMap<>();
     public boolean lightToolbar;
+
+    public void copyFrom(ThemeInfo otherTheme) {
+        base = otherTheme.base;
+        baseThemeInfo = otherTheme.baseThemeInfo;
+        colors = new HashMap<>(otherTheme.colors);
+        lightToolbar = otherTheme.lightToolbar;
+    }
 
 }

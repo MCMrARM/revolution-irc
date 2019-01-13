@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -21,23 +20,6 @@ import io.mrarm.irc.R;
 public class ThemeResourceFileBuilder {
 
     private static int sessionThemeIndex = 0;
-
-    private static final Map<String, List<Integer>> colorToAttrs = new HashMap<>();
-
-    private static void mapColorToAttr(String colorName, int attr) {
-        List<Integer> l = colorToAttrs.get(colorName);
-        if (l == null) {
-            l = new ArrayList<>();
-            colorToAttrs.put(colorName, l);
-        }
-        l.add(attr);
-    }
-
-    static {
-        mapColorToAttr(ThemeInfo.COLOR_PRIMARY, R.attr.colorPrimary);
-        mapColorToAttr(ThemeInfo.COLOR_PRIMARY_DARK, R.attr.colorPrimaryDark);
-        mapColorToAttr(ThemeInfo.COLOR_ACCENT, R.attr.colorAccent);
-    }
 
     private static void setUseLightActionBar(ResTable.MapEntry theme) {
         theme.addValue(R.attr.actionBarPopupTheme,
@@ -76,7 +58,7 @@ public class ThemeResourceFileBuilder {
 
         for (int i = 0; i < colors.size(); i++) {
             String color = colors.get(i);
-            List<Integer> resIds = colorToAttrs.get(color);
+            List<Integer> resIds = ThemeAttrMapping.getColorAttrs(color);
             if (resIds == null)
                 continue;
             for (int resId : resIds)

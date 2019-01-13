@@ -382,9 +382,11 @@
     <string name="pref_header_theme">Theme</string>
 
     <string name="theme_create_new">Create a new theme</string>
-    <string name="theme_dark_theme">Dark theme</string>
-    <string name="theme_primary_color">Primary color</string>
-    <string name="theme_accent_color">Accent color</string>
+    <string name="theme_custom_default_name">@string/value_custom</string>
+    <string name="theme_base">Base theme</string>
+    <string name="theme_color_primary">Primary color</string>
+    <string name="theme_color_primary_dark">Primary dark color</string>
+    <string name="theme_color_accent">Accent color</string>
 
     <!-- Notification settings -->
 

@@ -78,6 +78,12 @@ public class ListSetting extends SimpleSetting {
         return mSelectedOption;
     }
 
+    public String getSelectedOptionValue() {
+        if (mSelectedOption == -1)
+            return null;
+        return mOptions[mSelectedOption];
+    }
+
     @Override
     public int getViewHolder() {
         return sHolder;

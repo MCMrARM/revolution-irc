@@ -4,12 +4,15 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.CompoundButtonCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDelegate;
+import android.util.Log;
 import android.view.View;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 
@@ -33,6 +36,7 @@ import io.mrarm.irc.util.MessageBuilder;
 import io.mrarm.irc.util.StyledAttributesHelper;
 import io.mrarm.irc.util.theme.ThemeInfo;
 import io.mrarm.irc.util.theme.ThemeManager;
+import io.mrarm.irc.util.theme.ThemeResourceFileBuilder;
 
 public class InterfaceSettingsFragment extends SettingsListFragment
         implements NamedSettingsFragment {
@@ -55,8 +59,14 @@ public class InterfaceSettingsFragment extends SettingsListFragment
         createThemeList(a);
         a.add(new ClickableSetting(getString(R.string.theme_create_new), null)
                 .setOnClickListener((View v) -> {
-                    ((SettingsActivity) getActivity()).setFragment(
-                            new ThemeSettingsFragment());
+                    ThemeInfo newTheme = createNewTheme();
+                    ThemeManager.getInstance(getContext()).setTheme(newTheme);
+                    ThemeSettingsFragment fragment = new ThemeSettingsFragment();
+                    Bundle args = new Bundle();
+                    args.putString(ThemeSettingsFragment.ARG_THEME_UUID, newTheme.uuid.toString());
+                    fragment.setArguments(args);
+                    ((SettingsActivity) getActivity()).setFragment(fragment);
+                    getActivity().recreate();
                 }));
         a.add(new SettingsHeader(getString(R.string.pref_header_interface)));
         a.add(new ListWithCustomSetting(a, getString(R.string.pref_title_font),
@@ -123,10 +133,9 @@ public class InterfaceSettingsFragment extends SettingsListFragment
     private void createThemeList(SettingsListAdapter a) {
         ThemeManager themeManager = ThemeManager.getInstance(getContext());
         RadioButtonSetting.Group themeGroup = new RadioButtonSetting.Group();
-        for (Map.Entry<String, ThemeManager.BaseTheme> theme :
-                themeManager.getBaseThemes().entrySet()) {
-            int themeResId = theme.getValue().getThemeResId();
-            a.add(new ThemeOptionSetting(getString(theme.getValue().getNameResId()),
+        for (ThemeManager.BaseTheme theme : themeManager.getBaseThemes()) {
+            int themeResId = theme.getThemeResId();
+            a.add(new ThemeOptionSetting(getString(theme.getNameResId()),
                     themeGroup, getBaseThemePrimaryColor(themeResId)));
         }
         for (ThemeInfo theme : themeManager.getCustomThemes()) {
@@ -135,6 +144,28 @@ public class InterfaceSettingsFragment extends SettingsListFragment
                 primaryColor = getBaseThemePrimaryColor(theme.baseThemeInfo.getThemeResId());
             a.add(new ThemeOptionSetting(theme.name, themeGroup, primaryColor));
         }
+    }
+
+    private ThemeInfo createNewTheme() {
+        ThemeManager themeManager = ThemeManager.getInstance(getContext());
+        ThemeInfo newTheme = new ThemeInfo();
+        ThemeInfo currentCustomTheme = themeManager.getCurrentCustomTheme();
+        if (currentCustomTheme != null) {
+            newTheme.copyFrom(currentCustomTheme);
+        } else {
+            ThemeManager.ThemeResInfo currentTheme = themeManager.getCurrentTheme();
+            if (!(currentTheme instanceof ThemeManager.BaseTheme))
+                currentTheme = themeManager.getFallbackTheme();
+            newTheme.base = ((ThemeManager.BaseTheme) currentTheme).getId();
+            newTheme.baseThemeInfo = currentTheme;
+        }
+        newTheme.name = getString(R.string.theme_custom_default_name);
+        try {
+            themeManager.saveTheme(newTheme);
+        } catch (IOException e) {
+            Log.w("InterfaceSettings", "Failed to save new theme");
+        }
+        return newTheme;
     }
 
     @Override
