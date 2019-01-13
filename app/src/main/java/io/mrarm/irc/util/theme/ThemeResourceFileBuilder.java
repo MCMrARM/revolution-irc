@@ -95,7 +95,7 @@ public class ThemeResourceFileBuilder {
     }
 
     private static File getThemesDir(Context context) {
-        return new File(context.getFilesDir(), "themes");
+        return new File(context.getFilesDir(), "themes/cachegit c");
     }
 
     private static void deleteOldThemeFiles(File dir) {

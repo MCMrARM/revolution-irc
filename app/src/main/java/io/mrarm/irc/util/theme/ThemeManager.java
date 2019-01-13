@@ -84,8 +84,10 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
     }
 
     private ThemeInfo loadTheme(File themeFile, UUID uuid) throws IOException {
-        ThemeInfo theme = SettingsHelper.getGson().fromJson(
-                new BufferedReader(new FileReader(themeFile)), ThemeInfo.class);
+        ThemeInfo theme;
+        try (BufferedReader reader = new BufferedReader(new FileReader(themeFile))) {
+            theme = SettingsHelper.getGson().fromJson(reader, ThemeInfo.class);
+        }
         if (theme == null)
             throw new IOException("Empty file");
         theme.uuid = uuid;
@@ -101,8 +103,11 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
             theme.uuid = UUID.randomUUID();
             customThemes.put(theme.uuid, theme);
         }
-        SettingsHelper.getGson().toJson(theme, new BufferedWriter(new FileWriter(
-                new File(themesDir, FILENAME_PREFIX + theme.uuid + FILENAME_SUFFIX))));
+        themesDir.mkdirs();
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(
+                new File(themesDir, FILENAME_PREFIX + theme.uuid + FILENAME_SUFFIX)))) {
+            SettingsHelper.getGson().toJson(theme, writer);
+        }
     }
 
     public Collection<BaseTheme> getBaseThemes() {
