@@ -26,7 +26,6 @@ import io.mrarm.irc.ServerConnectionManager;
 import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.util.ExpandIconStateHelper;
 import io.mrarm.irc.util.StyledAttributesHelper;
-import io.mrarm.irc.util.theme.ThemeHelper;
 import io.mrarm.irc.view.LockableDrawerLayout;
 
 public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -61,12 +60,12 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         notifyServerListChanged();
 
         StyledAttributesHelper ta = StyledAttributesHelper.obtainStyledAttributes(context,
-                new int[] { R.attr.selectableItemBackground, R.attr.colorControlHighlight, android.R.attr.textColorPrimary });
+                new int[] { R.attr.colorAccent, R.attr.selectableItemBackground, R.attr.colorControlHighlight, android.R.attr.textColorPrimary });
         mChannelBackground = ta.getDrawable(R.attr.selectableItemBackground);
         int color = ta.getColor(R.attr.colorControlHighlight, 0);
         color = ColorUtils.setAlphaComponent(color, Color.alpha(color) / 2);
         mChannelSelectedBackground = new ColorDrawable(color);
-        mSelectedForegroundColor = ThemeHelper.getInstance(context).getAccentColor();
+        mSelectedForegroundColor = ta.getColor(R.attr.colorAccent, 0);
         mDefaultForegroundColor = ta.getColor(android.R.attr.textColorPrimary, 0);
         ta.recycle();
     }

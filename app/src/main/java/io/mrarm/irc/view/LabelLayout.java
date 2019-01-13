@@ -70,15 +70,15 @@ public class LabelLayout extends FrameLayout {
         mTextPaint.setTextSize(mTextSizeCollapsed);
 
         StyledAttributesHelper ta = StyledAttributesHelper.obtainStyledAttributes(context, attrs,
-                new int[] { R.attr.doNotExpand, android.R.attr.hint, android.R.attr.textColorHint });
+                new int[] { R.attr.colorAccent, R.attr.doNotExpand, android.R.attr.hint, android.R.attr.textColorHint });
         try {
             mDoNotExpand = ta.getBoolean(R.attr.doNotExpand, false);
             mHint = ta.getString(android.R.attr.hint);
             mTextColorUnfocused = ta.getColorStateList(android.R.attr.textColorHint);
+            mTextColorFocused = ta.getColor(R.attr.colorAccent, 0);
         } finally {
             ta.recycle();
         }
-        mTextColorFocused = ThemeHelper.getInstance(context).getAccentColor();
         mTextPaint.setColor(mTextColorUnfocused.getColorForState(getDrawableState(), mTextColorUnfocused.getDefaultColor()));
 
         mAnimator = ValueAnimator.ofFloat(0.f, 1.f);

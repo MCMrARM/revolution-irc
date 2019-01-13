@@ -40,10 +40,10 @@ public class StaticLabelTextInputLayout extends TextInputLayout {
         mTextPaint.setTypeface(getTypeface());
         mTextPaint.setTextSize(getResources().getDimensionPixelSize(R.dimen.abc_text_size_caption_material));
         StyledAttributesHelper ta = StyledAttributesHelper.obtainStyledAttributes(context,
-                new int[] { android.R.attr.textColorHint });
+                new int[] { R.attr.colorAccent, android.R.attr.textColorHint });
         mTextColorUnfocused = ta.getColor(android.R.attr.textColorHint, 0);
+        mTextColorFocused = ta.getColor(R.attr.colorAccent, 0);
         ta.recycle();
-        mTextColorFocused = ThemeHelper.getInstance(context).getAccentColor();
         mTextPaint.setColor(mTextColorUnfocused);
     }
 

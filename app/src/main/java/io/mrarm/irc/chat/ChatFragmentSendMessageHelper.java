@@ -40,7 +40,7 @@ import io.mrarm.irc.util.AutoMultilineTextListener;
 import io.mrarm.irc.util.ColoredTextBuilder;
 import io.mrarm.irc.util.ImageViewTintUtils;
 import io.mrarm.irc.util.SimpleTextWatcher;
-import io.mrarm.irc.util.theme.ThemeHelper;
+import io.mrarm.irc.util.StyledAttributesHelper;
 import io.mrarm.irc.view.ChatAutoCompleteEditText;
 import io.mrarm.irc.view.TextFormatBar;
 
@@ -100,12 +100,13 @@ public class ChatFragmentSendMessageHelper implements SendMessageHelper.Callback
         });
 
         ImageViewTintUtils.setTint(mSendIcon, 0x54000000);
+        int accentColor = StyledAttributesHelper.getColor(mContext, R.attr.colorAccent, 0);;
 
         mSendTextMultilineHelper = new AutoMultilineTextListener(mSendText);
         mSendText.addTextChangedListener(mSendTextMultilineHelper);
         mSendText.addTextChangedListener(new SimpleTextWatcher((Editable s) -> {
             if (s.length() > 0)
-                ImageViewTintUtils.setTint(mSendIcon, ThemeHelper.getInstance(mFragment.getContext()).getAccentColor());
+                ImageViewTintUtils.setTint(mSendIcon, accentColor);
             else
                 ImageViewTintUtils.setTint(mSendIcon, 0x54000000);
             mClientCommandErrorContainer.setVisibility(View.GONE); // hide the error
