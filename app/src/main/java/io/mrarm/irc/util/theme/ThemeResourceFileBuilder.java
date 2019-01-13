@@ -32,17 +32,20 @@ public class ThemeResourceFileBuilder {
         ResTable table = new ResTable();
         ResTable.Package pkg = new ResTable.Package(0x7e, "io.mrarm.irc.theme");
 
-        ResTable.TypeSpec colorTypeSpec = new ResTable.TypeSpec(1, "color",
-                new int[theme.colors.size()] /* should be filled with zeros */);
+        ResTable.TypeSpec colorTypeSpec = new ResTable.TypeSpec(1, "color", null);
         pkg.addType(colorTypeSpec);
         ResTable.Type colorType = new ResTable.Type(1, new ResTable.Config());
         List<String> colors = new ArrayList<>();
-        for (Map.Entry<String, Integer> p : theme.colors.entrySet()) {
-            ResTable.Entry colorPrimary = new ResTable.Entry(colors.size(), p.getKey(),
-                    new ResValue.Integer(ResValue.TYPE_INT_COLOR_ARGB8, p.getValue()));
+        for (String k : ThemeAttrMapping.getColorProperties()) {
+            Object v = theme.properties.get(k);
+            if (!(v instanceof Integer))
+                continue;
+            ResTable.Entry colorPrimary = new ResTable.Entry(colors.size(), k,
+                    new ResValue.Integer(ResValue.TYPE_INT_COLOR_ARGB8, (Integer) v));
             colorType.addEntry(colorPrimary);
-            colors.add(p.getKey());
+            colors.add(k);
         }
+        colorTypeSpec.flags = new int[colors.size()];
         pkg.addType(colorType);
 
         ResTable.TypeSpec styleTypeSpec = new ResTable.TypeSpec(2, "style", new int[] { 0, 0 });
@@ -66,7 +69,7 @@ public class ThemeResourceFileBuilder {
             for (int resId : resIds)
                 appThemeNoActionBar.addValue(resId, new ResValue.Reference(pkg, colorTypeSpec, i));
         }
-        if (theme.lightToolbar) {
+        if (theme.getBool(ThemeInfo.PROP_LIGHT_TOOLBAR) == Boolean.TRUE) {
             setUseLightActionBar(appTheme);
             setUseLightActionBar(appThemeNoActionBar);
         }

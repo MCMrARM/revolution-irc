@@ -1,6 +1,7 @@
 package io.mrarm.irc.util.theme;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,10 @@ import io.mrarm.irc.R;
 public class ThemeAttrMapping {
 
     private static final Map<String, List<Integer>> colorToAttrs = new HashMap<>();
+
+    public static Collection<String> getColorProperties() {
+        return colorToAttrs.keySet();
+    }
 
     private static void mapColorToAttr(String colorName, int attr) {
         List<Integer> l = colorToAttrs.get(colorName);

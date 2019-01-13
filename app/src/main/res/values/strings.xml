@@ -387,6 +387,7 @@
     <string name="theme_color_primary">Primary color</string>
     <string name="theme_color_primary_dark">Primary dark color</string>
     <string name="theme_color_accent">Accent color</string>
+    <string name="theme_light_toolbar">Light Toolbar</string>
 
     <!-- Notification settings -->
 

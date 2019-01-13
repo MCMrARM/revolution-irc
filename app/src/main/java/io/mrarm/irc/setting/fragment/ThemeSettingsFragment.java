@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import io.mrarm.irc.R;
 import io.mrarm.irc.SettingsActivity;
+import io.mrarm.irc.setting.CheckBoxSetting;
 import io.mrarm.irc.setting.ListSetting;
 import io.mrarm.irc.setting.MaterialColorSetting;
 import io.mrarm.irc.setting.SettingsListAdapter;
@@ -68,6 +69,9 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
         a.add(new ThemeColorSetting(getString(R.string.theme_color_accent))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_ACCENT)
                 .addListener(applyListener));
+        a.add(new ThemeBoolSetting(getString(R.string.theme_light_toolbar))
+                .linkProperty(getContext(), themeInfo, ThemeInfo.PROP_LIGHT_TOOLBAR)
+                .addListener(applyListener));
         return a;
     }
 
@@ -117,7 +121,7 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
             super.setSelectedColor(color);
             mHasCustomColor = true;
             if (mTheme != null) {
-                mTheme.colors.put(mThemeProp, color);
+                mTheme.properties.put(mThemeProp, color);
             }
         }
 
@@ -131,15 +135,53 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
         }
 
         public ThemeColorSetting linkProperty(Context context, ThemeInfo theme, String prop) {
-            mTheme = theme;
-            mThemeProp = prop;
-            Integer color = theme.colors.get(prop);
+            Integer color = theme.getInt(prop);
             if (color != null) {
                 setSelectedColor(color);
             } else {
                 mHasCustomColor = false;
                 super.setSelectedColor(getDefaultValue(context));
             }
+            mTheme = theme;
+            mThemeProp = prop;
+            return this;
+        }
+
+    }
+
+    public static final class ThemeBoolSetting extends CheckBoxSetting {
+
+        private boolean mHasCustomValue = false;
+        private ThemeInfo mTheme;
+        private String mThemeProp;
+
+        public ThemeBoolSetting(String name) {
+            super(name, false);
+        }
+
+        @Override
+        public void setChecked(boolean checked) {
+            super.setChecked(checked);
+            mHasCustomValue = true;
+            if (mTheme != null) {
+                mTheme.properties.put(mThemeProp, checked);
+            }
+        }
+
+        private boolean getDefaultValue(Context context) {
+            return false;
+        }
+
+        public ThemeBoolSetting linkProperty(Context context, ThemeInfo theme, String prop) {
+            Boolean value = theme.getBool(prop);
+            if (value != null) {
+                setChecked(value);
+            } else {
+                mHasCustomValue = false;
+                super.setChecked(getDefaultValue(context));
+            }
+            mTheme = theme;
+            mThemeProp = prop;
             return this;
         }
 
