@@ -110,6 +110,13 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
         }
     }
 
+    public void deleteTheme(ThemeInfo theme) {
+        customThemes.remove(theme.uuid);
+        new File(themesDir, FILENAME_PREFIX + theme.uuid + FILENAME_SUFFIX).delete();
+        if (currentCustomTheme == theme)
+            setTheme(fallbackTheme);
+    }
+
     public Collection<BaseTheme> getBaseThemes() {
         return baseThemes.values();
     }

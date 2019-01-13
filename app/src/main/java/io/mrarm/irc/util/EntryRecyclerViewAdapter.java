@@ -35,6 +35,14 @@ public class EntryRecyclerViewAdapter extends RecyclerView.Adapter<EntryRecycler
             mIndex = index;
         }
 
+        public EntryRecyclerViewAdapter getOwner() {
+            return mOwner;
+        }
+
+        public int getIndex() {
+            return mIndex;
+        }
+
         /**
          * Marks that this element has custom update logic and shouldn't use notifyItemChanged.
          * @param updatesDirectly whether the element uses custom update logic

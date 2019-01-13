@@ -23,6 +23,7 @@ import io.mrarm.irc.MessageFormatSettingsActivity;
 import io.mrarm.irc.R;
 import io.mrarm.irc.SettingsActivity;
 import io.mrarm.irc.config.SettingsHelper;
+import io.mrarm.irc.dialog.MenuBottomSheetDialog;
 import io.mrarm.irc.setting.CheckBoxSetting;
 import io.mrarm.irc.setting.ClickableSetting;
 import io.mrarm.irc.setting.FontSizeSetting;
@@ -136,15 +137,14 @@ public class InterfaceSettingsFragment extends SettingsListFragment
             int themeResId = theme.getThemeResId();
             a.add(new ThemeOptionSetting(getString(theme.getNameResId()),
                     themeGroup, getBaseThemePrimaryColor(themeResId))
-                    .linkBaseTheme(theme).addListener(recreateCb));
+                    .linkBaseTheme(this, theme).addListener(recreateCb));
         }
-        ThemeOptionSetting.EditCustomCallback editCb = this::openThemeEditor;
         for (ThemeInfo theme : themeManager.getCustomThemes()) {
             Integer primaryColor = theme.colors.get(ThemeInfo.COLOR_PRIMARY);
             if (primaryColor == null)
                 primaryColor = getBaseThemePrimaryColor(theme.baseThemeInfo.getThemeResId());
             a.add(new ThemeOptionSetting(theme.name, themeGroup, primaryColor)
-                    .linkCustomTheme(theme, editCb).addListener(recreateCb));
+                    .linkCustomTheme(this, theme).addListener(recreateCb));
         }
     }
 
@@ -158,24 +158,40 @@ public class InterfaceSettingsFragment extends SettingsListFragment
 
     private ThemeInfo createNewTheme() {
         ThemeManager themeManager = ThemeManager.getInstance(getContext());
-        ThemeInfo newTheme = new ThemeInfo();
         ThemeInfo currentCustomTheme = themeManager.getCurrentCustomTheme();
         if (currentCustomTheme != null) {
-            newTheme.copyFrom(currentCustomTheme);
+            return createNewTheme(currentCustomTheme);
         } else {
             ThemeManager.ThemeResInfo currentTheme = themeManager.getCurrentTheme();
             if (!(currentTheme instanceof ThemeManager.BaseTheme))
                 currentTheme = themeManager.getFallbackTheme();
-            newTheme.base = ((ThemeManager.BaseTheme) currentTheme).getId();
-            newTheme.baseThemeInfo = currentTheme;
+            return createNewTheme((ThemeManager.BaseTheme) currentTheme);
         }
+    }
+
+    private ThemeInfo createNewTheme(ThemeManager.BaseTheme theme) {
+        ThemeInfo newTheme = new ThemeInfo();
+        newTheme.base = theme.getId();
+        newTheme.baseThemeInfo = theme;
+        initNewTheme(newTheme);
+        return newTheme;
+    }
+
+    private ThemeInfo createNewTheme(ThemeInfo theme) {
+        ThemeInfo newTheme = new ThemeInfo();
+        newTheme.copyFrom(theme);
+        initNewTheme(newTheme);
+        return newTheme;
+    }
+
+    private void initNewTheme(ThemeInfo newTheme) {
+        ThemeManager themeManager = ThemeManager.getInstance(getContext());
         newTheme.name = getString(R.string.theme_custom_default_name);
         try {
             themeManager.saveTheme(newTheme);
         } catch (IOException e) {
             Log.w("InterfaceSettings", "Failed to save new theme");
         }
-        return newTheme;
     }
 
     @Override
@@ -229,10 +245,10 @@ public class InterfaceSettingsFragment extends SettingsListFragment
         private static final int sHolder = SettingsListAdapter.registerViewHolder(Holder.class,
                 R.layout.settings_theme_option);
 
+        private InterfaceSettingsFragment fragment;
         private int overrideColor;
         private ThemeManager.BaseTheme linkedBaseTheme;
         private ThemeInfo linkedCustomTheme;
-        private EditCustomCallback editCallback;
 
         public ThemeOptionSetting(String name, RadioButtonSetting.Group group, int overrideColor) {
             super(name, group);
@@ -250,16 +266,19 @@ public class InterfaceSettingsFragment extends SettingsListFragment
             }
         }
 
-        public ThemeOptionSetting linkBaseTheme(ThemeManager.BaseTheme theme) {
+        public ThemeOptionSetting linkBaseTheme(InterfaceSettingsFragment fragment,
+                                                ThemeManager.BaseTheme theme) {
+            this.fragment = fragment;
             setChecked(ThemeManager.getInstance(null).getCurrentTheme() == theme);
             linkedBaseTheme = theme;
             return this;
         }
 
-        public ThemeOptionSetting linkCustomTheme(ThemeInfo theme, EditCustomCallback editCb) {
+        public ThemeOptionSetting linkCustomTheme(InterfaceSettingsFragment fragment,
+                                                  ThemeInfo theme) {
+            this.fragment = fragment;
             setChecked(ThemeManager.getInstance(null).getCurrentCustomTheme() == theme);
             linkedCustomTheme = theme;
-            editCallback = editCb;
             return this;
         }
 
@@ -268,13 +287,15 @@ public class InterfaceSettingsFragment extends SettingsListFragment
             return sHolder;
         }
 
-        public static class Holder extends RadioButtonSetting.Holder {
+        public static class Holder extends RadioButtonSetting.Holder
+                implements View.OnLongClickListener {
 
             private ColorStateList mDefaultButtonTintList;
 
             public Holder(View itemView, SettingsListAdapter adapter) {
                 super(itemView, adapter);
                 mDefaultButtonTintList = CompoundButtonCompat.getButtonTintList(mCheckBox);
+                itemView.setOnLongClickListener(this);
             }
 
             @Override
@@ -291,18 +312,50 @@ public class InterfaceSettingsFragment extends SettingsListFragment
             @Override
             public void onClick(View v) {
                 ThemeOptionSetting themeEntry = (ThemeOptionSetting) getEntry();
-                if (getEntry().isChecked() && themeEntry.editCallback != null) {
-                    themeEntry.editCallback.onEdit(themeEntry.linkedCustomTheme);
+                if (getEntry().isChecked() && themeEntry.linkedCustomTheme != null) {
+                    themeEntry.fragment.openThemeEditor(themeEntry.linkedCustomTheme);
                     return;
                 }
                 super.onClick(v);
             }
-        }
 
-        public interface EditCustomCallback {
 
-            void onEdit(ThemeInfo themeInfo);
-
+            @Override
+            public boolean onLongClick(View v) {
+                ThemeOptionSetting themeEntry = (ThemeOptionSetting) getEntry();
+                MenuBottomSheetDialog menu = new MenuBottomSheetDialog(v.getContext());
+                menu.addItem(R.string.action_copy, R.drawable.ic_content_copy,
+                        (MenuBottomSheetDialog.Item i) -> {
+                            ThemeInfo newTheme;
+                            if (themeEntry.linkedCustomTheme != null)
+                                newTheme = themeEntry.fragment.createNewTheme(
+                                        themeEntry.linkedCustomTheme);
+                            else
+                                newTheme = themeEntry.fragment.createNewTheme(
+                                        themeEntry.linkedBaseTheme);
+                            ThemeManager.getInstance(null).setTheme(newTheme);
+                            themeEntry.fragment.openThemeEditor(newTheme);
+                            themeEntry.fragment.getActivity().recreate();
+                            return true;
+                        });
+                if (themeEntry.linkedCustomTheme != null) {
+                    menu.addItem(R.string.action_edit, R.drawable.ic_edit,
+                            (MenuBottomSheetDialog.Item i) -> {
+                                themeEntry.fragment.openThemeEditor(themeEntry.linkedCustomTheme);
+                                return true;
+                            });
+                    menu.addItem(R.string.action_delete, R.drawable.ic_delete,
+                            (MenuBottomSheetDialog.Item i) -> {
+                                ThemeManager.getInstance(null)
+                                        .deleteTheme(themeEntry.linkedCustomTheme);
+                                getEntry().getOwner().remove(getEntry().getIndex());
+                                themeEntry.fragment.getActivity().recreate();
+                                return true;
+                            });
+                }
+                menu.show();
+                return true;
+            }
         }
 
     }
