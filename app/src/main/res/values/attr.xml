@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <attr name="iconColor" type="reference" />
+    <attr name="iconColorOpaque" type="reference" />
+
     <attr name="textFormatBarStyle" type="reference" />
     <attr name="recyclerViewScrollbarStyle" type="reference" />
 

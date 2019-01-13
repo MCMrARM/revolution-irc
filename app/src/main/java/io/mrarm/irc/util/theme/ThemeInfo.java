@@ -21,6 +21,8 @@ public class ThemeInfo {
     public static final String COLOR_BACKGROUND_FLOATING = "colorBackgroundFloating";
     public static final String COLOR_TEXT_PRIMARY = "textColorPrimary";
     public static final String COLOR_TEXT_SECONDARY = "textColorSecondary";
+    public static final String COLOR_ICON = "app_colorIcon";
+    public static final String COLOR_ICON_OPAQUE = "app_colorIconOpaque";
 
     public static final String PROP_LIGHT_TOOLBAR = "lightToolbar";
 

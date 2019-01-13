@@ -675,7 +675,7 @@ public class MessageBuilder {
                 drawable = AppCompatResources.getDrawable(ctx, R.drawable.ic_format_indent);
             if (drawable != null)
                 DrawableCompat.setTint(drawable.mutate(),
-                        ctx.getResources().getColor(R.color.iconColor));
+                        StyledAttributesHelper.getColor(ctx, R.attr.iconColor, 0));
             return drawable;
         }
 

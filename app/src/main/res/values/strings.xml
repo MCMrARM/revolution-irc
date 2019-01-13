@@ -394,6 +394,8 @@
     <string name="theme_color_background_floating">Background color (popups/floating)</string>
     <string name="theme_color_text_primary">Primary text color</string>
     <string name="theme_color_text_secondary">Secondary text color</string>
+    <string name="theme_color_icon">Icon color</string>
+    <string name="theme_color_icon_opaque">Icon color (opaque, used with text)</string>
 
     <!-- Notification settings -->
 

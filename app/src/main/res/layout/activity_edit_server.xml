@@ -115,7 +115,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 app:srcCompat="@drawable/ic_settings"
-                app:tint="@color/iconColorText"
+                style="@style/Icon.Opaque"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"

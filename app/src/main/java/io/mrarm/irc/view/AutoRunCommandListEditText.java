@@ -275,7 +275,8 @@ public class AutoRunCommandListEditText extends AppCompatEditText
 
         private static Drawable getIcon(Context context) {
             Drawable d = context.getResources().getDrawable(R.drawable.ic_lock_small).mutate();
-            DrawableCompat.setTint(d, context.getResources().getColor(R.color.iconColor));
+            DrawableCompat.setTint(d, StyledAttributesHelper.getColor(
+                    context, R.attr.iconColor, 0));
             return d;
         }
 

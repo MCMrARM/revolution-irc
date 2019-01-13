@@ -105,6 +105,15 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
         a.add(new ThemeColorSetting(getString(R.string.theme_color_text_secondary))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_TEXT_SECONDARY)
                 .addListener(applyListener));
+        a.add(new ThemeColorSetting(getString(R.string.theme_color_text_secondary))
+                .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_TEXT_SECONDARY)
+                .addListener(applyListener));
+        a.add(new ThemeColorSetting(getString(R.string.theme_color_icon))
+                .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_ICON)
+                .addListener(applyListener));
+        a.add(new ThemeColorSetting(getString(R.string.theme_color_icon_opaque))
+                .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_ICON_OPAQUE)
+                .addListener(applyListener));
         return a;
     }
 

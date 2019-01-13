@@ -9,6 +9,9 @@
 
         <item name="textFormatBarStyle">@style/TextFormatBar</item>
         <item name="recyclerViewScrollbarStyle">@style/RecyclerViewScrollbar</item>
+
+        <item name="iconColor">@color/iconColor</item>
+        <item name="iconColorOpaque">@color/iconColorText</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -34,8 +37,12 @@
     <style name="AppTheme.Spinner" parent="Widget.AppCompat.EditText"></style>
 
     <style name="Icon">
-        <item name="tint">@color/iconColor</item>
+        <item name="tint">?attr/iconColor</item>
         <item name="tintMode">src_in</item>
+    </style>
+
+    <style name="Icon.Opaque">
+        <item name="tint">?attr/iconColorOpaque</item>
     </style>
 
     <style name="EditServerIcon" parent="Icon">
@@ -139,7 +146,7 @@
         <item name="android:padding">8dp</item>
         <item name="android:layout_marginRight">2dp</item>
         <item name="android:background">@drawable/format_item_background</item>
-        <item name="tint">@color/iconColorText</item>
+        <item name="tint">?attr/iconColorOpaque</item>
     </style>
 
     <style name="RecyclerViewScrollbar">

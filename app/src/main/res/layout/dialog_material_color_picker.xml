@@ -15,12 +15,11 @@
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/back"
-            style="@style/Icon"
+            style="@style/Icon.Opaque"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackgroundBorderless"
             app:srcCompat="?attr/homeAsUpIndicator"
-            app:tint="@color/iconColorText"
             android:layout_marginLeft="-8dp"
             android:layout_marginStart="-8dp"
             android:padding="8dp"

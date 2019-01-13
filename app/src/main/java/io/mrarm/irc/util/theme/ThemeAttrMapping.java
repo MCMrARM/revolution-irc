@@ -39,6 +39,8 @@ public class ThemeAttrMapping {
         mapColorToAttr(ThemeInfo.COLOR_TEXT_PRIMARY, android.R.attr.textColorPrimary);
         mapColorToAttr(ThemeInfo.COLOR_TEXT_SECONDARY, android.R.attr.textColorSecondary);
         mapColorToAttr(ThemeInfo.COLOR_TEXT_SECONDARY, android.R.attr.textColorTertiary);
+        mapColorToAttr(ThemeInfo.COLOR_ICON, R.attr.iconColor);
+        mapColorToAttr(ThemeInfo.COLOR_ICON_OPAQUE, R.attr.iconColorOpaque);
     }
 
 }

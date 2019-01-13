@@ -38,7 +38,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:srcCompat="@drawable/ic_format_color_text"
-            app:tint="@color/iconColorText" />
+            style="@style/Icon.Opaque" />
 
         <ImageView
             android:id="@+id/format_text_color_value"
@@ -59,7 +59,7 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:tint="@color/iconColorText"
+            style="@style/Icon.Opaque"
             app:srcCompat="@drawable/ic_format_color_fill" />
 
         <ImageView

@@ -20,7 +20,7 @@
         android:layout_marginTop="16dp"
         android:layout_below="@id/divider"
         app:srcCompat="@drawable/ic_storage"
-        app:tint="@color/iconColorText" />
+        style="@style/Icon.Opaque" />
 
     <TextView
         android:id="@+id/title"
