@@ -7,14 +7,12 @@ import io.mrarm.irc.util.ThemeHelper;
 
 public class ThemedActivity extends AppCompatActivity implements ThemeHelper.ThemeChangeListener {
 
-    private int mAppTheme;
     private boolean mThemeChanged;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         ThemeHelper helper = ThemeHelper.getInstance(this);
         helper.addThemeChangeListener(this);
-        helper.applyThemeToActivity(this, mAppTheme);
         super.onCreate(savedInstanceState);
     }
 
@@ -33,8 +31,9 @@ public class ThemedActivity extends AppCompatActivity implements ThemeHelper.The
 
     @Override
     public void setTheme(int resid) {
-        super.setTheme(resid);
-        mAppTheme = resid;
+        ThemeHelper helper = ThemeHelper.getInstance(this);
+        helper.applyThemeToActivity(this);
+        super.setTheme(helper.getThemeIdToApply(resid));
     }
 
     @Override

@@ -86,7 +86,7 @@ public class ThemeHelper implements SharedPreferences.OnSharedPreferenceChangeLi
     }
 
 
-    public void applyThemeToActivity(Activity activity, int appThemeId) {
+    public void applyThemeToActivity(Activity activity) {
         if (currentTheme == null) {
             if (hasCustomAccentColor() || hasCustomAccentColor()) {
                 File themeFile = ThemeResourceFileBuilder.createThemeZipFile(activity);
@@ -97,10 +97,15 @@ public class ThemeHelper implements SharedPreferences.OnSharedPreferenceChangeLi
             }
         }
         currentTheme.applyToActivity(activity);
+    }
+
+    public int getThemeIdToApply(int appThemeId) {
+        if (currentTheme == null)
+            return appThemeId;
         if (appThemeId == R.style.AppTheme_NoActionBar)
-            activity.setTheme(ThemeResourceFileBuilder.getNoActionBarThemeId());
+            return ThemeResourceFileBuilder.getNoActionBarThemeId();
         else
-            activity.setTheme(ThemeResourceFileBuilder.getPrimaryThemeId());
+            return ThemeResourceFileBuilder.getPrimaryThemeId();
     }
 
 
