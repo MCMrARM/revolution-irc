@@ -36,13 +36,19 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
     private ListSetting baseSetting;
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onAttach(Context context) {
+        super.onAttach(context);
 
         ThemeManager themeManager = ThemeManager.getInstance(getContext());
         themeInfo = themeManager.getCustomTheme(
                 UUID.fromString(getArguments().getString(ARG_THEME_UUID)));
+        if (themeInfo == null)
+            throw new RuntimeException("Invalid theme UUID");
+    }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
     }
 
