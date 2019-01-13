@@ -40,7 +40,7 @@ import io.mrarm.irc.util.AutoMultilineTextListener;
 import io.mrarm.irc.util.ColoredTextBuilder;
 import io.mrarm.irc.util.ImageViewTintUtils;
 import io.mrarm.irc.util.SimpleTextWatcher;
-import io.mrarm.irc.util.ThemeHelper;
+import io.mrarm.irc.util.theme.ThemeHelper;
 import io.mrarm.irc.view.ChatAutoCompleteEditText;
 import io.mrarm.irc.view.TextFormatBar;
 

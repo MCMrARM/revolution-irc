@@ -26,7 +26,7 @@ import io.mrarm.irc.ServerConnectionManager;
 import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.util.ExpandIconStateHelper;
 import io.mrarm.irc.util.StyledAttributesHelper;
-import io.mrarm.irc.util.ThemeHelper;
+import io.mrarm.irc.util.theme.ThemeHelper;
 import io.mrarm.irc.view.LockableDrawerLayout;
 
 public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {

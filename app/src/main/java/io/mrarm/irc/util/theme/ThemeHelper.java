@@ -1,4 +1,4 @@
-package io.mrarm.irc.util;
+package io.mrarm.irc.util.theme;
 
 import android.app.Activity;
 import android.content.Context;
@@ -11,6 +11,7 @@ import java.util.List;
 
 import io.mrarm.irc.R;
 import io.mrarm.irc.config.SettingsHelper;
+import io.mrarm.irc.util.StyledAttributesHelper;
 import io.mrarm.thememonkey.Theme;
 
 public class ThemeHelper implements SharedPreferences.OnSharedPreferenceChangeListener {

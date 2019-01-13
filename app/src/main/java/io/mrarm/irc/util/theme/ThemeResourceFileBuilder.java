@@ -1,4 +1,4 @@
-package io.mrarm.irc.util;
+package io.mrarm.irc.util.theme;
 
 import android.content.Context;
 

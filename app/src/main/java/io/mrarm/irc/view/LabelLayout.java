@@ -23,7 +23,7 @@ import android.widget.TextView;
 import io.mrarm.irc.R;
 import io.mrarm.irc.util.SimpleTextWatcher;
 import io.mrarm.irc.util.StyledAttributesHelper;
-import io.mrarm.irc.util.ThemeHelper;
+import io.mrarm.irc.util.theme.ThemeHelper;
 
 public class LabelLayout extends FrameLayout {
 

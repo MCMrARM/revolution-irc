@@ -3,7 +3,7 @@ package io.mrarm.irc;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import io.mrarm.irc.util.ThemeHelper;
+import io.mrarm.irc.util.theme.ThemeHelper;
 
 public class ThemedActivity extends AppCompatActivity implements ThemeHelper.ThemeChangeListener {
 
