@@ -13,6 +13,9 @@ import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ColorPicker extends View {
 
     private float mCurrentHue = 0.f;
@@ -33,6 +36,8 @@ public class ColorPicker extends View {
     private float mTouchStartY;
     private float mTouchTapMaxDist;
     private float[] mTmpHSV = new float[3];
+    private ColorHuePicker mHuePicker;
+    private List<ColorChangeListener> mListeners = new ArrayList<>();
 
     public ColorPicker(Context context) {
         this(context, null);
@@ -63,13 +68,35 @@ public class ColorPicker extends View {
     }
 
     public void attachToHuePicker(ColorHuePicker picker) {
+        mHuePicker = picker;
         setHue(picker.getHueValue());
         picker.addHueChangeListener(this::setHue);
+    }
+
+    public void addColorChangeListener(ColorChangeListener listener) {
+        mListeners.add(listener);
+    }
+
+    public void removeColorChangeListener(ColorChangeListener listener) {
+        mListeners.remove(listener);
     }
 
     public void setHue(float currentHue) {
         mCurrentHue = currentHue;
         invalidate();
+        int newColor = getColor();
+        for (ColorChangeListener listener : mListeners)
+            listener.onColorChanged(newColor);
+    }
+
+    public void setColor(int color) {
+        Color.RGBToHSV(Color.red(color), Color.green(color), Color.blue(color), mTmpHSV);
+        mCurrentSaturation = mTmpHSV[1];
+        mCurrentValue = mTmpHSV[2];
+        if (mHuePicker != null)
+            mHuePicker.setHueValue(mTmpHSV[0]); // will call setHue from callback
+        else
+            setHue(mTmpHSV[0]);
     }
 
     public int getColor() {
@@ -133,6 +160,9 @@ public class ColorPicker extends View {
             mCurrentSaturation = Math.min(Math.max(mCurrentSaturation, 0.f), 1.f);
             mCurrentValue = Math.min(Math.max(mCurrentValue, 0.f), 1.f);
             invalidate();
+            int newColor = getColor();
+            for (ColorChangeListener listener : mListeners)
+                listener.onColorChanged(newColor);
         }
         if (event.getAction() == MotionEvent.ACTION_CANCEL ||
                 event.getAction() == MotionEvent.ACTION_UP) {
@@ -170,5 +200,11 @@ public class ColorPicker extends View {
         canvas.drawCircle(circleX, circleY, mCircleSize, mCirclePaint);
     }
 
+
+    public interface ColorChangeListener {
+
+        void onColorChanged(int newColor);
+
+    }
 
 }
