@@ -3,6 +3,7 @@ package io.mrarm.irc.dialog;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -10,6 +11,8 @@ import android.view.View;
 import android.widget.TextView;
 
 import io.mrarm.irc.R;
+import io.mrarm.irc.view.ColorHuePicker;
+import io.mrarm.irc.view.ColorPicker;
 import io.mrarm.irc.view.MaterialColorPicker;
 
 public class MaterialColorPickerDialog {
@@ -42,22 +45,27 @@ public class MaterialColorPickerDialog {
             picker.closeColor();
         });
         picker.setBackButtonVisibilityCallback((boolean visible) -> {
+            boolean isRtl = ViewCompat.getLayoutDirection(title) == ViewCompat.LAYOUT_DIRECTION_RTL;
+            if (!visible && backButton.getVisibility() != View.VISIBLE)
+                return;
+            float titleToXDp = 8.f;
             if (visible) {
                 backButton.setVisibility(View.VISIBLE);
                 backButton.setAlpha(0.f);
                 backButton.animate().setStartDelay(250L).setDuration(500L).alpha(1.f).setListener(null);
-                title.animate().setDuration(500L).x(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 48.f, mContext.getResources().getDisplayMetrics()));
+                titleToXDp += 48.f;
             } else {
-                if (backButton.getVisibility() == View.VISIBLE) {
-                    backButton.animate().setStartDelay(0L).setDuration(500L).alpha(0.f).setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            backButton.setVisibility(View.INVISIBLE);
-                        }
-                    });
-                    title.animate().setDuration(500L).x(0.f);
-                }
+                backButton.animate().setStartDelay(0L).setDuration(500L).alpha(0.f).setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        backButton.setVisibility(View.INVISIBLE);
+                    }
+                });
             }
+            float titleToX = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, titleToXDp, mContext.getResources().getDisplayMetrics());
+            if (isRtl)
+                titleToX = ((View) title.getParent()).getWidth() - titleToX - title.getWidth();
+            title.animate().setDuration(500L).x(titleToX);
         });
         AlertDialog dialog = new AlertDialog.Builder(mContext, R.style.MaterialColorPickerDialog)
                 .setView(view)
