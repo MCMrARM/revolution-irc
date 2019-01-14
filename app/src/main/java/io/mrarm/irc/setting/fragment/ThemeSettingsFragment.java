@@ -25,6 +25,7 @@ import java.util.UUID;
 
 import io.mrarm.irc.R;
 import io.mrarm.irc.SettingsActivity;
+import io.mrarm.irc.dialog.MaterialColorPickerDialog;
 import io.mrarm.irc.setting.CheckBoxSetting;
 import io.mrarm.irc.setting.ListSetting;
 import io.mrarm.irc.setting.MaterialColorSetting;
@@ -282,6 +283,8 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
                 int colorAccent = StyledAttributesHelper.getColor(itemView.getContext(),
                         R.attr.colorAccent, 0);
                 ViewCompat.setBackgroundTintList(mPaletteBtn, ColorStateList.valueOf(colorAccent));
+
+                mPaletteBtn.setOnClickListener((View v) -> showPalette());
             }
 
             @Override
@@ -293,6 +296,14 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
                 super.bind(entry);
                 mColorPicker.setColor(entry.getSelectedColor());
                 mColorPicker.addColorChangeListener(this);
+            }
+
+            private void showPalette() {
+                MaterialColorPickerDialog dialog = new MaterialColorPickerDialog(
+                        itemView.getContext());
+                dialog.setTitle(getEntry().getName());
+                dialog.setColorPickListener(mColorPicker::setColor);
+                dialog.show();
             }
 
             @Override

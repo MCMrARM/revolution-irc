@@ -45,6 +45,10 @@ public class SimpleSetting extends SettingsListAdapter.Entry {
         return mPreferences != null;
     }
 
+    public String getName() {
+        return mName;
+    }
+
     public boolean isEnabled() {
         return mEnabled;
     }
