@@ -63,4 +63,6 @@
 
     <dimen name="setup_header_padding">32dp</dimen>
     <dimen name="setup_header_padding_m4">28dp</dimen>
+
+    <dimen name="color_list_spacing">4dp</dimen>
 </resources>

@@ -595,6 +595,7 @@
     <!-- Color picker -->
 
     <string name="color_picker_title">Pick a color</string>
+    <string name="color_picker_palette">Pick a color from palette</string>
 
     <string-array name="color_picker_color_names">
         <item>Black</item>

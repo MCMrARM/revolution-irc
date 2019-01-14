@@ -1,18 +1,24 @@
 package io.mrarm.irc.setting.fragment;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -23,7 +29,9 @@ import io.mrarm.irc.setting.CheckBoxSetting;
 import io.mrarm.irc.setting.ListSetting;
 import io.mrarm.irc.setting.MaterialColorSetting;
 import io.mrarm.irc.setting.SettingsListAdapter;
+import io.mrarm.irc.util.ColorListAdapter;
 import io.mrarm.irc.util.EntryRecyclerViewAdapter;
+import io.mrarm.irc.util.SpacingItemDecorator;
 import io.mrarm.irc.util.StyledAttributesHelper;
 import io.mrarm.irc.util.theme.ThemeAttrMapping;
 import io.mrarm.irc.util.theme.ThemeInfo;
@@ -37,6 +45,7 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
 
     private ThemeInfo themeInfo;
     private ListSetting baseSetting;
+    private RecentColorList recentColors;
 
     @Override
     public void onAttach(Context context) {
@@ -47,6 +56,12 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
                 UUID.fromString(getArguments().getString(ARG_THEME_UUID)));
         if (themeInfo == null)
             throw new RuntimeException("Invalid theme UUID");
+
+        recentColors = new RecentColorList();
+        recentColors.recentColors = new ArrayList<>();
+        recentColors.recentColors.add(getResources().getColor(R.color.ircYellow));
+        recentColors.recentColors.add(getResources().getColor(R.color.ircLightRed));
+        recentColors.recentColors.add(getResources().getColor(R.color.ircBlue));
     }
 
     @Override
@@ -88,14 +103,17 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
         a.add(new ThemeColorSetting(getString(R.string.theme_color_primary))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_PRIMARY)
                 .setExpandGroup(colorExpandGroup)
+                .setRecentColors(recentColors)
                 .addListener(applyListener));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_primary_dark))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_PRIMARY_DARK)
                 .setExpandGroup(colorExpandGroup)
+                .setRecentColors(recentColors)
                 .addListener(applyListener));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_accent))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_ACCENT)
                 .setExpandGroup(colorExpandGroup)
+                .setRecentColors(recentColors)
                 .addListener(applyListener));
 //        a.add(new ThemeBoolSetting(getString(R.string.theme_light_toolbar))
 //                .linkProperty(getContext(), themeInfo, ThemeInfo.PROP_LIGHT_TOOLBAR)
@@ -103,26 +121,32 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
         a.add(new ThemeColorSetting(getString(R.string.theme_color_background))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_BACKGROUND)
                 .setExpandGroup(colorExpandGroup)
+                .setRecentColors(recentColors)
                 .addListener(applyListener));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_background_floating))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_BACKGROUND_FLOATING)
                 .setExpandGroup(colorExpandGroup)
+                .setRecentColors(recentColors)
                 .addListener(applyListener));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_text_primary))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_TEXT_PRIMARY)
                 .setExpandGroup(colorExpandGroup)
+                .setRecentColors(recentColors)
                 .addListener(applyListener));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_text_secondary))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_TEXT_SECONDARY)
                 .setExpandGroup(colorExpandGroup)
+                .setRecentColors(recentColors)
                 .addListener(applyListener));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_icon))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_ICON)
                 .setExpandGroup(colorExpandGroup)
+                .setRecentColors(recentColors)
                 .addListener(applyListener));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_icon_opaque))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_ICON_OPAQUE)
                 .setExpandGroup(colorExpandGroup)
+                .setRecentColors(recentColors)
                 .addListener(applyListener));
         return a;
     }
@@ -164,6 +188,12 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
 //        getActivity().recreate();
     }
 
+    private static class RecentColorList {
+
+        private List<Integer> recentColors;
+
+    }
+
     public static class ExpandableColorSetting extends MaterialColorSetting {
 
         private static final int sHolder = SettingsListAdapter.registerViewHolder(Holder.class,
@@ -173,6 +203,8 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
 
         private boolean mExpanded = false;
         private ExpandGroup mGroup;
+        private RecentColorList mRecentColors;
+        private int mDefaultColor;
 
         public ExpandableColorSetting(String name) {
             super(name);
@@ -180,6 +212,11 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
 
         public ExpandableColorSetting setExpandGroup(ExpandGroup group) {
             mGroup = group;
+            return this;
+        }
+
+        public ExpandableColorSetting setRecentColors(RecentColorList colors) {
+            mRecentColors = colors;
             return this;
         }
 
@@ -192,6 +229,14 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
             if (expanded)
                 mGroup.mCurrentlyExpanded = this;
             onUpdated();
+        }
+
+        public void setDefaultColor(int defaultColor) {
+            this.mDefaultColor = defaultColor;
+        }
+
+        public int getDefaultColor() {
+            return mDefaultColor;
         }
 
         @Override
@@ -218,6 +263,8 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
 
             private ColorPicker mColorPicker;
             private ColorHuePicker mHuePicker;
+            private RecyclerView mRecentColors;
+            private View mPaletteBtn;
 
             public ExpandedHolder(View itemView, SettingsListAdapter adapter) {
                 super(itemView, adapter);
@@ -226,10 +273,22 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
                 mColorPicker.attachToHuePicker(mHuePicker);
                 itemView.setOnClickListener(null);
                 itemView.findViewById(R.id.header).setOnClickListener(this);
+                mRecentColors = itemView.findViewById(R.id.recent_colors);
+                mRecentColors.setLayoutManager(new LinearLayoutManager(
+                        itemView.getContext(), LinearLayout.HORIZONTAL, false));
+                mRecentColors.addItemDecoration(SpacingItemDecorator.fromResDimension(
+                        itemView.getContext(), R.dimen.color_list_spacing));
+                mPaletteBtn = itemView.findViewById(R.id.palette_btn);
+                int colorAccent = StyledAttributesHelper.getColor(itemView.getContext(),
+                        R.attr.colorAccent, 0);
+                ViewCompat.setBackgroundTintList(mPaletteBtn, ColorStateList.valueOf(colorAccent));
             }
 
             @Override
             public void bind(MaterialColorSetting entry) {
+                ExpandableColorSetting expandableEntry = (ExpandableColorSetting) entry;
+                mRecentColors.setAdapter(new ColorListAdapter(expandableEntry.mDefaultColor,
+                        expandableEntry.mRecentColors.recentColors));
                 mColorPicker.removeColorChangeListener(this);
                 super.bind(entry);
                 mColorPicker.setColor(entry.getSelectedColor());
@@ -287,11 +346,12 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
 
         public ThemeColorSetting linkProperty(Context context, ThemeInfo theme, String prop) {
             Integer color = theme.colors.get(prop);
+            setDefaultColor(getDefaultValue(context, theme, prop));
             if (color != null) {
                 setSelectedColor(color);
             } else {
                 mHasCustomColor = false;
-                super.setSelectedColor(getDefaultValue(context, theme, prop));
+                super.setSelectedColor(getDefaultColor());
             }
             mTheme = theme;
             mThemeProp = prop;
