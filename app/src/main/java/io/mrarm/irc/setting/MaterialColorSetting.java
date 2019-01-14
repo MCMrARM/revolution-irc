@@ -37,14 +37,18 @@ public class MaterialColorSetting extends SimpleSetting {
         return mHasSelectedColor;
     }
 
-    public void setSelectedColor(int color) {
+    protected void setSelectedColor(int color, boolean noNotifyRV) {
         mSelectedColor = color;
         mHasSelectedColor = true;
         if (hasAssociatedPreference())
             mPreferences.edit()
                     .putInt(mPreferenceName, color)
                     .apply();
-        onUpdated();
+        onUpdated(noNotifyRV);
+    }
+
+    public final void setSelectedColor(int color) {
+        setSelectedColor(color, false);
     }
 
     public int getSelectedColor() {

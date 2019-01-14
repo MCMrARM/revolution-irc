@@ -248,11 +248,10 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
             onUpdated();
         }
 
-        @Override
-        public void setSelectedColor(int color) {
-            mSelectedColor = color;
-            mHasSelectedColor = true;
-            onUpdated(true);
+        protected void resetColor(boolean noNotifyRV) {
+            mSelectedColor = getDefaultColor();
+            mHasSelectedColor = false;
+            onUpdated(noNotifyRV);
         }
 
         public void setDefaultColor(int defaultColor) {
@@ -270,15 +269,28 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
             return sHolder;
         }
 
-        public static class Holder extends MaterialColorSetting.Holder {
+        public static class Holder extends SimpleSetting.Holder<ExpandableColorSetting> {
+
+            private ImageView mColor;
 
             public Holder(View itemView, SettingsListAdapter adapter) {
                 super(itemView, adapter);
+                mColor = itemView.findViewById(R.id.color);
+            }
+
+            @Override
+            public void bind(ExpandableColorSetting entry) {
+                super.bind(entry);
+                mColor.setColorFilter(entry.getSelectedColor(), PorterDuff.Mode.MULTIPLY);
+                if (entry.hasSelectedColor())
+                    setValueText(String.format("#%06x", entry.getSelectedColor() & 0xFFFFFF));
+                else
+                    setValueText(R.string.value_default);
             }
 
             @Override
             public void onClick(View v) {
-                ((ExpandableColorSetting) getEntry()).setExpanded(true);
+                getEntry().setExpanded(true);
             }
 
         }
@@ -338,8 +350,13 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
             @Override
             public void bind(ExpandableColorSetting entry) {
                 super.bind(entry);
-                mRecentColors.setAdapter(new ColorListAdapter(entry.mDefaultColor,
-                        entry.mRecentColors.recentColors));
+                ColorListAdapter adapter = new ColorListAdapter(entry.mRecentColors.recentColors);
+                adapter.setListener((c) -> setColor(c, null, true));
+                adapter.setResetColor(entry.mDefaultColor, () -> {
+                    setColor(entry.getDefaultColor(), null, false);
+                    getEntry().resetColor(true);
+                });
+                mRecentColors.setAdapter(adapter);
                 setColor(entry.getSelectedColor(), null, false);
             }
 
@@ -368,7 +385,7 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
                     mValueBlue.setText(String.valueOf(Color.blue(newColor)));
                 mChangingValue = false;
                 if (update) {
-                    getEntry().setSelectedColor(newColor);
+                    getEntry().setSelectedColor(newColor, true);
                 }
             }
 
@@ -408,7 +425,6 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
 
     public static final class ThemeColorSetting extends ExpandableColorSetting {
 
-        private boolean mHasCustomColor = false;
         private ThemeInfo mTheme;
         private String mThemeProp;
         private ColorPicker.ColorChangeListener mCustomApplyFunc;
@@ -418,13 +434,21 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
         }
 
         @Override
-        public void setSelectedColor(int color) {
-            super.setSelectedColor(color);
-            mHasCustomColor = true;
+        protected void setSelectedColor(int color, boolean noNotifyRV) {
+            super.setSelectedColor(color, noNotifyRV);
             if (mTheme != null)
                 mTheme.colors.put(mThemeProp, color);
             if (mCustomApplyFunc != null)
                 mCustomApplyFunc.onColorChanged(color);
+        }
+
+        @Override
+        protected void resetColor(boolean noNotifyRV) {
+            super.resetColor(noNotifyRV);
+            if (mTheme != null)
+                mTheme.colors.remove(mThemeProp);
+            if (mCustomApplyFunc != null)
+                mCustomApplyFunc.onColorChanged(getDefaultColor());
         }
 
         private static int getDefaultValue(Context context, ThemeInfo theme, String prop) {
@@ -442,8 +466,8 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
             if (color != null) {
                 setSelectedColor(color);
             } else {
-                mHasCustomColor = false;
                 super.setSelectedColor(getDefaultColor());
+                mHasSelectedColor = false;
             }
             mTheme = theme;
             mThemeProp = prop;

@@ -7,8 +7,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
 
 import java.util.List;
 
@@ -21,10 +19,20 @@ public class ColorListAdapter extends RecyclerView.Adapter {
 
     private Integer mResetColor;
     private List<Integer> mColors;
+    private ColorResetSelectListener mResetListener;
+    private ColorSelectListener mListener;
 
-    public ColorListAdapter(Integer resetColor, List<Integer> colors) {
-        mResetColor = resetColor;
+    public ColorListAdapter(List<Integer> colors) {
         mColors = colors;
+    }
+
+    public void setResetColor(Integer resetColor, ColorResetSelectListener listener) {
+        this.mResetColor = resetColor;
+        this.mResetListener = listener;
+    }
+
+    public void setListener(ColorSelectListener listener) {
+        this.mListener = listener;
     }
 
     @NonNull
@@ -44,12 +52,12 @@ public class ColorListAdapter extends RecyclerView.Adapter {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (mResetColor != null) {
             if (position == 0) {
-                ((ViewHolder) holder).bind(mResetColor);
+                ((ViewHolder) holder).bind(mResetColor, true);
                 return;
             }
             --position;
         }
-        ((ViewHolder) holder).bind(mColors.get(position));
+        ((ViewHolder) holder).bind(mColors.get(position), false);
     }
 
     @Override
@@ -64,15 +72,41 @@ public class ColorListAdapter extends RecyclerView.Adapter {
         return TYPE_COLOR;
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+
+        private int mColor;
+        private boolean mIsReset;
 
         public ViewHolder(View itemView) {
             super(itemView);
+            itemView.setOnClickListener(this);
         }
 
-        public void bind(int color) {
+        public void bind(int color, boolean isReset) {
+            mColor = color;
+            mIsReset = isReset;
             ViewCompat.setBackgroundTintList(itemView, ColorStateList.valueOf(color));
         }
 
+        @Override
+        public void onClick(View v) {
+            if (mIsReset)
+                mResetListener.onColorResetSelected();
+            else
+                mListener.onColorSelected(mColor);
+        }
     }
+
+    public interface ColorResetSelectListener {
+
+        void onColorResetSelected();
+
+    }
+
+    public interface ColorSelectListener {
+
+        void onColorSelected(int color);
+
+    }
+
 }
