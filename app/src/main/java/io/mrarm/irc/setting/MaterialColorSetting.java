@@ -13,8 +13,8 @@ public class MaterialColorSetting extends SimpleSetting {
     private static final int sHolder = SettingsListAdapter.registerViewHolder(Holder.class,
             R.layout.settings_list_entry_color);
 
-    private int mSelectedColor;
-    private boolean mHasSelectedColor = false;
+    protected int mSelectedColor;
+    protected boolean mHasSelectedColor = false;
 
     public MaterialColorSetting(String name) {
         super(name, null);

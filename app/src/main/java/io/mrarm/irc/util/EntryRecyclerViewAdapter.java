@@ -51,9 +51,13 @@ public class EntryRecyclerViewAdapter extends RecyclerView.Adapter<EntryRecycler
             mUpdatesDirectly = updatesDirectly;
         }
 
-        protected void onUpdated() {
-            if (mOwner != null && mIndex != -1 && !mUpdatesDirectly)
+        protected void onUpdated(boolean doNotNotifyRV) {
+            if (mOwner != null && mIndex != -1 && !mUpdatesDirectly && !doNotNotifyRV)
                 mOwner.notifyItemChanged(mIndex);
+        }
+
+        protected final void onUpdated() {
+            onUpdated(false);
         }
 
     }

@@ -68,8 +68,8 @@ public class SimpleSetting extends SettingsListAdapter.Entry {
     }
 
     @Override
-    protected void onUpdated() {
-        super.onUpdated();
+    protected void onUpdated(boolean doNotNotifyRV) {
+        super.onUpdated(doNotNotifyRV);
         for (SettingsListAdapter.SettingChangedListener listener : mListeners)
             listener.onSettingChanged(this);
     }

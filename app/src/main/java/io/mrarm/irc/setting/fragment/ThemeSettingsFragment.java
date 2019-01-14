@@ -2,6 +2,7 @@ package io.mrarm.irc.setting.fragment;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -9,12 +10,14 @@ import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import java.io.IOException;
@@ -30,8 +33,10 @@ import io.mrarm.irc.setting.CheckBoxSetting;
 import io.mrarm.irc.setting.ListSetting;
 import io.mrarm.irc.setting.MaterialColorSetting;
 import io.mrarm.irc.setting.SettingsListAdapter;
+import io.mrarm.irc.setting.SimpleSetting;
 import io.mrarm.irc.util.ColorListAdapter;
 import io.mrarm.irc.util.EntryRecyclerViewAdapter;
+import io.mrarm.irc.util.SimpleTextWatcher;
 import io.mrarm.irc.util.SpacingItemDecorator;
 import io.mrarm.irc.util.StyledAttributesHelper;
 import io.mrarm.irc.util.theme.ThemeAttrMapping;
@@ -260,15 +265,20 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
 
         }
 
-        public static class ExpandedHolder extends MaterialColorSetting.Holder implements ColorPicker.ColorChangeListener {
+        public static class ExpandedHolder extends SimpleSetting.Holder<ExpandableColorSetting>
+                implements ColorPicker.ColorChangeListener {
 
+            private ImageView mColor;
             private ColorPicker mColorPicker;
             private ColorHuePicker mHuePicker;
             private RecyclerView mRecentColors;
             private View mPaletteBtn;
+            private EditText mValueHex, mValueRed, mValueGreen, mValueBlue;
+            private boolean mChangingValue = false;
 
             public ExpandedHolder(View itemView, SettingsListAdapter adapter) {
                 super(itemView, adapter);
+                mColor = itemView.findViewById(R.id.color);
                 mColorPicker = itemView.findViewById(R.id.picker);
                 mHuePicker = itemView.findViewById(R.id.hue);
                 mColorPicker.attachToHuePicker(mHuePicker);
@@ -280,22 +290,39 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
                 mRecentColors.addItemDecoration(SpacingItemDecorator.fromResDimension(
                         itemView.getContext(), R.dimen.color_list_spacing));
                 mPaletteBtn = itemView.findViewById(R.id.palette_btn);
+                mValueHex = itemView.findViewById(R.id.value_hex);
+                mValueRed = itemView.findViewById(R.id.value_r);
+                mValueGreen = itemView.findViewById(R.id.value_g);
+                mValueBlue = itemView.findViewById(R.id.value_b);
                 int colorAccent = StyledAttributesHelper.getColor(itemView.getContext(),
                         R.attr.colorAccent, 0);
                 ViewCompat.setBackgroundTintList(mPaletteBtn, ColorStateList.valueOf(colorAccent));
+
+                mColorPicker.addColorChangeListener(this);
+                mValueHex.addTextChangedListener(new SimpleTextWatcher((s) -> {
+                    if (mChangingValue)
+                        return;
+                    try {
+                        setColor(Color.parseColor(s.toString()), mValueHex, true);
+                    } catch (IllegalArgumentException ignored) {
+                    }
+                }));
+                mValueRed.addTextChangedListener(new SimpleTextWatcher(
+                        (s) -> onComponentChanged(mValueRed, s, 16)));
+                mValueGreen.addTextChangedListener(new SimpleTextWatcher(
+                        (s) -> onComponentChanged(mValueGreen, s, 8)));
+                mValueBlue.addTextChangedListener(new SimpleTextWatcher(
+                        (s) -> onComponentChanged(mValueBlue, s, 0)));
 
                 mPaletteBtn.setOnClickListener((View v) -> showPalette());
             }
 
             @Override
-            public void bind(MaterialColorSetting entry) {
-                ExpandableColorSetting expandableEntry = (ExpandableColorSetting) entry;
-                mRecentColors.setAdapter(new ColorListAdapter(expandableEntry.mDefaultColor,
-                        expandableEntry.mRecentColors.recentColors));
-                mColorPicker.removeColorChangeListener(this);
+            public void bind(ExpandableColorSetting entry) {
                 super.bind(entry);
-                mColorPicker.setColor(entry.getSelectedColor());
-                mColorPicker.addColorChangeListener(this);
+                mRecentColors.setAdapter(new ColorListAdapter(entry.mDefaultColor,
+                        entry.mRecentColors.recentColors));
+                setColor(entry.getSelectedColor(), null, false);
             }
 
             private void showPalette() {
@@ -306,15 +333,50 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
                 dialog.show();
             }
 
+            private void setColor(int newColor, Object source, boolean update) {
+                mColor.setColorFilter(newColor, PorterDuff.Mode.MULTIPLY);
+                String hexValue = String.format("#%06x", newColor & 0xFFFFFF);
+                setValueText(hexValue);
+                mChangingValue = true;
+                if (source != mColorPicker)
+                    mColorPicker.setColor(newColor);
+                if (source != mValueHex)
+                    mValueHex.setText(hexValue);
+                if (source != mValueRed)
+                    mValueRed.setText(String.valueOf(Color.red(newColor)));
+                if (source != mValueGreen)
+                    mValueGreen.setText(String.valueOf(Color.green(newColor)));
+                if (source != mValueBlue)
+                    mValueBlue.setText(String.valueOf(Color.blue(newColor)));
+                mChangingValue = false;
+                if (update) {
+                    getEntry().mSelectedColor = newColor;
+                    getEntry().onUpdated(true);
+                }
+            }
+
             @Override
             public void onColorChanged(int newColor) {
-                mColor.setColorFilter(newColor, PorterDuff.Mode.MULTIPLY);
-                setValueText(String.format("#%06x", newColor & 0xFFFFFF));
+                if (!mChangingValue)
+                    setColor(newColor, mColorPicker, true);
+            }
+
+            private void onComponentChanged(Object source, Editable newVal, int componentShift) {
+                if (mChangingValue)
+                    return;
+                try {
+                    int val = Integer.parseInt(newVal.toString());
+                    int color = getEntry().getSelectedColor();
+                    color &= ~(0xff << componentShift);
+                    color |= (val & 0xff) << componentShift;
+                    setColor(color, source, true);
+                } catch (NumberFormatException ignored) {
+                }
             }
 
             @Override
             public void onClick(View v) {
-                ((ExpandableColorSetting) getEntry()).setExpanded(false);
+                getEntry().setExpanded(false);
             }
         }
 
