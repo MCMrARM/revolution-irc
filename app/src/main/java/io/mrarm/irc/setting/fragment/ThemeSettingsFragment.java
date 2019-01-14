@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
@@ -108,11 +110,18 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
         ExpandableColorSetting.ExpandGroup colorExpandGroup = new ExpandableColorSetting.ExpandGroup();
         a.add(new ThemeColorSetting(getString(R.string.theme_color_primary))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_PRIMARY)
+                .setCustomApplyFunc((int c) ->
+                        ((SettingsActivity) getActivity()).getSupportActionBar()
+                                .setBackgroundDrawable(new ColorDrawable(c)))
                 .setExpandGroup(colorExpandGroup)
                 .setRecentColors(recentColors)
                 .addListener(applyListener));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_primary_dark))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_PRIMARY_DARK)
+                .setCustomApplyFunc((int c) -> {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                        getActivity().getWindow().setStatusBarColor(c);
+                })
                 .setExpandGroup(colorExpandGroup)
                 .setRecentColors(recentColors)
                 .addListener(applyListener));
@@ -126,6 +135,8 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
 //                .addListener(applyListener));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_background))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_BACKGROUND)
+                .setCustomApplyFunc((int c) ->
+                        getActivity().getWindow().setBackgroundDrawable(new ColorDrawable(c)))
                 .setExpandGroup(colorExpandGroup)
                 .setRecentColors(recentColors)
                 .addListener(applyListener));
@@ -235,6 +246,13 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
             if (expanded)
                 mGroup.mCurrentlyExpanded = this;
             onUpdated();
+        }
+
+        @Override
+        public void setSelectedColor(int color) {
+            mSelectedColor = color;
+            mHasSelectedColor = true;
+            onUpdated(true);
         }
 
         public void setDefaultColor(int defaultColor) {
@@ -350,8 +368,7 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
                     mValueBlue.setText(String.valueOf(Color.blue(newColor)));
                 mChangingValue = false;
                 if (update) {
-                    getEntry().mSelectedColor = newColor;
-                    getEntry().onUpdated(true);
+                    getEntry().setSelectedColor(newColor);
                 }
             }
 
@@ -394,6 +411,7 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
         private boolean mHasCustomColor = false;
         private ThemeInfo mTheme;
         private String mThemeProp;
+        private ColorPicker.ColorChangeListener mCustomApplyFunc;
 
         public ThemeColorSetting(String name) {
             super(name);
@@ -403,9 +421,10 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
         public void setSelectedColor(int color) {
             super.setSelectedColor(color);
             mHasCustomColor = true;
-            if (mTheme != null) {
+            if (mTheme != null)
                 mTheme.colors.put(mThemeProp, color);
-            }
+            if (mCustomApplyFunc != null)
+                mCustomApplyFunc.onColorChanged(color);
         }
 
         private static int getDefaultValue(Context context, ThemeInfo theme, String prop) {
@@ -428,6 +447,12 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
             }
             mTheme = theme;
             mThemeProp = prop;
+            return this;
+        }
+
+        public ThemeColorSetting setCustomApplyFunc(ColorPicker.ColorChangeListener listener) {
+            mCustomApplyFunc = listener;
+            mCustomApplyFunc.onColorChanged(getSelectedColor());
             return this;
         }
 
