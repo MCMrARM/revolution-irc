@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.Shader;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
@@ -22,11 +23,12 @@ public class ColorPicker extends View {
     private float mCurrentSaturation = 1.f;
     private float mCurrentValue = 1.f;
     private Paint mFillPaint;
-    private Rect mTmpRect = new Rect();
+    private RectF mTmpRectF = new RectF();
     private LinearGradient mSaturationGradient;
     private Paint mSaturationGradientPaint;
     private LinearGradient mValueGradient;
     private Paint mValueGradientPaint;
+    private float mRadius;
     private Paint mCirclePaint;
     private Paint mCircleInnerPaint;
     private float mCircleSize;
@@ -65,6 +67,8 @@ public class ColorPicker extends View {
         mCircleTouchSize = mCircleSize * 2.5f;
         mTouchTapMaxDist = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                 8.f, getResources().getDisplayMetrics());
+        mRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                2.f, getResources().getDisplayMetrics());
     }
 
     public void attachToHuePicker(ColorHuePicker picker) {
@@ -182,11 +186,11 @@ public class ColorPicker extends View {
         mTmpHSV[1] = 1.f;
         mTmpHSV[2] = 1.f;
         mFillPaint.setColor(Color.HSVToColor(mTmpHSV));
-        mTmpRect.set(getPaddingLeft(), getPaddingTop(),
+        mTmpRectF.set(getPaddingLeft(), getPaddingTop(),
                 getWidth() - getPaddingRight(), getHeight() - getPaddingBottom());
-        canvas.drawRect(mTmpRect, mFillPaint);
-        canvas.drawRect(mTmpRect, mSaturationGradientPaint);
-        canvas.drawRect(mTmpRect, mValueGradientPaint);
+        canvas.drawRoundRect(mTmpRectF, mRadius, mRadius, mFillPaint);
+        canvas.drawRoundRect(mTmpRectF, mRadius, mRadius, mSaturationGradientPaint);
+        canvas.drawRoundRect(mTmpRectF, mRadius, mRadius, mValueGradientPaint);
         int currentColor = getColor();
         mCircleInnerPaint.setColor(currentColor);
         if (Color.red(currentColor) < 128 && Color.green(currentColor) < 128 &&

@@ -2,11 +2,13 @@ package io.mrarm.irc.view;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.Shader;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -19,17 +21,18 @@ import java.util.List;
 public class ColorHuePicker extends View {
 
     private Bitmap mBitmap;
-    private Paint mPaint;
+    private Paint mBmpPaint;
     private float[] mTmpHSV = new float[3];
     private Rect mBmpRect = new Rect();
-    private Rect mTmpRect = new Rect();
     private RectF mTmpRectF = new RectF();
     private float mCurrentValue = 0.f;
+    private float mRadius;
 
     private Paint mHandlePaint;
     private Paint mHandleInnerPaint;
     private float mHandleHeight;
     private float mHandleTouchHeight;
+    private float mHandleRadius;
     private boolean mHandleDragging;
     private float mTouchStartX;
     private float mTouchStartY;
@@ -48,7 +51,7 @@ public class ColorHuePicker extends View {
 
     public ColorHuePicker(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        mPaint = new Paint();
+        mBmpPaint = new Paint();
         mHandlePaint = new Paint();
         mHandlePaint.setColor(0xFF000000);
         mHandlePaint.setStyle(Paint.Style.STROKE);
@@ -60,6 +63,10 @@ public class ColorHuePicker extends View {
         mHandleTouchHeight = mHandleHeight * 2.5f;
         mTouchTapMaxDist = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                 16.f, getResources().getDisplayMetrics());
+        mRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                2.f, getResources().getDisplayMetrics());
+        mHandleRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                2.f, getResources().getDisplayMetrics());
     }
 
     public void addHueChangeListener(HueChangeListener listener) {
@@ -102,6 +109,8 @@ public class ColorHuePicker extends View {
             mTmpHSV[0] = (float) i / (h - 1) * 360.f;
             mBitmap.setPixel(0, i, Color.HSVToColor(mTmpHSV));
         }
+        mBmpPaint.setShader(new BitmapShader(mBitmap, Shader.TileMode.CLAMP,
+                Shader.TileMode.CLAMP));
         mBmpRect.set(0, 0, 1, h);
     }
 
@@ -144,18 +153,20 @@ public class ColorHuePicker extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        int w = getWidth() - getPaddingLeft() - getPaddingRight();
         int h = getHeight() - getPaddingTop() - getPaddingBottom();
         if (mBitmap == null || mBitmap.getHeight() != h)
             createBitmap();
-        mTmpRect.set(getPaddingLeft(), getPaddingTop(),
-                getWidth() - getPaddingRight(), getHeight() - getPaddingBottom());
-        canvas.drawBitmap(mBitmap, mBmpRect, mTmpRect, mPaint);
+        canvas.translate(getPaddingLeft(), getPaddingTop());
+        mTmpRectF.set(0, 0, w, h);
+        canvas.drawRoundRect(mTmpRectF, mRadius, mRadius, mBmpPaint);
+        canvas.translate(-getPaddingLeft(), -getPaddingTop());
         float handleY = getHandleY();
         mTmpRectF.set(getPaddingLeft(), handleY - mHandleHeight / 2.f,
                 getWidth() - getPaddingRight(), handleY + mHandleHeight / 2.f);
         mHandleInnerPaint.setColor(getColorValue());
-        canvas.drawRect(mTmpRectF, mHandleInnerPaint);
-        canvas.drawRect(mTmpRectF, mHandlePaint);
+        canvas.drawRoundRect(mTmpRectF, mHandleRadius, mHandleRadius, mHandleInnerPaint);
+        canvas.drawRoundRect(mTmpRectF, mHandleRadius, mHandleRadius, mHandlePaint);
     }
 
     public interface HueChangeListener {
