@@ -27,6 +27,11 @@ public class ColorPicker extends View {
     private Paint mCirclePaint;
     private Paint mCircleInnerPaint;
     private float mCircleSize;
+    private float mCircleTouchSize;
+    private boolean mCircleDragging = false;
+    private float mTouchStartX;
+    private float mTouchStartY;
+    private float mTouchTapMaxDist;
     private float[] mTmpHSV = new float[3];
 
     public ColorPicker(Context context) {
@@ -51,6 +56,9 @@ public class ColorPicker extends View {
                 3.f, getResources().getDisplayMetrics()));
         mCircleInnerPaint = new Paint();
         mCircleSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                8.f, getResources().getDisplayMetrics());
+        mCircleTouchSize = mCircleSize * 2.5f;
+        mTouchTapMaxDist = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                 8.f, getResources().getDisplayMetrics());
     }
 
@@ -84,11 +92,40 @@ public class ColorPicker extends View {
         mValueGradientPaint.setShader(mValueGradient);
     }
 
+    private float getHandleX() {
+        return getPaddingLeft() +
+                (getWidth() - getPaddingLeft() - getPaddingRight()) * mCurrentSaturation;
+    }
+
+    private float getHandleY() {
+        return getPaddingTop() +
+                (getHeight() - getPaddingTop() - getPaddingBottom()) * (1.f - mCurrentValue);
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_DOWN ||
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            float handleX = getHandleX();
+            float handleY = getHandleY();
+            mTouchStartX = event.getX();
+            mTouchStartY = event.getY();
+            if (event.getX() >= handleX - mCircleTouchSize &&
+                    event.getX() <= handleX + mCircleTouchSize &&
+                    event.getY() >= handleY - mCircleTouchSize &&
+                    event.getY() <= handleY + mCircleTouchSize) {
+                mCircleDragging = true;
+                getParent().requestDisallowInterceptTouchEvent(true);
+            }
+        }
+        boolean shouldUpdatePosAnyway = false;
+        if (event.getAction() == MotionEvent.ACTION_UP && !mCircleDragging &&
+                Math.abs(event.getX() - mTouchStartX) < mTouchTapMaxDist &&
+                Math.abs(event.getY() - mTouchStartY) < mTouchTapMaxDist) {
+            shouldUpdatePosAnyway = true;
+        }
+        if ((mCircleDragging && (event.getAction() == MotionEvent.ACTION_DOWN ||
                 event.getAction() == MotionEvent.ACTION_MOVE ||
-                event.getAction() == MotionEvent.ACTION_UP) {
+                event.getAction() == MotionEvent.ACTION_UP)) || shouldUpdatePosAnyway) {
             mCurrentSaturation = (event.getX() - getPaddingLeft()) /
                     (getWidth() - getPaddingLeft() - getPaddingRight());
             mCurrentValue = 1.f - (event.getY() - getPaddingTop()) /
@@ -96,9 +133,16 @@ public class ColorPicker extends View {
             mCurrentSaturation = Math.min(Math.max(mCurrentSaturation, 0.f), 1.f);
             mCurrentValue = Math.min(Math.max(mCurrentValue, 0.f), 1.f);
             invalidate();
-            return true;
         }
-        return super.onTouchEvent(event);
+        if (event.getAction() == MotionEvent.ACTION_CANCEL ||
+                event.getAction() == MotionEvent.ACTION_UP) {
+            getParent().requestDisallowInterceptTouchEvent(false);
+            mCircleDragging = false;
+        }
+        return (event.getAction() == MotionEvent.ACTION_DOWN ||
+                event.getAction() == MotionEvent.ACTION_MOVE ||
+                event.getAction() == MotionEvent.ACTION_UP ||
+                event.getAction() == MotionEvent.ACTION_CANCEL) || super.onTouchEvent(event);
     }
 
     @Override
@@ -113,8 +157,6 @@ public class ColorPicker extends View {
         canvas.drawRect(mTmpRect, mFillPaint);
         canvas.drawRect(mTmpRect, mSaturationGradientPaint);
         canvas.drawRect(mTmpRect, mValueGradientPaint);
-        int w = getWidth() - getPaddingLeft() - getPaddingRight();
-        int h = getHeight() - getPaddingTop() - getPaddingBottom();
         int currentColor = getColor();
         mCircleInnerPaint.setColor(currentColor);
         if (Color.red(currentColor) < 128 && Color.green(currentColor) < 128 &&
@@ -122,8 +164,10 @@ public class ColorPicker extends View {
             mCirclePaint.setColor(0xFFFFFFFF);
         else
             mCirclePaint.setColor(0xFF000000);
-        canvas.drawCircle(getPaddingLeft() + w * mCurrentSaturation, getPaddingTop() + h * (1.f - mCurrentValue), mCircleSize, mCircleInnerPaint);
-        canvas.drawCircle(getPaddingLeft() + w * mCurrentSaturation, getPaddingTop() + h * (1.f - mCurrentValue), mCircleSize, mCirclePaint);
+        float circleX = getHandleX();
+        float circleY = getHandleY();
+        canvas.drawCircle(circleX, circleY, mCircleSize, mCircleInnerPaint);
+        canvas.drawCircle(circleX, circleY, mCircleSize, mCirclePaint);
     }
 
 

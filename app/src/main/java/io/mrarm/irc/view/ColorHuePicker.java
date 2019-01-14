@@ -29,6 +29,12 @@ public class ColorHuePicker extends View {
     private Paint mHandlePaint;
     private Paint mHandleInnerPaint;
     private float mHandleHeight;
+    private float mHandleTouchHeight;
+    private boolean mHandleDragging;
+    private float mTouchStartX;
+    private float mTouchStartY;
+    private float mTouchPrevY;
+    private float mTouchTapMaxDist;
 
     private List<HueChangeListener> mListeners = new ArrayList<>();
 
@@ -51,6 +57,9 @@ public class ColorHuePicker extends View {
         mHandleInnerPaint = new Paint();
         mHandleHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                 8.f, getResources().getDisplayMetrics());
+        mHandleTouchHeight = mHandleHeight * 2.5f;
+        mTouchTapMaxDist = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                16.f, getResources().getDisplayMetrics());
     }
 
     public void addHueChangeListener(HueChangeListener listener) {
@@ -79,6 +88,11 @@ public class ColorHuePicker extends View {
             listener.onHueChanged(val);
     }
 
+    private float getHandleY() {
+        int h = getHeight() - getPaddingTop() - getPaddingBottom();
+        return getPaddingTop() + h * mCurrentValue / 360.f;
+    }
+
     private void createBitmap() {
         int h = getHeight() - getPaddingTop() - getPaddingBottom();
         mBitmap = Bitmap.createBitmap(1, h, Bitmap.Config.ARGB_8888);
@@ -93,16 +107,38 @@ public class ColorHuePicker extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_DOWN ||
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            float handleY = getHandleY();
+            mTouchStartX = event.getX();
+            mTouchStartY = event.getY();
+            mTouchPrevY = mTouchStartY;
+            mHandleDragging = true;
+            getParent().requestDisallowInterceptTouchEvent(true);
+        }
+        boolean shouldUpdatePosAnyway = false;
+        if (event.getAction() == MotionEvent.ACTION_UP && !mHandleDragging &&
+                Math.abs(event.getX() - mTouchStartX) < mTouchTapMaxDist &&
+                Math.abs(event.getY() - mTouchStartY) < mTouchTapMaxDist) {
+            shouldUpdatePosAnyway = true;
+        }
+        if ((mHandleDragging && (event.getAction() == MotionEvent.ACTION_DOWN ||
                 event.getAction() == MotionEvent.ACTION_MOVE ||
-                event.getAction() == MotionEvent.ACTION_UP) {
-            float val = (event.getY() - getPaddingTop()) /
+                event.getAction() == MotionEvent.ACTION_UP)) || shouldUpdatePosAnyway) {
+            float val = mCurrentValue + (event.getY() - mTouchPrevY) /
                     (getHeight() - getPaddingTop() - getPaddingBottom()) * 360.f;
             val = Math.min(Math.max(val, 0.f), 360.f);
             setHueValue(val);
-            return true;
+            mTouchPrevY = event.getY();
         }
-        return super.onTouchEvent(event);
+        if (event.getAction() == MotionEvent.ACTION_CANCEL ||
+                event.getAction() == MotionEvent.ACTION_UP) {
+            getParent().requestDisallowInterceptTouchEvent(false);
+            mHandleDragging = false;
+        }
+        return (event.getAction() == MotionEvent.ACTION_DOWN ||
+                event.getAction() == MotionEvent.ACTION_MOVE ||
+                event.getAction() == MotionEvent.ACTION_UP ||
+                event.getAction() == MotionEvent.ACTION_CANCEL) || super.onTouchEvent(event);
     }
 
     @Override
@@ -114,7 +150,7 @@ public class ColorHuePicker extends View {
         mTmpRect.set(getPaddingLeft(), getPaddingTop(),
                 getWidth() - getPaddingRight(), getHeight() - getPaddingBottom());
         canvas.drawBitmap(mBitmap, mBmpRect, mTmpRect, mPaint);
-        float handleY = getPaddingTop() + h * mCurrentValue / 360.f;
+        float handleY = getHandleY();
         mTmpRectF.set(getPaddingLeft(), handleY - mHandleHeight / 2.f,
                 getWidth() - getPaddingRight(), handleY + mHandleHeight / 2.f);
         mHandleInnerPaint.setColor(getColorValue());
