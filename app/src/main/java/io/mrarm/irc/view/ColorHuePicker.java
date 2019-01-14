@@ -53,7 +53,7 @@ public class ColorHuePicker extends View {
         super(context, attrs, defStyleAttr);
         mBmpPaint = new Paint();
         mHandlePaint = new Paint();
-        mHandlePaint.setColor(0xFF000000);
+        mHandlePaint.setColor(0xFFFFFFFF);
         mHandlePaint.setStyle(Paint.Style.STROKE);
         mHandlePaint.setStrokeWidth(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                 3.f, getResources().getDisplayMetrics()));

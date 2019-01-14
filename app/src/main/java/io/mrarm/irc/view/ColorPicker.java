@@ -193,11 +193,11 @@ public class ColorPicker extends View {
         canvas.drawRoundRect(mTmpRectF, mRadius, mRadius, mValueGradientPaint);
         int currentColor = getColor();
         mCircleInnerPaint.setColor(currentColor);
-        if (Color.red(currentColor) < 128 && Color.green(currentColor) < 128 &&
-                Color.blue(currentColor) < 128)
-            mCirclePaint.setColor(0xFFFFFFFF);
-        else
+        if (Color.red(currentColor) > 140 && Color.green(currentColor) > 140 &&
+                Color.blue(currentColor) > 140)
             mCirclePaint.setColor(0xFF000000);
+        else
+            mCirclePaint.setColor(0xFFFFFFFF);
         float circleX = getHandleX();
         float circleY = getHandleY();
         canvas.drawCircle(circleX, circleY, mCircleSize, mCircleInnerPaint);
