@@ -124,15 +124,16 @@ public class ColorHuePicker extends View {
             mHandleDragging = true;
             getParent().requestDisallowInterceptTouchEvent(true);
         }
-        boolean shouldUpdatePosAnyway = false;
-        if (event.getAction() == MotionEvent.ACTION_UP && !mHandleDragging &&
+        if (event.getAction() == MotionEvent.ACTION_UP &&
                 Math.abs(event.getX() - mTouchStartX) < mTouchTapMaxDist &&
                 Math.abs(event.getY() - mTouchStartY) < mTouchTapMaxDist) {
-            shouldUpdatePosAnyway = true;
-        }
-        if ((mHandleDragging && (event.getAction() == MotionEvent.ACTION_DOWN ||
+            float val = (event.getY() - getPaddingTop()) /
+                    (getHeight() - getPaddingTop() - getPaddingBottom()) * 360.f;
+            val = Math.min(Math.max(val, 0.f), 360.f);
+            setHueValue(val);
+        } else if (mHandleDragging && (event.getAction() == MotionEvent.ACTION_DOWN ||
                 event.getAction() == MotionEvent.ACTION_MOVE ||
-                event.getAction() == MotionEvent.ACTION_UP)) || shouldUpdatePosAnyway) {
+                event.getAction() == MotionEvent.ACTION_UP)) {
             float val = mCurrentValue + (event.getY() - mTouchPrevY) /
                     (getHeight() - getPaddingTop() - getPaddingBottom()) * 360.f;
             val = Math.min(Math.max(val, 0.f), 360.f);
