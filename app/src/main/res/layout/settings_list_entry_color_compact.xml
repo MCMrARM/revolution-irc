@@ -4,8 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?attr/selectableItemBackground"
-    android:paddingTop="6dp"
-    android:paddingBottom="6dp">
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp">
 
     <TextView
         android:id="@+id/name"
@@ -25,6 +25,7 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Caption"
         android:text="Value Placeholder"
         android:layout_below="@+id/name"
+        android:layout_marginTop="2dp"
         android:layout_marginLeft="@dimen/setting_horizontal_padding"
         android:layout_marginStart="@dimen/setting_horizontal_padding"
         android:layout_alignParentLeft="true"

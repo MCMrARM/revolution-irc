@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/header"
+        layout="@layout/settings_list_entry_color_compact"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:orientation="horizontal">
+
+        <io.mrarm.irc.view.ColorPicker
+            android:id="@+id/picker"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:padding="10dp" />
+
+        <io.mrarm.irc.view.ColorHuePicker
+            android:id="@+id/hue"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:padding="10dp" />
+
+    </LinearLayout>
+
+</LinearLayout>

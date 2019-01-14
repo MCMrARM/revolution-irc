@@ -1,6 +1,7 @@
 package io.mrarm.irc.setting.fragment;
 
 import android.content.Context;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -27,6 +28,8 @@ import io.mrarm.irc.util.StyledAttributesHelper;
 import io.mrarm.irc.util.theme.ThemeAttrMapping;
 import io.mrarm.irc.util.theme.ThemeInfo;
 import io.mrarm.irc.util.theme.ThemeManager;
+import io.mrarm.irc.view.ColorHuePicker;
+import io.mrarm.irc.view.ColorPicker;
 
 public class ThemeSettingsFragment extends SettingsListFragment implements NamedSettingsFragment {
 
@@ -77,39 +80,49 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
             themeInfo.base = ((ListSetting) entry).getSelectedOptionValue();
             onPropertyChanged();
         });
-        a.add(baseSetting);
+//        a.add(baseSetting);
 
         SettingsListAdapter.SettingChangedListener applyListener =
                 (EntryRecyclerViewAdapter.Entry entry) -> onPropertyChanged();
+        ExpandableColorSetting.ExpandGroup colorExpandGroup = new ExpandableColorSetting.ExpandGroup();
         a.add(new ThemeColorSetting(getString(R.string.theme_color_primary))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_PRIMARY)
+                .setExpandGroup(colorExpandGroup)
                 .addListener(applyListener));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_primary_dark))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_PRIMARY_DARK)
+                .setExpandGroup(colorExpandGroup)
                 .addListener(applyListener));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_accent))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_ACCENT)
+                .setExpandGroup(colorExpandGroup)
                 .addListener(applyListener));
-        a.add(new ThemeBoolSetting(getString(R.string.theme_light_toolbar))
-                .linkProperty(getContext(), themeInfo, ThemeInfo.PROP_LIGHT_TOOLBAR)
-                .addListener(applyListener));
+//        a.add(new ThemeBoolSetting(getString(R.string.theme_light_toolbar))
+//                .linkProperty(getContext(), themeInfo, ThemeInfo.PROP_LIGHT_TOOLBAR)
+//                .addListener(applyListener));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_background))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_BACKGROUND)
+                .setExpandGroup(colorExpandGroup)
                 .addListener(applyListener));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_background_floating))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_BACKGROUND_FLOATING)
+                .setExpandGroup(colorExpandGroup)
                 .addListener(applyListener));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_text_primary))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_TEXT_PRIMARY)
+                .setExpandGroup(colorExpandGroup)
                 .addListener(applyListener));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_text_secondary))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_TEXT_SECONDARY)
+                .setExpandGroup(colorExpandGroup)
                 .addListener(applyListener));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_icon))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_ICON)
+                .setExpandGroup(colorExpandGroup)
                 .addListener(applyListener));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_icon_opaque))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_ICON_OPAQUE)
+                .setExpandGroup(colorExpandGroup)
                 .addListener(applyListener));
         return a;
     }
@@ -147,27 +160,104 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
     }
 
     private void onPropertyChanged() {
-        ThemeManager.getInstance(getContext()).invalidateCurrentCustomTheme();
-        getActivity().recreate();
+//        ThemeManager.getInstance(getContext()).invalidateCurrentCustomTheme();
+//        getActivity().recreate();
     }
 
-    public static class SingleLineMaterialColorSetting extends MaterialColorSetting {
+    public static class ExpandableColorSetting extends MaterialColorSetting {
 
         private static final int sHolder = SettingsListAdapter.registerViewHolder(Holder.class,
-                R.layout.settings_list_entry_color_single_line);
+                R.layout.settings_list_entry_color_compact);
+        private static final int sExpandedHolder = SettingsListAdapter.registerViewHolder(
+                ExpandedHolder.class, R.layout.settings_list_entry_color_expanded);
 
-        public SingleLineMaterialColorSetting(String name) {
+        private boolean mExpanded = false;
+        private ExpandGroup mGroup;
+
+        public ExpandableColorSetting(String name) {
             super(name);
+        }
+
+        public ExpandableColorSetting setExpandGroup(ExpandGroup group) {
+            mGroup = group;
+            return this;
+        }
+
+        public void setExpanded(boolean expanded) {
+            if (mExpanded == expanded)
+                return;
+            if (mGroup.mCurrentlyExpanded != null && expanded)
+                mGroup.mCurrentlyExpanded.setExpanded(false);
+            mExpanded = expanded;
+            if (expanded)
+                mGroup.mCurrentlyExpanded = this;
+            onUpdated();
         }
 
         @Override
         public int getViewHolder() {
+            if (mExpanded)
+                return sExpandedHolder;
             return sHolder;
+        }
+
+        public static class Holder extends MaterialColorSetting.Holder {
+
+            public Holder(View itemView, SettingsListAdapter adapter) {
+                super(itemView, adapter);
+            }
+
+            @Override
+            public void onClick(View v) {
+                ((ExpandableColorSetting) getEntry()).setExpanded(true);
+            }
+
+        }
+
+        public static class ExpandedHolder extends MaterialColorSetting.Holder implements ColorPicker.ColorChangeListener {
+
+            private ColorPicker mColorPicker;
+            private ColorHuePicker mHuePicker;
+
+            public ExpandedHolder(View itemView, SettingsListAdapter adapter) {
+                super(itemView, adapter);
+                mColorPicker = itemView.findViewById(R.id.picker);
+                mHuePicker = itemView.findViewById(R.id.hue);
+                mColorPicker.attachToHuePicker(mHuePicker);
+                itemView.setOnClickListener(null);
+                itemView.findViewById(R.id.header).setOnClickListener(this);
+            }
+
+            @Override
+            public void bind(MaterialColorSetting entry) {
+                mColorPicker.removeColorChangeListener(this);
+                super.bind(entry);
+                mColorPicker.setColor(entry.getSelectedColor());
+                mColorPicker.addColorChangeListener(this);
+            }
+
+            @Override
+            public void onColorChanged(int newColor) {
+                mColor.setColorFilter(newColor, PorterDuff.Mode.MULTIPLY);
+                setValueText(String.format("#%06x", newColor & 0xFFFFFF));
+            }
+
+            @Override
+            public void onClick(View v) {
+                ((ExpandableColorSetting) getEntry()).setExpanded(false);
+            }
+        }
+
+
+        public static class ExpandGroup {
+
+            private ExpandableColorSetting mCurrentlyExpanded;
+
         }
 
     }
 
-    public static final class ThemeColorSetting extends SingleLineMaterialColorSetting {
+    public static final class ThemeColorSetting extends ExpandableColorSetting {
 
         private boolean mHasCustomColor = false;
         private ThemeInfo mTheme;

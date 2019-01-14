@@ -58,7 +58,7 @@ public class MaterialColorSetting extends SimpleSetting {
 
     public static class Holder extends SimpleSetting.Holder<MaterialColorSetting> {
 
-        private ImageView mColor;
+        protected ImageView mColor;
 
         public Holder(View itemView, SettingsListAdapter adapter) {
             super(itemView, adapter);
