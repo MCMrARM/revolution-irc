@@ -20,7 +20,9 @@ import io.mrarm.irc.setting.fragment.StorageSettingsFragment;
 import io.mrarm.irc.setting.fragment.ThemeSettingsFragment;
 import io.mrarm.irc.setting.fragment.UserSettingsFragment;
 import io.mrarm.irc.setup.BackupActivity;
+import io.mrarm.irc.util.AppCompatViewFactory;
 import io.mrarm.irc.util.SimpleCounter;
+import io.mrarm.irc.util.theme.live.LiveThemeViewFactory;
 
 public class SettingsActivity extends ThemedActivity {
 
@@ -28,6 +30,8 @@ public class SettingsActivity extends ThemedActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        getLayoutInflater().setFactory2(new LiveThemeViewFactory(null,
+                new AppCompatViewFactory(this)));
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

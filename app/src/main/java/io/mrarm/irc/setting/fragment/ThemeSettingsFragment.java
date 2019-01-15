@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -44,6 +45,8 @@ import io.mrarm.irc.util.StyledAttributesHelper;
 import io.mrarm.irc.util.theme.ThemeAttrMapping;
 import io.mrarm.irc.util.theme.ThemeInfo;
 import io.mrarm.irc.util.theme.ThemeManager;
+import io.mrarm.irc.util.theme.live.LiveThemeManager;
+import io.mrarm.irc.util.theme.live.LiveThemeViewFactory;
 import io.mrarm.irc.view.ColorAlphaPicker;
 import io.mrarm.irc.view.ColorHuePicker;
 import io.mrarm.irc.view.ColorPicker;
@@ -55,6 +58,7 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
     private ThemeInfo themeInfo;
     private ListSetting baseSetting;
     private RecentColorList recentColors;
+    private LiveThemeManager mLiveThemeManager;
 
     @Override
     public void onAttach(Context context) {
@@ -76,7 +80,23 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mLiveThemeManager = new LiveThemeManager(getActivity());
         setHasOptionsMenu(true);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        ((LiveThemeViewFactory) getActivity().getLayoutInflater().getFactory2())
+                .setLiveThemeManager(mLiveThemeManager);
+        return super.onCreateView(inflater, container, savedInstanceState);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ((LiveThemeViewFactory) getActivity().getLayoutInflater().getFactory2())
+                .setLiveThemeManager(null);
     }
 
     @Override
@@ -111,23 +131,19 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
         ExpandableColorSetting.ExpandGroup colorExpandGroup = new ExpandableColorSetting.ExpandGroup();
         a.add(new ThemeColorSetting(getString(R.string.theme_color_primary))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_PRIMARY)
-                .setCustomApplyFunc((int c) ->
-                        ((SettingsActivity) getActivity()).getSupportActionBar()
-                                .setBackgroundDrawable(new ColorDrawable(c)))
+                .linkLiveApplyManager(mLiveThemeManager)
                 .setExpandGroup(colorExpandGroup)
                 .setRecentColors(recentColors)
                 .addListener(applyListener));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_primary_dark))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_PRIMARY_DARK)
-                .setCustomApplyFunc((int c) -> {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                        getActivity().getWindow().setStatusBarColor(c);
-                })
+                .linkLiveApplyManager(mLiveThemeManager)
                 .setExpandGroup(colorExpandGroup)
                 .setRecentColors(recentColors)
                 .addListener(applyListener));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_accent))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_ACCENT)
+                .linkLiveApplyManager(mLiveThemeManager)
                 .setExpandGroup(colorExpandGroup)
                 .setRecentColors(recentColors)
                 .addListener(applyListener));
@@ -136,33 +152,37 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
 //                .addListener(applyListener));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_background))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_BACKGROUND)
-                .setCustomApplyFunc((int c) ->
-                        getActivity().getWindow().setBackgroundDrawable(new ColorDrawable(c)))
+                .linkLiveApplyManager(mLiveThemeManager)
                 .setExpandGroup(colorExpandGroup)
                 .setRecentColors(recentColors)
                 .addListener(applyListener));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_background_floating))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_BACKGROUND_FLOATING)
+                .linkLiveApplyManager(mLiveThemeManager)
                 .setExpandGroup(colorExpandGroup)
                 .setRecentColors(recentColors)
                 .addListener(applyListener));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_text_primary))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_TEXT_PRIMARY)
+                .linkLiveApplyManager(mLiveThemeManager)
                 .setExpandGroup(colorExpandGroup)
                 .setRecentColors(recentColors)
                 .addListener(applyListener));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_text_secondary))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_TEXT_SECONDARY)
+                .linkLiveApplyManager(mLiveThemeManager)
                 .setExpandGroup(colorExpandGroup)
                 .setRecentColors(recentColors)
                 .addListener(applyListener));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_icon))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_ICON)
+                .linkLiveApplyManager(mLiveThemeManager)
                 .setExpandGroup(colorExpandGroup)
                 .setRecentColors(recentColors)
                 .addListener(applyListener));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_icon_opaque))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_ICON_OPAQUE)
+                .linkLiveApplyManager(mLiveThemeManager)
                 .setExpandGroup(colorExpandGroup)
                 .setRecentColors(recentColors)
                 .addListener(applyListener));
@@ -499,6 +519,15 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
         public ThemeColorSetting setCustomApplyFunc(ColorPicker.ColorChangeListener listener) {
             mCustomApplyFunc = listener;
             mCustomApplyFunc.onColorChanged(getSelectedColor());
+            return this;
+        }
+
+        public ThemeColorSetting linkLiveApplyManager(LiveThemeManager liveThemeManager) {
+            setCustomApplyFunc((int c) -> {
+                for (int r : ThemeAttrMapping.getColorAttrs(mThemeProp)) {
+                    liveThemeManager.setColorProperty(r, c);
+                }
+            });
             return this;
         }
 

@@ -2,10 +2,12 @@ package io.mrarm.irc.util;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.support.v7.content.res.AppCompatResources;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 
 import java.util.Arrays;
 
@@ -36,6 +38,14 @@ public class StyledAttributesHelper {
         Arrays.sort(attributes);
         return new StyledAttributesHelper(ctx, ctx.obtainStyledAttributes(resid, attributes),
                 attributes);
+    }
+
+    public static StyledAttributesHelper obtainStyledAttributes(
+            Context ctx, Resources.Theme th, AttributeSet attributeSet, int[] attributes,
+            int defStyleAttr) {
+        Arrays.sort(attributes);
+        return new StyledAttributesHelper(ctx, th.obtainStyledAttributes(attributeSet,
+                attributes, defStyleAttr, 0), attributes);
     }
 
     public static int getColor(Context ctx, int attribute, int def) {
@@ -89,8 +99,16 @@ public class StyledAttributesHelper {
         throw new RuntimeException("Attribute not found");
     }
 
+    public boolean hasValue(int attr) {
+        return mArray.hasValue(getAttributeIndex(attr));
+    }
+
     public int getResourceId(int attr, int def) {
         return mArray.getResourceId(getAttributeIndex(attr), def);
+    }
+
+    public boolean getValue(int attr, TypedValue def) {
+        return mArray.getValue(getAttributeIndex(attr), def);
     }
 
     public String getString(int attr) {
@@ -122,6 +140,16 @@ public class StyledAttributesHelper {
                 return v;
         }
         return mArray.getColorStateList(index);
+    }
+
+    public StyledAttributesHelper obtainChildAttrs(int attr, int[] attrs) {
+        return obtainStyledAttributes(mContext, getResourceId(attr, 0), attrs);
+    }
+
+    public StyledAttributesHelper obtainChildAttrs(Resources.Theme t, int attr, int[] attrs) {
+        Arrays.sort(attrs);
+        return new StyledAttributesHelper(mContext, t.obtainStyledAttributes(
+                getResourceId(attr, 0), attrs), attrs);
     }
 
 }
