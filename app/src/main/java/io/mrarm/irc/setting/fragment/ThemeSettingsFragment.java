@@ -44,6 +44,7 @@ import io.mrarm.irc.util.StyledAttributesHelper;
 import io.mrarm.irc.util.theme.ThemeAttrMapping;
 import io.mrarm.irc.util.theme.ThemeInfo;
 import io.mrarm.irc.util.theme.ThemeManager;
+import io.mrarm.irc.view.ColorAlphaPicker;
 import io.mrarm.irc.view.ColorHuePicker;
 import io.mrarm.irc.view.ColorPicker;
 
@@ -301,6 +302,7 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
             private ImageView mColor;
             private ColorPicker mColorPicker;
             private ColorHuePicker mHuePicker;
+            private ColorAlphaPicker mAlphaPicker;
             private RecyclerView mRecentColors;
             private View mPaletteBtn;
             private EditText mValueHex, mValueRed, mValueGreen, mValueBlue;
@@ -311,7 +313,9 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
                 mColor = itemView.findViewById(R.id.color);
                 mColorPicker = itemView.findViewById(R.id.picker);
                 mHuePicker = itemView.findViewById(R.id.hue);
+                mAlphaPicker = itemView.findViewById(R.id.alpha);
                 mColorPicker.attachToHuePicker(mHuePicker);
+                mAlphaPicker.attachToPicker(mColorPicker);
                 itemView.setOnClickListener(null);
                 itemView.findViewById(R.id.header).setOnClickListener(this);
                 mRecentColors = itemView.findViewById(R.id.recent_colors);

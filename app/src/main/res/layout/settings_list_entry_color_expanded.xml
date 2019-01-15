@@ -90,7 +90,14 @@
 
         <io.mrarm.irc.view.ColorHuePicker
             android:id="@+id/hue"
-            android:layout_width="34dp"
+            android:layout_width="32dp"
+            android:layout_height="match_parent"
+            android:padding="10dp"
+            android:paddingStart="2dp" />
+
+        <io.mrarm.irc.view.ColorAlphaPicker
+            android:id="@+id/alpha"
+            android:layout_width="32dp"
             android:layout_height="match_parent"
             android:padding="10dp"
             android:paddingStart="2dp" />
