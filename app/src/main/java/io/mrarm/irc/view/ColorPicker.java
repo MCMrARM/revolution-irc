@@ -5,7 +5,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.support.annotation.Nullable;
@@ -73,8 +72,8 @@ public class ColorPicker extends View {
 
     public void attachToHuePicker(ColorHuePicker picker) {
         mHuePicker = picker;
-        setHue(picker.getHueValue());
-        picker.addHueChangeListener(this::setHue);
+        setHue(picker.getValue());
+        picker.addValueChangeListener(this::setHue);
     }
 
     public void addColorChangeListener(ColorChangeListener listener) {
@@ -98,7 +97,7 @@ public class ColorPicker extends View {
         mCurrentSaturation = mTmpHSV[1];
         mCurrentValue = mTmpHSV[2];
         if (mHuePicker != null)
-            mHuePicker.setHueValue(mTmpHSV[0]); // will call setHue from callback
+            mHuePicker.setValue(mTmpHSV[0]); // will call setHue from callback
         else
             setHue(mTmpHSV[0]);
     }
