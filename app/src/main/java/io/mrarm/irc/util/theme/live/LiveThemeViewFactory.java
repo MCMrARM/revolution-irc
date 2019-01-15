@@ -20,6 +20,10 @@ public class LiveThemeViewFactory implements LayoutInflater.Factory2 {
         this.mLiveThemeManager = liveThemeManager;
     }
 
+    public LiveThemeManager getLiveThemeManager() {
+        return mLiveThemeManager;
+    }
+
     @Override
     public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
         if (mLiveThemeManager != null) {

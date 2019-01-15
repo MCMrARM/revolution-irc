@@ -45,10 +45,8 @@ public class ThemedTextView extends AppCompatTextView {
 
     static void setupTheming(TextView textView, LiveThemeComponent component, AttributeSet attrs, int defStyleAttr) {
         Resources.Theme t = component.getTheme();
-        StyledAttributesHelper r = StyledAttributesHelper
-                .obtainStyledAttributes(textView.getContext(), t, attrs, THEME_ATTRS, defStyleAttr);
-        StyledAttributesHelper textAppearance = r.obtainChildAttrs(t, android.R.attr.textAppearance,
-                TEXT_APPEARANCE_ATTRS);
+        StyledAttributesHelper r = StyledAttributesHelper.obtainStyledAttributes(textView.getContext(), t, attrs, THEME_ATTRS, defStyleAttr);
+        StyledAttributesHelper textAppearance = r.obtainChildAttrs(t, android.R.attr.textAppearance, TEXT_APPEARANCE_ATTRS);
         if (!component.addColorAttr(r, android.R.attr.textColor, textView::setTextColor))
             component.addColorAttr(textAppearance, android.R.attr.textColor, textView::setTextColor);
         if (!component.addColorAttr(r, android.R.attr.textColorLink, textView::setLinkTextColor))

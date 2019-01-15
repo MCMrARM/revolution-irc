@@ -8,7 +8,9 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.graphics.ColorUtils;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.widget.ImageViewCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -258,6 +260,10 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
             return this;
         }
 
+        public boolean isExpanded() {
+            return mExpanded;
+        }
+
         public void setExpanded(boolean expanded) {
             if (mExpanded == expanded)
                 return;
@@ -325,6 +331,7 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
             private ColorAlphaPicker mAlphaPicker;
             private RecyclerView mRecentColors;
             private View mPaletteBtn;
+            private ImageView mPaletteIcon;
             private EditText mValueHex, mValueRed, mValueGreen, mValueBlue, mValueAlpha;
             private boolean mChangingValue = false;
 
@@ -344,6 +351,7 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
                 mRecentColors.addItemDecoration(SpacingItemDecorator.fromResDimension(
                         itemView.getContext(), R.dimen.color_list_spacing));
                 mPaletteBtn = itemView.findViewById(R.id.palette_btn);
+                mPaletteIcon = itemView.findViewById(R.id.palette_icon);
                 mValueHex = itemView.findViewById(R.id.value_hex);
                 mValueRed = itemView.findViewById(R.id.value_r);
                 mValueGreen = itemView.findViewById(R.id.value_g);
@@ -351,7 +359,7 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
                 mValueAlpha = itemView.findViewById(R.id.value_a);
                 int colorAccent = StyledAttributesHelper.getColor(itemView.getContext(),
                         R.attr.colorAccent, 0);
-                ViewCompat.setBackgroundTintList(mPaletteBtn, ColorStateList.valueOf(colorAccent));
+                setPaletteBtnColor(colorAccent);
 
                 mColorPicker.addColorChangeListener(this);
                 mAlphaPicker.addValueChangeListener((a) -> {
@@ -378,6 +386,14 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
                         (s) -> onComponentChanged(mValueAlpha, s, 24)));
 
                 mPaletteBtn.setOnClickListener((View v) -> showPalette());
+            }
+
+            protected void setPaletteBtnColor(int color) {
+                ViewCompat.setBackgroundTintList(mPaletteBtn, ColorStateList.valueOf(color));
+                int paletteIconColor = 0xFFFFFFFF;
+                if (ColorUtils.calculateLuminance(color) >= 0.6)
+                    paletteIconColor = 0xFF000000;
+                ImageViewCompat.setImageTintList(mPaletteIcon, ColorStateList.valueOf(paletteIconColor));
             }
 
             @Override
@@ -467,6 +483,9 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
 
     public static final class ThemeColorSetting extends ExpandableColorSetting {
 
+        private static final int sExpandedHolder = SettingsListAdapter.registerViewHolder(
+                ExpandedHolder.class, R.layout.settings_list_entry_color_expanded);
+
         private ThemeInfo mTheme;
         private String mThemeProp;
         private ColorPicker.ColorChangeListener mCustomApplyFunc;
@@ -529,6 +548,22 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
                 }
             });
             return this;
+        }
+
+        @Override
+        public int getViewHolder() {
+            if (isExpanded())
+                return sExpandedHolder;
+            return super.getViewHolder();
+        }
+
+        public static class ExpandedHolder extends ExpandableColorSetting.ExpandedHolder {
+            public ExpandedHolder(View itemView, SettingsListAdapter adapter) {
+                super(itemView, adapter);
+                LiveThemeManager themeMgr = ((LiveThemeViewFactory) adapter.getActivity()
+                        .getLayoutInflater().getFactory2()).getLiveThemeManager();
+                themeMgr.addColorProperty(R.attr.colorAccent, this::setPaletteBtnColor);
+            }
         }
 
     }
