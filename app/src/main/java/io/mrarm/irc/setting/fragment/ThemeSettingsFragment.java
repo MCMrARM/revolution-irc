@@ -305,7 +305,7 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
             private ColorAlphaPicker mAlphaPicker;
             private RecyclerView mRecentColors;
             private View mPaletteBtn;
-            private EditText mValueHex, mValueRed, mValueGreen, mValueBlue;
+            private EditText mValueHex, mValueRed, mValueGreen, mValueBlue, mValueAlpha;
             private boolean mChangingValue = false;
 
             public ExpandedHolder(View itemView, SettingsListAdapter adapter) {
@@ -328,11 +328,18 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
                 mValueRed = itemView.findViewById(R.id.value_r);
                 mValueGreen = itemView.findViewById(R.id.value_g);
                 mValueBlue = itemView.findViewById(R.id.value_b);
+                mValueAlpha = itemView.findViewById(R.id.value_a);
                 int colorAccent = StyledAttributesHelper.getColor(itemView.getContext(),
                         R.attr.colorAccent, 0);
                 ViewCompat.setBackgroundTintList(mPaletteBtn, ColorStateList.valueOf(colorAccent));
 
                 mColorPicker.addColorChangeListener(this);
+                mAlphaPicker.addValueChangeListener((a) -> {
+                    if (mChangingValue)
+                        return;
+                    int v = (mColorPicker.getColor() & 0xFFFFFF) | ((int) (a * 255.f) << 24);
+                    setColor(v, mAlphaPicker, true);
+                });
                 mValueHex.addTextChangedListener(new SimpleTextWatcher((s) -> {
                     if (mChangingValue)
                         return;
@@ -347,6 +354,8 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
                         (s) -> onComponentChanged(mValueGreen, s, 8)));
                 mValueBlue.addTextChangedListener(new SimpleTextWatcher(
                         (s) -> onComponentChanged(mValueBlue, s, 0)));
+                mValueAlpha.addTextChangedListener(new SimpleTextWatcher(
+                        (s) -> onComponentChanged(mValueAlpha, s, 24)));
 
                 mPaletteBtn.setOnClickListener((View v) -> showPalette());
             }
@@ -374,11 +383,15 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
 
             private void setColor(int newColor, Object source, boolean update) {
                 mColor.setColorFilter(newColor, PorterDuff.Mode.MULTIPLY);
-                String hexValue = String.format("#%06x", newColor & 0xFFFFFF);
+                String hexValue = String.format("#%08x", newColor);
                 setValueText(hexValue);
                 mChangingValue = true;
                 if (source != mColorPicker)
                     mColorPicker.setColor(newColor);
+                if (source != mAlphaPicker) {
+                    mAlphaPicker.setColor(newColor | 0xFF000000);
+                    mAlphaPicker.setValue(Color.alpha(newColor) / 255.f);
+                }
                 if (source != mValueHex)
                     mValueHex.setText(hexValue);
                 if (source != mValueRed)
@@ -387,6 +400,8 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
                     mValueGreen.setText(String.valueOf(Color.green(newColor)));
                 if (source != mValueBlue)
                     mValueBlue.setText(String.valueOf(Color.blue(newColor)));
+                if (source != mValueAlpha)
+                    mValueAlpha.setText(String.valueOf(Color.alpha(newColor)));
                 mChangingValue = false;
                 if (update) {
                     getEntry().setSelectedColor(newColor, true);
@@ -395,8 +410,11 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
 
             @Override
             public void onColorChanged(int newColor) {
-                if (!mChangingValue)
+                if (!mChangingValue) {
+                    newColor = newColor & 0xFFFFFF;
+                    newColor |= (int) (mAlphaPicker.getValue() * 255.f) << 24;
                     setColor(newColor, mColorPicker, true);
+                }
             }
 
             private void onComponentChanged(Object source, Editable newVal, int componentShift) {

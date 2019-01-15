@@ -76,20 +76,26 @@ public class ColorSlider extends View {
         return mCurrentValue;
     }
 
+    protected float getMinValue() {
+        return 0.f;
+    }
+
     protected float getMaxValue() {
         return 1.f;
     }
 
     public void setValue(float val) {
-        mCurrentValue = val;
+        mCurrentValue = Math.min(Math.max(val, Math.min(getMinValue(), getMaxValue())),
+                Math.max(getMinValue(), getMaxValue()));
         invalidate();
         for (ValueChangeListener listener : mListeners)
-            listener.onValueChanged(val);
+            listener.onValueChanged(mCurrentValue);
     }
 
     protected float getHandleY() {
         int h = getHeight() - getPaddingTop() - getPaddingBottom();
-        return getPaddingTop() + h * mCurrentValue / getMaxValue();
+        return getPaddingTop() + h * (mCurrentValue - getMinValue())
+                / (getMaxValue() -  getMinValue());
     }
 
     protected int getHandleFillColor() {
@@ -109,16 +115,16 @@ public class ColorSlider extends View {
         if (event.getAction() == MotionEvent.ACTION_UP &&
                 Math.abs(event.getX() - mTouchStartX) < mTouchTapMaxDist &&
                 Math.abs(event.getY() - mTouchStartY) < mTouchTapMaxDist) {
-            float val = (event.getY() - getPaddingTop()) /
-                    (getHeight() - getPaddingTop() - getPaddingBottom()) * getMaxValue();
-            val = Math.min(Math.max(val, 0.f), getMaxValue());
+            float val = getMinValue() + (event.getY() - getPaddingTop()) /
+                    (getHeight() - getPaddingTop() - getPaddingBottom()) *
+                    (getMaxValue() - getMinValue());
             setValue(val);
         } else if (mHandleDragging && (event.getAction() == MotionEvent.ACTION_DOWN ||
                 event.getAction() == MotionEvent.ACTION_MOVE ||
                 event.getAction() == MotionEvent.ACTION_UP)) {
             float val = mCurrentValue + (event.getY() - mTouchPrevY) /
-                    (getHeight() - getPaddingTop() - getPaddingBottom()) * getMaxValue();
-            val = Math.min(Math.max(val, 0.f), getMaxValue());
+                    (getHeight() - getPaddingTop() - getPaddingBottom()) *
+                    (getMaxValue() - getMinValue());
             setValue(val);
             mTouchPrevY = event.getY();
         }

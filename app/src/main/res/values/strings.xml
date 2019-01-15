@@ -601,6 +601,7 @@
     <string name="color_value_red">Red</string>
     <string name="color_value_green">Green</string>
     <string name="color_value_blue">Blue</string>
+    <string name="color_value_alpha">Alpha</string>
 
     <string-array name="color_picker_color_names">
         <item>Black</item>

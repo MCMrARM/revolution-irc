@@ -46,12 +46,23 @@ public class ColorAlphaPicker extends ColorSlider {
         setColor(0xFFFFFFFF);
     }
 
+    @Override
+    protected float getMinValue() {
+        return 1.f;
+    }
+
+    @Override
+    protected float getMaxValue() {
+        return 0.f;
+    }
+
     public void attachToPicker(ColorPicker picker) {
         setColor(picker.getColor());
         picker.addColorChangeListener(this::setColor);
     }
 
     public void setColor(int color) {
+        color |= 0xFF000000;
         mBaseColor = color;
         mValueGradientPaint.setColorFilter(
                 new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY));
