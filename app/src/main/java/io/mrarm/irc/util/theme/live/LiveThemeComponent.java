@@ -80,6 +80,7 @@ public class LiveThemeComponent {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            return true;
         }
         return false;
     }
