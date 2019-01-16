@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -55,13 +56,19 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
         themesDir = new File(context.getFilesDir(), "themes");
 
         fallbackTheme = new BaseTheme("default", R.string.value_default,
-                R.style.AppTheme, R.style.AppTheme_NoActionBar);
+                R.style.AppTheme, R.style.AppTheme_NoActionBar, false);
         baseThemes.put(fallbackTheme.getId(), fallbackTheme);
+        addBaseTheme(new BaseTheme("default_dark", R.string.theme_default_dark,
+                R.style.AppTheme, R.style.AppTheme_NoActionBar, true));
         loadThemes();
 
         SettingsHelper.getInstance(context).addPreferenceChangeListener(
                 SettingsHelper.PREF_THEME, this);
         onSharedPreferenceChanged(null, SettingsHelper.PREF_THEME);
+    }
+
+    private void addBaseTheme(BaseTheme theme) {
+        baseThemes.put(theme.getId(), theme);
     }
 
     private void loadThemes() {
@@ -91,9 +98,7 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
         if (theme == null)
             throw new IOException("Empty file");
         theme.uuid = uuid;
-        theme.baseThemeInfo = baseThemes.get(theme.base);
-        if (theme.baseThemeInfo == null)
-            theme.baseThemeInfo = fallbackTheme;
+        theme.baseThemeInfo = getBaseThemeOrFallback(theme.base);
         customThemes.put(uuid, theme);
         return theme;
     }
@@ -119,6 +124,13 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
 
     public Collection<BaseTheme> getBaseThemes() {
         return baseThemes.values();
+    }
+
+    public BaseTheme getBaseThemeOrFallback(String name) {
+        BaseTheme ret = baseThemes.get(name);
+        if (ret == null)
+            return fallbackTheme;
+        return ret;
     }
 
     public Collection<ThemeInfo> getCustomThemes() {
@@ -211,6 +223,15 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
         }
         if (currentCustomThemePatcher != null)
             currentCustomThemePatcher.applyToActivity(activity);
+        ThemeResInfo currentBaseTheme = currentTheme;
+        if (currentCustomTheme != null)
+            currentBaseTheme = currentCustomTheme.baseThemeInfo;
+        if (currentBaseTheme instanceof BaseTheme) {
+            if (((BaseTheme) currentBaseTheme).isDark)
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            else
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
     }
 
     public int getThemeIdToApply(int appThemeId) {
@@ -254,11 +275,18 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
 
         private String id;
         private int nameResId;
+        private boolean isDark;
 
-        public BaseTheme(String id, int nameResId, int themeResId, int themeNoActionBarResId) {
+        public BaseTheme(String id, int nameResId, int themeResId, int themeNoActionBarResId,
+                         boolean isDark) {
             super(themeResId, themeNoActionBarResId);
             this.id = id;
             this.nameResId = nameResId;
+            this.isDark = isDark;
+        }
+
+        public boolean isDark() {
+            return isDark;
         }
 
         public String getId() {

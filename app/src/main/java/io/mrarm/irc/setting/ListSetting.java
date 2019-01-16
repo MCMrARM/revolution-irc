@@ -81,7 +81,7 @@ public class ListSetting extends SimpleSetting {
     public String getSelectedOptionValue() {
         if (mSelectedOption == -1)
             return null;
-        return mOptions[mSelectedOption];
+        return mPrefOptionValues[mSelectedOption];
     }
 
     @Override

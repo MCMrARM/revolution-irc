@@ -15,6 +15,8 @@ import io.mrarm.irc.setting.SettingsListAdapter;
 
 public abstract class SettingsListFragment extends Fragment {
 
+    private RecyclerView mRecyclerView;
+    private RecyclerView.ItemDecoration mItemDecoration;
     private SettingsListAdapter mAdapter;
 
     public abstract SettingsListAdapter createAdapter();
@@ -26,12 +28,21 @@ public abstract class SettingsListFragment extends Fragment {
             mAdapter = createAdapter();
         View view = LayoutInflater.from(container.getContext())
                 .inflate(R.layout.simple_list, container, false);
-        RecyclerView recyclerView = view.findViewById(R.id.items);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        SettingsListAdapter adapter = mAdapter;
-        recyclerView.setAdapter(adapter);
-        recyclerView.addItemDecoration(adapter.createItemDecoration());
+        mRecyclerView = view.findViewById(R.id.items);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        mRecyclerView.setAdapter(mAdapter);
+        mItemDecoration = mAdapter.createItemDecoration();
+        mRecyclerView.addItemDecoration(mItemDecoration);
         return view;
+    }
+
+    public final void recreateAdapter() {
+        if (mItemDecoration != null)
+            mRecyclerView.removeItemDecoration(mItemDecoration);
+        mAdapter = createAdapter();
+        mRecyclerView.setAdapter(mAdapter);
+        mItemDecoration = mAdapter.createItemDecoration();
+        mRecyclerView.addItemDecoration(mItemDecoration);
     }
 
     @Override

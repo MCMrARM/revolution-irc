@@ -99,6 +99,7 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
         super.onDestroyView();
         ((LiveThemeViewFactory) getActivity().getLayoutInflater().getFactory2())
                 .setLiveThemeManager(null);
+        getActivity().recreate();
     }
 
     @Override
@@ -124,6 +125,7 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
         baseSetting = new ThemeListSetting(getString(R.string.theme_base), baseThemeNames, baseThemeIds, baseThemeId);
         baseSetting.addListener((EntryRecyclerViewAdapter.Entry entry) -> {
             themeInfo.base = ((ListSetting) entry).getSelectedOptionValue();
+            themeInfo.baseThemeInfo = themeManager.getBaseThemeOrFallback(themeInfo.base);
             onNonLivePropertyChanged();
         });
         a.add(baseSetting);

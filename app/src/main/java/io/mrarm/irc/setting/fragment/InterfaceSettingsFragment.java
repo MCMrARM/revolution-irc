@@ -118,6 +118,12 @@ public class InterfaceSettingsFragment extends SettingsListFragment
         return a;
     }
 
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+    }
+
     private int[] getBaseThemeColors(int resId) {
         int[] colors = new int[3];
         StyledAttributesHelper attrs = StyledAttributesHelper.obtainStyledAttributes(getContext(),
