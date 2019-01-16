@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.TextView;
 
 public class LiveThemeViewFactory implements LayoutInflater.Factory2 {
 
@@ -37,6 +38,21 @@ public class LiveThemeViewFactory implements LayoutInflater.Factory2 {
                 return new ThemedTextInputEditText(context, attrs, mLiveThemeManager);
             if (name.equals("android.support.design.widget.ThemedTextInputLayout"))
                 return new ThemedTextInputLayout(context, attrs, mLiveThemeManager);
+            if (name.equals("android.support.v7.widget.DialogTitle")) {
+                View v;
+                try {
+                    v = (View) Class.forName(name).getConstructor(Context.class, AttributeSet.class)
+                            .newInstance(context, attrs);
+                } catch (Exception e) {
+                    return null;
+                }
+                int defStyleAttr = android.R.attr.textViewStyle;
+                LiveThemeComponent c = new LiveThemeComponent(v.getContext());
+                ThemedView.setupTheming(v, c, attrs, defStyleAttr);
+                ThemedTextView.setupTheming((TextView) v, c, attrs, defStyleAttr);
+                c.setLiveThemeManager(mLiveThemeManager);
+                return v;
+            }
         }
         if (mParentFactory == null)
             return null;
