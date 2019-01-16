@@ -124,31 +124,28 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
         baseSetting = new ThemeListSetting(getString(R.string.theme_base), baseThemeNames, baseThemeIds, baseThemeId);
         baseSetting.addListener((EntryRecyclerViewAdapter.Entry entry) -> {
             themeInfo.base = ((ListSetting) entry).getSelectedOptionValue();
-            onPropertyChanged();
+            onNonLivePropertyChanged();
         });
         a.add(baseSetting);
 
         SettingsListAdapter.SettingChangedListener applyListener =
-                (EntryRecyclerViewAdapter.Entry entry) -> onPropertyChanged();
+                (EntryRecyclerViewAdapter.Entry entry) -> onNonLivePropertyChanged();
         ExpandableColorSetting.ExpandGroup colorExpandGroup = new ExpandableColorSetting.ExpandGroup();
         a.add(new ThemeColorSetting(getString(R.string.theme_color_primary))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_PRIMARY)
                 .linkLiveApplyManager(mLiveThemeManager)
                 .setExpandGroup(colorExpandGroup)
-                .setRecentColors(recentColors)
-                .addListener(applyListener));
+                .setRecentColors(recentColors));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_primary_dark))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_PRIMARY_DARK)
                 .linkLiveApplyManager(mLiveThemeManager)
                 .setExpandGroup(colorExpandGroup)
-                .setRecentColors(recentColors)
-                .addListener(applyListener));
+                .setRecentColors(recentColors));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_accent))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_ACCENT)
                 .linkLiveApplyManager(mLiveThemeManager)
                 .setExpandGroup(colorExpandGroup)
-                .setRecentColors(recentColors)
-                .addListener(applyListener));
+                .setRecentColors(recentColors));
         a.add(new ThemeBoolSetting(getString(R.string.theme_light_toolbar))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.PROP_LIGHT_TOOLBAR)
                 .addListener(applyListener));
@@ -156,38 +153,32 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_BACKGROUND)
                 .linkLiveApplyManager(mLiveThemeManager)
                 .setExpandGroup(colorExpandGroup)
-                .setRecentColors(recentColors)
-                .addListener(applyListener));
+                .setRecentColors(recentColors));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_background_floating))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_BACKGROUND_FLOATING)
                 .linkLiveApplyManager(mLiveThemeManager)
                 .setExpandGroup(colorExpandGroup)
-                .setRecentColors(recentColors)
-                .addListener(applyListener));
+                .setRecentColors(recentColors));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_text_primary))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_TEXT_PRIMARY)
                 .linkLiveApplyManager(mLiveThemeManager)
                 .setExpandGroup(colorExpandGroup)
-                .setRecentColors(recentColors)
-                .addListener(applyListener));
+                .setRecentColors(recentColors));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_text_secondary))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_TEXT_SECONDARY)
                 .linkLiveApplyManager(mLiveThemeManager)
                 .setExpandGroup(colorExpandGroup)
-                .setRecentColors(recentColors)
-                .addListener(applyListener));
+                .setRecentColors(recentColors));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_icon))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_ICON)
                 .linkLiveApplyManager(mLiveThemeManager)
                 .setExpandGroup(colorExpandGroup)
-                .setRecentColors(recentColors)
-                .addListener(applyListener));
+                .setRecentColors(recentColors));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_icon_opaque))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_ICON_OPAQUE)
                 .linkLiveApplyManager(mLiveThemeManager)
                 .setExpandGroup(colorExpandGroup)
-                .setRecentColors(recentColors)
-                .addListener(applyListener));
+                .setRecentColors(recentColors));
         return a;
     }
 
@@ -223,9 +214,9 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
         });
     }
 
-    private void onPropertyChanged() {
-//        ThemeManager.getInstance(getContext()).invalidateCurrentCustomTheme();
-//        getActivity().recreate();
+    private void onNonLivePropertyChanged() {
+        ThemeManager.getInstance(getContext()).invalidateCurrentCustomTheme();
+        getActivity().recreate();
     }
 
     private static class RecentColorList {
