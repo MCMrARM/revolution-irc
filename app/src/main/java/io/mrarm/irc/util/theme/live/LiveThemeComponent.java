@@ -43,6 +43,10 @@ public class LiveThemeComponent {
         }
     }
 
+    public LiveThemeManager getLiveThemeManager() {
+        return mLiveThemeManager;
+    }
+
     public Resources.Theme getTheme() {
         WeakReference<Resources.Theme> ref = sThemeCache.get(mContext.getResources());
         if (ref != null) {

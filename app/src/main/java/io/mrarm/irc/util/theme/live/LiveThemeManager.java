@@ -34,6 +34,11 @@ public class LiveThemeManager {
                 activity.getWindow().setBackgroundDrawable(new ColorDrawable(c)));
     }
 
+    public int getColor(int res) {
+        res = mapKnownProperty(res);
+        return mColors.get(res);
+    }
+
     public void setColorProperty(int res, int value) {
         mColors.put(res, value);
         List<ColorPropertyApplier> appliers = mColorAppliers.get(res);
@@ -44,7 +49,19 @@ public class LiveThemeManager {
     }
 
     public void addColorProperty(int res, LiveThemeManager.ColorPropertyApplier applier) {
-        // map known properties
+        res = mapKnownProperty(res);
+        List<ColorPropertyApplier> appliers = mColorAppliers.get(res);
+        if (appliers == null) {
+            appliers = new ArrayList<>();
+            mColorAppliers.put(res, appliers);
+        }
+        appliers.add(applier);
+        Integer color = mColors.get(res);
+        if (color != null)
+            applier.onApplyColor(color);
+    }
+
+    private int mapKnownProperty(int res) {
         if (res == R.color.lt_colorPrimary)
             res = R.attr.colorPrimary;
         if (res == R.color.lt_colorPrimaryDark)
@@ -58,16 +75,9 @@ public class LiveThemeManager {
         if (res == R.color.lt_textColorSecondary)
             res = android.R.attr.textColorSecondary;
 
-        List<ColorPropertyApplier> appliers = mColorAppliers.get(res);
-        if (appliers == null) {
-            appliers = new ArrayList<>();
-            mColorAppliers.put(res, appliers);
-        }
-        appliers.add(applier);
-        Integer color = mColors.get(res);
-        if (color != null)
-            applier.onApplyColor(color);
+        return res;
     }
+
     public interface ColorPropertyApplier {
 
         void onApplyColor(int color);

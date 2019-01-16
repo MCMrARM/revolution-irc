@@ -1,23 +1,29 @@
 package io.mrarm.irc.util.theme.live;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.ColorUtils;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.AppCompatEditText;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import java.lang.reflect.Field;
 
 import io.mrarm.irc.R;
+import io.mrarm.irc.util.ColorFilterWorkaroundDrawable;
 import io.mrarm.irc.util.StyledAttributesHelper;
 
 public class ThemedEditText extends AppCompatEditText {
 
-    private static final int[] THEME_ATTRS = { R.attr.colorControlActivated };
+    private static final int[] THEME_ATTRS = { R.attr.colorControlActivated,
+            R.attr.colorControlNormal };
 
     private static Field sFieldTextViewCursorDrawableRes;
     private static Field sFieldTextViewEditor;
@@ -64,7 +70,32 @@ public class ThemedEditText extends AppCompatEditText {
         Resources.Theme t = component.getTheme();
         StyledAttributesHelper r = StyledAttributesHelper.obtainStyledAttributes(editText.getContext(), t, attrs, THEME_ATTRS, defStyleAttr);
         component.addColorAttr(r, R.attr.colorControlActivated, (c) -> setCursorDrawableColor(editText, c));
+        component.addColorAttr(r, R.attr.colorControlActivated, (c) -> setBackgroundActiveColor(editText, component));
+        component.addColorAttr(r, R.attr.colorControlNormal, (c) -> setBackgroundActiveColor(editText, component));
         r.recycle();
+    }
+
+    public static void setBackgroundActiveColor(View editText, LiveThemeComponent component) {
+        LiveThemeManager lmgr = component.getLiveThemeManager();
+        if (editText.getBackground() == null || lmgr == null)
+            return;
+        int accentColor = lmgr.getColor(/* R.attr.colorControlActivated */ R.attr.colorAccent);
+        int normalColor = lmgr.getColor(/* R.attr.colorControlNormal */ android.R.attr.textColorSecondary);
+        int disabledColor = ColorUtils.setAlphaComponent(normalColor, (int) (255.f *
+                StyledAttributesHelper.getFloat(editText.getContext(), android.R.attr.disabledAlpha, 1.f)));
+        int[][] states = new int[][]{
+                new int[]{-android.R.attr.state_enabled},
+                new int[]{-android.R.attr.state_pressed, -android.R.attr.state_focused},
+                new int[]{}
+        };
+        int[] colors = new int[]{
+                disabledColor,
+                normalColor,
+                accentColor
+        };
+        ColorStateList list = new ColorStateList(states, colors);
+        editText.setBackground(new ColorFilterWorkaroundDrawable(editText.getBackground()));
+        ViewCompat.setBackgroundTintList(editText, list);
     }
 
     // https://stackoverflow.com/questions/11554078/set-textcursordrawable-programmatically/#26544231
