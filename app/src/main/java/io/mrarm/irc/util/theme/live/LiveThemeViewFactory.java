@@ -28,6 +28,8 @@ public class LiveThemeViewFactory implements LayoutInflater.Factory2 {
     @Override
     public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
         if (mLiveThemeManager != null) {
+            if (name.equals("android.support.v7.widget.AlertDialogLayout"))
+                ThemedAlertDialog.applyTheme(parent, mLiveThemeManager);
             if (name.equals("TextView"))
                 return new ThemedTextView(context, attrs, mLiveThemeManager);
             if (name.equals("EditText"))
