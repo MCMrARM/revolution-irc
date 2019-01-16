@@ -38,6 +38,8 @@ public class LiveThemeViewFactory implements LayoutInflater.Factory2 {
                 return new ThemedButton(context, attrs, mLiveThemeManager);
             if (name.equals("CheckBox"))
                 return new ThemedCheckBox(context, attrs, mLiveThemeManager);
+            if (name.equals("CheckedTextView"))
+                return new ThemedCheckedTextView(context, attrs, mLiveThemeManager);
             if (name.equals("android.support.design.widget.TextInputEditText"))
                 return new ThemedTextInputEditText(context, attrs, mLiveThemeManager);
             if (name.equals("android.support.design.widget.ThemedTextInputLayout"))

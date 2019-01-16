@@ -1,22 +1,34 @@
 package io.mrarm.irc.util.theme.live;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
+import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v4.widget.TextViewCompat;
 import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
+import io.mrarm.irc.R;
 import io.mrarm.irc.util.StyledAttributesHelper;
 
 public class ThemedTextView extends AppCompatTextView {
 
     private static final int[] THEME_ATTRS = { android.R.attr.textColor,
             android.R.attr.textColorLink, android.R.attr.textColorHint,
-            android.R.attr.textColorHighlight, android.R.attr.textAppearance };
+            android.R.attr.textColorHighlight, android.R.attr.textAppearance,
+            R.attr.colorControlActivated, R.attr.colorControlNormal,
+            android.R.attr.drawableStart, android.R.attr.drawableTop, android.R.attr.drawableEnd,
+            android.R.attr.drawableBottom};
 
     private static final int[] TEXT_APPEARANCE_ATTRS = {android.R.attr.textColor,
             android.R.attr.textColorLink, android.R.attr.textColorHint,
             android.R.attr.textColorHighlight};
+
+    private static final int[] DRAWABLE_ATTRS = { android.R.attr.drawableStart,
+            android.R.attr.drawableTop, android.R.attr.drawableEnd,
+            android.R.attr.drawableBottom };
 
     protected LiveThemeComponent mThemeComponent;
 
@@ -56,8 +68,26 @@ public class ThemedTextView extends AppCompatTextView {
             component.addColorAttr(textAppearance, android.R.attr.textColorHint, textView::setHintTextColor, textView::setHintTextColor);
         if (!component.addColorAttr(r, android.R.attr.textColorHighlight, textView::setHighlightColor, (c) -> textView.setHighlightColor(c.getDefaultColor())))
             component.addColorAttr(textAppearance, android.R.attr.textColorHighlight, textView::setHighlightColor, (c) -> textView.setHighlightColor(c.getDefaultColor()));
+        for (int i = 0; i < 4; i++)
+            handleDrawable(textView, r, DRAWABLE_ATTRS[i], i, component);
         textAppearance.recycle();
         r.recycle();
+    }
+
+    private static void handleDrawable(TextView textView, StyledAttributesHelper r, int attr, int index, LiveThemeComponent component) {
+        int resId = r.getResourceId(attr, 0);
+        if (resId == StyledAttributesHelper.getResourceId(textView.getContext(), android.R.attr.listChoiceIndicatorSingle, 0)) {
+            LiveThemeManager.ColorPropertyApplier applier = (c) -> updateCompoundDrawable(textView, index, ThemedCheckBox.createCheckBoxTintStateList(textView.getContext(), component));
+            component.addColorAttr(r, R.attr.colorControlActivated, applier);
+            component.addColorAttr(r, R.attr.colorControlNormal, applier);
+        }
+    }
+
+    private static void updateCompoundDrawable(TextView view, int index, ColorStateList tint) {
+        Drawable[] drawables = TextViewCompat.getCompoundDrawablesRelative(view);
+        drawables[index] = DrawableCompat.wrap(drawables[index].mutate());
+        DrawableCompat.setTintList(drawables[index], tint);
+        TextViewCompat.setCompoundDrawablesRelative(view, drawables[0], drawables[1], drawables[2], drawables[3]);
     }
 
 }

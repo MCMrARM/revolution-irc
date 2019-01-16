@@ -9,7 +9,6 @@ import android.support.v4.graphics.ColorUtils;
 import android.support.v4.widget.CompoundButtonCompat;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.util.AttributeSet;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
 import io.mrarm.irc.R;
