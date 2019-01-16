@@ -1,21 +1,19 @@
 package io.mrarm.irc.setting.fragment;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.graphics.ColorUtils;
 import android.support.v4.widget.CompoundButtonCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatDelegate;
 import android.util.Log;
 import android.view.View;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.Map;
 
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.dto.MessageSenderInfo;
@@ -29,7 +27,6 @@ import io.mrarm.irc.setting.ClickableSetting;
 import io.mrarm.irc.setting.FontSizeSetting;
 import io.mrarm.irc.setting.ListSetting;
 import io.mrarm.irc.setting.ListWithCustomSetting;
-import io.mrarm.irc.setting.MaterialColorSetting;
 import io.mrarm.irc.setting.RadioButtonSetting;
 import io.mrarm.irc.setting.SettingsHeader;
 import io.mrarm.irc.setting.SettingsListAdapter;
@@ -38,7 +35,6 @@ import io.mrarm.irc.util.MessageBuilder;
 import io.mrarm.irc.util.StyledAttributesHelper;
 import io.mrarm.irc.util.theme.ThemeInfo;
 import io.mrarm.irc.util.theme.ThemeManager;
-import io.mrarm.irc.util.theme.ThemeResourceFileBuilder;
 
 public class InterfaceSettingsFragment extends SettingsListFragment
         implements NamedSettingsFragment {
@@ -122,10 +118,16 @@ public class InterfaceSettingsFragment extends SettingsListFragment
         return a;
     }
 
-    private int getBaseThemePrimaryColor(int resId) {
+    private int[] getBaseThemeColors(int resId) {
+        int[] colors = new int[3];
         StyledAttributesHelper attrs = StyledAttributesHelper.obtainStyledAttributes(getContext(),
-                resId, new int[] { R.attr.colorPrimary });
-        return attrs.getColor(R.attr.colorPrimary, 0);
+                resId, new int[] { R.attr.colorPrimary, R.attr.colorPrimaryDark,
+                        R.attr.colorAccent });
+        colors[0] = attrs.getColor(R.attr.colorPrimary, 0);
+        colors[1] = attrs.getColor(R.attr.colorPrimaryDark, 0);
+        colors[2] = attrs.getColor(R.attr.colorAccent, 0);
+        attrs.recycle();
+        return colors;
     }
 
     private void createThemeList(SettingsListAdapter a) {
@@ -136,14 +138,21 @@ public class InterfaceSettingsFragment extends SettingsListFragment
         for (ThemeManager.BaseTheme theme : themeManager.getBaseThemes()) {
             int themeResId = theme.getThemeResId();
             a.add(new ThemeOptionSetting(getString(theme.getNameResId()),
-                    themeGroup, getBaseThemePrimaryColor(themeResId))
+                    themeGroup, getBaseThemeColors(themeResId))
                     .linkBaseTheme(this, theme).addListener(recreateCb));
         }
         for (ThemeInfo theme : themeManager.getCustomThemes()) {
-            Integer primaryColor = theme.colors.get(ThemeInfo.COLOR_PRIMARY);
-            if (primaryColor == null)
-                primaryColor = getBaseThemePrimaryColor(theme.baseThemeInfo.getThemeResId());
-            a.add(new ThemeOptionSetting(theme.name, themeGroup, primaryColor)
+            int[] colors = getBaseThemeColors(theme.baseThemeInfo.getThemeResId());
+            Integer c = theme.colors.get(ThemeInfo.COLOR_PRIMARY);
+            if (c != null)
+                colors[0] = c;
+            c = theme.colors.get(ThemeInfo.COLOR_PRIMARY_DARK);
+            if (c != null)
+                colors[1] = c;
+            c = theme.colors.get(ThemeInfo.COLOR_ACCENT);
+            if (c != null)
+                colors[2] = c;
+            a.add(new ThemeOptionSetting(theme.name, themeGroup, colors)
                     .linkCustomTheme(this, theme).addListener(recreateCb));
         }
     }
@@ -247,13 +256,14 @@ public class InterfaceSettingsFragment extends SettingsListFragment
                 R.layout.settings_theme_option);
 
         private InterfaceSettingsFragment fragment;
-        private int overrideColor;
+        private int[] overrideColors;
         private ThemeManager.BaseTheme linkedBaseTheme;
         private ThemeInfo linkedCustomTheme;
 
-        public ThemeOptionSetting(String name, RadioButtonSetting.Group group, int overrideColor) {
+        public ThemeOptionSetting(String name, RadioButtonSetting.Group group,
+                                  int[] overrideColors) {
             super(name, group);
-            this.overrideColor = overrideColor;
+            this.overrideColors = overrideColors;
         }
 
         @Override
@@ -302,7 +312,18 @@ public class InterfaceSettingsFragment extends SettingsListFragment
             @Override
             public void bind(CheckBoxSetting entry) {
                 super.bind(entry);
-                int overrideColor = ((ThemeOptionSetting) entry).overrideColor;
+                int[] overrideColors = ((ThemeOptionSetting) entry).overrideColors;
+                int bgColor = StyledAttributesHelper.getColor(mCheckBox.getContext(),
+                        android.R.attr.colorBackground, 0);
+                boolean darkBg = ColorUtils.calculateLuminance(bgColor) < 0.4;
+                int overrideColor = overrideColors[0];
+                for (int c : overrideColors) {
+                    if ((!darkBg && ColorUtils.calculateLuminance(c) < 0.75)
+                            || (darkBg && ColorUtils.calculateLuminance(c) > 0.25)) {
+                        overrideColor = c;
+                        break;
+                    }
+                }
                 if (overrideColor != 0)
                     CompoundButtonCompat.setButtonTintList(mCheckBox,
                             ColorStateList.valueOf(overrideColor));
