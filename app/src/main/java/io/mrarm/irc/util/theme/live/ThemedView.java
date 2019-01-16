@@ -16,7 +16,8 @@ public class ThemedView {
         Resources.Theme t = component.getTheme();
         StyledAttributesHelper r = StyledAttributesHelper.obtainStyledAttributes(view.getContext(), t, attrs, THEME_ATTRS, defStyleAttr);
         component.addColorAttr(r, android.R.attr.background, view::setBackgroundColor);
-        component.addColorAttr(r, R.attr.backgroundTint, null, (c) -> ViewCompat.setBackgroundTintList(view, c));
+        if (!component.addColorAttr(r, R.attr.backgroundTint, null, (c) -> ViewCompat.setBackgroundTintList(view, c)))
+            LiveThemeUtils.tintAppCompatDrawable(component, r.getResourceId(android.R.attr.background, 0), (c) -> ViewCompat.setBackgroundTintList(view, c));
         r.recycle();
     }
 
