@@ -54,8 +54,8 @@ public class ThemedTextView extends AppCompatTextView {
             component.addColorAttr(textAppearance, android.R.attr.textColorLink, textView::setLinkTextColor, textView::setLinkTextColor);
         if (!component.addColorAttr(r, android.R.attr.textColorHint, textView::setHintTextColor, textView::setHintTextColor))
             component.addColorAttr(textAppearance, android.R.attr.textColorHint, textView::setHintTextColor, textView::setHintTextColor);
-        if (!component.addColorAttr(r, android.R.attr.textColorHighlight, textView::setHighlightColor))
-            component.addColorAttr(textAppearance, android.R.attr.textColorHighlight, textView::setHighlightColor);
+        if (!component.addColorAttr(r, android.R.attr.textColorHighlight, textView::setHighlightColor, (c) -> textView.setHighlightColor(c.getDefaultColor())))
+            component.addColorAttr(textAppearance, android.R.attr.textColorHighlight, textView::setHighlightColor, (c) -> textView.setHighlightColor(c.getDefaultColor()));
         textAppearance.recycle();
         r.recycle();
     }

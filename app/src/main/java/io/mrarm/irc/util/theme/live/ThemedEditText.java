@@ -1,12 +1,37 @@
 package io.mrarm.irc.util.theme.live;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatEditText;
 import android.util.AttributeSet;
+import android.widget.EditText;
+import android.widget.TextView;
+
+import java.lang.reflect.Field;
 
 import io.mrarm.irc.R;
+import io.mrarm.irc.util.StyledAttributesHelper;
 
 public class ThemedEditText extends AppCompatEditText {
+
+    private static final int[] THEME_ATTRS = { R.attr.colorControlActivated };
+
+    private static Field sFieldTextViewCursorDrawableRes;
+    private static Field sFieldTextViewEditor;
+    private static Field sFieldEditorCursorDrawable;
+
+    private static final String[] EDITOR_SELECT_HANDLES_DRAWABLE_FIELDS = new String[] {
+            "mSelectHandleCenter", "mSelectHandleLeft", "mSelectHandleRight"
+    };
+    private static final String[] TEXTVIEW_SELECT_HANDLES_RES_FIELDS = new String[] {
+            "mTextSelectHandleRes", "mTextSelectHandleLeftRes", "mTextSelectHandleRightRes"
+    };
+
+    private static Field[] sFieldEditorSelectHandleDrawables = new Field[EDITOR_SELECT_HANDLES_DRAWABLE_FIELDS.length];
+    private static Field[] sFieldTextViewSelectHandleDrawablesRes = new Field[TEXTVIEW_SELECT_HANDLES_RES_FIELDS.length];
 
     protected LiveThemeComponent mThemeComponent;
 
@@ -23,6 +48,7 @@ public class ThemedEditText extends AppCompatEditText {
         mThemeComponent = new LiveThemeComponent(context);
         ThemedView.setupTheming(this, mThemeComponent, attrs, defStyleAttr);
         ThemedTextView.setupTheming(this, mThemeComponent, attrs, defStyleAttr);
+        setupTheming(this, mThemeComponent, attrs, defStyleAttr);
     }
 
     public ThemedEditText(Context context, AttributeSet attrs, LiveThemeManager liveThemeManager) {
@@ -32,6 +58,64 @@ public class ThemedEditText extends AppCompatEditText {
 
     public void setLiveThemeManager(LiveThemeManager manager) {
         mThemeComponent.setLiveThemeManager(manager);
+    }
+
+    public static void setupTheming(EditText editText, LiveThemeComponent component, AttributeSet attrs, int defStyleAttr) {
+        Resources.Theme t = component.getTheme();
+        StyledAttributesHelper r = StyledAttributesHelper.obtainStyledAttributes(editText.getContext(), t, attrs, THEME_ATTRS, defStyleAttr);
+        component.addColorAttr(r, R.attr.colorControlActivated, (c) -> setCursorDrawableColor(editText, c));
+        r.recycle();
+    }
+
+    // https://stackoverflow.com/questions/11554078/set-textcursordrawable-programmatically/#26544231
+    // https://stackoverflow.com/questions/40889455/how-to-change-color-of-the-bubbleunder-cursor-on-editview-programatically/#44333069
+    public static void setCursorDrawableColor(EditText editText, int color) {
+        Object editor;
+        try {
+            if (sFieldTextViewEditor == null) {
+                sFieldTextViewEditor = TextView.class.getDeclaredField("mEditor");
+                sFieldTextViewEditor.setAccessible(true);
+            }
+            editor = sFieldTextViewEditor.get(editText);
+        } catch (Throwable ignored) {
+            return;
+        }
+        try {
+            if (sFieldTextViewCursorDrawableRes == null) {
+                sFieldTextViewCursorDrawableRes = TextView.class.getDeclaredField("mCursorDrawableRes");
+                sFieldTextViewCursorDrawableRes.setAccessible(true);
+            }
+            int res = sFieldTextViewCursorDrawableRes.getInt(editText);
+            if (sFieldEditorCursorDrawable == null) {
+                sFieldEditorCursorDrawable = editor.getClass().getDeclaredField("mCursorDrawable");
+                sFieldEditorCursorDrawable.setAccessible(true);
+            }
+            Drawable[] drawables = new Drawable[2];
+            drawables[0] = ContextCompat.getDrawable(editText.getContext(), res).mutate();
+            drawables[0].setColorFilter(color, PorterDuff.Mode.SRC_IN);
+            drawables[1] = drawables[0];
+            sFieldEditorCursorDrawable.set(editor, drawables);
+        } catch (Throwable ignored) {
+        }
+        for (int i = 0; i < EDITOR_SELECT_HANDLES_DRAWABLE_FIELDS.length; i++) {
+            try {
+                if (sFieldTextViewSelectHandleDrawablesRes[i] == null) {
+                    sFieldTextViewSelectHandleDrawablesRes[i] = TextView.class.getDeclaredField(
+                            TEXTVIEW_SELECT_HANDLES_RES_FIELDS[i]);
+                    sFieldTextViewSelectHandleDrawablesRes[i].setAccessible(true);
+                }
+                int res = sFieldTextViewSelectHandleDrawablesRes[i].getInt(editText);
+                if (sFieldEditorSelectHandleDrawables[i] == null) {
+                    sFieldEditorSelectHandleDrawables[i] = editor.getClass().getDeclaredField(
+                            EDITOR_SELECT_HANDLES_DRAWABLE_FIELDS[i]);
+                    sFieldEditorSelectHandleDrawables[i].setAccessible(true);
+                }
+                Drawable drawable = ContextCompat.getDrawable(editText.getContext(), res);
+                drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+            } catch (Throwable ignored) {
+                ignored.printStackTrace();
+            }
+        }
     }
 
 }

@@ -31,6 +31,7 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 
 import io.mrarm.irc.R;
 
@@ -38,7 +39,10 @@ public class ThemedColorStateList {
 
     private static final int DEFAULT_COLOR = Color.RED;
 
+    private static Field sColorStateListDefColorField;
+
     private int mDefaultColor;
+    private int mDefaultColorI;
     private int[] mColors;
     private int[] mColorAttrs;
     private float[] mAlpha;
@@ -159,6 +163,7 @@ public class ThemedColorStateList {
             final int color = modulateColorAlpha(baseColor, alphaMod);
             if (listSize == 0 || stateSpec.length == 0) {
                 defaultColor = color;
+                mDefaultColorI = listSize;
             }
 
 //            if (themeAttrs != null) {
@@ -194,7 +199,23 @@ public class ThemedColorStateList {
     }
 
     public ColorStateList createColorStateList() {
-        return new ColorStateList(mStateSpecs, mColors);
+        ColorStateList ret = new ColorStateList(mStateSpecs, mColors);
+        if (sColorStateListDefColorField == null) {
+            try {
+                sColorStateListDefColorField = ColorStateList.class.getDeclaredField("mDefaultColor");
+                sColorStateListDefColorField.setAccessible(true);
+            } catch (NoSuchFieldException e) {
+                e.printStackTrace();
+            }
+        }
+        if (sColorStateListDefColorField != null) {
+            try {
+                sColorStateListDefColorField.setInt(ret, mDefaultColor);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        return ret;
     }
 
     public void attachToComponent(LiveThemeComponent component, Runnable changeCb) {
@@ -204,6 +225,8 @@ public class ThemedColorStateList {
             final int attrI = i;
             component.addColorProperty(mColorAttrs[i], (c) -> {
                 mColors[attrI] = modulateColorAlpha(c, mAlpha[attrI]);
+                if (attrI == mDefaultColorI)
+                    mDefaultColor = mColors[attrI];
                 changeCb.run();
             });
         }

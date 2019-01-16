@@ -26,7 +26,6 @@ public class LiveThemeUtils {
     public static void tintAppCompatDrawable(LiveThemeComponent c, int d,
                                              LiveThemeComponent.ColorStateListApplier applier) {
         try {
-            Log.i("LiveThemeUtils", "Test " + c.getContext().getResources().getResourceName(d));
             ThemedColorStateList tintList = getAppCompatDrawableTintList(
                     c.getContext().getResources(), d, c.getTheme());
             if (tintList != null) {

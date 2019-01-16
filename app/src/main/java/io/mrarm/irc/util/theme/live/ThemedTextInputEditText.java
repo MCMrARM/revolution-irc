@@ -3,7 +3,6 @@ package io.mrarm.irc.util.theme.live;
 import android.content.Context;
 import android.support.design.widget.TextInputEditText;
 import android.util.AttributeSet;
-import android.util.Log;
 
 import io.mrarm.irc.R;
 
@@ -24,6 +23,7 @@ public class ThemedTextInputEditText extends TextInputEditText {
         mThemeComponent = new LiveThemeComponent(context);
         ThemedView.setupTheming(this, mThemeComponent, attrs, defStyleAttr);
         ThemedTextView.setupTheming(this, mThemeComponent, attrs, defStyleAttr);
+        ThemedEditText.setupTheming(this, mThemeComponent, attrs, defStyleAttr);
     }
 
     public ThemedTextInputEditText(Context context, AttributeSet attrs,

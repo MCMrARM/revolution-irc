@@ -66,7 +66,7 @@ public class LiveThemeComponent {
                 typedValue.type <= TypedValue.TYPE_LAST_COLOR_INT) {
             addColorProperty(typedValue.resourceId, applier);
             return true;
-        } else if (typedValue.type != TypedValue.TYPE_NULL) {
+        } else if (typedValue.type != TypedValue.TYPE_NULL && colorStateListApplier != null) {
             try {
                 ThemedColorStateList th = ThemedColorStateList.createFromXml(
                         mContext.getResources(),
@@ -82,14 +82,7 @@ public class LiveThemeComponent {
 
     public boolean addColorAttr(StyledAttributesHelper attrs, int attr,
                                 LiveThemeManager.ColorPropertyApplier applier) {
-        TypedValue typedValue = new TypedValue();
-        if (!attrs.getValue(attr, typedValue))
-            return false;
-        if (typedValue.type == TypedValue.TYPE_ATTRIBUTE) {
-            addColorProperty(typedValue.data, applier);
-            return true;
-        }
-        return false;
+        return addColorAttr(attrs, attr, applier, null);
     }
 
 
