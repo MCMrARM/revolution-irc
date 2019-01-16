@@ -31,6 +31,7 @@ public class ThemedTextView extends AppCompatTextView {
     public ThemedTextView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mThemeComponent = new LiveThemeComponent(context);
+        ThemedView.setupTheming(this, mThemeComponent, attrs, defStyleAttr);
         setupTheming(this, mThemeComponent, attrs, defStyleAttr);
     }
 

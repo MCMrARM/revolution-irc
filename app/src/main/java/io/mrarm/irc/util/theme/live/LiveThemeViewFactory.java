@@ -29,6 +29,14 @@ public class LiveThemeViewFactory implements LayoutInflater.Factory2 {
         if (mLiveThemeManager != null) {
             if (name.equals("TextView"))
                 return new ThemedTextView(context, attrs, mLiveThemeManager);
+            if (name.equals("EditText"))
+                return new ThemedEditText(context, attrs, mLiveThemeManager);
+            if (name.equals("Button"))
+                return new ThemedButton(context, attrs, mLiveThemeManager);
+            if (name.equals("android.support.design.widget.TextInputEditText"))
+                return new ThemedTextInputEditText(context, attrs, mLiveThemeManager);
+            if (name.equals("android.support.design.widget.ThemedTextInputLayout"))
+                return new ThemedTextInputLayout(context, attrs, mLiveThemeManager);
         }
         if (mParentFactory == null)
             return null;
