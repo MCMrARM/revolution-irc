@@ -121,12 +121,12 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
             ++i;
         }
         String baseThemeId =  themeInfo.base == null ? themeManager.getFallbackTheme().getId() : themeInfo.base;
-        baseSetting = new ListSetting(getString(R.string.theme_base), baseThemeNames, baseThemeIds, baseThemeId);
+        baseSetting = new ThemeListSetting(getString(R.string.theme_base), baseThemeNames, baseThemeIds, baseThemeId);
         baseSetting.addListener((EntryRecyclerViewAdapter.Entry entry) -> {
             themeInfo.base = ((ListSetting) entry).getSelectedOptionValue();
             onPropertyChanged();
         });
-//        a.add(baseSetting);
+        a.add(baseSetting);
 
         SettingsListAdapter.SettingChangedListener applyListener =
                 (EntryRecyclerViewAdapter.Entry entry) -> onPropertyChanged();
@@ -149,9 +149,9 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
                 .setExpandGroup(colorExpandGroup)
                 .setRecentColors(recentColors)
                 .addListener(applyListener));
-//        a.add(new ThemeBoolSetting(getString(R.string.theme_light_toolbar))
-//                .linkProperty(getContext(), themeInfo, ThemeInfo.PROP_LIGHT_TOOLBAR)
-//                .addListener(applyListener));
+        a.add(new ThemeBoolSetting(getString(R.string.theme_light_toolbar))
+                .linkProperty(getContext(), themeInfo, ThemeInfo.PROP_LIGHT_TOOLBAR)
+                .addListener(applyListener));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_background))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_BACKGROUND)
                 .linkLiveApplyManager(mLiveThemeManager)
@@ -568,7 +568,38 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
 
     }
 
-    public static final class ThemeBoolSetting extends CheckBoxSetting {
+    public static final class ThemeListSetting extends ListSetting {
+
+        private static final int sHolder = SettingsListAdapter.registerViewHolder(Holder.class,
+                R.layout.settings_list_entry_compact);
+
+        public ThemeListSetting(String name, String[] options, String[] values,
+                                String selectedOption) {
+            super(name, options, values, selectedOption);
+        }
+
+        @Override
+        public int getViewHolder() {
+            return sHolder;
+        }
+    }
+
+    public static class ThemeCheckBoxSetting extends CheckBoxSetting {
+
+        private static final int sHolder = SettingsListAdapter.registerViewHolder(Holder.class,
+                R.layout.settings_list_checkbox_entry_compact);
+
+        public ThemeCheckBoxSetting(String name, boolean checked) {
+            super(name, checked);
+        }
+
+        @Override
+        public int getViewHolder() {
+            return sHolder;
+        }
+    }
+
+    public static final class ThemeBoolSetting extends ThemeCheckBoxSetting {
 
         private boolean mHasCustomValue = false;
         private ThemeInfo mTheme;

@@ -50,6 +50,8 @@
     <dimen name="setting_vertical_padding">16dp</dimen>
     <dimen name="setting_horizontal_padding">16dp</dimen>
 
+    <dimen name="setting_vertical_padding_compact">12dp</dimen>
+
     <dimen name="add_server_item_spacing">12dp</dimen>
     <dimen name="add_server_autocomplete_dialog_dist">4dp</dimen>
 
