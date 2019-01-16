@@ -40,6 +40,13 @@ public class StyledAttributesHelper {
                 attributes);
     }
 
+    public static StyledAttributesHelper obtainStyledAttributes(Context ctx, Resources.Theme th,
+                                                                int resid, int[] attributes) {
+        Arrays.sort(attributes);
+        return new StyledAttributesHelper(ctx, th.obtainStyledAttributes(resid, attributes),
+                attributes);
+    }
+
     public static StyledAttributesHelper obtainStyledAttributes(
             Context ctx, Resources.Theme th, AttributeSet attributeSet, int[] attributes,
             int defStyleAttr) {
@@ -96,7 +103,8 @@ public class StyledAttributesHelper {
                 return i;
             }
         }
-        throw new RuntimeException("Attribute not found");
+        throw new RuntimeException("Attribute not found: " +
+                mContext.getResources().getResourceName(attr));
     }
 
     public boolean hasValue(int attr) {

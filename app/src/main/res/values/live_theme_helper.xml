@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="lt_colorPrimary">#fff</color>
+    <color name="lt_colorPrimaryDark">#fff</color>
+    <color name="lt_colorAccent">#fff</color>
+    <color name="lt_colorBackgroundFloating">#fff</color>
+    <color name="lt_textColorPrimary">#fff</color>
+    <color name="lt_textColorSecondary">#fff</color>
+
+
+    <style name="LiveThemeHelperTheme" parent="AppTheme">
+        <item name="colorPrimary">@color/lt_colorPrimary</item>
+        <item name="colorPrimaryDark">@color/lt_colorPrimaryDark</item>
+        <item name="colorAccent">@color/lt_colorAccent</item>
+        <item name="colorBackgroundFloating">@color/lt_colorBackgroundFloating</item>
+        <item name="android:textColorPrimary">@color/lt_textColorPrimary</item>
+        <item name="android:textColorSecondary">@color/lt_textColorSecondary</item>
+    </style>
+
+</resources>

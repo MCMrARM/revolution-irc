@@ -44,6 +44,20 @@ public class LiveThemeManager {
     }
 
     public void addColorProperty(int res, LiveThemeManager.ColorPropertyApplier applier) {
+        // map known properties
+        if (res == R.color.lt_colorPrimary)
+            res = R.attr.colorPrimary;
+        if (res == R.color.lt_colorPrimaryDark)
+            res = R.attr.colorPrimaryDark;
+        if (res == R.color.lt_colorAccent)
+            res = R.attr.colorAccent;
+        if (res == R.color.lt_colorBackgroundFloating)
+            res = R.attr.colorBackgroundFloating;
+        if (res == R.color.lt_textColorPrimary)
+            res = android.R.attr.textColorPrimary;
+        if (res == R.color.lt_textColorSecondary)
+            res = android.R.attr.textColorSecondary;
+
         List<ColorPropertyApplier> appliers = mColorAppliers.get(res);
         if (appliers == null) {
             appliers = new ArrayList<>();
@@ -54,7 +68,6 @@ public class LiveThemeManager {
         if (color != null)
             applier.onApplyColor(color);
     }
-
     public interface ColorPropertyApplier {
 
         void onApplyColor(int color);

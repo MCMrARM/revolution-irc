@@ -48,12 +48,12 @@ public class ThemedTextView extends AppCompatTextView {
         Resources.Theme t = component.getTheme();
         StyledAttributesHelper r = StyledAttributesHelper.obtainStyledAttributes(textView.getContext(), t, attrs, THEME_ATTRS, defStyleAttr);
         StyledAttributesHelper textAppearance = r.obtainChildAttrs(t, android.R.attr.textAppearance, TEXT_APPEARANCE_ATTRS);
-        if (!component.addColorAttr(r, android.R.attr.textColor, textView::setTextColor))
-            component.addColorAttr(textAppearance, android.R.attr.textColor, textView::setTextColor);
-        if (!component.addColorAttr(r, android.R.attr.textColorLink, textView::setLinkTextColor))
-            component.addColorAttr(textAppearance, android.R.attr.textColorLink, textView::setLinkTextColor);
-        if (!component.addColorAttr(r, android.R.attr.textColorHint, textView::setHintTextColor))
-            component.addColorAttr(textAppearance, android.R.attr.textColorHint, textView::setHintTextColor);
+        if (!component.addColorAttr(r, android.R.attr.textColor, textView::setTextColor, textView::setTextColor))
+            component.addColorAttr(textAppearance, android.R.attr.textColor, textView::setTextColor, textView::setTextColor);
+        if (!component.addColorAttr(r, android.R.attr.textColorLink, textView::setLinkTextColor, textView::setLinkTextColor))
+            component.addColorAttr(textAppearance, android.R.attr.textColorLink, textView::setLinkTextColor, textView::setLinkTextColor);
+        if (!component.addColorAttr(r, android.R.attr.textColorHint, textView::setHintTextColor, textView::setHintTextColor))
+            component.addColorAttr(textAppearance, android.R.attr.textColorHint, textView::setHintTextColor, textView::setHintTextColor);
         if (!component.addColorAttr(r, android.R.attr.textColorHighlight, textView::setHighlightColor))
             component.addColorAttr(textAppearance, android.R.attr.textColorHighlight, textView::setHighlightColor);
         textAppearance.recycle();

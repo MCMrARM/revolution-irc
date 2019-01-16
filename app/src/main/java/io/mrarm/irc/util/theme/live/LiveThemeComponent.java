@@ -1,11 +1,10 @@
 package io.mrarm.irc.util.theme.live;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
-import android.content.res.XmlResourceParser;
-import android.support.annotation.XmlRes;
+import android.util.Log;
 import android.util.TypedValue;
-import android.view.View;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -14,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import io.mrarm.irc.R;
 import io.mrarm.irc.util.StyledAttributesHelper;
 
 public class LiveThemeComponent {
@@ -26,6 +26,10 @@ public class LiveThemeComponent {
 
     public LiveThemeComponent(Context context) {
         mContext = context;
+    }
+
+    public Context getContext() {
+        return mContext;
     }
 
     public void setLiveThemeManager(LiveThemeManager mgr) {
@@ -47,8 +51,33 @@ public class LiveThemeComponent {
                 return theme;
         }
         Resources.Theme theme = mContext.getResources().newTheme();
+        theme.applyStyle(R.style.LiveThemeHelperTheme, true);
         sThemeCache.put(mContext.getResources(), new WeakReference<>(theme));
         return theme;
+    }
+
+    public boolean addColorAttr(StyledAttributesHelper attrs,
+                                int attr, LiveThemeManager.ColorPropertyApplier applier,
+                                ColorStateListApplier colorStateListApplier) {
+        TypedValue typedValue = new TypedValue();
+        if (!attrs.getValue(attr, typedValue))
+            return false;
+        if (typedValue.type >= TypedValue.TYPE_FIRST_COLOR_INT &&
+                typedValue.type <= TypedValue.TYPE_LAST_COLOR_INT) {
+            addColorProperty(typedValue.resourceId, applier);
+            return true;
+        } else if (typedValue.type != TypedValue.TYPE_NULL) {
+            try {
+                ThemedColorStateList th = ThemedColorStateList.createFromXml(
+                        mContext.getResources(),
+                        mContext.getResources().getXml(typedValue.resourceId), getTheme());
+                th.attachToComponent(this, () ->
+                        colorStateListApplier.onColorStateListChanged(th.createColorStateList()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
     }
 
     public boolean addColorAttr(StyledAttributesHelper attrs, int attr,
@@ -64,7 +93,7 @@ public class LiveThemeComponent {
     }
 
 
-    private void addColorProperty(int res, LiveThemeManager.ColorPropertyApplier applier) {
+    public void addColorProperty(int res, LiveThemeManager.ColorPropertyApplier applier) {
         List<LiveThemeManager.ColorPropertyApplier> appliers = mColors.get(res);
         if (appliers == null) {
             appliers = new ArrayList<>();
@@ -73,6 +102,13 @@ public class LiveThemeComponent {
         appliers.add(applier);
         if (mLiveThemeManager != null)
             mLiveThemeManager.addColorProperty(res, applier);
+    }
+
+
+    public interface ColorStateListApplier {
+
+        void onColorStateListChanged(ColorStateList newStateList);
+
     }
 
 
