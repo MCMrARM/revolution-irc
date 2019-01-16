@@ -20,6 +20,8 @@ import java.util.List;
 
 public class ColorSlider extends View {
 
+    private static final long MAX_TAP_TIME = 100000000L; // 0.1s, in ns
+
     private RectF mTmpRectF = new RectF();
     private float mCurrentValue = 0.f;
     protected float mRadius;
@@ -30,8 +32,10 @@ public class ColorSlider extends View {
     private float mHandleTouchHeight;
     private float mHandleRadius;
     private boolean mHandleDragging;
+    private boolean mHandlePossiblyTap;
     private float mTouchStartX;
     private float mTouchStartY;
+    private long mTouchStartTime;
     private float mTouchPrevY;
     private float mTouchTapMaxDist;
 
@@ -108,13 +112,20 @@ public class ColorSlider extends View {
             float handleY = getHandleY();
             mTouchStartX = event.getX();
             mTouchStartY = event.getY();
+            mTouchStartTime = System.nanoTime();
             mTouchPrevY = mTouchStartY;
             mHandleDragging = true;
+            mHandlePossiblyTap = true;
             getParent().requestDisallowInterceptTouchEvent(true);
         }
-        if (event.getAction() == MotionEvent.ACTION_UP &&
-                Math.abs(event.getX() - mTouchStartX) < mTouchTapMaxDist &&
-                Math.abs(event.getY() - mTouchStartY) < mTouchTapMaxDist) {
+        if ((event.getAction() == MotionEvent.ACTION_UP ||
+                event.getAction() == MotionEvent.ACTION_MOVE) &&
+                (Math.abs(event.getX() - mTouchStartX) >= mTouchTapMaxDist ||
+                        Math.abs(event.getY() - mTouchStartY) >= mTouchTapMaxDist)) {
+            mHandlePossiblyTap = false;
+        }
+        if (event.getAction() == MotionEvent.ACTION_UP && mHandlePossiblyTap &&
+                System.nanoTime() - mTouchStartTime < MAX_TAP_TIME) {
             float val = getMinValue() + (event.getY() - getPaddingTop()) /
                     (getHeight() - getPaddingTop() - getPaddingBottom()) *
                     (getMaxValue() - getMinValue());
