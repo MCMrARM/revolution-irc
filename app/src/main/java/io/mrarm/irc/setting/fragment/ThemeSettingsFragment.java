@@ -99,7 +99,7 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
         super.onDestroyView();
         ((LiveThemeViewFactory) getActivity().getLayoutInflater().getFactory2())
                 .setLiveThemeManager(null);
-        getActivity().recreate();
+        ThemeManager.getInstance(getContext()).invalidateCurrentCustomTheme();
     }
 
     @Override

@@ -20,6 +20,7 @@ import io.mrarm.chatlib.dto.MessageSenderInfo;
 import io.mrarm.irc.MessageFormatSettingsActivity;
 import io.mrarm.irc.R;
 import io.mrarm.irc.SettingsActivity;
+import io.mrarm.irc.ThemedActivity;
 import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.dialog.MenuBottomSheetDialog;
 import io.mrarm.irc.setting.CheckBoxSetting;
@@ -120,8 +121,11 @@ public class InterfaceSettingsFragment extends SettingsListFragment
 
 
     @Override
-    public void onHiddenChanged(boolean hidden) {
-        super.onHiddenChanged(hidden);
+    public void onStart() {
+        super.onStart();
+        if (((ThemedActivity) getActivity()).hasThemeChanged()) {
+            getActivity().recreate();
+        }
     }
 
     private int[] getBaseThemeColors(int resId) {

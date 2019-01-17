@@ -31,6 +31,10 @@ public class ThemedActivity extends AppCompatActivity implements ThemeManager.Th
             recreate();
     }
 
+    public boolean hasThemeChanged() {
+        return mThemeChanged;
+    }
+
     @Override
     public void setTheme(int resid) {
         ThemeManager helper = ThemeManager.getInstance(this);

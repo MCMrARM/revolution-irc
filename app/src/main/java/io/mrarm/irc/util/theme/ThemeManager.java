@@ -210,6 +210,8 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
             return;
         currentTheme = null;
         currentCustomThemePatcher = null;
+        for (ThemeChangeListener listener : themeChangeListeners)
+            listener.onThemeChanged();
     }
 
     public void applyThemeToActivity(Activity activity) {
