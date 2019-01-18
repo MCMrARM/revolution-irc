@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<io.mrarm.irc.view.OpaqueStatusBarRelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context="io.mrarm.irc.ChannelListActivity">
 
     <android.support.design.widget.AppBarLayout
@@ -70,4 +72,4 @@
 
     </io.mrarm.irc.view.RecyclerViewScrollbarLayout>
 
-</RelativeLayout>
+</io.mrarm.irc.view.OpaqueStatusBarRelativeLayout>
