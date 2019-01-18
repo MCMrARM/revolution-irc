@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -47,13 +48,21 @@ public class RecyclerViewScrollbar extends View {
         TypedArray ta = context.getTheme().obtainStyledAttributes(attrs, R.styleable.RecyclerViewScrollbar, defStyleAttr, 0);
         mRecyclerViewId = ta.getResourceId(R.styleable.RecyclerViewScrollbar_recyclerView, 0);
         mScrollbarDrawable = ta.getDrawable(R.styleable.RecyclerViewScrollbar_scrollbarDrawable);
+        if (mScrollbarDrawable != null) {
+            mScrollbarDrawable = DrawableCompat.wrap(mScrollbarDrawable).mutate();
+            DrawableCompat.setTintList(mScrollbarDrawable, ta.getColorStateList(R.styleable.RecyclerViewScrollbar_scrollbarTint));
+        }
         mLetterDrawable = ta.getDrawable(R.styleable.RecyclerViewScrollbar_letterDrawable);
+        if (mLetterDrawable != null) {
+            mLetterDrawable = DrawableCompat.wrap(mLetterDrawable).mutate();
+            DrawableCompat.setTintList(mLetterDrawable, ta.getColorStateList(R.styleable.RecyclerViewScrollbar_letterTint));
+        }
         int letterTextResId = ta.getResourceId(R.styleable.RecyclerViewScrollbar_letterTextAppearance, 0);
         mMinScrollbarHeight = ta.getDimensionPixelOffset(R.styleable.RecyclerViewScrollbar_minScrollbarHeight, 0);
         ta.recycle();
 
         mLetterView = new TextView(getContext());
-        mLetterView.setBackgroundDrawable(mLetterDrawable);
+        mLetterView.setBackground(mLetterDrawable);
         TextViewCompat.setTextAppearance(mLetterView, letterTextResId);
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
