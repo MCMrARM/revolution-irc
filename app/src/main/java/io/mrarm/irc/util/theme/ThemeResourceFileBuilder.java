@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -70,6 +71,8 @@ public class ThemeResourceFileBuilder {
             setUseLightActionBar(appTheme);
             setUseLightActionBar(appThemeNoActionBar);
         }
+        Collections.sort(appTheme.value, (a, b) -> a.name - b.name);
+        Collections.sort(appThemeNoActionBar.value, (a, b) -> a.name - b.name);
 
         table.addPackage(pkg);
         return new CustomTheme(ResTable.makeReference(pkg, styleTypeSpec, appTheme),
