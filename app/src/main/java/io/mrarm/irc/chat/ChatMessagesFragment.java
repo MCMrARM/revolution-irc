@@ -76,7 +76,6 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     private ScrollPosLinearLayoutManager mLayoutManager;
     private ChatMessagesAdapter mAdapter;
     private ServerStatusMessagesAdapter mStatusAdapter;
-    private List<MessageInfo> mMessages;
     private List<StatusMessageInfo> mStatusMessages;
     private boolean mNeedsUnsubscribeChannelInfo = false;
     private boolean mNeedsUnsubscribeMessages = false;
@@ -301,9 +300,9 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                 getFilterOptions(), null, (MessageList messages) -> {
                     Log.i(TAG, "Got message list for " + mChannelName + ": " +
                             messages.getMessages().size() + " messages");
-                    mMessages = messages.getMessages();
+                    List<MessageInfo> messageList = messages.getMessages();
                     updateMessageList(() -> {
-                        mAdapter.setMessages(mMessages);
+                        mAdapter.setMessages(messageList);
                         if (mRecyclerView != null)
                             mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
                         mLoadMoreIdentifier = messages.getAfterIdentifier();
@@ -404,8 +403,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                     return;
             }
 
-            mMessages.add(messageInfo);
-            mAdapter.notifyItemInserted(mMessages.size() - 1);
+            mAdapter.appendMessage(messageInfo);
             if (mRecyclerView != null)
                 scrollToBottom();
         });
@@ -466,28 +464,14 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         }
     }
 
-    private CharSequence getSelectedMessages() {
-        Set<Integer> items = mAdapter.getSelectedItems();
-        SpannableStringBuilder builder = new SpannableStringBuilder();
-        boolean first = true;
-        for (Integer msgIndex : items) {
-            if (first)
-                first = false;
-            else
-                builder.append('\n');
-            builder.append(MessageBuilder.getInstance(getContext()).buildMessage(mMessages.get(msgIndex)));
-        }
-        return builder;
-    }
-
     public void copySelectedMessages() {
-        CharSequence messages = getSelectedMessages();
+        CharSequence messages = mAdapter.getSelectedMessages();
         ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
         clipboard.setPrimaryClip(ClipData.newPlainText("IRC Messages", messages));
     }
 
     public void shareSelectedMessages() {
-        CharSequence messages = getSelectedMessages();
+        CharSequence messages = mAdapter.getSelectedMessages();
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.putExtra(Intent.EXTRA_TEXT, messages);
         intent.setType("text/plain");
