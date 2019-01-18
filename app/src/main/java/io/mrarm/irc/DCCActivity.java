@@ -13,7 +13,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class DCCActivity extends AppCompatActivity {
+public class DCCActivity extends ThemedActivity {
 
     private static final int REQUEST_CODE_PICK_CUSTOM_DIRECTORY = 3;
 
