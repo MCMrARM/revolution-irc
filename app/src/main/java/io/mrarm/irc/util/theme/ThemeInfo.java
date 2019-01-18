@@ -8,7 +8,9 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -33,6 +35,7 @@ public class ThemeInfo {
     @JsonAdapter(ColorsAdapter.class)
     public Map<String, Integer> colors = new HashMap<>();
     public Map<String, Object> properties = new HashMap<>();
+    public List<Integer> savedColors = new ArrayList<>();
 
     public void copyFrom(ThemeInfo otherTheme) {
         base = otherTheme.base;
