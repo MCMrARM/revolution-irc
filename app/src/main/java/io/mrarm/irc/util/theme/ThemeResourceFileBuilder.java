@@ -3,6 +3,7 @@ package io.mrarm.irc.util.theme;
 import android.content.Context;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -83,12 +85,20 @@ public class ThemeResourceFileBuilder {
         try {
             FileOutputStream fos = new FileOutputStream(zipPath);
             ZipOutputStream outStream = new ZipOutputStream(new BufferedOutputStream(fos));
+            outStream.setMethod(ZipOutputStream.STORED);
+
+            ByteArrayOutputStream byteArrOS = new ByteArrayOutputStream();
+            ArscWriter writer = new ArscWriter(resTable);
+            writer.write(byteArrOS);
+            byte[] bytes = byteArrOS.toByteArray();
 
             ZipEntry entry = new ZipEntry("resources.arsc");
+            entry.setSize(bytes.length);
+            CRC32 crc = new CRC32();
+            crc.update(bytes);
+            entry.setCrc(crc.getValue());
             outStream.putNextEntry(entry);
-
-            ArscWriter writer = new ArscWriter(resTable);
-            writer.write(outStream);
+            outStream.write(bytes);
 
             outStream.close();
             fos.close();
