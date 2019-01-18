@@ -210,8 +210,9 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
         NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext,
                 NOTIFICATION_CHANNEL)
                 .setContentTitle(mContext.getString(R.string.dcc_summary_notification_title))
-                .setContentText(mContext.getString(R.string.dcc_summary_notification_text,
-                        mDisplayedNotificationIds.size()))
+                .setContentText(mContext.getResources().getQuantityString(
+                        R.plurals.dcc_summary_notification_text,
+                        mDisplayedNotificationIds.size(), mDisplayedNotificationIds.size()))
                 .setContentIntent(getOpenTransfersIntent())
                 .setSmallIcon(R.drawable.ic_notification_connected)
                 .setGroup(NOTIFICATION_GROUP_DCC)
