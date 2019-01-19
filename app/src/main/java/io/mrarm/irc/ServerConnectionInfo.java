@@ -2,8 +2,6 @@ package io.mrarm.irc;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.text.NoCopySpan;
-import android.text.SpannableString;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -25,6 +23,7 @@ import io.mrarm.chatlib.irc.cap.SASLOptions;
 import io.mrarm.chatlib.irc.filters.ZNCPlaybackMessageFilter;
 import io.mrarm.chatlib.irc.handlers.MessageCommandHandler;
 import io.mrarm.chatlib.message.MessageStorageApi;
+import io.mrarm.irc.chat.ChatUIData;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.util.IgnoreListMessageFilter;
@@ -33,8 +32,6 @@ import io.mrarm.irc.util.StubMessageStorageApi;
 import io.mrarm.irc.util.UserAutoRunCommandHelper;
 
 public class ServerConnectionInfo {
-
-    private static final int HISTORY_MAX_COUNT = 24;
 
     private static Handler mReconnectHandler = new Handler(Looper.getMainLooper());
 
@@ -57,7 +54,7 @@ public class ServerConnectionInfo {
     private final List<ChannelListChangeListener> mChannelsListeners = new ArrayList<>();
     private int mCurrentReconnectAttempt = -1;
     int mChatLogStorageUpdateCounter = 0;
-    private final List<CharSequence> mSentMessageHistory = new ArrayList<>();
+    private final ChatUIData mChatUIData = new ChatUIData();
 
     public ServerConnectionInfo(ServerConnectionManager manager, ServerConfigData config,
                                 IRCConnectionRequest connectionRequest, SASLOptions saslOptions,
@@ -92,6 +89,7 @@ public class ServerConnectionInfo {
                 public void onChannelLeft(String s) {
                 }
             }, null, null);
+            mChatUIData.attachToConnection(api);
         }
     }
 
@@ -387,19 +385,8 @@ public class ServerConnectionInfo {
         return ((ServerConnectionApi) getApiInstance()).getServerConnectionData().getUserNick();
     }
 
-    // Should be called only from main thread
-    public List<CharSequence> getSentMessageHistory() {
-        return mSentMessageHistory;
-    }
-
-    // Should be called only from main thread
-    public void addHistoryMessage(CharSequence msg) {
-        SpannableString str = new SpannableString(msg);
-        for (Object o : str.getSpans(0, str.length(), NoCopySpan.class))
-            str.removeSpan(o);
-        mSentMessageHistory.add(str);
-        if (mSentMessageHistory.size() >= HISTORY_MAX_COUNT)
-            mSentMessageHistory.remove(0);
+    public ChatUIData getChatUIData() {
+        return mChatUIData;
     }
 
     public void addOnChannelInfoChangeListener(InfoChangeListener listener) {

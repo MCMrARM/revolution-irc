@@ -115,8 +115,9 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
         mChannelTypes = channelTypes;
     }
 
-    public void setHistory(List<CharSequence> mHistory) {
-        this.mHistory = mHistory;
+    public void setHistory(List<CharSequence> history) {
+        mHistory = history;
+        mHistoryIndex = -1;
     }
 
     public void requestTabComplete() {
@@ -273,6 +274,8 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
     }
 
     public void moveInHistory(boolean up) {
+        if (mHistory == null)
+            return;
         int i = mHistoryIndex;
         if (!up) {
             if (i == -1)

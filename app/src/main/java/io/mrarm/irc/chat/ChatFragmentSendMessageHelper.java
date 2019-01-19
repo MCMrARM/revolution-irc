@@ -89,7 +89,6 @@ public class ChatFragmentSendMessageHelper implements SendMessageHelper.Callback
         mSendText.setAdapter(mChannelMembersListAdapter);
         mSendText.setCommandListAdapter(new CommandListSuggestionsAdapter(mContext));
         mSendText.setConnectionContext(connectionInfo);
-        mSendText.setHistory(connectionInfo.getSentMessageHistory());
         if (connectionInfo.getApiInstance() instanceof ServerConnectionApi)
             mSendText.setChannelTypes(((ServerConnectionApi) connectionInfo.getApiInstance())
                     .getServerConnectionData().getSupportList().getSupportedChannelTypes());
@@ -193,6 +192,12 @@ public class ChatFragmentSendMessageHelper implements SendMessageHelper.Callback
         mSendTextMultilineHelper.setAlwaysMultiline(multiline);
     }
 
+    public void setCurrentChannel(String name) {
+        ChannelUIData uiData = mFragment.getConnectionInfo().getChatUIData()
+                .getOrCreateChannelData(name);
+        mSendText.setHistory(uiData.getSentMessageHistory());
+    }
+
     public void setCurrentChannelMembers(List<NickWithPrefix> members) {
         mChannelMembersListAdapter.setMembers(members);
     }
@@ -240,7 +245,8 @@ public class ChatFragmentSendMessageHelper implements SendMessageHelper.Callback
                 ((IRCConnection) mFragment.getConnectionInfo().getApiInstance()).sendCommandRaw(
                         message.substring(1), null, null);
                 mClientCommandErrorContainer.setVisibility(View.GONE);
-                mFragment.getConnectionInfo().addHistoryMessage(message);
+                mFragment.getConnectionInfo().getChatUIData().getOrCreateChannelData(null)
+                        .addHistoryMessage(message);
                 mSendText.setText("");
             }
         });

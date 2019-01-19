@@ -22,9 +22,10 @@ public class SendMessageHelper {
         if (text.contains("\n")) {
             try {
                 IRCConnection conn = (IRCConnection) connection.getApiInstance();
+                ChannelUIData uiData = connection.getChatUIData().getOrCreateChannelData(channel);
                 for (String s : text.split("\n")) {
                     conn.sendMessage(channel, s, null, null);
-                    connection.addHistoryMessage(s);
+                    uiData.addHistoryMessage(s);
                 }
             } catch (Exception ignored) {
             }
@@ -59,7 +60,8 @@ public class SendMessageHelper {
                     } else {
                         throw new RuntimeException();
                     }
-                    connection.addHistoryMessage(message);
+                    connection.getChatUIData().getOrCreateChannelData(channel)
+                            .addHistoryMessage(message);
                     cb.onMessageSent();
                     return;
                 }
@@ -72,7 +74,7 @@ public class SendMessageHelper {
         }
         if (channel == null)
             return;
-        connection.addHistoryMessage(message);
+        connection.getChatUIData().getOrCreateChannelData(channel).addHistoryMessage(message);
         cb.onMessageSent();
         connection.getApiInstance().sendMessage(channel, text, null, null);
     }

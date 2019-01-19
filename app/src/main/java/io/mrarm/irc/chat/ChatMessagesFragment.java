@@ -98,6 +98,9 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser && getParentFragment() != null)
             updateParentCurrentChannel();
+        if (isVisibleToUser && getParentFragment() != null)
+            ((ChatFragment) getParentFragment()).getSendMessageHelper()
+                    .setCurrentChannel(mChannelName);
         if (!isVisibleToUser)
             hideMessagesActionMenu();
         if (mConnection != null && mChannelName != null) {
