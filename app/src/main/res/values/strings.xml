@@ -38,6 +38,7 @@
     </plurals>
     <string name="message_mode_channel_value">channel mode \'%s\' to %s</string>
     <string name="message_mode_channel_ban">a ban on %s</string>
+    <string name="message_mode_nick_owner">channel owner status</string>
     <string name="message_mode_nick_admin">channel admin status</string>
     <string name="message_mode_nick_op">channel operator status</string>
     <string name="message_mode_nick_half_op">channel half-operator status</string>

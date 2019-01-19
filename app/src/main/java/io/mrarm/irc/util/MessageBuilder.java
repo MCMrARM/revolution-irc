@@ -587,6 +587,9 @@ public class MessageBuilder {
                 case 'a':
                     b.append(mContext.getString(R.string.message_mode_nick_admin), new ForegroundColorSpan(mContext.getResources().getColor(R.color.memberAdmin)));
                     break;
+                case 'q':
+                    b.append(mContext.getString(R.string.message_mode_nick_owner), new ForegroundColorSpan(mContext.getResources().getColor(R.color.memberOwner)));
+                    break;
                 default:
                     b.append("'" + c + "'");
             }
