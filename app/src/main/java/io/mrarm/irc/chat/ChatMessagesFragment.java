@@ -79,7 +79,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     private boolean mNeedsUnsubscribeChannelInfo = false;
     private boolean mNeedsUnsubscribeMessages = false;
     private boolean mNeedsUnsubscribeStatusMessages = false;
-    private MessageListAfterIdentifier mLoadMoreIdentifier;
+    private MessageListAfterIdentifier mLoadOlderIdentifier;
     private boolean mIsLoadingMore;
     private MessageFilterOptions mMessageFilterOptions;
 
@@ -233,16 +233,16 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 int firstVisible = mLayoutManager.findFirstVisibleItemPosition();
                 if (firstVisible >= 0 && firstVisible < LOAD_MORE_BEFORE_INDEX) {
-                    if (mIsLoadingMore || mLoadMoreIdentifier == null || !mAdapter.hasMessages())
+                    if (mIsLoadingMore || mLoadOlderIdentifier == null || !mAdapter.hasMessages())
                         return;
                     Log.i(TAG, "Load more: " + mChannelName);
                     mIsLoadingMore = true;
                     mConnection.getApiInstance().getMessageStorageApi().getMessages(mChannelName,
-                            100, getFilterOptions(), mLoadMoreIdentifier,
+                            100, getFilterOptions(), mLoadOlderIdentifier,
                             (MessageList messages) -> {
                                 updateMessageList(() -> {
                                     mAdapter.addMessagesToTop(messages.getMessages());
-                                    mLoadMoreIdentifier = messages.getOlder();
+                                    mLoadOlderIdentifier = messages.getOlder();
                                     mIsLoadingMore = false;
                                 });
                             }, null);
@@ -311,7 +311,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                         mAdapter.setMessages(messageList);
                         if (mRecyclerView != null)
                             mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
-                        mLoadMoreIdentifier = messages.getOlder();
+                        mLoadOlderIdentifier = messages.getOlder();
                     });
 
                     if (!mNeedsUnsubscribeMessages) {
