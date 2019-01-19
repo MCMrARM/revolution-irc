@@ -2,7 +2,7 @@ package io.mrarm.irc.view;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
 

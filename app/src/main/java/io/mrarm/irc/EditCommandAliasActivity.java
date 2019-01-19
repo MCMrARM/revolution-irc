@@ -2,7 +2,7 @@ package io.mrarm.irc;
 
 import android.content.res.ColorStateList;
 import android.os.Bundle;
-import android.support.v4.view.ViewCompat;
+import androidx.core.view.ViewCompat;
 import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;

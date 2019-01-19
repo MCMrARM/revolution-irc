@@ -3,7 +3,7 @@ package io.mrarm.irc.util.theme.live;
 import android.app.Activity;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;

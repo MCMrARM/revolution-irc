@@ -1,7 +1,7 @@
 package io.mrarm.irc.util.theme.live;
 
 import android.content.Context;
-import android.support.design.widget.TextInputEditText;
+import com.google.android.material.textfield.TextInputEditText;
 import android.util.AttributeSet;
 
 import io.mrarm.irc.R;

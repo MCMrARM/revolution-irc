@@ -7,7 +7,7 @@
     android:paddingBottom="4dp"
     android:clipToPadding="false">
 
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rules"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -5,9 +5,9 @@ import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.drawable.RippleDrawable;
 import android.os.Build;
-import android.support.v4.graphics.ColorUtils;
-import android.support.v4.widget.CompoundButtonCompat;
-import android.support.v7.widget.AppCompatCheckBox;
+import androidx.core.graphics.ColorUtils;
+import androidx.core.widget.CompoundButtonCompat;
+import androidx.appcompat.widget.AppCompatCheckBox;
 import android.util.AttributeSet;
 import android.widget.CompoundButton;
 

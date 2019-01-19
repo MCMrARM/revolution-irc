@@ -1,7 +1,7 @@
 package io.mrarm.irc.util.theme.live;
 
 import android.content.res.Resources;
-import android.support.v4.view.ViewCompat;
+import androidx.core.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.View;
 

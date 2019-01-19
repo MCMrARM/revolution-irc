@@ -1,7 +1,7 @@
 package io.mrarm.irc.util;
 
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import java.util.LinkedList;
 import java.util.Queue;

@@ -3,8 +3,8 @@ package io.mrarm.irc.dialog;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomSheetBehavior;
+import androidx.annotation.NonNull;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -31,7 +31,7 @@ public class StatusBarColorBottomSheetDialog extends ProperHeightBottomSheetDial
     protected void configureBottomSheetLayout() {
         super.configureBottomSheetLayout();
         BottomSheetBehavior behaviour = BottomSheetBehavior.from(
-                findViewById(android.support.design.R.id.design_bottom_sheet));
+                findViewById(R.id.design_bottom_sheet));
         behaviour.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {

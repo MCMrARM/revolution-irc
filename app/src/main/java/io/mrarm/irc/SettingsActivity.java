@@ -2,8 +2,8 @@ package io.mrarm.irc;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -17,7 +17,6 @@ import io.mrarm.irc.setting.fragment.NamedSettingsFragment;
 import io.mrarm.irc.setting.fragment.NotificationSettingsFragment;
 import io.mrarm.irc.setting.fragment.ReconnectSettingsFragment;
 import io.mrarm.irc.setting.fragment.StorageSettingsFragment;
-import io.mrarm.irc.setting.fragment.ThemeSettingsFragment;
 import io.mrarm.irc.setting.fragment.UserSettingsFragment;
 import io.mrarm.irc.setup.BackupActivity;
 import io.mrarm.irc.util.AppCompatViewFactory;

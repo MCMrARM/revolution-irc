@@ -1,8 +1,8 @@
 package io.mrarm.irc.setup;
 
 import android.content.Intent;
-import android.support.v4.view.ViewCompat;
-import android.support.v7.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
+import androidx.appcompat.app.AppCompatActivity;
 
 import io.mrarm.irc.R;
 

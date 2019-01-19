@@ -4,8 +4,8 @@ package io.mrarm.irc.util;
 import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * StateListDrawable (or more generally, DrawableContainer) has a bug where it is impossible to use

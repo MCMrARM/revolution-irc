@@ -3,7 +3,7 @@ package io.mrarm.irc.view;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.support.design.widget.TextInputLayout;
+import com.google.android.material.textfield.TextInputLayout;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;

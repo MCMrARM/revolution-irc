@@ -24,11 +24,11 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <android.support.design.widget.TextInputLayout
+            <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/date_format_ctr"
                 style="@style/MessageFormatSettingsTextInputLayout">
 
-                <android.support.design.widget.TextInputEditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/date_format"
                     style="@style/EditTextWithExpandIcon"
                     android:hint="@string/message_format_date" />
@@ -39,7 +39,7 @@
                     android:contentDescription="@string/value_preset"
                     app:srcCompat="@drawable/ic_expand" />
 
-            </android.support.design.widget.TextInputLayout>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <CheckBox
                 android:id="@+id/date_fixed_width"
@@ -52,7 +52,7 @@
             <View style="@style/MessageFormatSettingsDivider"
                 android:layout_marginTop="8dp" />
 
-            <android.support.design.widget.TextInputLayout
+            <com.google.android.material.textfield.TextInputLayout
                 style="@style/MessageFormatSettingsTextInputLayout">
 
                 <io.mrarm.irc.view.FormattableEditText
@@ -66,7 +66,7 @@
                     android:contentDescription="@string/value_preset"
                     app:srcCompat="@drawable/ic_expand" />
 
-            </android.support.design.widget.TextInputLayout>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
                 android:id="@+id/message_format_normal_example"
@@ -74,7 +74,7 @@
 
             <View style="@style/MessageFormatSettingsDivider" />
 
-            <android.support.design.widget.TextInputLayout style="@style/MessageFormatSettingsTextInputLayout">
+            <com.google.android.material.textfield.TextInputLayout style="@style/MessageFormatSettingsTextInputLayout">
 
                 <io.mrarm.irc.view.FormattableEditText
                     android:id="@+id/message_format_normal_mention"
@@ -87,7 +87,7 @@
                     android:contentDescription="@string/value_preset"
                     app:srcCompat="@drawable/ic_expand" />
 
-            </android.support.design.widget.TextInputLayout>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
                 android:id="@+id/message_format_normal_mention_example"
@@ -95,7 +95,7 @@
 
             <View style="@style/MessageFormatSettingsDivider" />
 
-            <android.support.design.widget.TextInputLayout style="@style/MessageFormatSettingsTextInputLayout">
+            <com.google.android.material.textfield.TextInputLayout style="@style/MessageFormatSettingsTextInputLayout">
 
                 <io.mrarm.irc.view.FormattableEditText
                     android:id="@+id/message_format_action"
@@ -108,7 +108,7 @@
                     android:contentDescription="@string/value_preset"
                     app:srcCompat="@drawable/ic_expand" />
 
-            </android.support.design.widget.TextInputLayout>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
                 android:id="@+id/message_format_action_example"
@@ -116,7 +116,7 @@
 
             <View style="@style/MessageFormatSettingsDivider" />
 
-            <android.support.design.widget.TextInputLayout style="@style/MessageFormatSettingsTextInputLayout">
+            <com.google.android.material.textfield.TextInputLayout style="@style/MessageFormatSettingsTextInputLayout">
 
                 <io.mrarm.irc.view.FormattableEditText
                     android:id="@+id/message_format_action_mention"
@@ -129,7 +129,7 @@
                     android:contentDescription="@string/value_preset"
                     app:srcCompat="@drawable/ic_expand" />
 
-            </android.support.design.widget.TextInputLayout>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
                 android:id="@+id/message_format_action_mention_example"
@@ -137,7 +137,7 @@
 
             <View style="@style/MessageFormatSettingsDivider" />
 
-            <android.support.design.widget.TextInputLayout style="@style/MessageFormatSettingsTextInputLayout">
+            <com.google.android.material.textfield.TextInputLayout style="@style/MessageFormatSettingsTextInputLayout">
 
                 <io.mrarm.irc.view.FormattableEditText
                     android:id="@+id/message_format_notice"
@@ -150,7 +150,7 @@
                     android:contentDescription="@string/value_preset"
                     app:srcCompat="@drawable/ic_expand" />
 
-            </android.support.design.widget.TextInputLayout>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
                 android:id="@+id/message_format_notice_example"
@@ -158,7 +158,7 @@
 
             <View style="@style/MessageFormatSettingsDivider" />
 
-            <android.support.design.widget.TextInputLayout style="@style/MessageFormatSettingsTextInputLayout">
+            <com.google.android.material.textfield.TextInputLayout style="@style/MessageFormatSettingsTextInputLayout">
 
                 <io.mrarm.irc.view.FormattableEditText
                     android:id="@+id/message_format_event"
@@ -171,7 +171,7 @@
                     android:contentDescription="@string/value_preset"
                     app:srcCompat="@drawable/ic_expand" />
 
-            </android.support.design.widget.TextInputLayout>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
                 android:id="@+id/message_format_event_example"

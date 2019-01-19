@@ -3,16 +3,14 @@ package io.mrarm.irc.dialog;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
-import android.support.v4.view.ViewCompat;
-import android.support.v7.app.AlertDialog;
+import androidx.core.view.ViewCompat;
+import androidx.appcompat.app.AlertDialog;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
 import io.mrarm.irc.R;
-import io.mrarm.irc.view.ColorHuePicker;
-import io.mrarm.irc.view.ColorPicker;
 import io.mrarm.irc.view.MaterialColorPicker;
 
 public class MaterialColorPickerDialog {

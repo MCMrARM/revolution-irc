@@ -5,7 +5,7 @@
     android:layout_height="@dimen/single_list_item_height"
     android:background="?attr/selectableItemBackground">
 
-    <android.support.v7.widget.AppCompatImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/image"
         style="@style/Icon.Opaque"
         android:layout_width="wrap_content"

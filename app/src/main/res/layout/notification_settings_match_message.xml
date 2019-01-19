@@ -22,7 +22,7 @@
 
     </io.mrarm.irc.view.LabelLayout>
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/match_text_ctr"
         android:layout_marginRight="@dimen/activity_horizontal_margin_s4"
         android:layout_marginEnd="@dimen/activity_horizontal_margin_s4"
@@ -32,13 +32,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <android.support.design.widget.TextInputEditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/match_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/entry_text" />
 
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
     <CheckBox
         android:id="@+id/match_case"

@@ -84,7 +84,7 @@
 
     </RelativeLayout>
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/client_command_error_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -124,15 +124,15 @@
 
         </RelativeLayout>
 
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
-    <android.support.v4.view.ViewPager
+    <androidx.viewpager.widget.ViewPager
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/client_command_error_card" />
 
-    <android.support.design.widget.CoordinatorLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/server_messages_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -147,7 +147,7 @@
             android:clickable="true"
             android:focusable="true" />
 
-        <android.support.v7.widget.CardView
+        <androidx.cardview.widget.CardView
             android:id="@+id/server_messages_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -155,7 +155,7 @@
             app:behavior_hideable="true"
             app:behavior_peekHeight="180dp">
 
-            <android.support.v7.widget.RecyclerView
+            <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/server_messages_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -163,11 +163,11 @@
                 android:paddingBottom="8dp"
                 android:divider="@null" />
 
-        </android.support.v7.widget.CardView>
+        </androidx.cardview.widget.CardView>
 
-    </android.support.design.widget.CoordinatorLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    <android.support.design.widget.CoordinatorLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/suggestions_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -182,21 +182,21 @@
             android:clickable="true"
             android:focusable="true" />
 
-        <android.support.v7.widget.CardView
+        <androidx.cardview.widget.CardView
             android:id="@+id/suggestions_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_behavior="@string/bottom_sheet_behavior"
             app:behavior_peekHeight="180dp">
 
-            <android.support.v7.widget.RecyclerView
+            <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/suggestions_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:divider="@null" />
 
-        </android.support.v7.widget.CardView>
+        </androidx.cardview.widget.CardView>
 
-    </android.support.design.widget.CoordinatorLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 </RelativeLayout>

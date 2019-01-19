@@ -3,11 +3,11 @@ package io.mrarm.irc.dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.BottomSheetDialog;
-import android.support.v4.view.ViewCompat;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import androidx.core.view.ViewCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -167,7 +167,7 @@ public class UserBottomSheetDialog {
                 return;
             view.post(() -> {
                 BottomSheetBehavior behaviour = BottomSheetBehavior.from(mDialog.
-                        findViewById(android.support.design.R.id.design_bottom_sheet));
+                        findViewById(R.id.design_bottom_sheet));
                 view.setMinimumHeight(bottom - top);
                 mHeader.setCompactMode(behaviour.getPeekHeight() < compatMaxHeight);
             });

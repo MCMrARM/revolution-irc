@@ -1,10 +1,10 @@
 package io.mrarm.irc.dialog;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.BottomSheetDialog;
-import android.support.design.widget.CoordinatorLayout;
+import androidx.annotation.NonNull;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -44,7 +44,7 @@ public class ProperHeightBottomSheetDialog extends BottomSheetDialog {
 
     protected void configureBottomSheetLayout() {
         CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) findViewById(
-                android.support.design.R.id.design_bottom_sheet).getLayoutParams();
+                R.id.design_bottom_sheet).getLayoutParams();
         ProperHeightBottomSheetBehaviour behaviour = new ProperHeightBottomSheetBehaviour();
         behaviour.setHideable(true);
         behaviour.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
