@@ -29,6 +29,7 @@ import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.util.CommandAliasSyntaxParser;
 import io.mrarm.irc.util.SelectableRecyclerViewAdapter;
 import io.mrarm.irc.util.SimpleTextWatcher;
+import io.mrarm.irc.util.SpannableStringHelper;
 
 public class ChatAutoCompleteEditText extends FormattableEditText implements
         SharedPreferences.OnSharedPreferenceChangeListener,
@@ -51,6 +52,8 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
     private List<CommandAliasManager.CommandAlias> mCompletingCommands;
     private List<CharSequence> mHistory;
     private int mHistoryIndex;
+    private CharSequence mHistoryDirtyBuf;
+    private int mHistoryDirtyIndex = Integer.MIN_VALUE;
     private SendTextGestureListener mGestureListener;
     private GestureDetector mGestureDetector;
 
@@ -118,6 +121,8 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
     public void setHistory(List<CharSequence> history) {
         mHistory = history;
         mHistoryIndex = -1;
+        mHistoryDirtyBuf = null;
+        mHistoryDirtyIndex = Integer.MIN_VALUE;
     }
 
     public void requestTabComplete() {
@@ -277,6 +282,13 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
         if (mHistory == null)
             return;
         int i = mHistoryIndex;
+        CharSequence currentText = getText();
+        if (currentText != null && currentText.length() > 0 &&
+                (i == -1 || !currentText.toString().equals(
+                        mHistory.get(mHistory.size() - 1 - i).toString()))) {
+            mHistoryDirtyIndex = i;
+            mHistoryDirtyBuf = SpannableStringHelper.copyCharSequence(currentText);
+        }
         if (!up) {
             if (i == -1)
                 return;
@@ -284,10 +296,15 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
         } else {
             i = Math.min(i + 1, mHistory.size() - 1);
         }
-        if (i == -1)
+        if (i == mHistoryDirtyIndex) {
+            setText(mHistoryDirtyBuf);
+            mHistoryDirtyBuf = null;
+            mHistoryDirtyIndex = Integer.MIN_VALUE;
+        } else if (i == -1) {
             setText("");
-        else
+        } else {
             setText(mHistory.get(mHistory.size() - 1 - i));
+        }
         setSelection(getText().length());
         mHistoryIndex = i;
     }

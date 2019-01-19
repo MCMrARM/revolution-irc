@@ -1,10 +1,9 @@
 package io.mrarm.irc.chat;
 
-import android.text.NoCopySpan;
-import android.text.SpannableString;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import io.mrarm.irc.util.SpannableStringHelper;
 
 public class ChannelUIData {
 
@@ -18,10 +17,7 @@ public class ChannelUIData {
     }
 
     public void addHistoryMessage(CharSequence msg) {
-        SpannableString str = new SpannableString(msg);
-        for (Object o : str.getSpans(0, str.length(), NoCopySpan.class))
-            str.removeSpan(o);
-        mSentMessageHistory.add(str);
+        mSentMessageHistory.add(SpannableStringHelper.copyCharSequence(msg));
         if (mSentMessageHistory.size() >= HISTORY_MAX_COUNT)
             mSentMessageHistory.remove(0);
     }

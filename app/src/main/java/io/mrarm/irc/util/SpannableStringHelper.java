@@ -3,6 +3,7 @@ package io.mrarm.irc.util;
 import android.content.Context;
 import android.text.NoCopySpan;
 import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.BackgroundColorSpan;
@@ -165,6 +166,13 @@ public class SpannableStringHelper {
 
     public static boolean checkSpanInclude(Spannable s, Object span, int start, int end) {
         return checkSpanInclude(s.getSpanStart(span), s.getSpanEnd(span), s.getSpanFlags(span), start, end);
+    }
+
+    public static CharSequence copyCharSequence(CharSequence msg) {
+        SpannableString str = new SpannableString(msg);
+        for (Object o : str.getSpans(0, str.length(), NoCopySpan.class))
+            str.removeSpan(o);
+        return str;
     }
 
 }
