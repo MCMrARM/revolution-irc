@@ -31,6 +31,7 @@ import io.mrarm.chatlib.ChannelInfoListener;
 import io.mrarm.chatlib.StatusMessageListener;
 import io.mrarm.chatlib.dto.ChannelInfo;
 import io.mrarm.chatlib.dto.MessageFilterOptions;
+import io.mrarm.chatlib.dto.MessageId;
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.dto.MessageList;
 import io.mrarm.chatlib.dto.MessageListAfterIdentifier;
@@ -241,7 +242,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                             (MessageList messages) -> {
                                 updateMessageList(() -> {
                                     mAdapter.addMessagesToTop(messages.getMessages());
-                                    mLoadMoreIdentifier = messages.getAfterIdentifier();
+                                    mLoadMoreIdentifier = messages.getOlder();
                                     mIsLoadingMore = false;
                                 });
                             }, null);
@@ -310,7 +311,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                         mAdapter.setMessages(messageList);
                         if (mRecyclerView != null)
                             mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
-                        mLoadMoreIdentifier = messages.getAfterIdentifier();
+                        mLoadMoreIdentifier = messages.getOlder();
                     });
 
                     if (!mNeedsUnsubscribeMessages) {
@@ -396,7 +397,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     }
 
     @Override
-    public void onMessage(String channel, MessageInfo messageInfo) {
+    public void onMessage(String channel, MessageInfo messageInfo, MessageId messageId) {
         updateMessageList(() -> {
             MessageFilterOptions opt = getFilterOptions();
             if (opt != null) {

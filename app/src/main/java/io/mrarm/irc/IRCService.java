@@ -12,11 +12,14 @@ import android.os.Build;
 import android.os.IBinder;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+
+import android.os.Message;
 import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import io.mrarm.chatlib.dto.MessageId;
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.message.MessageListener;
 import io.mrarm.irc.job.ServerPingScheduler;
@@ -155,7 +158,7 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
 
     @Override
     public void onConnectionAdded(ServerConnectionInfo connection) {
-        MessageListener listener =  (String channel, MessageInfo info) -> {
+        MessageListener listener =  (String channel, MessageInfo info, MessageId id) -> {
             onMessage(connection, channel, info);
         };
         messageListeners.put(connection, listener);

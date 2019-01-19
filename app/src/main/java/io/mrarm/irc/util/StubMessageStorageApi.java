@@ -5,6 +5,7 @@ import java.util.concurrent.Future;
 import io.mrarm.chatlib.ResponseCallback;
 import io.mrarm.chatlib.ResponseErrorCallback;
 import io.mrarm.chatlib.dto.MessageFilterOptions;
+import io.mrarm.chatlib.dto.MessageId;
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.dto.MessageList;
 import io.mrarm.chatlib.dto.MessageListAfterIdentifier;
@@ -25,7 +26,7 @@ public class StubMessageStorageApi implements WritableMessageStorageApi {
     }
 
     @Override
-    public MessageListAfterIdentifier getMessageListAfterIdentifier(String s, int i, MessageFilterOptions filterOptions, MessageListAfterIdentifier messageListAfterIdentifier) {
+    public Future<MessageList> getMessagesNear(String s, MessageId messageId, MessageFilterOptions messageFilterOptions, ResponseCallback<MessageList> responseCallback, ResponseErrorCallback responseErrorCallback) {
         return null;
     }
 
