@@ -15,6 +15,7 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import io.mrarm.chatlib.ChatApi;
+import io.mrarm.chatlib.dto.MessageId;
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.irc.config.NotificationRule;
@@ -41,7 +42,7 @@ public class NotificationManager {
     private String mLastSummaryChannel = null;
 
     public void processMessage(Context context, ServerConnectionInfo connection, String channel,
-                               MessageInfo info) {
+                               MessageInfo info, MessageId messageId) {
         ChannelNotificationManager channelManager = connection.getNotificationManager().getChannelManager(channel, true);
         if (info.getType() == MessageInfo.MessageType.NORMAL ||
                 info.getType() == MessageInfo.MessageType.ME ||
@@ -56,7 +57,7 @@ public class NotificationManager {
         if (rule == null || rule.settings.noNotification)
             return;
         synchronized (channelManager) {
-            if (channelManager.addNotificationMessage(info)) {
+            if (channelManager.addNotificationMessage(info, messageId)) {
                 if (rule.settings.notificationChannelId == null)
                     ChannelNotificationManager.createChannel(context, rule);
                 updateSummaryNotification(context, rule.settings.notificationChannelId);

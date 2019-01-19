@@ -21,6 +21,11 @@ public class StubMessageStorageApi implements WritableMessageStorageApi {
     }
 
     @Override
+    public MessageId.Parser getMessageIdParser() {
+        return null;
+    }
+
+    @Override
     public Future<MessageList> getMessages(String s, int i, MessageFilterOptions filterOptions, MessageListAfterIdentifier messageListAfterIdentifier, ResponseCallback<MessageList> responseCallback, ResponseErrorCallback responseErrorCallback) {
         return null;
     }

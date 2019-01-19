@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import io.mrarm.chatlib.dto.MessageId;
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.irc.chat.SendMessageHelper;
 import io.mrarm.irc.config.NotificationCountStorage;
@@ -75,11 +76,11 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
         }
     }
 
-    public boolean addNotificationMessage(MessageInfo messageInfo) {
+    public boolean addNotificationMessage(MessageInfo messageInfo, MessageId messageId) {
         synchronized (this) {
             if (mOpened)
                 return false;
-            NotificationMessage ret = new NotificationMessage(messageInfo);
+            NotificationMessage ret = new NotificationMessage(messageInfo, messageId);
             mMessages.add(ret);
         }
         return true;
@@ -143,7 +144,8 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
         NotificationCompat.Builder notification = new NotificationCompat.Builder(context,
                 rule.settings.notificationChannelId);
         PendingIntent intent = PendingIntent.getActivity(context, mNotificationId,
-                MainActivity.getLaunchIntent(context, mConnection, mChannel),
+                MainActivity.getLaunchIntent(context, mConnection, mChannel,
+                        lastMessage.mMessageId.toString()),
                 PendingIntent.FLAG_CANCEL_CURRENT);
         PendingIntent dismissIntent = PendingIntent.getBroadcast(context,
                 CHAT_DISMISS_INTENT_ID_START + mNotificationId,
@@ -297,17 +299,19 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
 
     public static class NotificationMessage {
 
+        private MessageId mMessageId;
         private String mSender;
         private String mText;
         private CharSequence mBuilt;
 
-        public NotificationMessage(String sender, String text) {
+        public NotificationMessage(MessageId messageId, String sender, String text) {
+            this.mMessageId = messageId;
             this.mSender = sender;
             this.mText = text;
         }
 
-        public NotificationMessage(MessageInfo messageInfo) {
-            this(messageInfo.getSender().getNick(), messageInfo.getMessage());
+        public NotificationMessage(MessageInfo messageInfo, MessageId messageId) {
+            this(messageId, messageInfo.getSender().getNick(), messageInfo.getMessage());
         }
 
         private CharSequence buildNotificationText(Context context) {

@@ -151,15 +151,16 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
         return START_STICKY;
     }
 
-    private void onMessage(ServerConnectionInfo connection, String channel, MessageInfo info) {
-        NotificationManager.getInstance().processMessage(this, connection, channel, info);
+    private void onMessage(ServerConnectionInfo connection, String channel, MessageInfo info,
+                           MessageId messageId) {
+        NotificationManager.getInstance().processMessage(this, connection, channel, info, messageId);
         ChatLogStorageManager.getInstance(this).onMessage(connection);
     }
 
     @Override
     public void onConnectionAdded(ServerConnectionInfo connection) {
         MessageListener listener =  (String channel, MessageInfo info, MessageId id) -> {
-            onMessage(connection, channel, info);
+            onMessage(connection, channel, info, id);
         };
         messageListeners.put(connection, listener);
         connection.getApiInstance().getMessageStorageApi().subscribeChannelMessages(null, listener, null, null);

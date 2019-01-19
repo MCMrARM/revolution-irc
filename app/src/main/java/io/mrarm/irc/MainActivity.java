@@ -61,6 +61,7 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
 
     public static final String ARG_SERVER_UUID = "server_uuid";
     public static final String ARG_CHANNEL_NAME = "channel";
+    public static final String ARG_MESSAGE_ID = "message_id";
     public static final String ARG_MANAGE_SERVERS = "manage_servers";
 
     private static final int REQUEST_CODE_PICK_FILE_DCC = 100;
@@ -80,13 +81,19 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
             new DCCManager.ActivityDialogHandler(this, REQUEST_CODE_DCC_FOLDER_PERMISSION,
                     REQUEST_CODE_DCC_STORAGE_PERMISSION);
 
-    public static Intent getLaunchIntent(Context context, ServerConnectionInfo server, String channel) {
+    public static Intent getLaunchIntent(Context context, ServerConnectionInfo server, String channel, String messageId) {
         Intent intent = new Intent(context, MainActivity.class);
         if (server != null)
             intent.putExtra(ARG_SERVER_UUID, server.getUUID().toString());
         if (channel != null)
             intent.putExtra(ARG_CHANNEL_NAME, channel);
+        if (messageId != null)
+            intent.putExtra(ARG_MESSAGE_ID, messageId);
         return intent;
+    }
+
+    public static Intent getLaunchIntent(Context context, ServerConnectionInfo server, String channel) {
+        return getLaunchIntent(context, server, channel, null);
     }
 
     public static Intent getLaunchIntentForManageServers(Context context) {
