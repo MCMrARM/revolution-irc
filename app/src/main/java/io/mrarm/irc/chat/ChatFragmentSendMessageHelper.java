@@ -62,6 +62,7 @@ public class ChatFragmentSendMessageHelper implements SendMessageHelper.Callback
     private View mServerMessagesCard;
     private RecyclerView mServerMessagesList;
     private ChatServerMessagesAdapter mServerMessagesListAdapter;
+    private String mCurrentChannel;
 
     public ChatFragmentSendMessageHelper(ChatFragment chatFragment, View rootView) {
         mContext = rootView.getContext();
@@ -193,9 +194,15 @@ public class ChatFragmentSendMessageHelper implements SendMessageHelper.Callback
     }
 
     public void setCurrentChannel(String name) {
+        ChannelUIData oldUiData = mFragment.getConnectionInfo().getChatUIData()
+                .getOrCreateChannelData(mCurrentChannel);
+        oldUiData.setCurrentText(mSendText.getText());
+        mCurrentChannel = name;
         ChannelUIData uiData = mFragment.getConnectionInfo().getChatUIData()
                 .getOrCreateChannelData(name);
         mSendText.setHistory(uiData.getSentMessageHistory());
+        mSendText.setText(uiData.getCurrentText());
+        mSendText.setSelection(mSendText.getText().length());
     }
 
     public void setCurrentChannelMembers(List<NickWithPrefix> members) {

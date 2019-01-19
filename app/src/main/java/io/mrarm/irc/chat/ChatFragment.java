@@ -241,6 +241,7 @@ public class ChatFragment extends Fragment implements
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        mSendHelper.setCurrentChannel(null);
         if (mConnectionInfo == null)
             return;
         mConnectionInfo.removeOnChannelListChangeListener(this);
