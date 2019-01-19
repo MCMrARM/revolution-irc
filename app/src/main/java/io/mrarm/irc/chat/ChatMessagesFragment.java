@@ -275,6 +275,10 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             mRecyclerView.setAdapter(mStatusAdapter);
         }
 
+        if (getUserVisibleHint())
+            ((ChatFragment) getParentFragment()).getSendMessageHelper()
+                    .setCurrentChannel(mChannelName);
+
         return rootView;
     }
 
