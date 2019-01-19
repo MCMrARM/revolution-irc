@@ -195,7 +195,8 @@
     <string name="server_realname">Real name</string>
     <string name="server_sasl_ext_none">No certificate set</string>
     <string name="server_sasl_ext_fp">Certificate fingerprint: %s</string>
-    <string name="server_sasl_ext_import">Import PEM certificate</string>
+    <string name="server_sasl_ext_import">Import PEM</string>
+    <string name="server_sasl_ext_create">Create new</string>
     <string name="error_cert_already_present">The specified file has more than a single certificate entry.</string>
     <string name="error_privkey_already_present">The specified file has more than a single private key entry.</string>
     <string name="error_cert_or_privkey_missing">The specified file is missing either a private key or a certificate.</string>

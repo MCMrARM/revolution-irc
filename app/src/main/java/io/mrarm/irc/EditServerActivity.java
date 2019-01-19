@@ -24,19 +24,33 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.spongycastle.asn1.x500.X500Name;
+import org.spongycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.spongycastle.cert.X509CertificateHolder;
+import org.spongycastle.cert.X509v3CertificateBuilder;
+import org.spongycastle.operator.ContentSigner;
+import org.spongycastle.operator.OperatorCreationException;
+import org.spongycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.spongycastle.x509.X509V3CertificateGenerator;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.SecureRandom;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -82,6 +96,7 @@ public class EditServerActivity extends ThemedActivity {
     private View mServerAuthSASLExt;
     private TextView mServerAuthSASLExtFP;
     private View mServerAuthSASLExtImportButton;
+    private View mServerAuthSASLExtCreateButton;
     private String mOldServerAuthPass;
     private StaticLabelTextInputLayout mServerAuthPassCtr;
     private View mServerAuthPassMainCtr;
@@ -168,6 +183,7 @@ public class EditServerActivity extends ThemedActivity {
         mServerAuthSASLExt = findViewById(R.id.server_sasl_ext_main_ctr);
         mServerAuthSASLExtFP = findViewById(R.id.server_sasl_ext_fp);
         mServerAuthSASLExtImportButton = findViewById(R.id.server_sasl_ext_import);
+        mServerAuthSASLExtCreateButton = findViewById(R.id.server_sasl_ext_create);
         mServerNick = findViewById(R.id.server_nick);
         mServerUser = findViewById(R.id.server_user);
         mServerRealname = findViewById(R.id.server_realname);
@@ -230,6 +246,13 @@ public class EditServerActivity extends ThemedActivity {
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType("*/*");
             startActivityForResult(intent, REQUEST_SASL_EXT_CERT);
+        });
+        mServerAuthSASLExtCreateButton.setOnClickListener((View v) -> {
+            try {
+                generateCert();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         });
 
         mServerEncodingValues =  getResources().getStringArray(R.array.encodings_values);
@@ -562,6 +585,29 @@ public class EditServerActivity extends ThemedActivity {
         } catch (NoSuchAlgorithmException | CertificateEncodingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void generateCert() throws Exception {
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(2048);
+        KeyPair kp = keyPairGenerator.generateKeyPair();
+
+        X500Name name = new X500Name("CN=Revolution IRC Client Certificate");
+        BigInteger serial = new BigInteger(64, new SecureRandom());
+        Date from = new Date();
+        Date to = new Date(from.getTime() + 30L * 365L * 24L * 60L * 60L * 1000L);
+        X509v3CertificateBuilder builder = new X509v3CertificateBuilder(name, serial, from, to, name, SubjectPublicKeyInfo.getInstance(kp.getPublic().getEncoded()));
+        ContentSigner signer = new JcaContentSignerBuilder("SHA256WithRSA").build(kp.getPrivate());
+        X509CertificateHolder holder = builder.build(signer);
+
+
+        CertificateFactory factory = CertificateFactory.getInstance("X.509");
+        mServerCert = (X509Certificate) factory.generateCertificate(
+                new ByteArrayInputStream(holder.getEncoded()));
+        mServerPrivKey = kp.getPrivate().getEncoded();
+        mServerPrivKeyType = kp.getPrivate().getAlgorithm();
+        mServerAuthSASLExtFP.setText(getString(R.string.server_sasl_ext_fp,
+                getCertificateFingerprint(mServerCert)));
     }
 
 }

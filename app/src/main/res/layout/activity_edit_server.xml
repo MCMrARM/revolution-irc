@@ -229,14 +229,30 @@
                     android:textIsSelectable="true"
                     android:text="@string/server_sasl_ext_none" />
 
-                <Button
-                    android:id="@+id/server_sasl_ext_import"
-                    android:layout_width="wrap_content"
+                <com.google.android.flexbox.FlexboxLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp"
-                    style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                    android:text="@string/server_sasl_ext_import" />
+                    app:flexWrap="wrap">
+
+                    <Button
+                        android:id="@+id/server_sasl_ext_import"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
+                        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                        android:text="@string/server_sasl_ext_import" />
+
+                    <Button
+                        android:id="@+id/server_sasl_ext_create"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
+                        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                        android:text="@string/server_sasl_ext_create" />
+
+                </com.google.android.flexbox.FlexboxLayout>
 
             </LinearLayout>
 
