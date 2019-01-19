@@ -11,10 +11,16 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.nio.charset.Charset;
+import java.security.GeneralSecurityException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
 
 import io.mrarm.chatlib.irc.IRCConnectionRequest;
 import io.mrarm.chatlib.irc.cap.SASLOptions;
@@ -177,17 +183,31 @@ public class ServerConnectionManager {
             request.setRealName(request.getNickList().get(0));
 
         SASLOptions saslOptions = null;
+        UserKeyManager userKeyManager = null;
         if (data.authMode != null) {
             if (data.authMode.equals(ServerConfigData.AUTH_PASSWORD) && data.authPass != null)
                 request.setServerPass(data.authPass);
             if (data.authMode.equals(ServerConfigData.AUTH_SASL) && data.authUser != null &&
                     data.authPass != null)
                 saslOptions = SASLOptions.createPlainAuth(data.authUser, data.authPass);
+            if (data.authMode.equals(ServerConfigData.AUTH_SASL_EXTERNAL)) {
+                saslOptions = SASLOptions.createExternal();
+                userKeyManager = new UserKeyManager(data.getAuthCert(), data.getAuthPrivateKey());
+            }
         }
 
         if (data.ssl) {
             UserOverrideTrustManager sslHelper = new UserOverrideTrustManager(mContext, data.uuid);
-            request.enableSSL(sslHelper.createSocketFactory(), sslHelper);
+            try {
+                SSLContext sslContext = SSLContext.getInstance("TLS");
+                KeyManager[] keyManagers = new KeyManager[0];
+                if (userKeyManager != null)
+                    keyManagers = new KeyManager[] { userKeyManager };
+                sslContext.init(keyManagers, new TrustManager[] { sslHelper }, null);
+                request.enableSSL(sslContext.getSocketFactory(), sslHelper);
+            } catch (GeneralSecurityException e) {
+                throw new RuntimeException(e);
+            }
         }
         ServerConnectionInfo connectionInfo = new ServerConnectionInfo(this, data, request, saslOptions, joinChannels);
         connectionInfo.connect();

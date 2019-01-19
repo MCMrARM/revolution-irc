@@ -210,6 +210,36 @@
 
             </RelativeLayout>
 
+            <LinearLayout
+                android:id="@+id/server_sasl_ext_main_ctr"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                android:layout_marginLeft="50dp"
+                android:layout_marginStart="50dp"
+                android:layout_below="@+id/server_username_ctr">
+
+                <TextView
+                    android:id="@+id/server_sasl_ext_fp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:textIsSelectable="true"
+                    android:text="@string/server_sasl_ext_none" />
+
+                <Button
+                    android:id="@+id/server_sasl_ext_import"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                    android:text="@string/server_sasl_ext_import" />
+
+            </LinearLayout>
+
         </RelativeLayout>
 
         <RelativeLayout style="@style/EditServerItemContainer">

@@ -14,8 +14,6 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import java.lang.ref.WeakReference;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -24,13 +22,10 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import javax.net.SocketFactory;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import io.mrarm.irc.config.ServerCertificateManager;
@@ -78,16 +73,6 @@ public class UserOverrideTrustManager implements X509TrustManager, HostnameVerif
             }
         } else {
             mManager.addCertificateException(certificate);
-        }
-    }
-
-    public SocketFactory createSocketFactory() {
-        try {
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, new TrustManager[] { this }, null);
-            return sslContext.getSocketFactory();
-        } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            throw new RuntimeException("Failed to create a SSL socket factory");
         }
     }
 

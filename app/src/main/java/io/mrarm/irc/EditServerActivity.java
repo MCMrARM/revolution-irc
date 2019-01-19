@@ -3,8 +3,11 @@ package io.mrarm.irc;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 import android.support.design.widget.TextInputLayout;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -21,7 +24,17 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,6 +44,7 @@ import io.mrarm.irc.config.ServerCertificateManager;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.util.ExpandIconStateHelper;
+import io.mrarm.irc.util.PEMParser;
 import io.mrarm.irc.util.SimpleTextWatcher;
 import io.mrarm.irc.view.AutoRunCommandListEditText;
 import io.mrarm.irc.view.StaticLabelTextInputLayout;
@@ -41,6 +55,8 @@ public class EditServerActivity extends ThemedActivity {
     private static String TAG = "EditServerActivity";
 
     public static final String RESULT_ACTION = "io.mrarm.irc.EDIT_SERVER_RESULT_ACTION";
+
+    private static final int REQUEST_SASL_EXT_CERT = 100;
 
     public static String ARG_SERVER_UUID = "server_uuid";
     public static String ARG_COPY = "copy";
@@ -63,6 +79,9 @@ public class EditServerActivity extends ThemedActivity {
     private EditText mServerAuthUser;
     private TextInputLayout mServerAuthUserCtr;
     private EditText mServerAuthPass;
+    private View mServerAuthSASLExt;
+    private TextView mServerAuthSASLExtFP;
+    private View mServerAuthSASLExtImportButton;
     private String mOldServerAuthPass;
     private StaticLabelTextInputLayout mServerAuthPassCtr;
     private View mServerAuthPassMainCtr;
@@ -79,6 +98,10 @@ public class EditServerActivity extends ThemedActivity {
     private View mServerUserExpandContent;
 
     private String[] mServerEncodingValues;
+
+    private X509Certificate mServerCert = null;
+    private byte[] mServerPrivKey = null;
+    private String mServerPrivKeyType;
 
     public static Intent getLaunchIntent(Context context, ServerConfigData data, boolean copy) {
         Intent intent = new Intent(context, EditServerActivity.class);
@@ -142,6 +165,9 @@ public class EditServerActivity extends ThemedActivity {
         mServerAuthPassCtr = findViewById(R.id.server_password_ctr);
         mServerAuthPassMainCtr = findViewById(R.id.server_password_main_ctr);
         mServerAuthPassReset = findViewById(R.id.server_password_reset);
+        mServerAuthSASLExt = findViewById(R.id.server_sasl_ext_main_ctr);
+        mServerAuthSASLExtFP = findViewById(R.id.server_sasl_ext_fp);
+        mServerAuthSASLExtImportButton = findViewById(R.id.server_sasl_ext_import);
         mServerNick = findViewById(R.id.server_nick);
         mServerUser = findViewById(R.id.server_user);
         mServerRealname = findViewById(R.id.server_realname);
@@ -178,18 +204,32 @@ public class EditServerActivity extends ThemedActivity {
                 if (position == 0) {
                     mServerAuthUserCtr.setVisibility(View.GONE);
                     mServerAuthPassMainCtr.setVisibility(View.GONE);
+                    mServerAuthSASLExt.setVisibility(View.GONE);
                 } else if (position == 1) {
                     mServerAuthUserCtr.setVisibility(View.GONE);
                     mServerAuthPassMainCtr.setVisibility(View.VISIBLE);
+                    mServerAuthSASLExt.setVisibility(View.GONE);
                 } else if (position == 2) {
                     mServerAuthUserCtr.setVisibility(View.VISIBLE);
                     mServerAuthPassMainCtr.setVisibility(View.VISIBLE);
+                    mServerAuthSASLExt.setVisibility(View.GONE);
+                } else if (position == 3) {
+                    mServerAuthUserCtr.setVisibility(View.GONE);
+                    mServerAuthPassMainCtr.setVisibility(View.GONE);
+                    mServerAuthSASLExt.setVisibility(View.VISIBLE);
                 }
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }
+        });
+
+        mServerAuthSASLExtImportButton.setOnClickListener((View v) -> {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("*/*");
+            startActivityForResult(intent, REQUEST_SASL_EXT_CERT);
         });
 
         mServerEncodingValues =  getResources().getStringArray(R.array.encodings_values);
@@ -228,6 +268,13 @@ public class EditServerActivity extends ThemedActivity {
                 mServerAuthUser.setText(mEditServer.authUser);
                 mOldServerAuthPass = mEditServer.authPass;
             }
+            mServerCert = mEditServer.getAuthCert();
+            if (mServerCert != null) {
+                mServerAuthSASLExtFP.setText(getString(R.string.server_sasl_ext_fp,
+                        getCertificateFingerprint(mServerCert)));
+            }
+            mServerPrivKey = mEditServer.authCertPrivKey;
+            mServerPrivKeyType = mEditServer.authCertPrivKeyType;
             if (mEditServer.authMode != null) {
                 switch (mEditServer.authMode) {
                     case ServerConfigData.AUTH_PASSWORD:
@@ -235,6 +282,9 @@ public class EditServerActivity extends ThemedActivity {
                         break;
                     case ServerConfigData.AUTH_SASL:
                         mServerAuthMode.setSelection(2);
+                        break;
+                    case ServerConfigData.AUTH_SASL_EXTERNAL:
+                        mServerAuthMode.setSelection(3);
                         break;
                     default:
                         mServerAuthMode.setSelection(0);
@@ -354,13 +404,28 @@ public class EditServerActivity extends ThemedActivity {
         mEditServer.realname = mServerRealname.getText().length() > 0 ? mServerRealname.getText().toString() : null;
         int authModeInt = mServerAuthMode.getSelectedItemPosition();
         boolean authModePassword = false;
+        mEditServer.authCertData = null;
+        mEditServer.authCertPrivKey = null;
+        mEditServer.authCertPrivKeyType = null;
         if (authModeInt == 1) {
             mEditServer.authMode = ServerConfigData.AUTH_PASSWORD;
+            mEditServer.authUser = null;
             authModePassword = true;
         } else if (authModeInt == 2) {
             mEditServer.authMode = ServerConfigData.AUTH_SASL;
             mEditServer.authUser = mServerAuthUser.getText().toString();
             authModePassword = true;
+        } else if (authModeInt == 3) {
+            mEditServer.authMode = ServerConfigData.AUTH_SASL_EXTERNAL;
+            mEditServer.authUser = null;
+            mEditServer.authPass = null;
+            try {
+                mEditServer.authCertData = mServerCert.getEncoded();
+            } catch (CertificateEncodingException e) {
+                throw new RuntimeException(e);
+            }
+            mEditServer.authCertPrivKey = mServerPrivKey;
+            mEditServer.authCertPrivKeyType = mServerPrivKeyType;
         } else {
             mEditServer.authMode = null;
             mEditServer.authUser = null;
@@ -428,8 +493,75 @@ public class EditServerActivity extends ThemedActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_SASL_EXT_CERT && data != null && data.getData() != null) {
+            Uri uri = data.getData();
+            X509Certificate cert = null;
+            PrivateKey privKey = null;
+            int errorResId = -1;
+            try {
+                ParcelFileDescriptor desc = getContentResolver().openFileDescriptor(uri, "r");
+                if (desc == null)
+                    throw new IOException();
+                BufferedReader reader = new BufferedReader(
+                        new FileReader(desc.getFileDescriptor()));
+                List<Object> objects = PEMParser.parse(reader);
+                for (Object o : objects) {
+                    if (o instanceof X509Certificate) {
+                        if (cert != null) {
+                            errorResId = R.string.error_cert_already_present;
+                            break;
+                        }
+                        cert = (X509Certificate) o;
+                    }
+                    if (o instanceof PrivateKey) {
+                        if (privKey != null) {
+                            errorResId = R.string.error_privkey_already_present;
+                            break;
+                        }
+                        privKey = (PrivateKey) o;
+                    }
+                }
+                if (privKey == null || cert == null)
+                    errorResId = R.string.error_cert_or_privkey_missing;
+            } catch (IOException e) {
+                errorResId = R.string.error_file_open;
+                e.printStackTrace();
+            }
+            if (errorResId == -1) {
+                mServerCert = cert;
+                mServerPrivKey = privKey.getEncoded();
+                mServerPrivKeyType = privKey.getAlgorithm();
+                mServerAuthSASLExtFP.setText(getString(R.string.server_sasl_ext_fp,
+                        getCertificateFingerprint(mServerCert)));
+            } else {
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.error_generic)
+                        .setMessage(errorResId)
+                        .show();
+            }
+            return;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
     private static int getDefaultPort(boolean sslEnabled) {
         return sslEnabled ? 6697 : 6667;
+    }
+
+
+    private static String getCertificateFingerprint(X509Certificate cert) {
+        try {
+            StringBuilder builder = new StringBuilder();
+            MessageDigest digest = MessageDigest.getInstance("SHA-1");
+            byte[] bytes = digest.digest(cert.getEncoded());
+            for (byte b : bytes)
+                builder.append(String.format("%02x", b));
+            return builder.toString();
+        } catch (NoSuchAlgorithmException | CertificateEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

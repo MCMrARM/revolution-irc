@@ -193,11 +193,18 @@
     <string name="server_nicks">Nicknames</string>
     <string name="server_user">User</string>
     <string name="server_realname">Real name</string>
+    <string name="server_sasl_ext_none">No certificate set</string>
+    <string name="server_sasl_ext_fp">Certificate fingerprint: %s</string>
+    <string name="server_sasl_ext_import">Import PEM certificate</string>
+    <string name="error_cert_already_present">The specified file has more than a single certificate entry.</string>
+    <string name="error_privkey_already_present">The specified file has more than a single private key entry.</string>
+    <string name="error_cert_or_privkey_missing">The specified file is missing either a private key or a certificate.</string>
 
     <string-array name="server_auth_modes">
         <item>None</item>
         <item>Server password</item>
         <item>Username with password (SASL)</item>
+        <item>Client certificate (CertFP)</item>
     </string-array>
 
     <!-- Certificate manager -->

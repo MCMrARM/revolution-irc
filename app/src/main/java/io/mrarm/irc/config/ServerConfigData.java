@@ -1,15 +1,28 @@
 package io.mrarm.irc.config;
 
+import android.util.Log;
+
+import java.io.ByteArrayInputStream;
+import java.security.GeneralSecurityException;
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.security.spec.EncodedKeySpec;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import io.mrarm.irc.R;
 import io.mrarm.irc.util.SimpleWildcardPattern;
 
 public class ServerConfigData {
 
     public static final String AUTH_PASSWORD = "password";
     public static final String AUTH_SASL = "sasl";
+    public static final String AUTH_SASL_EXTERNAL = "sasl_external";
 
     public String name;
     public UUID uuid;
@@ -21,6 +34,9 @@ public class ServerConfigData {
     public String authMode;
     public String authUser;
     public String authPass;
+    public byte[] authCertData;
+    public byte[] authCertPrivKey;
+    public String authCertPrivKeyType;
 
     public List<String> nicks;
     public String user;
@@ -33,6 +49,34 @@ public class ServerConfigData {
     public List<IgnoreEntry> ignoreList;
 
     public long storageLimit;
+
+    public X509Certificate getAuthCert() {
+        if (authCertData == null)
+            return null;
+        try {
+            CertificateFactory factory = CertificateFactory.getInstance("X.509");
+            return (X509Certificate) factory.generateCertificate(
+                    new ByteArrayInputStream(authCertData));
+        } catch (CertificateException e) {
+            Log.e("ServerConfigData", "Failed to load cert data");
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public PrivateKey getAuthPrivateKey() {
+        if (authCertPrivKey == null)
+            return null;
+        try {
+            KeyFactory factory = KeyFactory.getInstance(authCertPrivKeyType);
+            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(authCertPrivKey);
+            return factory.generatePrivate(keySpec);
+        } catch (GeneralSecurityException e) {
+            Log.w("ServerConfigData", "Failed to load private key");
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public static class IgnoreEntry {
 
