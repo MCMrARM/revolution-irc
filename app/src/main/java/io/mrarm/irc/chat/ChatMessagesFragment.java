@@ -93,6 +93,9 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     private View mUnreadCtr;
     private TextView mUnreadText;
     private View mUnreadDiscard;
+    private long mUnreadCheckedFirst = -1;
+    private long mUnreadCheckedLast = -1;
+    private MessageId mUnreadCheckFor;
 
     static {
         sFilterJoinParts = new MessageFilterOptions();
@@ -294,6 +297,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                                 });
                             }, null);
                 }
+                checkForUnreadMessages();
             }
         });
 
@@ -366,6 +370,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             mMessageFilterOptions = sFilterJoinParts;
         else
             mMessageFilterOptions = null;
+        mUnreadCheckedFirst = -1;
+        mUnreadCheckedLast = -1;
         ResponseCallback<MessageList> cb = (MessageList messages) -> {
             Log.i(TAG, "Got message list for " + mChannelName + ": " +
                     messages.getMessages().size() + " messages");
@@ -408,15 +414,75 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             return;
         ChannelNotificationManager mgr = mConnection.getNotificationManager().getChannelManager(mChannelName, true);
         int unread = mgr.getUnreadMessageCount();
-        if (mgr.getFirstUnreadMessage() == null && unread > 0) {
+        MessageId unreadMsg = mgr.getFirstUnreadMessage();
+        if (unreadMsg == null && unread > 0) {
             unread = 0;
             mgr.clearUnreadMessages();
         }
+        if (unread > 0) {
+            int index = mAdapter.findMessageWithId(unreadMsg);
+            View v = mRecyclerView.getLayoutManager().findViewByPosition(index);
+            if (v != null && mRecyclerView.getLayoutManager().isViewPartiallyVisible(v, true, true)) {
+                unread = 0;
+                mgr.clearUnreadMessages();
+            }
+        }
         mUnreadCtr.setVisibility(View.GONE);
         if (unread > 0) {
+            if (mUnreadCheckFor == null || !mUnreadCheckFor.equals(unreadMsg)) {
+                mUnreadCheckFor = unreadMsg;
+                mUnreadCheckedFirst = -1;
+                mUnreadCheckedLast = -1;
+            }
             mUnreadCtr.setVisibility(View.VISIBLE);
             mUnreadText.setText(getResources().getQuantityString(R.plurals.unread_message_counter, unread, unread));
         }
+    }
+
+    private void checkForUnreadMessages() {
+        if (mUnreadCtr.getVisibility() == View.GONE)
+            return;
+        LinearLayoutManager llm = (LinearLayoutManager) mRecyclerView.getLayoutManager();
+        int firstPos = llm.findFirstCompletelyVisibleItemPosition();
+        int lastPos = llm.findLastCompletelyVisibleItemPosition();
+        long firstId = mAdapter.getItemId(firstPos);
+        long lastId = mAdapter.getItemId(lastPos);
+        boolean found = false;
+        if (mUnreadCheckedFirst == -1) {
+            mUnreadCheckedFirst = firstId;
+            mUnreadCheckedLast = firstId;
+            found = checkItemForUnread(
+                    mAdapter.getMessage(mAdapter.getItemPosition(firstId)), mUnreadCheckFor);
+        }
+        while (firstId < mUnreadCheckedFirst) {
+            found |= checkItemForUnread(mAdapter.getMessage(
+                    mAdapter.getItemPosition(mUnreadCheckedFirst)), mUnreadCheckFor);
+            if (found)
+                break;
+            --mUnreadCheckedFirst;
+        }
+        while (lastId > mUnreadCheckedLast) {
+            found |= checkItemForUnread(mAdapter.getMessage(
+                    mAdapter.getItemPosition(mUnreadCheckedLast)), mUnreadCheckFor);
+            if (found)
+                break;
+            ++mUnreadCheckedLast;
+        }
+        if (found) {
+            ChannelNotificationManager mgr = mConnection.getNotificationManager()
+                    .getChannelManager(mChannelName, true);
+            mgr.clearUnreadMessages();
+            mUnreadCtr.setVisibility(View.GONE);
+            mUnreadCheckedFirst = -1;
+            mUnreadCheckedLast = -1;
+        }
+    }
+
+    private boolean checkItemForUnread(ChatMessagesAdapter.Item item, MessageId lookingFor) {
+        if (item instanceof ChatMessagesAdapter.MessageItem) {
+            return ((ChatMessagesAdapter.MessageItem) item).mMessageId.equals(lookingFor);
+        }
+        return false;
     }
 
     @Override

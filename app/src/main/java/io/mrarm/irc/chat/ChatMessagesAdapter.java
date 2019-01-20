@@ -72,7 +72,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         mFontSize = fontSize;
     }
 
-    private Item getMessage(int index) {
+    public Item getMessage(int index) {
         if (index < mPrependedMessages.size())
             return mPrependedMessages.get(mPrependedMessages.size() - 1 - index);
         index -= mPrependedMessages.size();
@@ -379,13 +379,13 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     }
 
-    private static class Item {
+    public static class Item {
     }
 
     public static class MessageItem extends Item {
 
-        private MessageInfo mMessage;
-        private MessageId mMessageId;
+        MessageInfo mMessage;
+        MessageId mMessageId;
 
         public MessageItem(MessageInfo message, MessageId msgId) {
             mMessage = message;
@@ -396,7 +396,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     public static class DayMarkerItem extends Item {
 
-        private int mDate;
+        int mDate;
 
         public DayMarkerItem(int date) {
             mDate = date;
