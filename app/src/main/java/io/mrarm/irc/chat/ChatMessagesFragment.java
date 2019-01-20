@@ -170,7 +170,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
 
         SettingsHelper settingsHelper = SettingsHelper.getInstance(getContext());
         if (mChannelName != null) {
-            mAdapter = new ChatMessagesAdapter(this, new ArrayList<>());
+            mAdapter = new ChatMessagesAdapter(this, new ArrayList<>(), new ArrayList<>());
             mAdapter.setMessageFont(settingsHelper.getChatFont(), settingsHelper.getChatFontSize());
 
             Log.i(TAG, "Request message list for: " + mChannelName);
@@ -269,7 +269,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                             100, getFilterOptions(), mLoadOlderIdentifier,
                             (MessageList messages) -> {
                                 updateMessageList(() -> {
-                                    mAdapter.addMessagesToTop(messages.getMessages());
+                                    mAdapter.addMessagesToTop(messages.getMessages(),
+                                            messages.getMessageIds());
                                     mLoadOlderIdentifier = messages.getOlder();
                                     mIsLoadingMore = false;
                                 });
@@ -286,7 +287,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                             100, getFilterOptions(), mLoadNewerIdentifier,
                             (MessageList messages) -> {
                                 updateMessageList(() -> {
-                                    mAdapter.addMessagesToBottom(messages.getMessages());
+                                    mAdapter.addMessagesToBottom(messages.getMessages(),
+                                            messages.getMessageIds());
                                     mLoadNewerIdentifier = messages.getNewer();
                                     mIsLoadingMore = false;
                                 });
@@ -362,9 +364,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         ResponseCallback<MessageList> cb = (MessageList messages) -> {
             Log.i(TAG, "Got message list for " + mChannelName + ": " +
                     messages.getMessages().size() + " messages");
-            List<MessageInfo> messageList = messages.getMessages();
             updateMessageList(() -> {
-                mAdapter.setMessages(messageList);
+                mAdapter.setMessages(messages.getMessages(), messages.getMessageIds());
                 if (mRecyclerView != null)
                     mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
                 mLoadOlderIdentifier = messages.getOlder();
@@ -515,7 +516,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                     return;
             }
 
-            mAdapter.appendMessage(messageInfo);
+            mAdapter.appendMessage(messageInfo, messageId);
             if (mRecyclerView != null)
                 scrollToBottom();
         });

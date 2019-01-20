@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import io.mrarm.chatlib.dto.MessageId;
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.irc.NotificationManager;
 import io.mrarm.irc.R;
@@ -36,8 +37,8 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private static final int TYPE_DAY_MARKER = 1;
 
     private ChatMessagesFragment mFragment;
-    private List<Object> mMessages;
-    private List<Object> mPrependedMessages;
+    private List<Item> mMessages;
+    private List<Item> mPrependedMessages;
     private LongPressSelectTouchListener mMultiSelectListener;
     private ChatSelectTouchListener mSelectListener;
     private Set<Integer> mSelectedItems = new TreeSet<>();
@@ -51,7 +52,8 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private int mFirstMessageDay = -1;
     private int mLastMessageDay = -1;
 
-    public ChatMessagesAdapter(ChatMessagesFragment fragment, List<MessageInfo> messages) {
+    public ChatMessagesAdapter(ChatMessagesFragment fragment, List<MessageInfo> messages,
+                               List<MessageId> messageIds) {
         mFragment = fragment;
         StyledAttributesHelper ta = StyledAttributesHelper.obtainStyledAttributes(fragment.getContext(),
                 new int[] { R.attr.selectableItemBackground, R.attr.colorControlHighlight });
@@ -61,7 +63,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         mSelectedItemBackground = new ColorDrawable(color);
         ta.recycle();
 
-        setMessages(messages);
+        setMessages(messages, messageIds);
         setHasStableIds(true);
     }
 
@@ -70,7 +72,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         mFontSize = fontSize;
     }
 
-    private Object getMessage(int index) {
+    private Item getMessage(int index) {
         if (index < mPrependedMessages.size())
             return mPrependedMessages.get(mPrependedMessages.size() - 1 - index);
         index -= mPrependedMessages.size();
@@ -89,7 +91,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         }
     }
 
-    private int appendMessageInternal(MessageInfo m) {
+    private int appendMessageInternal(MessageInfo m, MessageId mi) {
         int ret = 0;
         int day = getDayInt(m.getDate());
         if (mFirstMessageDay == -1)
@@ -99,12 +101,12 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             mLastMessageDay = day;
             ret++;
         }
-        mMessages.add(m);
+        mMessages.add(new MessageItem(m, mi));
         ret++;
         return ret;
     }
 
-    private int prependMessageInternal(MessageInfo m) {
+    private int prependMessageInternal(MessageInfo m, MessageId mi) {
         int ret = 0;
         int day = getDayInt(m.getDate());
         if (mLastMessageDay == -1)
@@ -114,28 +116,29 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             mFirstMessageDay = day;
             ret++;
         }
-        mPrependedMessages.add(m);
+        mPrependedMessages.add(new MessageItem(m, mi));
         ret++;
         return ret;
     }
 
-    public void appendMessage(MessageInfo m) {
-        int c = appendMessageInternal(m);
+    public void appendMessage(MessageInfo m, MessageId mi) {
+        int c = appendMessageInternal(m, mi);
         if (c == 1)
             notifyItemInserted(mMessages.size() - 1);
         else
             notifyItemRangeInserted(mMessages.size() - c, c);
     }
 
-    public void setMessages(List<MessageInfo> messages) {
+    public void setMessages(List<MessageInfo> messages, List<MessageId> messageIds) {
         mMessages = new ArrayList<>();
         mPrependedMessages = new ArrayList<>();
-        for (MessageInfo m : messages)
-            appendMessageInternal(m);
+        int n = messages.size();
+        for (int i = 0; i < n; i++)
+            appendMessageInternal(messages.get(i), messageIds.get(i));
         notifyDataSetChanged();
     }
 
-    public void addMessagesToTop(List<MessageInfo> messages) {
+    public void addMessagesToTop(List<MessageInfo> messages, List<MessageId> messageIds) {
         if (messages.size() == 0)
             return;
         if (getMessage(0) instanceof DayMarkerItem) {
@@ -145,20 +148,21 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         }
         int cnt = 0;
         for (int i = messages.size() - 1; i >= 0; --i)
-            cnt += prependMessageInternal(messages.get(i));
+            cnt += prependMessageInternal(messages.get(i), messageIds.get(i));
         mPrependedMessages.add(new DayMarkerItem(mFirstMessageDay));
         ++cnt;
         mItemIdOffset += cnt;
         notifyItemRangeInserted(0, cnt);
     }
 
-    public void addMessagesToBottom(List<MessageInfo> messages) {
+    public void addMessagesToBottom(List<MessageInfo> messages, List<MessageId> messageIds) {
         if (messages.size() == 0)
             return;
         int appendAt = getItemCount();
         int cnt = 0;
-        for (MessageInfo msg : messages)
-            cnt += appendMessageInternal(msg);
+        int n = messages.size();
+        for (int i = 0; i < n; i++)
+            cnt += appendMessageInternal(messages.get(i), messageIds.get(i));
         notifyItemRangeInserted(appendAt, cnt);
     }
 
@@ -227,7 +231,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         int viewType = holder.getItemViewType();
         Object msg = getMessage(position);
         if (viewType == TYPE_MESSAGE) {
-            ((MessageHolder) holder).bind((MessageInfo) msg, position);
+            ((MessageHolder) holder).bind(((MessageItem) msg).mMessage, position);
         } else if (viewType == TYPE_DAY_MARKER) {
             ((DayMarkerHolder) holder).bind((DayMarkerItem) msg);
         }
@@ -236,9 +240,9 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     @Override
     public CharSequence getTextAt(int position) {
         Object msg = getMessage(position);
-        if (msg instanceof MessageInfo)
+        if (msg instanceof MessageItem)
             return MessageBuilder.getInstance(mFragment.getContext())
-                    .buildMessage((MessageInfo) msg);
+                    .buildMessage(((MessageItem) msg).mMessage);
         else if (msg instanceof DayMarkerItem)
             return ((DayMarkerItem) msg).getMessageText(mFragment.getContext());
         return null;
@@ -252,7 +256,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     @Override
     public int getItemViewType(int position) {
         Object m = getMessage(position);
-        if (m instanceof MessageInfo)
+        if (m instanceof MessageItem)
             return TYPE_MESSAGE;
         if (m instanceof DayMarkerItem)
             return TYPE_DAY_MARKER;
@@ -361,7 +365,22 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     }
 
-    public static class DayMarkerItem {
+    private static class Item {
+    }
+
+    public static class MessageItem extends Item {
+
+        private MessageInfo mMessage;
+        private MessageId mMessageId;
+
+        public MessageItem(MessageInfo message, MessageId msgId) {
+            mMessage = message;
+            mMessageId = msgId;
+        }
+
+    }
+
+    public static class DayMarkerItem extends Item {
 
         private int mDate;
 
