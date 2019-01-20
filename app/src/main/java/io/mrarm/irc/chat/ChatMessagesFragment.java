@@ -21,6 +21,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,8 +45,10 @@ import io.mrarm.chatlib.dto.StatusMessageList;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.chatlib.message.MessageListener;
 import io.mrarm.chatlib.message.MessageStorageApi;
+import io.mrarm.irc.ChannelNotificationManager;
 import io.mrarm.irc.IRCChooserTargetService;
 import io.mrarm.irc.MainActivity;
+import io.mrarm.irc.NotificationManager;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
@@ -55,7 +58,8 @@ import io.mrarm.irc.config.SettingsHelper;
 
 
 public class ChatMessagesFragment extends Fragment implements StatusMessageListener,
-        MessageListener, ChannelInfoListener, SharedPreferences.OnSharedPreferenceChangeListener {
+        MessageListener, ChannelInfoListener, SharedPreferences.OnSharedPreferenceChangeListener,
+        NotificationManager.UnreadMessageCountCallback {
 
     private static final String TAG = "ChatMessagesFragment";
 
@@ -86,6 +90,9 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     private MessageListAfterIdentifier mLoadNewerIdentifier;
     private boolean mIsLoadingMore;
     private MessageFilterOptions mMessageFilterOptions;
+    private View mUnreadCtr;
+    private TextView mUnreadText;
+    private View mUnreadDiscard;
 
     static {
         sFilterJoinParts = new MessageFilterOptions();
@@ -106,10 +113,18 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         if (isVisibleToUser && getParentFragment() != null)
             ((ChatFragment) getParentFragment()).getSendMessageHelper()
                     .setCurrentChannel(mChannelName);
-        if (!isVisibleToUser)
+        if (!isVisibleToUser) {
             hideMessagesActionMenu();
+        }
         if (mConnection != null && mChannelName != null) {
             mConnection.getNotificationManager().getChannelManager(mChannelName, true).setOpened(getContext(), isVisibleToUser);
+
+            if (isVisibleToUser) {
+                updateUnreadCounter();
+                mConnection.getNotificationManager().addUnreadMessageCountCallback(this);
+            } else {
+                mConnection.getNotificationManager().removeUnreadMessageCountCallback(this);
+            }
         }
         if (mConnection != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (isVisibleToUser)
@@ -171,7 +186,11 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             connectionInfo.getApiInstance().subscribeChannelInfo(mChannelName, this, null, null);
             mNeedsUnsubscribeChannelInfo = true;
 
-            reloadMessages(settingsHelper);
+            String msgIdStr = ((ChatFragment) getParentFragment()).getAndClearMessageJump(mChannelName);
+            MessageId msgId = null;
+            if (msgIdStr != null)
+                msgId = mConnection.getApiInstance().getMessageStorageApi().getMessageIdParser().parse(msgIdStr);
+            reloadMessages(settingsHelper, msgId);
         } else if (getArguments().getBoolean(ARG_DISPLAY_STATUS)) {
             mStatusAdapter = new ServerStatusMessagesAdapter(mConnection, new StatusMessageList(new ArrayList<>()));
             mStatusAdapter.setMessageFont(settingsHelper.getChatFont(), settingsHelper.getChatFontSize());
@@ -217,6 +236,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         if (mNeedsUnsubscribeStatusMessages)
             mConnection.getApiInstance().unsubscribeStatusMessages(ChatMessagesFragment.this, null, null);
 
+        mConnection.getNotificationManager().removeUnreadMessageCountCallback(this);
+
         hideMessagesActionMenu();
     }
 
@@ -226,7 +247,10 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
 
         View rootView = inflater.inflate(R.layout.chat_messages_fragment, container, false);
         synchronized (this) {
-            mRecyclerView = (RecyclerView) rootView;
+            mRecyclerView = rootView.findViewById(R.id.messages);
+            mUnreadCtr = rootView.findViewById(R.id.unread_counter_ctr);
+            mUnreadText = rootView.findViewById(R.id.unread_counter);
+            mUnreadDiscard = rootView.findViewById(R.id.unread_counter_discard);
         }
         mLayoutManager = new ScrollPosLinearLayoutManager(getContext());
         mLayoutManager.setStackFromEnd(true);
@@ -271,6 +295,16 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             }
         });
 
+        mUnreadCtr.setOnClickListener((v) -> {
+            ChannelNotificationManager mgr = mConnection.getNotificationManager().getChannelManager(mChannelName, true);
+            reloadMessages(SettingsHelper.getInstance(getContext()), mgr.getFirstUnreadMessage());
+            mgr.clearUnreadMessages();
+        });
+        mUnreadDiscard.setOnClickListener((v) -> {
+            ChannelNotificationManager mgr = mConnection.getNotificationManager().getChannelManager(mChannelName, true);
+            mgr.clearUnreadMessages();
+        });
+
         if (mAdapter != null) {
             mRecyclerView.setAdapter(mAdapter);
 
@@ -301,6 +335,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             ((ChatFragment) getParentFragment()).getSendMessageHelper()
                     .setCurrentChannel(mChannelName);
 
+        updateUnreadCounter();
+
         return rootView;
     }
 
@@ -318,7 +354,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             IRCChooserTargetService.unsetChannel(mConnection.getUUID(), mChannelName);
     }
 
-    private void reloadMessages(SettingsHelper settingsHelper) {
+    private void reloadMessages(SettingsHelper settingsHelper, MessageId nearMessage) {
         if (settingsHelper.shouldHideJoinPartMessages())
             mMessageFilterOptions = sFilterJoinParts;
         else
@@ -339,18 +375,15 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                 mNeedsUnsubscribeMessages = true;
             }
         };
-        String messageId = ((ChatFragment) getParentFragment())
-                .getAndClearMessageJump(mChannelName);
         MessageStorageApi storage = mConnection.getApiInstance().getMessageStorageApi();
-        if (messageId != null) {
-            MessageId messageIdObj = storage.getMessageIdParser().parse(messageId);
-            storage.getMessagesNear(mChannelName, messageIdObj,
+        if (nearMessage != null) {
+            storage.getMessagesNear(mChannelName, nearMessage,
                     getFilterOptions(), (MessageList messages) -> {
                         cb.onResponse(messages);
                         List<MessageId> ids = messages.getMessageIds();
                         updateMessageList(() -> {
                             for (int i = ids.size() - 1; i >= 0; --i) {
-                                if (ids.get(i).equals(messageIdObj)) {
+                                if (ids.get(i).equals(nearMessage)) {
                                     // TODO: Is this behaviour reliable? It looks random to me, and doesn't seem to match what the docs define :/
                                     ((LinearLayoutManager) mRecyclerView.getLayoutManager()).scrollToPositionWithOffset(i, 0);
                                 }
@@ -364,11 +397,37 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         }
     }
 
+    private void updateUnreadCounter() {
+        if (mConnection == null || mRecyclerView == null)
+            return;
+        ChannelNotificationManager mgr = mConnection.getNotificationManager().getChannelManager(mChannelName, true);
+        int unread = mgr.getUnreadMessageCount();
+        if (mgr.getFirstUnreadMessage() == null && unread > 0) {
+            unread = 0;
+            mgr.clearUnreadMessages();
+        }
+        mUnreadCtr.setVisibility(View.GONE);
+        if (unread > 0) {
+            mUnreadCtr.setVisibility(View.VISIBLE);
+            mUnreadText.setText(getResources().getQuantityString(R.plurals.unread_message_counter, unread, unread));
+        }
+    }
+
+    @Override
+    public void onUnreadMessageCountChanged(ServerConnectionInfo info, String channel, int messageCount, int oldMessageCount) {
+        if (channel.equals(mChannelName)) {
+            updateMessageList(this::updateUnreadCounter);
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();
-        if (getUserVisibleHint())
+        if (getUserVisibleHint()) {
             mConnection.getNotificationManager().getChannelManager(mChannelName, true).setOpened(getContext(), true);
+            mConnection.getNotificationManager().addUnreadMessageCountCallback(this);
+            updateUnreadCounter();
+        }
         if (mConnection != null && getUserVisibleHint() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             IRCChooserTargetService.setChannel(mConnection.getUUID(), mChannelName);
     }
@@ -381,6 +440,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             mConnection.getNotificationManager().getChannelManager(mChannelName, true).setOpened(getContext(), false);
         if (mConnection != null && getUserVisibleHint() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             IRCChooserTargetService.setChannel(mConnection.getUUID(), mChannelName);
+        mConnection.getNotificationManager().removeUnreadMessageCountCallback(this);
+        mUnreadCtr.setVisibility(View.GONE);
     }
 
     @Override
@@ -396,7 +457,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         }
         if (settingsHelper.shouldHideJoinPartMessages() != (mMessageFilterOptions != null) &&
                 mChannelName != null) {
-            reloadMessages(settingsHelper);
+            reloadMessages(settingsHelper, null);
         }
     }
 

@@ -47,7 +47,7 @@ public class NotificationManager {
         if (info.getType() == MessageInfo.MessageType.NORMAL ||
                 info.getType() == MessageInfo.MessageType.ME ||
                 info.getType() == MessageInfo.MessageType.NOTICE)
-            channelManager.addUnreadMessage();
+            channelManager.addUnreadMessage(messageId);
 
         if (info.getMessage() == null || info.getSender() == null ||
                 info.getSender().getNick().equals(connection.getUserNick()))

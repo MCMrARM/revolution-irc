@@ -61,6 +61,11 @@
 
     <string name="message_share_title">Share the chat messages</string>
 
+    <plurals name="unread_message_counter">
+        <item quantity="one">1 unread message</item>
+        <item quantity="other">%d unread messages</item>
+    </plurals>
+
     <!-- Actions -->
 
     <string name="action_ok">OK</string>
