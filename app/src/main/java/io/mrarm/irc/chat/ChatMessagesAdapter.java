@@ -100,6 +100,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             ret++;
         }
         mMessages.add(m);
+        ret++;
         return ret;
     }
 
