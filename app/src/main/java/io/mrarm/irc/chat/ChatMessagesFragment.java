@@ -299,7 +299,12 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
 
         mUnreadCtr.setOnClickListener((v) -> {
             ChannelNotificationManager mgr = mConnection.getNotificationManager().getChannelManager(mChannelName, true);
-            reloadMessages(SettingsHelper.getInstance(getContext()), mgr.getFirstUnreadMessage());
+            MessageId msgId = mgr.getFirstUnreadMessage();
+            int index = mAdapter.findMessageWithId(msgId);
+            if (index != -1)
+                ((LinearLayoutManager) mRecyclerView.getLayoutManager()).scrollToPositionWithOffset(index, 0);
+            else
+                reloadMessages(SettingsHelper.getInstance(getContext()), msgId);
             mgr.clearUnreadMessages();
         });
         mUnreadDiscard.setOnClickListener((v) -> {

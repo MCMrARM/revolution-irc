@@ -138,6 +138,7 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
             NotificationManager.getInstance().callUnreadMessageCountCallbacks(mConnection,
                     mChannel, 0, prevCount);
             mStorage.requestResetChannelCounter(mConnection.getUUID(), getChannel());
+            mFirstUnreadMessage = null;
         }
     }
 

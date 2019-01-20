@@ -81,6 +81,20 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         return null;
     }
 
+    public int findMessageWithId(MessageId id) {
+        for (int i = mPrependedMessages.size() - 1; i >= 0; --i) {
+            Item it = mPrependedMessages.get(i);
+            if (it instanceof MessageItem && ((MessageItem) it).mMessageId.equals(id))
+                return mPrependedMessages.size() - 1 - i;
+        }
+        for (int i = mMessages.size() - 1; i >= 0; --i) {
+            Item it = mMessages.get(i);
+            if (it instanceof MessageItem && ((MessageItem) it).mMessageId.equals(id))
+                return mPrependedMessages.size() + i;
+        }
+        return -1;
+    }
+
     private void deleteMessageInternal(int index) {
         if (index < mPrependedMessages.size()) {
             mPrependedMessages.remove(mPrependedMessages.size() - 1 - index);
