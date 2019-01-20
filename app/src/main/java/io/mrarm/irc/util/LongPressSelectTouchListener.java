@@ -3,6 +3,8 @@ package io.mrarm.irc.util;
 import android.graphics.Rect;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import io.mrarm.irc.chat.ChatSelectTouchListener;
+
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -12,24 +14,25 @@ public class LongPressSelectTouchListener implements RecyclerView.OnItemTouchLis
     private RecyclerView mRecyclerView;
     private Listener mListener;
     private Rect mTempRect = new Rect();
-    private int mStartElementPos = -1;
-    private int mEndElementPos = -1;
+    private long mStartElementId = -1;
+    private long mEndElementId = -1;
     private RecyclerViewScrollerRunnable mScroller;
 
     public LongPressSelectTouchListener(RecyclerView recyclerView) {
         mRecyclerView = recyclerView;
         mScroller = new RecyclerViewScrollerRunnable(recyclerView, (int scrollDir) -> {
             LinearLayoutManager llm = (LinearLayoutManager) mRecyclerView.getLayoutManager();
-            updateHightlightedElements(mRecyclerView, scrollDir > 0
-                    ? llm.findLastCompletelyVisibleItemPosition()
-                    : llm.findFirstCompletelyVisibleItemPosition());
+            updateHightlightedElements(mRecyclerView, mRecyclerView.getAdapter().getItemId(
+                    scrollDir > 0
+                            ? llm.findLastCompletelyVisibleItemPosition()
+                            : llm.findFirstCompletelyVisibleItemPosition()));
         });
     }
 
-    public void startSelectMode(int startPos) {
+    public void startSelectMode(long startPos) {
         mSelectMode = true;
-        mStartElementPos = startPos;
-        mEndElementPos = -1;
+        mStartElementId = startPos;
+        mEndElementId = -1;
         mListener.onElementSelected(mRecyclerView, startPos);
     }
 
@@ -37,32 +40,32 @@ public class LongPressSelectTouchListener implements RecyclerView.OnItemTouchLis
         mListener = listener;
     }
 
-    public boolean isElementHightlighted(int pos) {
-        return pos == mStartElementPos ||
-                (pos >= mStartElementPos && pos <= mEndElementPos) ||
-                (pos <= mStartElementPos && pos >= mEndElementPos && mEndElementPos != -1);
+    public boolean isElementHightlighted(long id) {
+        return id == mStartElementId ||
+                (id >= mStartElementId && id <= mEndElementId) ||
+                (id <= mStartElementId && id >= mEndElementId && mEndElementId != -1);
     }
 
-    private void updateHightlightedElements(RecyclerView recyclerView, int endPos) {
-        if (mStartElementPos == -1) {
-            mStartElementPos = endPos;
-            mListener.onElementHighlighted(recyclerView, mStartElementPos, true);
+    private void updateHightlightedElements(RecyclerView recyclerView, long endId) {
+        if (mStartElementId == -1) {
+            mStartElementId = endId;
+            mListener.onElementHighlighted(recyclerView, mStartElementId, true);
             return;
         }
-        for (int i = Math.max(mEndElementPos, mStartElementPos) + 1; i <= endPos; i++)
+        for (long i = Math.max(mEndElementId, mStartElementId) + 1; i <= endId; i++)
             mListener.onElementHighlighted(recyclerView, i, true);
-        for (int i = Math.min(mEndElementPos == -1 ? mStartElementPos : mEndElementPos,
-                mStartElementPos) - 1; i >= endPos; i--)
+        for (long i = Math.min(mEndElementId == -1 ? mStartElementId : mEndElementId,
+                mStartElementId) - 1; i >= endId; i--)
             mListener.onElementHighlighted(recyclerView, i, true);
 
-        if (mEndElementPos != -1) {
-            for (int i = Math.max(endPos, mStartElementPos) + 1; i <= mEndElementPos; i++)
+        if (mEndElementId != -1) {
+            for (long i = Math.max(endId, mStartElementId) + 1; i <= mEndElementId; i++)
                 mListener.onElementHighlighted(recyclerView, i, false);
-            for (int i = Math.min(endPos, mStartElementPos) - 1; i >= mEndElementPos; i--)
+            for (long i = Math.min(endId, mStartElementId) - 1; i >= mEndElementId; i--)
                 mListener.onElementHighlighted(recyclerView, i, false);
         }
 
-        mEndElementPos = endPos;
+        mEndElementId = endId;
     }
 
     @Override
@@ -70,18 +73,18 @@ public class LongPressSelectTouchListener implements RecyclerView.OnItemTouchLis
         if (mSelectMode) {
             if (motionEvent.getAction() == MotionEvent.ACTION_UP ||
                     motionEvent.getAction() == MotionEvent.ACTION_CANCEL) {
-                if (mListener != null && mStartElementPos != -1) {
-                    int start = mStartElementPos;
-                    int end = mEndElementPos == -1 ? mStartElementPos : mEndElementPos;
+                if (mListener != null && mStartElementId != -1) {
+                    long start = mStartElementId;
+                    long end = mEndElementId == -1 ? mStartElementId : mEndElementId;
                     if (start > end) {
-                        start = mEndElementPos;
-                        end = mStartElementPos;
+                        start = mEndElementId;
+                        end = mStartElementId;
                     }
-                    for (int i = start; i <= end; i++)
+                    for (long i = start; i <= end; i++)
                         mListener.onElementSelected(recyclerView, i);
                 }
-                mStartElementPos = -1;
-                mEndElementPos = -1;
+                mStartElementId = -1;
+                mEndElementId = -1;
                 mSelectMode = false;
                 mScroller.setScrollDir(0);
                 return true;
@@ -102,16 +105,16 @@ public class LongPressSelectTouchListener implements RecyclerView.OnItemTouchLis
             x = Math.max(Math.min(x, mRecyclerView.getWidth()), 0);
             y = Math.max(Math.min(y, mRecyclerView.getHeight()), 0);
 
-            int pos = -1;
+            long id = Long.MIN_VALUE;
             int childCount = recyclerView.getChildCount();
             for (int i = 0; i < childCount; i++) {
                 View view = recyclerView.getChildAt(i);
                 view.getHitRect(mTempRect);
                 if (mTempRect.contains(x, y))
-                    pos = recyclerView.getChildAdapterPosition(view);
+                    id = recyclerView.getChildItemId(view);
             }
-            if (pos >= 0)
-                updateHightlightedElements(recyclerView, pos);
+            if (id != Long.MIN_VALUE)
+                updateHightlightedElements(recyclerView, id);
             return true;
         }
         return false;
@@ -128,9 +131,9 @@ public class LongPressSelectTouchListener implements RecyclerView.OnItemTouchLis
 
     public interface Listener {
 
-        void onElementSelected(RecyclerView recyclerView, int adapterPos);
+        void onElementSelected(RecyclerView recyclerView, long adapterPos);
 
-        void onElementHighlighted(RecyclerView recyclerView, int adapterPos, boolean highlight);
+        void onElementHighlighted(RecyclerView recyclerView, long adapterId, boolean highlight);
 
     }
 

@@ -246,7 +246,8 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
 
         ((ChatMessagesAdapter) mRecyclerView.getAdapter()).clearSelection(mRecyclerView);
         if (!mLastTouchInText && mMultiSelectListener != null) {
-            mMultiSelectListener.startSelectMode(getItemPosition(mLastTouchTextId));
+            mMultiSelectListener.startSelectMode(mRecyclerView.getAdapter().getItemId(
+                    getItemPosition(mLastTouchTextId)));
             return;
         }
 

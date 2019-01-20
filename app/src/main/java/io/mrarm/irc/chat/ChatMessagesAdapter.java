@@ -41,7 +41,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private List<Item> mPrependedMessages;
     private LongPressSelectTouchListener mMultiSelectListener;
     private ChatSelectTouchListener mSelectListener;
-    private Set<Integer> mSelectedItems = new TreeSet<>();
+    private Set<Long> mSelectedItems = new TreeSet<>();
     private Drawable mItemBackground;
     private Drawable mSelectedItemBackground;
     private Typeface mTypeface;
@@ -194,29 +194,28 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             selectListener.setListener(this);
     }
 
-    public Set<Integer> getSelectedItems() {
+    public Set<Long> getSelectedItems() {
         return mSelectedItems;
     }
 
     public CharSequence getSelectedMessages() {
-        Set<Integer> items = getSelectedItems();
+        Set<Long> items = getSelectedItems();
         SpannableStringBuilder builder = new SpannableStringBuilder();
         boolean first = true;
-        for (Integer msgIndex : items) {
+        for (Long msgIndex : items) {
             if (first)
                 first = false;
             else
                 builder.append('\n');
-            builder.append(getTextAt(msgIndex));
+            builder.append(getTextAt(getItemPosition(msgIndex)));
         }
         return builder;
     }
 
     public void clearSelection(RecyclerView recyclerView) {
         if (recyclerView != null) {
-            for (int item : mSelectedItems) {
-                RecyclerView.ViewHolder viewHolder = recyclerView
-                        .findViewHolderForAdapterPosition(item);
+            for (long item : mSelectedItems) {
+                RecyclerView.ViewHolder viewHolder = recyclerView.findViewHolderForItemId(item);
                 if (viewHolder == null)
                     continue;
                 ((BaseHolder) viewHolder).setSelected(false, false);
@@ -245,7 +244,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         int viewType = holder.getItemViewType();
         Object msg = getMessage(position);
         if (viewType == TYPE_MESSAGE) {
-            ((MessageHolder) holder).bind(((MessageItem) msg).mMessage, position);
+            ((MessageHolder) holder).bind(((MessageItem) msg).mMessage);
         } else if (viewType == TYPE_DAY_MARKER) {
             ((DayMarkerHolder) holder).bind((DayMarkerItem) msg);
         }
@@ -288,18 +287,18 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     }
 
     @Override
-    public void onElementSelected(RecyclerView recyclerView, int adapterPos) {
+    public void onElementSelected(RecyclerView recyclerView, long itemId) {
         if (mSelectedItems.size() == 0)
             mFragment.showMessagesActionMenu();
-        mSelectedItems.add(adapterPos);
-        onElementHighlighted(recyclerView, adapterPos, true);
+        mSelectedItems.add(itemId);
+        onElementHighlighted(recyclerView, itemId, true);
     }
 
     @Override
-    public void onElementHighlighted(RecyclerView recyclerView, int adapterPos, boolean highlight) {
-        BaseHolder holder = (BaseHolder) recyclerView.findViewHolderForAdapterPosition(adapterPos);
+    public void onElementHighlighted(RecyclerView recyclerView, long itemId, boolean highlight) {
+        BaseHolder holder = (BaseHolder) recyclerView.findViewHolderForItemId(itemId);
         if (holder != null)
-            holder.setSelected(highlight || mSelectedItems.contains(adapterPos), false);
+            holder.setSelected(highlight || mSelectedItems.contains(itemId), false);
     }
 
     private abstract class BaseHolder extends RecyclerView.ViewHolder {
@@ -320,9 +319,9 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             mSelected = selected;
             if (updateAdapter) {
                 if (selected)
-                    mSelectedItems.add(getAdapterPosition());
+                    mSelectedItems.add(getItemId());
                 else
-                    mSelectedItems.remove(getAdapterPosition());
+                    mSelectedItems.remove(getItemId());
             }
             itemView.setBackground(selected
                     ? mSelectedItemBackground.getConstantState().newDrawable()
@@ -347,7 +346,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 if (mSelectListener != null && mSelectedItems.size() == 0) {
                     mSelectListener.startLongPressSelect();
                 } else {
-                    mMultiSelectListener.startSelectMode(getAdapterPosition());
+                    mMultiSelectListener.startSelectMode(getItemId());
                 }
                 return true;
             });
@@ -358,15 +357,15 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             mText.setMovementMethod(LinkMovementMethod.getInstance());
         }
 
-        public void bind(MessageInfo message, int position) {
+        public void bind(MessageInfo message) {
             if (mTypeface != null)
                 mText.setTypeface(mTypeface);
             if (mFontSize != -1)
                 mText.setTextSize(TypedValue.COMPLEX_UNIT_SP, mFontSize);
 
             if (mMultiSelectListener != null)
-                setSelected(mSelectedItems.contains(position) ||
-                        mMultiSelectListener.isElementHightlighted(position), false);
+                setSelected(mSelectedItems.contains(getItemId()) ||
+                        mMultiSelectListener.isElementHightlighted(getItemId()), false);
 
             if (NotificationManager.getInstance().shouldMessageUseMentionFormatting(mFragment.getConnectionInfo(), mFragment.getChannelName(), message))
                 mText.setText(AlignToPointSpan.apply(mText, MessageBuilder.getInstance(mText.getContext()).buildMessageWithMention(message)));
@@ -374,7 +373,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 mText.setText(AlignToPointSpan.apply(mText, MessageBuilder.getInstance(mText.getContext()).buildMessage(message)));
 
             if (mSelectListener != null)
-                mSelectListener.applySelectionTo(itemView, position);
+                mSelectListener.applySelectionTo(itemView, getAdapterPosition());
         }
 
     }
