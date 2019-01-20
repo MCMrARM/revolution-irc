@@ -124,7 +124,7 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
             mDrawerLayout.closeDrawers();
             Fragment f = getCurrentFragment();
             if (f != null && f instanceof ChatFragment && ((ChatFragment) f).getConnectionInfo() == server)
-                ((ChatFragment) f).setCurrentChannel(channel);
+                ((ChatFragment) f).setCurrentChannel(channel, null);
             else
                 openServer(server, channel);
         });
@@ -155,7 +155,8 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
             server = ServerConnectionManager.getInstance(this).getConnection(
                     UUID.fromString(serverUUID));
         if (server != null) {
-            ChatFragment fragment = openServer(server, intent.getStringExtra(ARG_CHANNEL_NAME));
+            ChatFragment fragment = openServer(server, intent.getStringExtra(ARG_CHANNEL_NAME),
+                    intent.getStringExtra(ARG_MESSAGE_ID), false);
             if (Intent.ACTION_SEND.equals(intent.getAction()) &&
                     "text/plain".equals(intent.getType())) {
                 setFragmentShareText(fragment, intent.getStringExtra(Intent.EXTRA_TEXT));
@@ -285,17 +286,18 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
         // mDrawerLayout.addDrawerListener(toggle);
     }
 
-    public ChatFragment openServer(ServerConnectionInfo server, String channel, boolean fromServerList) {
+    public ChatFragment openServer(ServerConnectionInfo server, String channel, String messageId,
+                                   boolean fromServerList) {
         dismissFragmentDialog();
         setChannelInfoDrawerVisible(false);
         ChatFragment fragment;
         if (getCurrentFragment() instanceof ChatFragment &&
                 ((ChatFragment) getCurrentFragment()).getConnectionInfo() == server) {
             fragment = (ChatFragment) getCurrentFragment();
-            fragment.setCurrentChannel(channel);
+            fragment.setCurrentChannel(channel, messageId);
             setChannelInfoDrawerVisible(false);
         } else {
-            fragment = ChatFragment.newInstance(server, channel);
+            fragment = ChatFragment.newInstance(server, channel, messageId);
             getSupportFragmentManager().beginTransaction()
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                     .replace(R.id.content_frame, fragment)
@@ -308,7 +310,7 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
     }
 
     public ChatFragment openServer(ServerConnectionInfo server, String channel) {
-        return openServer(server, channel, false);
+        return openServer(server, channel, null, false);
     }
 
     public void openManageServers() {

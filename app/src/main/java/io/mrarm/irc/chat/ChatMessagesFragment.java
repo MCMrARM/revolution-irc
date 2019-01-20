@@ -11,6 +11,7 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.view.ActionMode;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.UUID;
 
 import io.mrarm.chatlib.ChannelInfoListener;
+import io.mrarm.chatlib.ResponseCallback;
 import io.mrarm.chatlib.StatusMessageListener;
 import io.mrarm.chatlib.dto.ChannelInfo;
 import io.mrarm.chatlib.dto.MessageFilterOptions;
@@ -41,6 +43,7 @@ import io.mrarm.chatlib.dto.StatusMessageInfo;
 import io.mrarm.chatlib.dto.StatusMessageList;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.chatlib.message.MessageListener;
+import io.mrarm.chatlib.message.MessageStorageApi;
 import io.mrarm.irc.IRCChooserTargetService;
 import io.mrarm.irc.MainActivity;
 import io.mrarm.irc.R;
@@ -302,23 +305,44 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             mMessageFilterOptions = sFilterJoinParts;
         else
             mMessageFilterOptions = null;
-        mConnection.getApiInstance().getMessageStorageApi().getMessages(mChannelName, 100,
-                getFilterOptions(), null, (MessageList messages) -> {
-                    Log.i(TAG, "Got message list for " + mChannelName + ": " +
-                            messages.getMessages().size() + " messages");
-                    List<MessageInfo> messageList = messages.getMessages();
-                    updateMessageList(() -> {
-                        mAdapter.setMessages(messageList);
-                        if (mRecyclerView != null)
-                            mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
-                        mLoadOlderIdentifier = messages.getOlder();
-                    });
+        ResponseCallback<MessageList> cb = (MessageList messages) -> {
+            Log.i(TAG, "Got message list for " + mChannelName + ": " +
+                    messages.getMessages().size() + " messages");
+            List<MessageInfo> messageList = messages.getMessages();
+            updateMessageList(() -> {
+                mAdapter.setMessages(messageList);
+                if (mRecyclerView != null)
+                    mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
+                mLoadOlderIdentifier = messages.getOlder();
+            });
 
-                    if (!mNeedsUnsubscribeMessages) {
-                        mConnection.getApiInstance().getMessageStorageApi().subscribeChannelMessages(mChannelName, ChatMessagesFragment.this, null, null);
-                        mNeedsUnsubscribeMessages = true;
-                    }
-                }, null);
+            if (!mNeedsUnsubscribeMessages) {
+                mConnection.getApiInstance().getMessageStorageApi().subscribeChannelMessages(mChannelName, ChatMessagesFragment.this, null, null);
+                mNeedsUnsubscribeMessages = true;
+            }
+        };
+        String messageId = ((ChatFragment) getParentFragment())
+                .getAndClearMessageJump(mChannelName);
+        MessageStorageApi storage = mConnection.getApiInstance().getMessageStorageApi();
+        if (messageId != null) {
+            MessageId messageIdObj = storage.getMessageIdParser().parse(messageId);
+            storage.getMessagesNear(mChannelName, messageIdObj,
+                    getFilterOptions(), (MessageList messages) -> {
+                        cb.onResponse(messages);
+                        List<MessageId> ids = messages.getMessageIds();
+                        updateMessageList(() -> {
+                            for (int i = ids.size() - 1; i >= 0; --i) {
+                                if (ids.get(i).equals(messageIdObj)) {
+                                    // TODO: Is this behaviour reliable? It looks random to me, and doesn't seem to match what the docs define :/
+                                    ((LinearLayoutManager) mRecyclerView.getLayoutManager()).scrollToPositionWithOffset(i, 0);
+                                }
+                            }
+                        });
+                    }, null);
+        } else {
+            mConnection.getApiInstance().getMessageStorageApi().getMessages(mChannelName, 100,
+                    getFilterOptions(), null, cb, null);
+        }
     }
 
     @Override

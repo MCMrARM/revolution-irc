@@ -37,6 +37,7 @@ public class ChatFragment extends Fragment implements
 
     public static final String ARG_SERVER_UUID = "server_uuid";
     public static final String ARG_CHANNEL_NAME = "channel";
+    public static final String ARG_MESSAGE_ID = "message_id";
     public static final String ARG_SEND_MESSAGE_TEXT = "message_text";
 
     private ServerConnectionInfo mConnectionInfo;
@@ -47,13 +48,16 @@ public class ChatFragment extends Fragment implements
     private ViewPager mViewPager;
     private ChatFragmentSendMessageHelper mSendHelper;
     private int mNormalToolbarInset;
+    private OneTimeMessageJump mMessageJump;
 
-    public static ChatFragment newInstance(ServerConnectionInfo server, String channel) {
+    public static ChatFragment newInstance(ServerConnectionInfo server, String channel, String messageId) {
         ChatFragment fragment = new ChatFragment();
         Bundle args = new Bundle();
         args.putString(ARG_SERVER_UUID, server.getUUID().toString());
         if (channel != null)
             args.putString(ARG_CHANNEL_NAME, channel);
+        if (messageId != null)
+            args.putString(ARG_MESSAGE_ID, messageId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -65,6 +69,7 @@ public class ChatFragment extends Fragment implements
         UUID connectionUUID = UUID.fromString(getArguments().getString(ARG_SERVER_UUID));
         mConnectionInfo = ServerConnectionManager.getInstance(getContext()).getConnection(connectionUUID);
         String requestedChannel = getArguments().getString(ARG_CHANNEL_NAME);
+        String requestedMessageId = getArguments().getString(ARG_MESSAGE_ID);
 
         if (mConnectionInfo == null) {
             ((MainActivity) getActivity()).openManageServers();
@@ -87,7 +92,7 @@ public class ChatFragment extends Fragment implements
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         if (requestedChannel != null)
-            setCurrentChannel(requestedChannel);
+            setCurrentChannel(requestedChannel, requestedMessageId);
 
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -266,8 +271,19 @@ public class ChatFragment extends Fragment implements
         return mConnectionInfo;
     }
 
-    public void setCurrentChannel(String channel) {
+    public void setCurrentChannel(String channel, String messageId) {
+        if (messageId != null)
+            mMessageJump = new OneTimeMessageJump(channel, messageId);
         mViewPager.setCurrentItem(mSectionsPagerAdapter.findChannel(channel));
+    }
+
+    public String getAndClearMessageJump(String channel) {
+        if (channel != null && mMessageJump != null && channel.equals(mMessageJump.mChannel)) {
+            OneTimeMessageJump ret = mMessageJump;
+            mMessageJump = null;
+            return ret.mMessageId;
+        }
+        return null;
     }
 
     public void setCurrentChannelInfo(String topic, String topicSetBy, Date topicSetOn,
@@ -311,6 +327,19 @@ public class ChatFragment extends Fragment implements
                     updateTabLayoutTab(tab);
             });
         }
+    }
+
+
+    private static class OneTimeMessageJump {
+
+        private String mChannel;
+        private String mMessageId;
+
+        private OneTimeMessageJump(String channel, String messageId) {
+            this.mChannel = channel;
+            this.mMessageId = messageId;
+        }
+
     }
 
 }

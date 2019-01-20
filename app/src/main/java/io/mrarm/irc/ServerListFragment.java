@@ -47,7 +47,7 @@ public class ServerListFragment extends Fragment {
         mAdapter = new ServerListAdapter(getActivity());
         recyclerView.setAdapter(mAdapter);
         mAdapter.setActiveServerClickListener((ServerConnectionInfo info) -> {
-            ((MainActivity) getActivity()).openServer(info, null, true);
+            ((MainActivity) getActivity()).openServer(info, null, null, true);
         });
         mAdapter.setActiveServerLongClickListener((ServerConnectionInfo info) -> {
             MenuBottomSheetDialog menu = new MenuBottomSheetDialog(getContext());
