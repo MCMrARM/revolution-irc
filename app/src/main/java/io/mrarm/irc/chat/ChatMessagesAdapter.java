@@ -157,8 +157,8 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             return;
         int appendAt = getItemCount();
         int cnt = 0;
-        for (int i = messages.size() - 1; i >= 0; --i)
-            cnt += appendMessageInternal(messages.get(i));
+        for (MessageInfo msg : messages)
+            cnt += appendMessageInternal(msg);
         notifyItemRangeInserted(appendAt, cnt);
     }
 
