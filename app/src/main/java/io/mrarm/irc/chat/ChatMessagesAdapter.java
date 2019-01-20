@@ -383,7 +383,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
             if (mMultiSelectListener != null)
                 setSelected(mSelectedItems.contains(getItemId()) ||
-                        mMultiSelectListener.isElementHightlighted(getItemId()), false);
+                        mMultiSelectListener.isElementHighlighted(getItemId()), false);
 
             if (NotificationManager.getInstance().shouldMessageUseMentionFormatting(mFragment.getConnectionInfo(), mFragment.getChannelName(), message))
                 mText.setText(AlignToPointSpan.apply(mText, MessageBuilder.getInstance(mText.getContext()).buildMessageWithMention(message)));

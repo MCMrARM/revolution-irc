@@ -3,7 +3,6 @@ package io.mrarm.irc.util;
 import android.graphics.Rect;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import io.mrarm.irc.chat.ChatSelectTouchListener;
 
 import android.view.MotionEvent;
 import android.view.View;
@@ -22,7 +21,7 @@ public class LongPressSelectTouchListener implements RecyclerView.OnItemTouchLis
         mRecyclerView = recyclerView;
         mScroller = new RecyclerViewScrollerRunnable(recyclerView, (int scrollDir) -> {
             LinearLayoutManager llm = (LinearLayoutManager) mRecyclerView.getLayoutManager();
-            updateHightlightedElements(mRecyclerView, mRecyclerView.getAdapter().getItemId(
+            updateHighlightedElements(mRecyclerView, mRecyclerView.getAdapter().getItemId(
                     scrollDir > 0
                             ? llm.findLastCompletelyVisibleItemPosition()
                             : llm.findFirstCompletelyVisibleItemPosition()));
@@ -40,13 +39,13 @@ public class LongPressSelectTouchListener implements RecyclerView.OnItemTouchLis
         mListener = listener;
     }
 
-    public boolean isElementHightlighted(long id) {
+    public boolean isElementHighlighted(long id) {
         return id == mStartElementId ||
                 (id >= mStartElementId && id <= mEndElementId) ||
                 (id <= mStartElementId && id >= mEndElementId && mEndElementId != -1);
     }
 
-    private void updateHightlightedElements(RecyclerView recyclerView, long endId) {
+    private void updateHighlightedElements(RecyclerView recyclerView, long endId) {
         if (mStartElementId == -1) {
             mStartElementId = endId;
             mListener.onElementHighlighted(recyclerView, mStartElementId, true);
@@ -114,7 +113,7 @@ public class LongPressSelectTouchListener implements RecyclerView.OnItemTouchLis
                     id = recyclerView.getChildItemId(view);
             }
             if (id != Long.MIN_VALUE)
-                updateHightlightedElements(recyclerView, id);
+                updateHighlightedElements(recyclerView, id);
             return true;
         }
         return false;
