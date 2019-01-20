@@ -152,6 +152,16 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         notifyItemRangeInserted(0, cnt);
     }
 
+    public void addMessagesToBottom(List<MessageInfo> messages) {
+        if (messages.size() == 0)
+            return;
+        int appendAt = getItemCount();
+        int cnt = 0;
+        for (int i = messages.size() - 1; i >= 0; --i)
+            cnt += appendMessageInternal(messages.get(i));
+        notifyItemRangeInserted(appendAt, cnt);
+    }
+
     public boolean hasMessages() {
         return mMessages != null && (mMessages.size() > 0 || mPrependedMessages.size() > 0);
     }

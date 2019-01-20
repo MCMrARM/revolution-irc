@@ -83,6 +83,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     private boolean mNeedsUnsubscribeMessages = false;
     private boolean mNeedsUnsubscribeStatusMessages = false;
     private MessageListAfterIdentifier mLoadOlderIdentifier;
+    private MessageListAfterIdentifier mLoadNewerIdentifier;
     private boolean mIsLoadingMore;
     private MessageFilterOptions mMessageFilterOptions;
 
@@ -238,7 +239,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                 if (firstVisible >= 0 && firstVisible < LOAD_MORE_BEFORE_INDEX) {
                     if (mIsLoadingMore || mLoadOlderIdentifier == null || !mAdapter.hasMessages())
                         return;
-                    Log.i(TAG, "Load more: " + mChannelName);
+                    Log.i(TAG, "Load more (older): " + mChannelName);
                     mIsLoadingMore = true;
                     mConnection.getApiInstance().getMessageStorageApi().getMessages(mChannelName,
                             100, getFilterOptions(), mLoadOlderIdentifier,
@@ -246,6 +247,23 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                                 updateMessageList(() -> {
                                     mAdapter.addMessagesToTop(messages.getMessages());
                                     mLoadOlderIdentifier = messages.getOlder();
+                                    mIsLoadingMore = false;
+                                });
+                            }, null);
+                }
+                int lastVisible = mLayoutManager.findLastVisibleItemPosition();
+                if (lastVisible <= mAdapter.getItemCount() &&
+                        lastVisible > mAdapter.getItemCount() - LOAD_MORE_BEFORE_INDEX) {
+                    if (mIsLoadingMore || mLoadNewerIdentifier == null || !mAdapter.hasMessages())
+                        return;
+                    Log.i(TAG, "Load more (newer): " + mChannelName);
+                    mIsLoadingMore = true;
+                    mConnection.getApiInstance().getMessageStorageApi().getMessages(mChannelName,
+                            100, getFilterOptions(), mLoadNewerIdentifier,
+                            (MessageList messages) -> {
+                                updateMessageList(() -> {
+                                    mAdapter.addMessagesToBottom(messages.getMessages());
+                                    mLoadNewerIdentifier = messages.getNewer();
                                     mIsLoadingMore = false;
                                 });
                             }, null);
@@ -337,6 +355,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                                     ((LinearLayoutManager) mRecyclerView.getLayoutManager()).scrollToPositionWithOffset(i, 0);
                                 }
                             }
+                            mLoadNewerIdentifier = messages.getNewer();
                         });
                     }, null);
         } else {
@@ -423,6 +442,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     @Override
     public void onMessage(String channel, MessageInfo messageInfo, MessageId messageId) {
         updateMessageList(() -> {
+            if (mLoadNewerIdentifier != null)
+                return;
             MessageFilterOptions opt = getFilterOptions();
             if (opt != null) {
                 if (opt.restrictToMessageTypes != null &&
