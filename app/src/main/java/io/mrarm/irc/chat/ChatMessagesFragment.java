@@ -703,7 +703,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         @Override
         public void onDestroyActionMode(ActionMode mode) {
             ((ChatFragment) getParentFragment()).setTabsHidden(false);
-            mAdapter.clearSelection(mRecyclerView);
+            mAdapter.clearSelection();
             mActionMode = null;
         }
 

@@ -4,6 +4,8 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.SpannableStringBuilder;
 import android.text.format.DateUtils;
@@ -17,6 +19,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -42,6 +45,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private LongPressSelectTouchListener mMultiSelectListener;
     private ChatSelectTouchListener mSelectListener;
     private Set<Long> mSelectedItems = new TreeSet<>();
+    private Set<BaseHolder> mSelectedVH = new HashSet<>();
     private Drawable mItemBackground;
     private Drawable mSelectedItemBackground;
     private Typeface mTypeface;
@@ -212,15 +216,9 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         return builder;
     }
 
-    public void clearSelection(RecyclerView recyclerView) {
-        if (recyclerView != null) {
-            for (long item : mSelectedItems) {
-                RecyclerView.ViewHolder viewHolder = recyclerView.findViewHolderForItemId(item);
-                if (viewHolder == null)
-                    continue;
-                ((BaseHolder) viewHolder).setSelected(false, false);
-            }
-        }
+    public void clearSelection() {
+        for (BaseHolder viewHolder : mSelectedVH)
+            viewHolder.setSelected(false, false, false);
         mSelectedItems.clear();
     }
 
@@ -248,6 +246,11 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         } else if (viewType == TYPE_DAY_MARKER) {
             ((DayMarkerHolder) holder).bind((DayMarkerItem) msg);
         }
+    }
+
+    @Override
+    public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
+        ((BaseHolder) holder).unbind();
     }
 
     @Override
@@ -313,7 +316,13 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             return mSelected;
         }
 
-        public void setSelected(boolean selected, boolean updateAdapter) {
+        public void setSelected(boolean selected, boolean updateAdapter, boolean updateVHList) {
+            if (updateVHList) {
+                if (selected)
+                    mSelectedVH.add(this);
+                else
+                    mSelectedVH.remove(this);
+            }
             if (mSelected == selected)
                 return;
             mSelected = selected;
@@ -329,6 +338,15 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             if (mSelectedItems.size() == 0)
                 mFragment.hideMessagesActionMenu();
         }
+
+        public void setSelected(boolean selected, boolean updateAdapter) {
+            setSelected(selected, updateAdapter, true);
+        }
+
+        public void unbind() {
+            mSelectedVH.remove(this);
+        }
+
     }
 
     public class MessageHolder extends BaseHolder {
