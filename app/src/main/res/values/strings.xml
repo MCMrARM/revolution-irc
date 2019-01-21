@@ -315,10 +315,10 @@
     <string name="pref_title_message_format">Message format</string>
     <string name="pref_title_nick_autocomplete">Nick/channel autocomplete</string>
     <string name="pref_title_chat_box_always_multiline">Multiline send text box</string>
-    <string name="pref_summary_chat_box_always_multiline">Enables word-wrap in the text box and replaces the send button with an enter in the IME.</string>
+    <string name="pref_summary_chat_box_always_multiline">Enable word-wrap in the text box and replace the send button with an enter in the IME</string>
     <string name="pref_title_chat_box_history_swipe_mode">History swipe-based navigation mode</string>
     <string name="pref_title_chat_multi_scroll_mode">Use a batch message selection mode</string>
-    <string name="pref_summary_chat_multi_scroll_mode">Always enables the old batch message selection mode</string>
+    <string name="pref_summary_chat_multi_scroll_mode">Always enable the old batch message selection mode</string>
 
     <string name="pref_header_misc">Miscellaneous</string>
     <string name="pref_title_drawer_always_show_server">Show Server in drawer</string>
@@ -486,7 +486,7 @@
 
     <string name="pref_header_reconnect">Reconnection</string>
     <string name="pref_title_start_on_boot">Start on boot</string>
-    <string name="pref_description_start_on_boot">Automatically starts the application after a system restart</string>
+    <string name="pref_description_start_on_boot">Automatically start the application after a system restart</string>
     <string name="pref_title_auto_reconnect">Automatically reconnect</string>
     <string name="pref_description_auto_reconnect">Automatically attempt reconnection after a connection loss</string>
     <string name="pref_title_reconnect_connchg">Track connectivity changes</string>
