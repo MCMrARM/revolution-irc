@@ -14,6 +14,7 @@ import io.mrarm.chatlib.ChatApi;
 import io.mrarm.chatlib.android.storage.SQLiteMessageStorageApi;
 import io.mrarm.chatlib.android.storage.SQLiteMiscStorage;
 import io.mrarm.chatlib.android.storage.SQLiteChannelDataStorage;
+import io.mrarm.chatlib.dto.MessageId;
 import io.mrarm.chatlib.irc.IRCConnection;
 import io.mrarm.chatlib.irc.IRCConnectionRequest;
 import io.mrarm.chatlib.irc.ServerConnectionApi;
@@ -302,6 +303,12 @@ public class ServerConnectionInfo {
 
     public synchronized SQLiteMiscStorage getSQLiteMiscStorage() {
         return mSQLiteMiscStorage;
+    }
+
+    public MessageId.Parser getMessageIdParser() {
+        // NOTE: We hardcode it to to SQLite here, as this is the only storage type we current use.
+        // This might need to be changed if we switch storage type in the future.
+        return SQLiteMessageStorageApi.getMessageIdParserInstance();
     }
 
     public boolean isConnected() {

@@ -22,6 +22,8 @@ public class NotificationCountStorage {
 
     private static final int FLUSH_DELAY = 10 * 1000;
 
+    private static final int DB_VERSION = 2;
+
     public static NotificationCountStorage getInstance(Context ctx) {
         if (sInstance == null)
             sInstance = new NotificationCountStorage(getFile(ctx).getAbsolutePath());
@@ -38,6 +40,9 @@ public class NotificationCountStorage {
     private SQLiteStatement mGetNotificationCountStatement;
     private SQLiteStatement mIncrementNotificationCountStatement;
     private SQLiteStatement mCreateNotificationCountStatement;
+    private SQLiteStatement mGetFirstMessageIdStatement;
+    private SQLiteStatement mSetFirstMessageIdStatement;
+    private SQLiteStatement mResetFirstMessageIdStatement;
     private Handler mHandler;
     private HandlerThread mHandlerThread;
     private Map<UUID, Map<String, Integer>> mChangeQueue;
@@ -56,10 +61,16 @@ public class NotificationCountStorage {
             if (mDatabase != null)
                 return;
             mDatabase = SQLiteDatabase.openOrCreateDatabase(mPath, null);
-            mDatabase.execSQL("CREATE TABLE IF NOT EXISTS 'notification_count' (server TEXT, channel TEXT, count INTEGER)");
+            if (mDatabase.getVersion() < DB_VERSION) {
+                mDatabase.execSQL("DROP TABLE 'notification_count'");
+            }
+            mDatabase.execSQL("CREATE TABLE IF NOT EXISTS 'notification_count' (server TEXT, channel TEXT, count INTEGER, firstMessageId TEXT)");
             mGetNotificationCountStatement = mDatabase.compileStatement("SELECT count FROM 'notification_count' WHERE server=?1 AND channel=?2");
             mIncrementNotificationCountStatement = mDatabase.compileStatement("UPDATE 'notification_count' SET count=count+?3 WHERE server=?1 AND channel=?2");
-            mCreateNotificationCountStatement = mDatabase.compileStatement("INSERT INTO 'notification_count' (server, channel, count) VALUES (?1, ?2, ?3)");
+            mCreateNotificationCountStatement = mDatabase.compileStatement("INSERT INTO 'notification_count' (server, channel, count, firstMessageId) VALUES (?1, ?2, ?3, ?4)");
+            mGetFirstMessageIdStatement = mDatabase.compileStatement("SELECT firstMessageId FROM 'notification_count' WHERE server=?1 AND channel=?2");
+            mSetFirstMessageIdStatement = mDatabase.compileStatement("UPDATE 'notification_count' SET firstMessageId=?3 WHERE server=?1 AND channel=?2 AND firstMessageId IS NULL");
+            mResetFirstMessageIdStatement = mDatabase.compileStatement("UPDATE 'notification_count' SET firstMessageId=NULL WHERE server=?1 AND channel=?2");
         }
     }
 
@@ -72,7 +83,10 @@ public class NotificationCountStorage {
                 mDatabase = null;
                 mGetNotificationCountStatement = null;
                 mIncrementNotificationCountStatement = null;
-                mIncrementNotificationCountStatement = null;
+                mCreateNotificationCountStatement = null;
+                mGetFirstMessageIdStatement = null;
+                mSetFirstMessageIdStatement = null;
+                mResetFirstMessageIdStatement = null;
             }
             s.set(null);
         });
@@ -129,6 +143,7 @@ public class NotificationCountStorage {
                 mCreateNotificationCountStatement.bindString(1, server.toString());
                 mCreateNotificationCountStatement.bindString(2, channel);
                 mCreateNotificationCountStatement.bindLong(3, i);
+                mCreateNotificationCountStatement.bindNull(4);
                 mCreateNotificationCountStatement.execute();
                 mCreateNotificationCountStatement.clearBindings();
             }
@@ -148,6 +163,51 @@ public class NotificationCountStorage {
             waitForDatabase();
             mDatabase.execSQL("DELETE FROM 'notification_count' WHERE server=?1",
                     new Object[]{server.toString()});
+        }
+    }
+
+    private String getFirstMessageId(UUID server, String channel) {
+        synchronized (mDatabaseLock) {
+            waitForDatabase();
+            mGetFirstMessageIdStatement.bindString(1, server.toString());
+            mGetFirstMessageIdStatement.bindString(2, channel);
+            String ret;
+            try {
+                ret = mGetFirstMessageIdStatement.simpleQueryForString();
+            } catch (SQLiteDoneException ignored) {
+                ret = null;
+            }
+            mGetFirstMessageIdStatement.clearBindings();
+            return ret;
+        }
+    }
+
+    private void setFirstMessageId(UUID server, String channel, String messageId) {
+        synchronized (mDatabaseLock) {
+            waitForDatabase();
+            mSetFirstMessageIdStatement.bindString(1, server.toString());
+            mSetFirstMessageIdStatement.bindString(2, channel);
+            mSetFirstMessageIdStatement.bindString(3, messageId);
+            int ii = mSetFirstMessageIdStatement.executeUpdateDelete();
+            mSetFirstMessageIdStatement.clearBindings();
+            if (ii == 0) {
+                mCreateNotificationCountStatement.bindString(1, server.toString());
+                mCreateNotificationCountStatement.bindString(2, channel);
+                mCreateNotificationCountStatement.bindLong(3, 0);
+                mCreateNotificationCountStatement.bindString(4, messageId);
+                mCreateNotificationCountStatement.execute();
+                mCreateNotificationCountStatement.clearBindings();
+            }
+        }
+    }
+
+    private void resetFirstMessageId(UUID server, String channel) {
+        synchronized (mDatabaseLock) {
+            waitForDatabase();
+            mResetFirstMessageIdStatement.bindString(1, server.toString());
+            mResetFirstMessageIdStatement.bindString(2, channel);
+            mResetFirstMessageIdStatement.executeUpdateDelete();
+            mResetFirstMessageIdStatement.clearBindings();
         }
     }
 
@@ -172,9 +232,10 @@ public class NotificationCountStorage {
             flushQueuedChanges();
 
             int res = getChannelCounter(server, channel);
+            String msgId = getFirstMessageId(server, channel);
             OnChannelCounterResult cb = result.get();
             if (cb != null)
-                cb.onChannelCounterResult(server, channel, res);
+                cb.onChannelCounterResult(server, channel, res, msgId);
         });
     }
 
@@ -217,8 +278,16 @@ public class NotificationCountStorage {
         });
     }
 
+    public void requestSetFirstMessageId(UUID server, String channel, String messageId) {
+        mHandler.post(() -> setFirstMessageId(server, channel, messageId));
+    }
+
+    public void requestResetFirstMessageId(UUID server, String channel) {
+        mHandler.post(() -> resetFirstMessageId(server, channel));
+    }
+
     public interface OnChannelCounterResult {
-        void onChannelCounterResult(UUID server, String channel, int result);
+        void onChannelCounterResult(UUID server, String channel, int messages, String firstMessageId);
     }
 
     private final Runnable mFlushQueuedChangesRunnable = this::flushQueuedChanges;

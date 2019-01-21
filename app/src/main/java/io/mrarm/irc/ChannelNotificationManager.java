@@ -99,7 +99,8 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
             }
             if (mFirstUnreadMessage == null) {
                 mFirstUnreadMessage = msgId;
-                // TODO: Store the first unread message in the storage
+                mStorage.requestSetFirstMessageId(mConnection.getUUID(), getChannel(),
+                        mFirstUnreadMessage.toString());
             }
         }
     }
@@ -139,6 +140,7 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
                     mChannel, 0, prevCount);
             mStorage.requestResetChannelCounter(mConnection.getUUID(), getChannel());
             mFirstUnreadMessage = null;
+            mStorage.requestResetFirstMessageId(mConnection.getUUID(), getChannel());
         }
     }
 
@@ -299,11 +301,11 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
     }
 
     @Override
-    public void onChannelCounterResult(UUID server, String channel, int result) {
+    public void onChannelCounterResult(UUID server, String channel, int result, String msgId) {
         synchronized (this) {
-            if (mOpened)
-                return;
             mUnreadMessageCount += result;
+            if (msgId != null)
+                mFirstUnreadMessage = mConnection.getMessageIdParser().parse(msgId);
             if (mChannel != null) {
                 NotificationManager.getInstance().callUnreadMessageCountCallbacks(mConnection,
                         mChannel, mUnreadMessageCount, mUnreadMessageCount - result);
