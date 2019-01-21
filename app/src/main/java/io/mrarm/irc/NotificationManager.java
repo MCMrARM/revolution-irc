@@ -154,8 +154,10 @@ public class NotificationManager {
                 .setSmallIcon(R.drawable.ic_notification_message)
                 .setGroup(NOTIFICATION_GROUP_CHAT)
                 .setGroupSummary(true)
-                .setOnlyAlertOnce(true)
                 .setColor(context.getResources().getColor(R.color.colorNotificationMention));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            notification.setOnlyAlertOnce(true);
+        }
         if (isLong) {
             PendingIntent intent = PendingIntent.getActivity(context, CHAT_SUMMARY_NOTIFICATION_ID,
                     MainActivity.getLaunchIntent(context, null, null), PendingIntent.FLAG_CANCEL_CURRENT);
