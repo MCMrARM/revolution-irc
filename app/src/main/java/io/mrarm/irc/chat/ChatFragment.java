@@ -274,7 +274,15 @@ public class ChatFragment extends Fragment implements
     public void setCurrentChannel(String channel, String messageId) {
         if (messageId != null)
             mMessageJump = new OneTimeMessageJump(channel, messageId);
-        mViewPager.setCurrentItem(mSectionsPagerAdapter.findChannel(channel));
+        int i = mSectionsPagerAdapter.findChannel(channel);
+        mViewPager.setCurrentItem(i);
+        if (i == 0) {
+            // If channel was not found, cancel the notification as we most probably came here from
+            // a notification.
+            ChannelNotificationManager chanMgr = mConnectionInfo.getNotificationManager()
+                    .getChannelManager(channel, false);
+            chanMgr.cancelNotification(getActivity());
+        }
     }
 
     public String getAndClearMessageJump(String channel) {

@@ -277,8 +277,11 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
         mgr.createNotificationChannel(channel);
     }
 
-    void cancelNotification(Context context) {
+    public void cancelNotification(Context context) {
         boolean updateSummary = false;
+        synchronized (this) {
+            mMessages.clear();
+        }
         synchronized (mShowingNotificationLock) {
             // cancel the notification
             if (mShowingNotification) {
