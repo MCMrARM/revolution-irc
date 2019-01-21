@@ -88,7 +88,6 @@ public class ServerConnectionInfo {
 
                 @Override
                 public void onChannelLeft(String s) {
-                    mNotificationData.onChannelLeft(s);
                 }
             }, null, null);
             mChatUIData.attachToConnection(api);
