@@ -426,6 +426,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                 unread = 0;
                 mgr.clearUnreadMessages();
             }
+            mAdapter.setNewMessagesStart(unreadMsg);
         }
         mUnreadCtr.setVisibility(View.GONE);
         if (unread > 0) {

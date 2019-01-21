@@ -38,6 +38,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     private static final int TYPE_MESSAGE = 0;
     private static final int TYPE_DAY_MARKER = 1;
+    private static final int TYPE_MESSAGE_WITH_NEW_MESSAGE_MARKER = 2;
 
     private ChatMessagesFragment mFragment;
     private List<Item> mMessages;
@@ -56,6 +57,8 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private int mFirstMessageDay = -1;
     private int mLastMessageDay = -1;
 
+    private MessageId mNewMessagesStart;
+
     public ChatMessagesAdapter(ChatMessagesFragment fragment, List<MessageInfo> messages,
                                List<MessageId> messageIds) {
         mFragment = fragment;
@@ -69,6 +72,16 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
         setMessages(messages, messageIds);
         setHasStableIds(true);
+    }
+
+    public void setNewMessagesStart(MessageId start) {
+        int oldi = findMessageWithId(mNewMessagesStart);
+        mNewMessagesStart = start;
+        int i = findMessageWithId(start);
+        if (oldi != -1)
+            notifyItemChanged(oldi);
+        if (i != -1)
+            notifyItemChanged(i);
     }
 
     public void setMessageFont(Typeface typeface, int fontSize) {
@@ -86,6 +99,8 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     }
 
     public int findMessageWithId(MessageId id) {
+        if (id == null)
+            return -1;
         for (int i = mPrependedMessages.size() - 1; i >= 0; --i) {
             Item it = mPrependedMessages.get(i);
             if (it instanceof MessageItem && ((MessageItem) it).mMessageId.equals(id))
@@ -229,6 +244,11 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                     .inflate(R.layout.chat_message, viewGroup, false);
             return new MessageHolder(view);
         }
+        if (viewType == TYPE_MESSAGE_WITH_NEW_MESSAGE_MARKER) {
+            View view = LayoutInflater.from(viewGroup.getContext())
+                    .inflate(R.layout.chat_new_messages_marker, viewGroup, false);
+            return new MessageHolder(view);
+        }
         if (viewType == TYPE_DAY_MARKER) {
             View view = LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.chat_day_marker, viewGroup, false);
@@ -241,7 +261,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         int viewType = holder.getItemViewType();
         Object msg = getMessage(position);
-        if (viewType == TYPE_MESSAGE) {
+        if (viewType == TYPE_MESSAGE || viewType == TYPE_MESSAGE_WITH_NEW_MESSAGE_MARKER) {
             ((MessageHolder) holder).bind(((MessageItem) msg).mMessage);
         } else if (viewType == TYPE_DAY_MARKER) {
             ((DayMarkerHolder) holder).bind((DayMarkerItem) msg);
@@ -272,8 +292,11 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     @Override
     public int getItemViewType(int position) {
         Object m = getMessage(position);
-        if (m instanceof MessageItem)
+        if (m instanceof MessageItem) {
+            if (((MessageItem) m).mMessageId.equals(mNewMessagesStart))
+                return TYPE_MESSAGE_WITH_NEW_MESSAGE_MARKER;
             return TYPE_MESSAGE;
+        }
         if (m instanceof DayMarkerItem)
             return TYPE_DAY_MARKER;
         return 0;
