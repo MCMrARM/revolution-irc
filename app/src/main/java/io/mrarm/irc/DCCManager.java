@@ -388,6 +388,16 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
         }
     }
 
+    public boolean hasAnyActiveDownloads() {
+        synchronized (mSessions) {
+            for (DownloadInfo download : mDownloads) {
+                if (!download.isPending())
+                    return true;
+            }
+            return false;
+        }
+    }
+
     public List<DownloadInfo> getDownloads() {
         synchronized (mDownloads) {
             return new ArrayList<>(mDownloads);

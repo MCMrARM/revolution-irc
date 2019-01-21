@@ -128,7 +128,7 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
     }
 
     private boolean shouldUpdateNotifications() {
-        if (DCCManager.getInstance(mContext).hasAnyDownloads())
+        if (DCCManager.getInstance(mContext).hasAnyActiveDownloads())
             return true;
         synchronized (this) {
             for (List<DCCServer.UploadSession> sessionList : mUploadSessions.values()) {
@@ -335,7 +335,8 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
         mDisplayedNotificationIds.put(id, download);
         mNotificationManager.notify(id, builder.build());
         createSummaryNotification();
-        postNotificationUpdate();
+        if (!download.isPending())
+            postNotificationUpdate();
     }
 
     public static class ActionReceiver extends BroadcastReceiver {
