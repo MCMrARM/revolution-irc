@@ -43,6 +43,8 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
     private final NotificationCountStorage mStorage;
     private final String mChannel;
     private final int mNotificationId = mNextChatNotificationId++;
+    private boolean mShowingNotification = false;
+    private static final Object mShowingNotificationLock = new Object();
     private List<NotificationMessage> mMessages = new ArrayList<>();
     private boolean mOpened = false;
     private int mUnreadMessageCount;
@@ -120,16 +122,24 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
     }
 
     public void setOpened(Context context, boolean opened) {
+        boolean updateSummary = false;
         synchronized (this) {
             mOpened = opened;
             if (mOpened) {
                 mMessages.clear();
 
-                // cancel the notification
-                NotificationManagerCompat.from(context).cancel(mNotificationId);
+                synchronized (mShowingNotificationLock) {
+                    // cancel the notification
+                    if (mShowingNotification) {
+                        NotificationManagerCompat.from(context).cancel(mNotificationId);
+                        mShowingNotification = false;
+                        updateSummary = true;
+                    }
+                }
             }
         }
-        NotificationManager.getInstance().updateSummaryNotification(context, null);
+        if (updateSummary)
+            NotificationManager.getInstance().updateSummaryNotification(context, null);
     }
 
     public void clearUnreadMessages() {
@@ -218,7 +228,10 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
             notification.setVibrate(new long[]{0}); // a hack to get a headsup to show
         }
         notification.setDefaults(defaults);
-        NotificationManagerCompat.from(context).notify(mNotificationId, notification.build());
+        synchronized (this) {
+            NotificationManagerCompat.from(context).notify(mNotificationId, notification.build());
+            mShowingNotification = true;
+        }
     }
 
     public static void createChannel(Context context, NotificationRule rule) {
@@ -265,7 +278,17 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
     }
 
     void cancelNotification(Context context) {
-        NotificationManagerCompat.from(context).cancel(mNotificationId);
+        boolean updateSummary = false;
+        synchronized (mShowingNotificationLock) {
+            // cancel the notification
+            if (mShowingNotification) {
+                NotificationManagerCompat.from(context).cancel(mNotificationId);
+                mShowingNotification = false;
+                updateSummary = true;
+            }
+        }
+        if (updateSummary)
+            NotificationManager.getInstance().updateSummaryNotification(context, null);
     }
 
     private RemoteViews createCollapsedMessagesView(Context context, CharSequence header,

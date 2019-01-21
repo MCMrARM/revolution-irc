@@ -154,6 +154,7 @@ public class NotificationManager {
                 .setSmallIcon(R.drawable.ic_notification_message)
                 .setGroup(NOTIFICATION_GROUP_CHAT)
                 .setGroupSummary(true)
+                .setOnlyAlertOnce(true)
                 .setColor(context.getResources().getColor(R.color.colorNotificationMention));
         if (isLong) {
             PendingIntent intent = PendingIntent.getActivity(context, CHAT_SUMMARY_NOTIFICATION_ID,
