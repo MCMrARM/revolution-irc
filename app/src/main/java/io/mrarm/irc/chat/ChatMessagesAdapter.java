@@ -383,11 +383,11 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         public MessageHolder(View v) {
             super(v);
             mText = v.findViewById(R.id.chat_message);
-            v.setOnClickListener((View view) -> {
+            mText.setOnClickListener((View view) -> {
                 if (mSelectedItems.size() > 0)
                     setSelected(!isSelected(), true);
             });
-            v.setOnLongClickListener((View view) -> {
+            mText.setOnLongClickListener((View view) -> {
                 if (mSelectListener != null && mSelectedItems.size() == 0) {
                     mSelectListener.startLongPressSelect();
                 } else {
