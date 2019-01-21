@@ -262,6 +262,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if (mAdapter == null)
+                    return;
                 int firstVisible = mLayoutManager.findFirstVisibleItemPosition();
                 if (firstVisible >= 0 && firstVisible < LOAD_MORE_BEFORE_INDEX) {
                     if (mIsLoadingMore || mLoadOlderIdentifier == null || !mAdapter.hasMessages())
