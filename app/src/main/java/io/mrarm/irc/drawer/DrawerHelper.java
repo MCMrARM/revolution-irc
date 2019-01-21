@@ -46,9 +46,8 @@ public class DrawerHelper implements ServerConnectionManager.ConnectionsListener
 
         Resources r = activity.getResources();
 
-        mAdapter = new DrawerMenuListAdapter(activity, mDrawerLayout);
-        mAdapter.setAlwaysShowServer(SettingsHelper.getInstance(activity)
-                .shouldDrawerAlwaysShowServer());
+        mAdapter = new DrawerMenuListAdapter(activity, mDrawerLayout,
+                SettingsHelper.getInstance(activity).shouldDrawerAlwaysShowServer());
 
         mSearchItem = new DrawerMenuItem(r.getString(R.string.action_search), R.drawable.ic_search_white);
         mSearchItem.setOnClickListener((View view) -> {

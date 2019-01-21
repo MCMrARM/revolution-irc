@@ -53,11 +53,13 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private int mSelectedForegroundColor;
     private int mHeaderPaddingTop = 0;
     private int mCounterWidestLetter = -1;
-    private boolean mAlwaysShowServer = false;
+    private boolean mAlwaysShowServer;
 
-    public DrawerMenuListAdapter(Context context, LockableDrawerLayout drawerLayout) {
+    public DrawerMenuListAdapter(Context context, LockableDrawerLayout drawerLayout,
+                                 boolean alwaysShowServer) {
         mContext = context;
         mDrawerLayout = drawerLayout;
+        mAlwaysShowServer = alwaysShowServer;
         notifyServerListChanged();
 
         StyledAttributesHelper ta = StyledAttributesHelper.obtainStyledAttributes(context,
@@ -72,7 +74,10 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     public void setAlwaysShowServer(boolean value) {
+        if (mAlwaysShowServer == value)
+            return;
         mAlwaysShowServer = value;
+        updateItemIndexToServerMap();
         notifyDataSetChanged();
     }
 
