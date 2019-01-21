@@ -63,7 +63,7 @@ public class InterfaceSettingsFragment extends SettingsListFragment
                     openThemeEditor(newTheme);
                     getActivity().recreate();
                 }));
-        a.add(new SettingsHeader(getString(R.string.pref_header_interface)));
+        a.add(new SettingsHeader(getString(R.string.pref_header_chat)));
         a.add(new ListWithCustomSetting(a, getString(R.string.pref_title_font),
                 getResources().getStringArray(R.array.pref_entries_font),
                 getResources().getStringArray(R.array.pref_entry_values_font), "default",
@@ -102,6 +102,11 @@ public class InterfaceSettingsFragment extends SettingsListFragment
         a.add(new CheckBoxSetting(getString(R.string.pref_title_chat_multi_scroll_mode),
                 getString(R.string.pref_summary_chat_multi_scroll_mode), false)
                 .linkPreference(prefs, SettingsHelper.PREF_CHAT_MULTI_SELECT_MODE));
+
+        a.add(new SettingsHeader(getString(R.string.pref_header_chat)));
+        a.add(new CheckBoxSetting(getString(R.string.pref_title_drawer_always_show_server),
+                getString(R.string.pref_summary_drawer_always_show_server), false)
+                .linkPreference(prefs, SettingsHelper.PREF_DRAWER_ALWAYS_SHOW_SERVER));
         a.add(new CheckBoxSetting(getString(R.string.pref_title_chat_show_dcc_send),
                 getString(R.string.pref_summary_chat_show_dcc_send), false)
                 .linkPreference(prefs, SettingsHelper.PREF_CHAT_SHOW_DCC_SEND)

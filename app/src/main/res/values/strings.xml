@@ -304,6 +304,7 @@
 
     <string name="pref_header_interface">Interface</string>
 
+    <string name="pref_header_chat">Chat</string>
     <string name="pref_title_font">Font</string>
     <string name="pref_title_font_size">Font size</string>
     <string name="pref_title_hide_join_part">Hide Join/Part messages</string>
@@ -318,6 +319,10 @@
     <string name="pref_title_chat_box_history_swipe_mode">History swipe-based navigation mode</string>
     <string name="pref_title_chat_multi_scroll_mode">Use a batch message selection mode</string>
     <string name="pref_summary_chat_multi_scroll_mode">Always enables the old batch message selection mode</string>
+
+    <string name="pref_header_misc">Miscellaneous</string>
+    <string name="pref_title_drawer_always_show_server">Show Server in drawer</string>
+    <string name="pref_summary_drawer_always_show_server">Always show the Server tab in the drawer</string>
     <string name="pref_title_chat_show_dcc_send">Show DCC send button</string>
     <string name="pref_summary_chat_show_dcc_send">Show a button to send a file using DCC in private chats</string>
 
