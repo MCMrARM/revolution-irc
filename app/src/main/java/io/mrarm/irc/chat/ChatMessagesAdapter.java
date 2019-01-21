@@ -84,6 +84,10 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             notifyItemChanged(i);
     }
 
+    public MessageId getNewMessagesStart() {
+        return mNewMessagesStart;
+    }
+
     public void setMessageFont(Typeface typeface, int fontSize) {
         mTypeface = typeface;
         mFontSize = fontSize;

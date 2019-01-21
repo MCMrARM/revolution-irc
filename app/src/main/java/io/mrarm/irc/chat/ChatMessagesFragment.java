@@ -376,6 +376,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             Log.i(TAG, "Got message list for " + mChannelName + ": " +
                     messages.getMessages().size() + " messages");
             updateMessageList(() -> {
+                mAdapter.setNewMessagesStart(mConnection.getNotificationManager()
+                        .getChannelManager(mChannelName, true).getFirstUnreadMessage());
                 mAdapter.setMessages(messages.getMessages(), messages.getMessageIds());
                 if (mRecyclerView != null)
                     mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
@@ -588,6 +590,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                     return;
             }
 
+            if (!getUserVisibleHint() && mAdapter.getNewMessagesStart() == null)
+                mAdapter.setNewMessagesStart(messageId);
             mAdapter.appendMessage(messageInfo, messageId);
             if (mRecyclerView != null)
                 scrollToBottom();
