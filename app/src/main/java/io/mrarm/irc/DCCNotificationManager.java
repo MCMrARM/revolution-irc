@@ -189,7 +189,7 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
                 mContext.getString(R.string.action_cancel),
                 PendingIntent.getBroadcast(mContext, notId,
                         ActionReceiver.getCancelIntent(mContext, notId),
-                        PendingIntent.FLAG_CANCEL_CURRENT))
+                        PendingIntent.FLAG_UPDATE_CURRENT))
                 .build();
     }
 
