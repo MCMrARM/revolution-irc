@@ -103,7 +103,7 @@ public class InterfaceSettingsFragment extends SettingsListFragment
                 getString(R.string.pref_summary_chat_multi_scroll_mode), false)
                 .linkPreference(prefs, SettingsHelper.PREF_CHAT_MULTI_SELECT_MODE));
 
-        a.add(new SettingsHeader(getString(R.string.pref_header_chat)));
+        a.add(new SettingsHeader(getString(R.string.pref_header_misc)));
         a.add(new CheckBoxSetting(getString(R.string.pref_title_drawer_always_show_server),
                 getString(R.string.pref_summary_drawer_always_show_server), false)
                 .linkPreference(prefs, SettingsHelper.PREF_DRAWER_ALWAYS_SHOW_SERVER));
