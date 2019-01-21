@@ -2,6 +2,7 @@ package io.mrarm.irc.drawer;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -17,12 +18,14 @@ import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
 import io.mrarm.irc.SettingsActivity;
+import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.dialog.ChannelSearchDialog;
 import io.mrarm.irc.view.LockableDrawerLayout;
 
 public class DrawerHelper implements ServerConnectionManager.ConnectionsListener,
         ServerConnectionInfo.InfoChangeListener, ServerConnectionInfo.ChannelListChangeListener,
-        NotificationManager.UnreadMessageCountCallback {
+        NotificationManager.UnreadMessageCountCallback,
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
     private Activity mActivity;
     private LockableDrawerLayout mDrawerLayout;
@@ -44,6 +47,8 @@ public class DrawerHelper implements ServerConnectionManager.ConnectionsListener
         Resources r = activity.getResources();
 
         mAdapter = new DrawerMenuListAdapter(activity, mDrawerLayout);
+        mAdapter.setAlwaysShowServer(SettingsHelper.getInstance(activity)
+                .shouldDrawerAlwaysShowServer());
 
         mSearchItem = new DrawerMenuItem(r.getString(R.string.action_search), R.drawable.ic_search_white);
         mSearchItem.setOnClickListener((View view) -> {
@@ -103,20 +108,24 @@ public class DrawerHelper implements ServerConnectionManager.ConnectionsListener
     public void registerListeners() {
         if (mHasRegisteredListeners)
             return;
+        SettingsHelper settings = SettingsHelper.getInstance(mActivity);
         ServerConnectionManager.getInstance(mActivity).addListener(this);
         ServerConnectionManager.getInstance(mActivity).addGlobalConnectionInfoListener(this);
         ServerConnectionManager.getInstance(mActivity).addGlobalChannelListListener(this);
         NotificationManager.getInstance().addGlobalUnreadMessageCountCallback(this);
+        settings.addPreferenceChangeListener(SettingsHelper.PREF_DRAWER_ALWAYS_SHOW_SERVER, this);
         mHasRegisteredListeners = true;
     }
 
     public void unregisterListeners() {
         if (!mHasRegisteredListeners)
             return;
+        SettingsHelper settings = SettingsHelper.getInstance(mActivity);
         ServerConnectionManager.getInstance(mActivity).removeListener(this);
         ServerConnectionManager.getInstance(mActivity).removeGlobalConnectionInfoListener(this);
         ServerConnectionManager.getInstance(mActivity).removeGlobalChannelListListener(this);
         NotificationManager.getInstance().removeGlobalUnreadMessageCountCallback(this);
+        settings.removePreferenceChangeListener(SettingsHelper.PREF_DRAWER_ALWAYS_SHOW_SERVER, this);
         mHasRegisteredListeners = false;
     }
 
@@ -178,4 +187,11 @@ public class DrawerHelper implements ServerConnectionManager.ConnectionsListener
         });
     }
 
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        mActivity.runOnUiThread(() -> {
+            mAdapter.setAlwaysShowServer(SettingsHelper.getInstance(mActivity)
+                    .shouldDrawerAlwaysShowServer());
+        });
+    }
 }

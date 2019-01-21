@@ -53,6 +53,7 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private int mSelectedForegroundColor;
     private int mHeaderPaddingTop = 0;
     private int mCounterWidestLetter = -1;
+    private boolean mAlwaysShowServer = false;
 
     public DrawerMenuListAdapter(Context context, LockableDrawerLayout drawerLayout) {
         mContext = context;
@@ -68,6 +69,11 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         mSelectedForegroundColor = ta.getColor(R.attr.colorAccent, 0);
         mDefaultForegroundColor = ta.getColor(android.R.attr.textColorPrimary, 0);
         ta.recycle();
+    }
+
+    public void setAlwaysShowServer(boolean value) {
+        mAlwaysShowServer = value;
+        notifyDataSetChanged();
     }
 
     public void addMenuItem(DrawerMenuItem item) {
@@ -117,7 +123,7 @@ public class DrawerMenuListAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     private boolean shouldShowServerItem(ServerConnectionInfo info) {
-        return info.getChannels() == null || info.getChannels().size() == 0;
+        return info.getChannels() == null || info.getChannels().size() == 0 || mAlwaysShowServer;
     }
 
     public void setSelectedChannel(ServerConnectionInfo server, String channel) {

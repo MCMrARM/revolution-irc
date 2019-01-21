@@ -35,6 +35,7 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     public static final String PREF_PING_WIFI = "ping_wifi";
     public static final String PREF_PING_INTERVAL  = "ping_interval";
     public static final String PREF_DRAWER_PINNED = "drawer_pinned";
+    public static final String PREF_DRAWER_ALWAYS_SHOW_SERVER = "drawer_always_show_server";
     public static final String PREF_THEME = "theme";
     public static final String PREF_CHAT_FONT = "chat_font";
     public static final String PREF_CHAT_FONT_SIZE = "chat_font_size";
@@ -211,6 +212,16 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
 
     public int getPingInterval() {
         return mPreferences.getInt(PREF_PING_INTERVAL, 15 * 60 * 1000);
+    }
+
+    public boolean shouldDrawerAlwaysShowServer() {
+        return mPreferences.getBoolean(PREF_DRAWER_ALWAYS_SHOW_SERVER, false);
+    }
+
+    public void setDrawerAlwaysShowServer(boolean value) {
+        mPreferences.edit()
+                .putBoolean(PREF_DRAWER_PINNED, value)
+                .apply();
     }
 
     public boolean isDrawerPinned() {
