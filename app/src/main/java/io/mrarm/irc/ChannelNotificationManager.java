@@ -377,6 +377,7 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
         private static final String ARG_SERVER_UUID = "server_uuid";
         private static final String ARG_CHANNEL = "channel";
         private static final String ARG_NOTIFICATION_ID = "notification_id";
+        private static final String ARG_SERVER_ALL = "all_servers";
 
         private static final String ACTION_DISMISS = "dismiss";
         private static final String ACTION_REPLY = "reply";
@@ -392,6 +393,13 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
             return ret;
         }
 
+        public static Intent getDismissIntentForSummary(Context context) {
+            Intent ret = new Intent(context, NotificationActionReceiver.class);
+            ret.putExtra(ARG_ACTION, ACTION_DISMISS);
+            ret.putExtra(ARG_SERVER_ALL, true);
+            return ret;
+        }
+
         public static Intent getReplyIntent(Context context, ServerConnectionInfo server,
                                             String channel, int notificationId) {
             Intent ret = new Intent(context, NotificationActionReceiver.class);
@@ -404,6 +412,12 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
 
         @Override
         public void onReceive(Context context, Intent intent) {
+            if (intent.getBooleanExtra(ARG_SERVER_ALL, false)) {
+                ServerConnectionManager mgr = ServerConnectionManager.getInstance(context);
+                for (ServerConnectionInfo conn : mgr.getConnections())
+                    NotificationManager.getInstance().clearAllNotifications(context, conn);
+                return;
+            }
             UUID uuid = UUID.fromString(intent.getStringExtra(ARG_SERVER_UUID));
             ServerConnectionInfo conn = ServerConnectionManager.getInstance(context).getConnection(uuid);
             if (conn == null)

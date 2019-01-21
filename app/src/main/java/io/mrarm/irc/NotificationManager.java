@@ -149,12 +149,17 @@ public class NotificationManager {
             mLastSummaryChannel = channel;
         NotificationCompat.Builder notification = new NotificationCompat.Builder(context,
                 mLastSummaryChannel);
+        PendingIntent dismissIntent = PendingIntent.getBroadcast(context,
+                ChannelNotificationManager.CHAT_DISMISS_INTENT_ID_START + CHAT_SUMMARY_NOTIFICATION_ID,
+                ChannelNotificationManager.NotificationActionReceiver.getDismissIntentForSummary(context),
+                PendingIntent.FLAG_CANCEL_CURRENT);
         notification
                 .setAutoCancel(true)
                 .setSmallIcon(R.drawable.ic_notification_message)
                 .setGroup(NOTIFICATION_GROUP_CHAT)
                 .setGroupSummary(true)
-                .setColor(context.getResources().getColor(R.color.colorNotificationMention));
+                .setColor(context.getResources().getColor(R.color.colorNotificationMention))
+                .setDeleteIntent(dismissIntent);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             notification.setOnlyAlertOnce(true);
         }
