@@ -215,7 +215,8 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
                 .setContentIntent(getOpenTransfersIntent())
                 .setSmallIcon(R.drawable.ic_notification_connected)
                 .setGroup(NOTIFICATION_GROUP_DCC)
-                .setGroupSummary(true);
+                .setGroupSummary(true)
+                .setOnlyAlertOnce(true);
         mNotificationManager.notify(DCC_SUMMARY_NOTIFICATION_ID, builder.build());
     }
 
@@ -277,6 +278,7 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
                 .setContentIntent(getOpenTransfersIntent())
                 .setSmallIcon(R.drawable.ic_notification_upload)
                 .setOngoing(true)
+                .setOnlyAlertOnce(true)
                 .addAction(createCancelAction(id));
         if (isNotificationGroupingEnabled())
             builder.setGroup(NOTIFICATION_GROUP_DCC);
@@ -299,6 +301,7 @@ public class DCCNotificationManager implements DCCServerManager.UploadListener,
                 .setContentTitle(download.getUnescapedFileName())
                 .setSmallIcon(R.drawable.ic_notification_download)
                 .setContentIntent(getOpenTransfersIntent())
+                .setOnlyAlertOnce(true)
                 .setOngoing(true);
         if (download.isPending()) {
             builder.setContentText(mContext.getString(R.string.dcc_approve_notification_body,
