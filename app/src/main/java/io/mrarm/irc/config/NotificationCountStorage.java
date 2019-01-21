@@ -62,7 +62,7 @@ public class NotificationCountStorage {
                 return;
             mDatabase = SQLiteDatabase.openOrCreateDatabase(mPath, null);
             if (mDatabase.getVersion() < DB_VERSION) {
-                mDatabase.execSQL("DROP TABLE 'notification_count'");
+                mDatabase.execSQL("DROP TABLE IF EXISTS 'notification_count'");
             }
             mDatabase.execSQL("CREATE TABLE IF NOT EXISTS 'notification_count' (server TEXT, channel TEXT, count INTEGER, firstMessageId TEXT)");
             mGetNotificationCountStatement = mDatabase.compileStatement("SELECT count FROM 'notification_count' WHERE server=?1 AND channel=?2");
@@ -71,6 +71,7 @@ public class NotificationCountStorage {
             mGetFirstMessageIdStatement = mDatabase.compileStatement("SELECT firstMessageId FROM 'notification_count' WHERE server=?1 AND channel=?2");
             mSetFirstMessageIdStatement = mDatabase.compileStatement("UPDATE 'notification_count' SET firstMessageId=?3 WHERE server=?1 AND channel=?2 AND firstMessageId IS NULL");
             mResetFirstMessageIdStatement = mDatabase.compileStatement("UPDATE 'notification_count' SET firstMessageId=NULL WHERE server=?1 AND channel=?2");
+            mDatabase.setVersion(DB_VERSION);
         }
     }
 
