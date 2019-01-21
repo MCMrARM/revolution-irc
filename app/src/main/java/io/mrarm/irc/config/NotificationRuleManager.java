@@ -54,6 +54,7 @@ public class NotificationRuleManager {
         sDirectNoticeRule = new NotificationRule(R.string.notification_rule_notice, NotificationRule.AppliesToEntry.directNotices(), null);
         sDirectNoticeRule.settings.mentionFormatting = false;
         sChannelNoticeRule = new NotificationRule(R.string.notification_rule_chan_notice, NotificationRule.AppliesToEntry.channelNotices(), null);
+        sChannelNoticeRule.settings.noNotification = true;
         sZNCPlaybackRule = new NotificationRule(R.string.notification_rule_zncplayback, createZNCPlaybackAppliesToEntry(), null);
         sZNCPlaybackRule.settings.mentionFormatting = false;
         sZNCPlaybackRule.settings.noNotification = true;
