@@ -311,6 +311,14 @@ public class NotificationManager {
             }
         }
 
+        void onChannelLeft(String channelName) {
+            synchronized (mChannels) {
+                ChannelNotificationManager mgr = mChannels.remove(channelName);
+                if (mgr != null)
+                    mgr.clearUnreadMessages();
+            }
+        }
+
     }
 
     public interface UnreadMessageCountCallback {
