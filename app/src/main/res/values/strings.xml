@@ -480,6 +480,8 @@
     <!-- Reconnect settings -->
 
     <string name="pref_header_reconnect">Reconnection</string>
+    <string name="pref_title_start_on_boot">Start on boot</string>
+    <string name="pref_description_start_on_boot">Automatically starts the application after a system restart</string>
     <string name="pref_title_auto_reconnect">Automatically reconnect</string>
     <string name="pref_description_auto_reconnect">Automatically attempt reconnection after a connection loss</string>
     <string name="pref_title_reconnect_connchg">Track connectivity changes</string>

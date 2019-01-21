@@ -179,6 +179,16 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
         return null;
     }
 
+    public static class BootReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.i("IRCService", "Device booted");
+            IRCService.start(context);
+        }
+
+    }
+
     public static class ExitActionReceiver extends BroadcastReceiver {
 
         public static Intent getIntent(Context context) {
