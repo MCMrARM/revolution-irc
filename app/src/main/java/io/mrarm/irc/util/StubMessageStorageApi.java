@@ -1,5 +1,6 @@
 package io.mrarm.irc.util;
 
+import java.util.List;
 import java.util.concurrent.Future;
 
 import io.mrarm.chatlib.ResponseCallback;
@@ -32,6 +33,11 @@ public class StubMessageStorageApi implements WritableMessageStorageApi {
 
     @Override
     public Future<MessageList> getMessagesNear(String s, MessageId messageId, MessageFilterOptions messageFilterOptions, ResponseCallback<MessageList> responseCallback, ResponseErrorCallback responseErrorCallback) {
+        return null;
+    }
+
+    @Override
+    public Future<Void> deleteMessages(String s, List<MessageId> list, ResponseCallback<Void> responseCallback, ResponseErrorCallback responseErrorCallback) {
         return null;
     }
 

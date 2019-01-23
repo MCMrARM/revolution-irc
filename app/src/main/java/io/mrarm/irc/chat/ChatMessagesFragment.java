@@ -670,6 +670,18 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                 getString(R.string.message_share_title)));
     }
 
+    public void deleteSelectedMessages() {
+        List<MessageId> msgIds = mAdapter.getSelectedMessageIds();
+        for (Long l : mAdapter.getSelectedItems()) {
+            ChatMessagesAdapter.Item i = mAdapter.getMessage(mAdapter.getItemPosition(l));
+            if (i instanceof ChatMessagesAdapter.MessageItem)
+                ((ChatMessagesAdapter.MessageItem) i).mHidden = true;
+        }
+        mAdapter.notifyDataSetChanged();
+        mConnection.getApiInstance().getMessageStorageApi().deleteMessages(mChannelName, msgIds,
+                null, null);
+    }
+
 
     private MessagesActionModeCallback mMessagesActionModeCallback;
 
@@ -680,7 +692,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
             MenuInflater inflater = mode.getMenuInflater();
-            inflater.inflate(R.menu.menu_context_messages, menu);
+            inflater.inflate(R.menu.menu_context_messages_full, menu);
             ((ChatFragment) getParentFragment()).setTabsHidden(true);
             mActionMode = mode;
             return true;
@@ -700,6 +712,10 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                     return true;
                 case R.id.action_share:
                     shareSelectedMessages();
+                    mode.finish();
+                    return true;
+                case R.id.action_delete:
+                    deleteSelectedMessages();
                     mode.finish();
                     return true;
                 default:

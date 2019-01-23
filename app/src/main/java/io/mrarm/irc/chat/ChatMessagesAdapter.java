@@ -221,6 +221,17 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         return mSelectedItems;
     }
 
+    public List<MessageId> getSelectedMessageIds() {
+        Set<Long> items = getSelectedItems();
+        List<MessageId> ret = new ArrayList<>();
+        for (Long msgIndex : items) {
+            Item item = getMessage(getItemPosition(msgIndex));
+            if (item instanceof MessageItem)
+                ret.add(((MessageItem) item).mMessageId);
+        }
+        return ret;
+    }
+
     public CharSequence getSelectedMessages() {
         Set<Long> items = getSelectedItems();
         SpannableStringBuilder builder = new SpannableStringBuilder();
@@ -266,7 +277,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         int viewType = holder.getItemViewType();
         Object msg = getMessage(position);
         if (viewType == TYPE_MESSAGE || viewType == TYPE_MESSAGE_WITH_NEW_MESSAGE_MARKER) {
-            ((MessageHolder) holder).bind(((MessageItem) msg).mMessage);
+            ((MessageHolder) holder).bind((MessageItem) msg);
         } else if (viewType == TYPE_DAY_MARKER) {
             ((DayMarkerHolder) holder).bind((DayMarkerItem) msg);
         }
@@ -379,9 +390,11 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     public class MessageHolder extends BaseHolder {
 
         private TextView mText;
+        private ViewGroup.LayoutParams mDefaultLayoutParams;
 
         public MessageHolder(View v) {
             super(v);
+            mDefaultLayoutParams = v.getLayoutParams();
             mText = v.findViewById(R.id.chat_message);
             mText.setOnClickListener((View view) -> {
                 if (mSelectedItems.size() > 0)
@@ -402,7 +415,13 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             mText.setMovementMethod(LinkMovementMethod.getInstance());
         }
 
-        public void bind(MessageInfo message) {
+        public void bind(MessageItem item) {
+            itemView.setVisibility(item.mHidden ? View.GONE : View.VISIBLE);
+            if (item.mHidden)
+                itemView.setLayoutParams(new RecyclerView.LayoutParams(0, 0));
+            else if (itemView.getLayoutParams() != mDefaultLayoutParams)
+                itemView.setLayoutParams(mDefaultLayoutParams);
+            MessageInfo message = item.mMessage;
             if (mTypeface != null)
                 mText.setTypeface(mTypeface);
             if (mFontSize != -1)
@@ -430,6 +449,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
         MessageInfo mMessage;
         MessageId mMessageId;
+        boolean mHidden;
 
         public MessageItem(MessageInfo message, MessageId msgId) {
             mMessage = message;
