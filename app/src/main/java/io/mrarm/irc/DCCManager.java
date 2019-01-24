@@ -671,12 +671,15 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
                 try {
                     createClient();
                 } catch (CancelledException e) {
+                    onDownloadDestroyed(this);
                     return;
                 } catch (IOException e) {
                     mHandler.post(() ->
                             Toast.makeText(mContext, R.string.error_generic, Toast.LENGTH_SHORT)
                                     .show());
                     e.printStackTrace();
+                    onDownloadDestroyed(this);
+                    return;
                 }
 
                 synchronized (mDownloads) {
