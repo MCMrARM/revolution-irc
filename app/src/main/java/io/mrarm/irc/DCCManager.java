@@ -673,7 +673,9 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
                 } catch (CancelledException e) {
                     return;
                 } catch (IOException e) {
-                    Toast.makeText(mContext, R.string.error_generic, Toast.LENGTH_SHORT).show();
+                    mHandler.post(() ->
+                            Toast.makeText(mContext, R.string.error_generic, Toast.LENGTH_SHORT)
+                                    .show());
                     e.printStackTrace();
                 }
 
