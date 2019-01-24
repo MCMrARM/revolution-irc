@@ -687,4 +687,6 @@
     <string name="dcc_download_dir_system">System</string>
     <string name="dcc_download_dir_custom">Custom</string>
 
+    <string name="dcc_error_no_activity">No application found to open the specified file</string>
+
 </resources>

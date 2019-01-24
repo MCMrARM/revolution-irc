@@ -1,6 +1,7 @@
 package io.mrarm.irc;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -15,6 +16,7 @@ import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.net.InetSocketAddress;
@@ -435,7 +437,12 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 intent.setDataAndType(uri, mimeType);
-                itemView.getContext().startActivity(intent);
+                try {
+                    itemView.getContext().startActivity(intent);
+                } catch (ActivityNotFoundException e) {
+                    Toast.makeText(itemView.getContext(), R.string.dcc_error_no_activity,
+                            Toast.LENGTH_SHORT).show();
+                }
             } else {
                 openMenu();
             }
