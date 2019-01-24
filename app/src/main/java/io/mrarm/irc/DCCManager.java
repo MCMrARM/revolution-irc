@@ -448,7 +448,7 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
                     // fall back to reverse DCC
                     upload = mServer.addReverseUpload(connectionData, channel, fileName, file);
                     server.getApiInstance().sendMessage(channel, DCCUtils.buildSendMessage(
-                            "0.0.0.0", fileName, 0, fileSize, upload.getReverseId()),
+                            "127.0.0.1", fileName, 0, fileSize, upload.getReverseId()),
                             null, null);
                 }
             });
