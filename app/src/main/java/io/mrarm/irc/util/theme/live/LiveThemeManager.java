@@ -25,7 +25,8 @@ public class LiveThemeManager {
             addColorProperty(R.attr.colorPrimary, (c) -> {
                 ((AppCompatActivity) activity).getSupportActionBar().setBackgroundDrawable(
                         new ColorDrawable(c));
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
+                        activity.findViewById(R.id.action_bar_container) != null)
                     activity.findViewById(R.id.action_bar_container).invalidateOutline();
             });
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)

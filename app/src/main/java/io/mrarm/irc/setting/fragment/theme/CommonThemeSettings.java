@@ -1,4 +1,4 @@
-package io.mrarm.irc.setting.fragment;
+package io.mrarm.irc.setting.fragment.theme;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -19,7 +19,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -27,10 +26,9 @@ import android.widget.LinearLayout;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 
 import io.mrarm.irc.R;
-import io.mrarm.irc.SettingsActivity;
+import io.mrarm.irc.ThemeEditorActivity;
 import io.mrarm.irc.dialog.MaterialColorPickerDialog;
 import io.mrarm.irc.setting.CheckBoxSetting;
 import io.mrarm.irc.setting.ListSetting;
@@ -51,58 +49,25 @@ import io.mrarm.irc.view.ColorAlphaPicker;
 import io.mrarm.irc.view.ColorHuePicker;
 import io.mrarm.irc.view.ColorPicker;
 
-public class ThemeSettingsFragment extends SettingsListFragment implements NamedSettingsFragment {
-
-    public static final String ARG_THEME_UUID = "theme";
-
-    private ThemeInfo themeInfo;
-    private ListSetting baseSetting;
-    private LiveThemeManager mLiveThemeManager;
+public class CommonThemeSettings extends BaseThemeEditorFragment {
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        ThemeManager themeManager = ThemeManager.getInstance(getContext());
-        themeInfo = themeManager.getCustomTheme(
-                UUID.fromString(getArguments().getString(ARG_THEME_UUID)));
-        if (themeInfo == null)
-            throw new RuntimeException("Invalid theme UUID");
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mLiveThemeManager = new LiveThemeManager(getActivity());
         setHasOptionsMenu(true);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        ((LiveThemeViewFactory) getActivity().getLayoutInflater().getFactory2())
-                .setLiveThemeManager(mLiveThemeManager);
-        return super.onCreateView(inflater, container, savedInstanceState);
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        ((LiveThemeViewFactory) getActivity().getLayoutInflater().getFactory2())
-                .setLiveThemeManager(null);
-        ThemeManager.getInstance(getContext()).invalidateCurrentCustomTheme();
-    }
-
-    @Override
-    public String getName() {
-        return themeInfo.name;
-    }
-
-    @Override
     public SettingsListAdapter createAdapter() {
+        ThemeInfo themeInfo = getThemeInfo();
         ThemeManager themeManager = ThemeManager.getInstance(getContext());
         SettingsListAdapter a = new SettingsListAdapter(this);
-        a.setRequestCodeCounter(((SettingsActivity) getActivity()).getRequestCodeCounter());
         Collection<ThemeManager.BaseTheme> baseThemes = themeManager.getBaseThemes();
         String[] baseThemeNames = new String[baseThemes.size()];
         String[] baseThemeIds = new String[baseThemes.size()];
@@ -112,8 +77,8 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
             baseThemeIds[i] = baseTheme.getId();
             ++i;
         }
-        String baseThemeId =  themeInfo.base == null ? themeManager.getFallbackTheme().getId() : themeInfo.base;
-        baseSetting = new ThemeListSetting(getString(R.string.theme_base), baseThemeNames, baseThemeIds, baseThemeId);
+        String baseThemeId = themeInfo.base == null ? themeManager.getFallbackTheme().getId() : themeInfo.base;
+        ListSetting baseSetting = new ThemeListSetting(getString(R.string.theme_base), baseThemeNames, baseThemeIds, baseThemeId);
         baseSetting.addListener((EntryRecyclerViewAdapter.Entry entry) -> {
             themeInfo.base = ((ListSetting) entry).getSelectedOptionValue();
             themeInfo.baseThemeInfo = themeManager.getBaseThemeOrFallback(themeInfo.base);
@@ -124,19 +89,20 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
         SettingsListAdapter.SettingChangedListener applyListener =
                 (EntryRecyclerViewAdapter.Entry entry) -> onNonLivePropertyChanged();
         ExpandableColorSetting.ExpandGroup colorExpandGroup = new ExpandableColorSetting.ExpandGroup();
+        LiveThemeManager liveThemeManager = getLiveThemeManager();
         a.add(new ThemeColorSetting(getString(R.string.theme_color_primary))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_PRIMARY)
-                .linkLiveApplyManager(mLiveThemeManager)
+                .linkLiveApplyManager(liveThemeManager)
                 .setExpandGroup(colorExpandGroup)
                 .setSavedColors(themeInfo.savedColors));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_primary_dark))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_PRIMARY_DARK)
-                .linkLiveApplyManager(mLiveThemeManager)
+                .linkLiveApplyManager(liveThemeManager)
                 .setExpandGroup(colorExpandGroup)
                 .setSavedColors(themeInfo.savedColors));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_accent))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_ACCENT)
-                .linkLiveApplyManager(mLiveThemeManager)
+                .linkLiveApplyManager(liveThemeManager)
                 .setExpandGroup(colorExpandGroup)
                 .setSavedColors(themeInfo.savedColors));
         a.add(new ThemeBoolSetting(getString(R.string.theme_light_toolbar))
@@ -144,45 +110,35 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
                 .addListener(applyListener));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_background))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_BACKGROUND)
-                .linkLiveApplyManager(mLiveThemeManager)
+                .linkLiveApplyManager(liveThemeManager)
                 .setExpandGroup(colorExpandGroup)
                 .setSavedColors(themeInfo.savedColors));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_background_floating))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_BACKGROUND_FLOATING)
-                .linkLiveApplyManager(mLiveThemeManager)
+                .linkLiveApplyManager(liveThemeManager)
                 .setExpandGroup(colorExpandGroup)
                 .setSavedColors(themeInfo.savedColors));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_text_primary))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_TEXT_PRIMARY)
-                .linkLiveApplyManager(mLiveThemeManager)
+                .linkLiveApplyManager(liveThemeManager)
                 .setExpandGroup(colorExpandGroup)
                 .setSavedColors(themeInfo.savedColors));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_text_secondary))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_TEXT_SECONDARY)
-                .linkLiveApplyManager(mLiveThemeManager)
+                .linkLiveApplyManager(liveThemeManager)
                 .setExpandGroup(colorExpandGroup)
                 .setSavedColors(themeInfo.savedColors));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_icon))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_ICON)
-                .linkLiveApplyManager(mLiveThemeManager)
+                .linkLiveApplyManager(liveThemeManager)
                 .setExpandGroup(colorExpandGroup)
                 .setSavedColors(themeInfo.savedColors));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_icon_opaque))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_ICON_OPAQUE)
-                .linkLiveApplyManager(mLiveThemeManager)
+                .linkLiveApplyManager(liveThemeManager)
                 .setExpandGroup(colorExpandGroup)
                 .setSavedColors(themeInfo.savedColors));
         return a;
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        try {
-            ThemeManager.getInstance(getContext()).saveTheme(themeInfo);
-        } catch (IOException e) {
-            Log.w("ThemeSettings", "Failed to save theme");
-        }
     }
 
     @Override
@@ -193,13 +149,13 @@ public class ThemeSettingsFragment extends SettingsListFragment implements Named
             View view = LayoutInflater.from(getContext())
                     .inflate(R.layout.dialog_edit_text, null);
             EditText text = view.findViewById(R.id.edit_text);
-            text.setText(themeInfo.name);
+            text.setText(getThemeInfo().name);
             new AlertDialog.Builder(getContext())
                     .setTitle(R.string.action_rename)
                     .setView(view)
                     .setPositiveButton(R.string.action_ok, (dialog1, which) -> {
-                        themeInfo.name = text.getText().toString();
-                        ((SettingsActivity) getActivity()).updateTitle();
+                        getThemeInfo().name = text.getText().toString();
+                        ((ThemeEditorActivity) getActivity()).notifyThemeNameChanged();
                     })
                     .setNegativeButton(R.string.action_cancel, null)
                     .show();

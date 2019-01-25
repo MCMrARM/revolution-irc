@@ -406,6 +406,9 @@
 
     <string name="theme_create_new">Create a new theme</string>
     <string name="theme_custom_default_name">@string/value_custom</string>
+
+    <string name="title_activity_theme_editor">Theme editor</string>
+    <string name="theme_category_common">Common</string>
     <string name="theme_base">Base theme</string>
     <string name="theme_color_primary">Primary color</string>
     <string name="theme_color_primary_dark">Primary dark color</string>

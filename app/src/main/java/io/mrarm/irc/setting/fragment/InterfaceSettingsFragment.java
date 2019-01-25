@@ -4,7 +4,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
-import android.os.Bundle;
 import android.preference.PreferenceManager;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.widget.CompoundButtonCompat;
@@ -20,6 +19,7 @@ import io.mrarm.chatlib.dto.MessageSenderInfo;
 import io.mrarm.irc.MessageFormatSettingsActivity;
 import io.mrarm.irc.R;
 import io.mrarm.irc.SettingsActivity;
+import io.mrarm.irc.ThemeEditorActivity;
 import io.mrarm.irc.ThemedActivity;
 import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.dialog.MenuBottomSheetDialog;
@@ -43,6 +43,7 @@ public class InterfaceSettingsFragment extends SettingsListFragment
     private ClickableSetting mMessageFormatItem;
     private MessageInfo mSampleMessage;
     private ClickableSetting mAutocompleteItem;
+    private int mThemeEditorRequestId;
 
     @Override
     public String getName() {
@@ -54,6 +55,7 @@ public class InterfaceSettingsFragment extends SettingsListFragment
         SettingsListAdapter a = new SettingsListAdapter(this);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         a.setRequestCodeCounter(((SettingsActivity) getActivity()).getRequestCodeCounter());
+        mThemeEditorRequestId = ((SettingsActivity) getActivity()).getRequestCodeCounter().next();
         a.add(new SettingsHeader(getString(R.string.pref_header_theme)));
         createThemeList(a);
         a.add(new ClickableSetting(getString(R.string.theme_create_new), null)
@@ -173,11 +175,9 @@ public class InterfaceSettingsFragment extends SettingsListFragment
     }
 
     private void openThemeEditor(ThemeInfo theme) {
-        ThemeSettingsFragment fragment = new ThemeSettingsFragment();
-        Bundle args = new Bundle();
-        args.putString(ThemeSettingsFragment.ARG_THEME_UUID, theme.uuid.toString());
-        fragment.setArguments(args);
-        ((SettingsActivity) getActivity()).setFragment(fragment);
+        Intent intent = new Intent(getContext(), ThemeEditorActivity.class);
+        intent.putExtra(ThemeEditorActivity.ARG_THEME_UUID, theme.uuid.toString());
+        getActivity().startActivityForResult(intent, mThemeEditorRequestId);
     }
 
     private ThemeInfo createNewTheme() {
@@ -264,6 +264,10 @@ public class InterfaceSettingsFragment extends SettingsListFragment
                 .show();
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 
     public static final class ThemeOptionSetting extends RadioButtonSetting {
 
