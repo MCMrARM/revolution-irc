@@ -65,21 +65,28 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
         addBaseTheme(new BaseTheme("default_dark", R.string.theme_default_dark,
                 R.style.AppTheme, R.style.AppTheme_NoActionBar, R.style.AppTheme_IRCColors,
                 true));
-        loadThemes();
+        reloadThemes();
 
         SettingsHelper.getInstance(context).addPreferenceChangeListener(
                 SettingsHelper.PREF_THEME, this);
         onSharedPreferenceChanged(null, SettingsHelper.PREF_THEME);
     }
 
+    public File getThemesDir() {
+        return themesDir;
+    }
+
     private void addBaseTheme(BaseTheme theme) {
         baseThemes.put(theme.getId(), theme);
     }
 
-    private void loadThemes() {
+    public void reloadThemes() {
         File[] themes = themesDir.listFiles();
         if (themes == null)
             return;
+        if (currentCustomTheme != null)
+            setTheme(fallbackTheme);
+        customThemes.clear();
         for (File themeFile : themes) {
             String fileName = themeFile.getName();
             if (fileName.startsWith(FILENAME_PREFIX) && fileName.endsWith(FILENAME_SUFFIX)) {
@@ -108,14 +115,17 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
         return theme;
     }
 
+    public File getThemePath(UUID uuid) {
+        return new File(themesDir, FILENAME_PREFIX + uuid + FILENAME_SUFFIX);
+    }
+
     public void saveTheme(ThemeInfo theme) throws IOException {
         if (theme.uuid == null) {
             theme.uuid = UUID.randomUUID();
             customThemes.put(theme.uuid, theme);
         }
         themesDir.mkdirs();
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(
-                new File(themesDir, FILENAME_PREFIX + theme.uuid + FILENAME_SUFFIX)))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(getThemePath(theme.uuid)))) {
             SettingsHelper.getGson().toJson(theme, writer);
         }
     }

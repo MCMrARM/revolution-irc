@@ -34,6 +34,8 @@ import java.util.UUID;
 
 import io.mrarm.irc.ServerConnectionManager;
 import io.mrarm.irc.setting.ListWithCustomSetting;
+import io.mrarm.irc.util.theme.ThemeInfo;
+import io.mrarm.irc.util.theme.ThemeManager;
 
 public class BackupManager {
 
@@ -46,6 +48,8 @@ public class BackupManager {
     private static final String BACKUP_NOTIFICATION_RULES_PATH = "notification_rules.json";
     private static final String BACKUP_COMMAND_ALIASES_PATH = "command_aliases.json";
     private static final String NOTIFICATION_COUNT_DB_PATH = "notification-count.db";
+    private static final String BACKUP_THEME_PREFIX = "themes/theme-";
+    private static final String BACKUP_THEME_SUFFIX = ".json";
 
     public static void createBackup(Context context, File file, String password) throws IOException {
         try {
@@ -102,6 +106,12 @@ public class BackupManager {
             params.setFileNameInZip(NOTIFICATION_COUNT_DB_PATH);
             zipFile.addFile(NotificationCountStorage.getFile(context), params);
             NotificationCountStorage.getInstance(context).open();
+
+            ThemeManager themeManager = ThemeManager.getInstance(context);
+            for (ThemeInfo themeInfo : themeManager.getCustomThemes()) {
+                params.setFileNameInZip(BACKUP_THEME_PREFIX + themeInfo.uuid + BACKUP_THEME_SUFFIX);
+                zipFile.addFile(themeManager.getThemePath(themeInfo.uuid), params);
+            }
         } catch (ZipException e) {
             throw new IOException(e);
         }
@@ -149,6 +159,15 @@ public class BackupManager {
                 removeLogServers.add(server.uuid);
             ServerConfigManager.getInstance(context).deleteAllServers(false);
 
+            ThemeManager themeManager = ThemeManager.getInstance(context);
+            File themeDir = themeManager.getThemesDir();
+            File[] themeDirFiles = themeDir.listFiles();
+            if (themeDirFiles != null) {
+                for (File f : themeDirFiles)
+                    f.delete();
+            }
+            themeDir.mkdir();
+
             for (Object header : zipFile.getFileHeaders()) {
                 if (!(header instanceof FileHeader))
                     continue;
@@ -186,6 +205,19 @@ public class BackupManager {
                             ListWithCustomSetting.getCustomFilesDir(context).getAbsolutePath(),
                             null, name);
                 }
+                if (fileHeader.getFileName().startsWith(BACKUP_THEME_PREFIX) &&
+                        fileHeader.getFileName().endsWith(BACKUP_THEME_SUFFIX)) {
+                    String uuid = fileHeader.getFileName();
+                    uuid = uuid.substring(BACKUP_THEME_PREFIX.length(), uuid.length() -
+                            BACKUP_THEME_SUFFIX.length());
+                    try {
+                        File extractTo = themeManager.getThemePath(UUID.fromString(uuid));
+                        zipFile.extractFile(fileHeader, extractTo.getParentFile().getAbsolutePath(),
+                                null, extractTo.getName());
+                    } catch (IllegalArgumentException e) {
+                        Log.w("BackupManager", "Failed to restore theme " + uuid);
+                    }
+                }
             }
 
             for (UUID uuid : removeLogServers) {
@@ -220,6 +252,8 @@ public class BackupManager {
             } catch (ZipException ignored) {
             }
             NotificationCountStorage.getInstance(context).open();
+
+            themeManager.reloadThemes();
         } catch (ZipException e) {
             throw new IOException(e);
         }
