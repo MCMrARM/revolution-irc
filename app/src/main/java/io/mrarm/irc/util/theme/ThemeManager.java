@@ -69,7 +69,6 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
 
         SettingsHelper.getInstance(context).addPreferenceChangeListener(
                 SettingsHelper.PREF_THEME, this);
-        onSharedPreferenceChanged(null, SettingsHelper.PREF_THEME);
     }
 
     public File getThemesDir() {
@@ -85,7 +84,7 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
         if (themes == null)
             return;
         if (currentCustomTheme != null)
-            setTheme(fallbackTheme);
+            applyTheme(fallbackTheme);
         customThemes.clear();
         for (File themeFile : themes) {
             String fileName = themeFile.getName();
@@ -100,6 +99,7 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
                 }
             }
         }
+        onSharedPreferenceChanged(null, SettingsHelper.PREF_THEME);
     }
 
     private ThemeInfo loadTheme(File themeFile, UUID uuid) throws IOException {
