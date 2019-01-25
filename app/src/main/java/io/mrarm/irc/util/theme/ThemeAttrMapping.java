@@ -63,6 +63,10 @@ public class ThemeAttrMapping {
         ircColorToAttrs.put(ThemeInfo.COLOR_IRC_PINK, R.attr.colorPink);
         ircColorToAttrs.put(ThemeInfo.COLOR_IRC_GRAY, R.attr.colorGray);
         ircColorToAttrs.put(ThemeInfo.COLOR_IRC_LIGHT_GRAY, R.attr.colorLightGray);
+        ircColorToAttrs.put(ThemeInfo.COLOR_IRC_TIMESTAMP, R.attr.colorTimestamp);
+        ircColorToAttrs.put(ThemeInfo.COLOR_IRC_STATUS_TEXT, R.attr.colorStatusText);
+        ircColorToAttrs.put(ThemeInfo.COLOR_IRC_DISCONNECTED, R.attr.colorDisconnected);
+        ircColorToAttrs.put(ThemeInfo.COLOR_IRC_TOPIC, R.attr.colorTopic);
     }
 
 }

@@ -28,6 +28,10 @@ public class ChatThemeSettings extends BaseThemeEditorFragment {
         addIrcColorSetting(a, R.string.theme_color_irc_pink, ThemeInfo.COLOR_IRC_PINK);
         addIrcColorSetting(a, R.string.theme_color_irc_gray, ThemeInfo.COLOR_IRC_GRAY);
         addIrcColorSetting(a, R.string.theme_color_irc_light_gray, ThemeInfo.COLOR_IRC_LIGHT_GRAY);
+        addIrcColorSetting(a, R.string.theme_color_message_timestamp, ThemeInfo.COLOR_IRC_TIMESTAMP);
+        addIrcColorSetting(a, R.string.theme_color_message_status_text, ThemeInfo.COLOR_IRC_STATUS_TEXT);
+        addIrcColorSetting(a, R.string.theme_color_message_disconnected, ThemeInfo.COLOR_IRC_DISCONNECTED);
+        addIrcColorSetting(a, R.string.theme_color_message_topic, ThemeInfo.COLOR_IRC_TOPIC);
         return a;
     }
 
