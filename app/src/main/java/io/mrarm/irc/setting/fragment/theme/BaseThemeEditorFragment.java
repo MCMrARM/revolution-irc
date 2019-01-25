@@ -62,11 +62,24 @@ public abstract class BaseThemeEditorFragment extends SettingsListFragment {
 
         private static int getDefaultValue(Context context, ThemeInfo theme, String prop) {
             List<Integer> attrs = ThemeAttrMapping.getColorAttrs(prop);
-            if (attrs == null || attrs.size() == 0)
-                return 0;
-            StyledAttributesHelper attrVals = StyledAttributesHelper.obtainStyledAttributes(context,
-                    theme.baseThemeInfo.getThemeResId(), new int[] { attrs.get(0) });
-            return attrVals.getColor(attrs.get(0), 0);
+            if (attrs != null && attrs.size() > 0) {
+                StyledAttributesHelper attrVals =
+                        StyledAttributesHelper.obtainStyledAttributes(context,
+                                theme.baseThemeInfo.getThemeResId(), new int[]{attrs.get(0)});
+                int ret = attrVals.getColor(attrs.get(0), 0);
+                attrVals.recycle();
+                return ret;
+            }
+            Integer attr = ThemeAttrMapping.getIrcColorAttr(prop);
+            if (attr != null) {
+                StyledAttributesHelper attrVals =
+                        StyledAttributesHelper.obtainStyledAttributes(context,
+                                theme.baseThemeInfo.getIRCColorsResId(), new int[]{attr});
+                int ret = attrVals.getColor(attr, 0);
+                attrVals.recycle();
+                return ret;
+            }
+            return 0;
         }
 
         public ThemeColorSetting linkProperty(Context context, ThemeInfo theme, String prop) {
