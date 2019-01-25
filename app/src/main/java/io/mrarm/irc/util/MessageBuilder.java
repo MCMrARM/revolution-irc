@@ -705,7 +705,7 @@ public class MessageBuilder {
 
         public static int resolveColor(Context context, int colorId) {
             if (colorId == COLOR_SENDER)
-                return context.getResources().getColor(R.color.messageSenderFallbackColor);
+                return IRCColorUtils.getSenderFallbackColor(context);
             if (colorId == COLOR_TIMESTAMP)
                 return IRCColorUtils.getTimestampTextColor(context);
             if (colorId == COLOR_STATUS)

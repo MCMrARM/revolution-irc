@@ -1,6 +1,7 @@
 package io.mrarm.irc.util;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.Spannable;
@@ -10,50 +11,90 @@ import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
+import android.util.TypedValue;
+
+import java.util.Arrays;
 
 import io.mrarm.irc.R;
 
 public class IRCColorUtils {
 
-    public static int[] COLOR_IDS = new int[] {
-            R.color.ircBlack,
-            R.color.ircWhite,
-            R.color.ircBlue,
-            R.color.ircGreen,
-            R.color.ircLightRed,
-            R.color.ircBrown,
-            R.color.ircPurple,
-            R.color.ircOrange,
-            R.color.ircYellow,
-            R.color.ircLightGreen,
-            R.color.ircCyan,
-            R.color.ircLightCyan,
-            R.color.ircLightBlue,
-            R.color.ircPink,
-            R.color.ircGray,
-            R.color.ircLightGray
+    private static int[] COLOR_IDS = new int[] {
+            R.styleable.IRCColors_colorBlack,
+            R.styleable.IRCColors_colorWhite,
+            R.styleable.IRCColors_colorBlue,
+            R.styleable.IRCColors_colorGreen,
+            R.styleable.IRCColors_colorLightRed,
+            R.styleable.IRCColors_colorBrown,
+            R.styleable.IRCColors_colorPurple,
+            R.styleable.IRCColors_colorOrange,
+            R.styleable.IRCColors_colorYellow,
+            R.styleable.IRCColors_colorLightGreen,
+            R.styleable.IRCColors_colorCyan,
+            R.styleable.IRCColors_colorLightCyan,
+            R.styleable.IRCColors_colorLightBlue,
+            R.styleable.IRCColors_colorPink,
+            R.styleable.IRCColors_colorGray,
+            R.styleable.IRCColors_colorLightGray
     };
 
-    public static int[] NICK_COLORS = new int[] { 3, 4, 7, 8, 9, 10, 11, 12, 13 };
+    private static int[] NICK_COLORS = new int[] { 3, 4, 7, 8, 9, 10, 11, 12, 13 };
+
+    private static int[] sColorValues = null;
+
+    public static void loadColors(Context context, int resId) {
+        TypedArray ta = context.getTheme().obtainStyledAttributes(resId, R.styleable.IRCColors);
+        sColorValues = new int[R.styleable.IRCColors.length];
+        for (int i = 0; i < sColorValues.length; i++) {
+            try {
+                int j = i;
+                while (ta.peekValue(j).type == TypedValue.TYPE_ATTRIBUTE)
+                    j = Arrays.binarySearch(R.styleable.IRCColors, ta.peekValue(j).data);
+                sColorValues[i] = ta.getColor(j, Color.RED);
+            } catch (UnsupportedOperationException e) {
+                e.printStackTrace();
+                sColorValues[i] = Color.RED;
+            }
+        }
+        ta.recycle();
+    }
+
+    private static void loadColors(Context context) {
+        loadColors(context, R.style.AppTheme_IRCColors);
+    }
 
     public static int getColor(Context context, int colorId) {
-        return context.getResources().getColor(COLOR_IDS[colorId]);
+        if (sColorValues == null)
+            loadColors(context);
+        return sColorValues[COLOR_IDS[colorId]];
     }
 
     public static int getStatusTextColor(Context context) {
-        return context.getResources().getColor(R.color.messageStatusText);
+        if (sColorValues == null)
+            loadColors(context);
+        return sColorValues[R.styleable.IRCColors_colorStatusText];
     }
 
     public static int getTimestampTextColor(Context context) {
-        return context.getResources().getColor(R.color.messageTimestamp);
+        if (sColorValues == null)
+            loadColors(context);
+        return sColorValues[R.styleable.IRCColors_colorTimestamp];
     }
 
     public static int getTopicTextColor(Context context) {
-        return context.getResources().getColor(R.color.messageTopic);
+        if (sColorValues == null)
+            loadColors(context);
+        return sColorValues[R.styleable.IRCColors_colorTopic];
+    }
+
+    public static int getSenderFallbackColor(Context context) {
+        if (sColorValues == null)
+            loadColors(context);
+        return sColorValues[R.styleable.IRCColors_colorSenderFallbackColor];
     }
 
     public static int getBanMaskColor(Context context) {
-        return context.getResources().getColor(R.color.ircLightRed);
+        return getColor(context, 4 /* light red */);
     }
 
     public static int getNickColor(Context context, String nick) {

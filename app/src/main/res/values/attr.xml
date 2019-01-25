@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <attr name="ircColors" type="reference" />
 
     <attr name="iconColor" type="reference" />
     <attr name="iconColorOpaque" type="reference" />
@@ -37,6 +38,31 @@
 
     <declare-styleable name="OpaqueStatusBarRelativeLayout">
         <attr name="colorPrimaryDark" />
+    </declare-styleable>
+
+    <declare-styleable name="IRCColors">
+        <attr name="colorBlack" format="color" />
+        <attr name="colorWhite" format="color" />
+        <attr name="colorBlue" format="color" />
+        <attr name="colorGreen" format="color" />
+        <attr name="colorLightRed" format="color" />
+        <attr name="colorBrown" format="color" />
+        <attr name="colorPurple" format="color" />
+        <attr name="colorOrange" format="color" />
+        <attr name="colorYellow" format="color" />
+        <attr name="colorLightGreen" format="color" />
+        <attr name="colorCyan" format="color" />
+        <attr name="colorLightCyan" format="color" />
+        <attr name="colorLightBlue" format="color" />
+        <attr name="colorPink" format="color" />
+        <attr name="colorGray" format="color" />
+        <attr name="colorLightGray" format="color" />
+
+        <attr name="colorTimestamp" format="reference|color" />
+        <attr name="colorStatusText" format="reference|color" />
+        <attr name="colorDisconnected" format="reference|color" />
+        <attr name="colorSenderFallbackColor" format="reference|color" />
+        <attr name="colorTopic" format="reference|color" />
     </declare-styleable>
 
 </resources>

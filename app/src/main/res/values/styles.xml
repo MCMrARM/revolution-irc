@@ -12,6 +12,8 @@
 
         <item name="iconColor">@color/iconColor</item>
         <item name="iconColorOpaque">@color/iconColorText</item>
+
+        <item name="ircColors">@style/AppTheme.IRCColors</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -35,6 +37,31 @@
     <style name="AppTheme.Widget.Button.Colored" parent="Widget.AppCompat.Button.Colored" />
 
     <style name="AppTheme.Spinner" parent="Widget.AppCompat.EditText"></style>
+    
+    <style name="AppTheme.IRCColors">
+        <item name="colorBlack">@color/ircBlack</item>
+        <item name="colorWhite">@color/ircWhite</item>
+        <item name="colorBlue">@color/ircBlue</item>
+        <item name="colorGreen">@color/ircGreen</item>
+        <item name="colorLightRed">@color/ircLightRed</item>
+        <item name="colorBrown">@color/ircBrown</item>
+        <item name="colorPurple">@color/ircPurple</item>
+        <item name="colorOrange">@color/ircOrange</item>
+        <item name="colorYellow">@color/ircYellow</item>
+        <item name="colorLightGreen">@color/ircLightGreen</item>
+        <item name="colorCyan">@color/ircCyan</item>
+        <item name="colorLightCyan">@color/ircLightCyan</item>
+        <item name="colorLightBlue">@color/ircLightBlue</item>
+        <item name="colorPink">@color/ircPink</item>
+        <item name="colorGray">@color/ircGray</item>
+        <item name="colorLightGray">@color/ircLightGray</item>
+
+        <item name="colorTimestamp">@color/messageTimestamp</item>
+        <item name="colorStatusText">@color/messageStatusText</item>
+        <item name="colorDisconnected">@color/messageDisconnected</item>
+        <item name="colorSenderFallbackColor">?attr/colorBlue</item>
+        <item name="colorTopic">@color/messageTopic</item>
+    </style>
 
     <style name="Icon">
         <item name="tint">?attr/iconColor</item>
