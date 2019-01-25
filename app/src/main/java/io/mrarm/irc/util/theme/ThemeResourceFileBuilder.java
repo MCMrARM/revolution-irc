@@ -48,26 +48,32 @@ public class ThemeResourceFileBuilder {
         }
         pkg.addType(colorType);
 
-        ResTable.TypeSpec styleTypeSpec = new ResTable.TypeSpec(2, "style", new int[] { 0, 0 });
+        ResTable.TypeSpec styleTypeSpec = new ResTable.TypeSpec(2, "style", new int[] { 0, 0, 0 });
         pkg.addType(styleTypeSpec);
         ResTable.Type styleType = new ResTable.Type(2, new ResTable.Config());
+        ResTable.MapEntry ircColors = new ResTable.MapEntry(2, "AppTheme.IRCColors");
+        ircColors.setParent(theme.baseThemeInfo.getIRCColorsResId());
         ResTable.MapEntry appTheme = new ResTable.MapEntry(0, "AppTheme");
         appTheme.setParent(theme.baseThemeInfo.getThemeResId());
-        styleType.addEntry(appTheme);
         ResTable.MapEntry appThemeNoActionBar = new ResTable.MapEntry(1, "AppTheme.NoActionBar");
         appThemeNoActionBar.setParent(theme.baseThemeInfo.getThemeNoActionBarResId());
+        styleType.addEntry(appTheme);
         styleType.addEntry(appThemeNoActionBar);
+        styleType.addEntry(ircColors);
         pkg.addType(styleType);
 
         for (int i = 0; i < colors.size(); i++) {
             String color = colors.get(i);
             List<Integer> resIds = ThemeAttrMapping.getColorAttrs(color);
-            if (resIds == null)
-                continue;
-            for (int resId : resIds)
-                appTheme.addValue(resId, new ResValue.Reference(pkg, colorTypeSpec, i));
-            for (int resId : resIds)
-                appThemeNoActionBar.addValue(resId, new ResValue.Reference(pkg, colorTypeSpec, i));
+            if (resIds != null) {
+                for (int resId : resIds)
+                    appTheme.addValue(resId, new ResValue.Reference(pkg, colorTypeSpec, i));
+                for (int resId : resIds)
+                    appThemeNoActionBar.addValue(resId, new ResValue.Reference(pkg, colorTypeSpec, i));
+            }
+            Integer resId = ThemeAttrMapping.getIrcColorAttr(color);
+            if (resId != null)
+                ircColors.addValue(resId, new ResValue.Reference(pkg, colorTypeSpec, i));
         }
         if (theme.getBool(ThemeInfo.PROP_LIGHT_TOOLBAR) == Boolean.TRUE) {
             setUseLightActionBar(appTheme);
@@ -78,7 +84,8 @@ public class ThemeResourceFileBuilder {
 
         table.addPackage(pkg);
         return new CustomTheme(ResTable.makeReference(pkg, styleTypeSpec, appTheme),
-                ResTable.makeReference(pkg, styleTypeSpec, appThemeNoActionBar), table);
+                ResTable.makeReference(pkg, styleTypeSpec, appThemeNoActionBar),
+                ResTable.makeReference(pkg, styleTypeSpec, ircColors), table);
     }
 
     private static void buildThemeZipFile(File zipPath, ResTable resTable) {
@@ -134,8 +141,9 @@ public class ThemeResourceFileBuilder {
 
         private ResTable resTable;
 
-        public CustomTheme(int themeResId, int themeNoActionBarResId, ResTable resTable) {
-            super(themeResId, themeNoActionBarResId);
+        public CustomTheme(int themeResId, int themeNoActionBarResId, int ircColorsResId,
+                           ResTable resTable) {
+            super(themeResId, themeNoActionBarResId, ircColorsResId);
             this.resTable = resTable;
         }
 

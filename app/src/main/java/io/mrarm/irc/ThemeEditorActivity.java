@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
+import io.mrarm.irc.setting.fragment.theme.ChatThemeSettings;
 import io.mrarm.irc.setting.fragment.theme.CommonThemeSettings;
 import io.mrarm.irc.util.AppCompatViewFactory;
 import io.mrarm.irc.util.theme.ThemeInfo;
@@ -112,6 +113,8 @@ public class ThemeEditorActivity extends ThemedActivity {
         public Fragment getItem(int position) {
             if (position == 0)
                 return new CommonThemeSettings();
+            if (position == 1)
+                return new ChatThemeSettings();
             return null;
         }
 
@@ -120,12 +123,14 @@ public class ThemeEditorActivity extends ThemedActivity {
         public CharSequence getPageTitle(int position) {
             if (position == 0)
                 return getString(R.string.theme_category_common);
+            if (position == 1)
+                return getString(R.string.theme_category_chat);
             return null;
         }
 
         @Override
         public int getCount() {
-            return 1;
+            return 2;
         }
     }
 }

@@ -5,7 +5,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import androidx.appcompat.app.AppCompatDelegate;
+
+import android.content.res.Resources;
 import android.util.Log;
+import android.util.TypedValue;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -22,6 +25,7 @@ import java.util.UUID;
 
 import io.mrarm.irc.R;
 import io.mrarm.irc.config.SettingsHelper;
+import io.mrarm.irc.util.IRCColorUtils;
 import io.mrarm.thememonkey.Theme;
 
 public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -55,10 +59,12 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
         themesDir = new File(context.getFilesDir(), "themes");
 
         fallbackTheme = new BaseTheme("default", R.string.value_default,
-                R.style.AppTheme, R.style.AppTheme_NoActionBar, false);
+                R.style.AppTheme, R.style.AppTheme_NoActionBar, R.style.AppTheme_IRCColors,
+                false);
         baseThemes.put(fallbackTheme.getId(), fallbackTheme);
         addBaseTheme(new BaseTheme("default_dark", R.string.theme_default_dark,
-                R.style.AppTheme, R.style.AppTheme_NoActionBar, true));
+                R.style.AppTheme, R.style.AppTheme_NoActionBar, R.style.AppTheme_IRCColors,
+                true));
         loadThemes();
 
         SettingsHelper.getInstance(context).addPreferenceChangeListener(
@@ -173,8 +179,6 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
         } else {
             applyTheme(baseThemes.get(theme));
         }
-        if (currentTheme == null && currentCustomTheme == null)
-            currentTheme = fallbackTheme;
 
         for (ThemeChangeListener listener : themeChangeListeners)
             listener.onThemeChanged();
@@ -186,6 +190,7 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
         currentCustomThemePatcher = null;
         if (theme == null)
             currentTheme = fallbackTheme;
+        IRCColorUtils.loadColors(context.getTheme(), currentTheme.getIRCColorsResId());
     }
 
     private void applyTheme(ThemeInfo theme) {
@@ -214,6 +219,7 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
     }
 
     public void applyThemeToActivity(Activity activity) {
+        boolean needsApplyIrcColors = false;
         if (currentCustomThemePatcher == null && currentCustomTheme != null) {
             ThemeResourceFileBuilder.CustomTheme theme = ThemeResourceFileBuilder
                     .createTheme(context, currentCustomTheme);
@@ -221,9 +227,13 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
             File themeFile = ThemeResourceFileBuilder.createThemeZipFile(context,
                     theme.getResTable());
             currentCustomThemePatcher = new Theme(context, themeFile.getAbsolutePath());
+            needsApplyIrcColors = true;
         }
-        if (currentCustomThemePatcher != null)
+        if (currentCustomThemePatcher != null) {
             currentCustomThemePatcher.applyToActivity(activity);
+            if (needsApplyIrcColors)
+                IRCColorUtils.loadColors(activity.getTheme(), currentTheme.getIRCColorsResId());
+        }
         ThemeResInfo currentBaseTheme = currentTheme;
         if (currentCustomTheme != null)
             currentBaseTheme = currentCustomTheme.baseThemeInfo;
@@ -256,10 +266,12 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
 
         private int themeResId;
         private int themeNoActionBarResId;
+        private int ircColorsResId;
 
-        public ThemeResInfo(int themeResId, int themeNoActionBarResId) {
+        public ThemeResInfo(int themeResId, int themeNoActionBarResId, int ircColorsResId) {
             this.themeResId = themeResId;
             this.themeNoActionBarResId = themeNoActionBarResId;
+            this.ircColorsResId = ircColorsResId;
         }
 
         public int getThemeResId() {
@@ -268,6 +280,10 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
 
         public int getThemeNoActionBarResId() {
             return themeNoActionBarResId;
+        }
+
+        public int getIRCColorsResId() {
+            return ircColorsResId;
         }
 
     }
@@ -279,8 +295,8 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
         private boolean isDark;
 
         public BaseTheme(String id, int nameResId, int themeResId, int themeNoActionBarResId,
-                         boolean isDark) {
-            super(themeResId, themeNoActionBarResId);
+                         int ircColorsResId, boolean isDark) {
+            super(themeResId, themeNoActionBarResId, ircColorsResId);
             this.id = id;
             this.nameResId = nameResId;
             this.isDark = isDark;

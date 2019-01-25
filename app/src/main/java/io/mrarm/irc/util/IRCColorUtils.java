@@ -1,6 +1,7 @@
 package io.mrarm.irc.util;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -42,14 +43,15 @@ public class IRCColorUtils {
 
     private static int[] sColorValues = null;
 
-    public static void loadColors(Context context, int resId) {
-        TypedArray ta = context.getTheme().obtainStyledAttributes(resId, R.styleable.IRCColors);
+    public static void loadColors(Resources.Theme theme, int resId) {
+        TypedArray ta = theme.obtainStyledAttributes(resId, R.styleable.IRCColors);
         sColorValues = new int[R.styleable.IRCColors.length];
         for (int i = 0; i < sColorValues.length; i++) {
             try {
                 int j = i;
-                while (ta.peekValue(j).type == TypedValue.TYPE_ATTRIBUTE)
-                    j = Arrays.binarySearch(R.styleable.IRCColors, ta.peekValue(j).data);
+                TypedValue tv;
+                while ((tv = ta.peekValue(j)) != null && tv.type == TypedValue.TYPE_ATTRIBUTE)
+                    j = Arrays.binarySearch(R.styleable.IRCColors, tv.data);
                 sColorValues[i] = ta.getColor(j, Color.RED);
             } catch (UnsupportedOperationException e) {
                 e.printStackTrace();
@@ -60,7 +62,7 @@ public class IRCColorUtils {
     }
 
     private static void loadColors(Context context) {
-        loadColors(context, R.style.AppTheme_IRCColors);
+        loadColors(context.getTheme(), R.style.AppTheme_IRCColors);
     }
 
     public static int getColor(Context context, int colorId) {

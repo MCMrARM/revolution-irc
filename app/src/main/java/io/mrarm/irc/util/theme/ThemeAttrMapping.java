@@ -11,6 +11,7 @@ import io.mrarm.irc.R;
 public class ThemeAttrMapping {
 
     private static final Map<String, List<Integer>> colorToAttrs = new HashMap<>();
+    private static final Map<String, Integer> ircColorToAttrs = new HashMap<>();
 
     public static Collection<String> getColorProperties() {
         return colorToAttrs.keySet();
@@ -29,6 +30,10 @@ public class ThemeAttrMapping {
         return colorToAttrs.get(color);
     }
 
+    public static Integer getIrcColorAttr(String color) {
+        return ircColorToAttrs.get(color);
+    }
+
     static {
         mapColorToAttr(ThemeInfo.COLOR_PRIMARY, R.attr.colorPrimary);
         mapColorToAttr(ThemeInfo.COLOR_PRIMARY_DARK, R.attr.colorPrimaryDark);
@@ -41,6 +46,23 @@ public class ThemeAttrMapping {
         mapColorToAttr(ThemeInfo.COLOR_TEXT_SECONDARY, android.R.attr.textColorTertiary);
         mapColorToAttr(ThemeInfo.COLOR_ICON, R.attr.iconColor);
         mapColorToAttr(ThemeInfo.COLOR_ICON_OPAQUE, R.attr.iconColorOpaque);
+
+        ircColorToAttrs.put(ThemeInfo.COLOR_IRC_BLACK, R.attr.colorBlack);
+        ircColorToAttrs.put(ThemeInfo.COLOR_IRC_WHITE, R.attr.colorWhite);
+        ircColorToAttrs.put(ThemeInfo.COLOR_IRC_BLUE, R.attr.colorBlue);
+        ircColorToAttrs.put(ThemeInfo.COLOR_IRC_GREEN, R.attr.colorGreen);
+        ircColorToAttrs.put(ThemeInfo.COLOR_IRC_LIGHT_RED, R.attr.colorLightRed);
+        ircColorToAttrs.put(ThemeInfo.COLOR_IRC_BROWN, R.attr.colorBrown);
+        ircColorToAttrs.put(ThemeInfo.COLOR_IRC_PURPLE, R.attr.colorPurple);
+        ircColorToAttrs.put(ThemeInfo.COLOR_IRC_ORANGE, R.attr.colorOrange);
+        ircColorToAttrs.put(ThemeInfo.COLOR_IRC_YELLOW, R.attr.colorYellow);
+        ircColorToAttrs.put(ThemeInfo.COLOR_IRC_LIGHT_GREEN, R.attr.colorLightGreen);
+        ircColorToAttrs.put(ThemeInfo.COLOR_IRC_CYAN, R.attr.colorCyan);
+        ircColorToAttrs.put(ThemeInfo.COLOR_IRC_LIGHT_CYAN, R.attr.colorLightCyan);
+        ircColorToAttrs.put(ThemeInfo.COLOR_IRC_LIGHT_BLUE, R.attr.colorLightBlue);
+        ircColorToAttrs.put(ThemeInfo.COLOR_IRC_PINK, R.attr.colorPink);
+        ircColorToAttrs.put(ThemeInfo.COLOR_IRC_GRAY, R.attr.colorGray);
+        ircColorToAttrs.put(ThemeInfo.COLOR_IRC_LIGHT_GRAY, R.attr.colorLightGray);
     }
 
 }

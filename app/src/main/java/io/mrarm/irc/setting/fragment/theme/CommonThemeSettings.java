@@ -24,12 +24,6 @@ import io.mrarm.irc.util.theme.live.LiveThemeManager;
 public class CommonThemeSettings extends BaseThemeEditorFragment {
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-
-    }
-
-    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
