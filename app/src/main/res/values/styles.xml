@@ -14,6 +14,9 @@
         <item name="iconColorOpaque">@color/iconColorText</item>
 
         <item name="ircColors">@style/AppTheme.IRCColors</item>
+
+        <item name="actionBarTextColorPrimary">@color/abc_primary_text_material_dark</item>
+        <item name="actionBarTextColorSecondary">@color/abc_secondary_text_material_dark</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -28,7 +31,10 @@
         <item name="windowActionModeOverlay">true</item>
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="android:textColorPrimary">?attr/actionBarTextColorPrimary</item>
+        <item name="android:textColorSecondary">?attr/actionBarTextColorSecondary</item>
+    </style>
 
     <style name="AppTheme.LightAppBarOverlay" parent="ThemeOverlay.AppCompat.ActionBar" />
 
@@ -36,7 +42,7 @@
 
     <style name="AppTheme.Widget.Button.Colored" parent="Widget.AppCompat.Button.Colored" />
 
-    <style name="AppTheme.Spinner" parent="Widget.AppCompat.EditText"></style>
+    <style name="AppTheme.Spinner" parent="Widget.AppCompat.EditText" />
     
     <style name="AppTheme.IRCColors">
         <item name="colorBlack">@color/ircBlack</item>

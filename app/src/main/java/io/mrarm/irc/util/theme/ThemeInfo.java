@@ -25,6 +25,8 @@ public class ThemeInfo {
     public static final String COLOR_TEXT_SECONDARY = "textColorSecondary";
     public static final String COLOR_ICON = "app_colorIcon";
     public static final String COLOR_ICON_OPAQUE = "app_colorIconOpaque";
+    public static final String COLOR_ACTION_BAR_TEXT_PRIMARY = "app_actionBarTextColorPrimary";
+    public static final String COLOR_ACTION_BAR_TEXT_SECONDARY = "app_actionBarTextColorSecondary";
     public static final String COLOR_IRC_BLACK = "irc_colorBlack";
     public static final String COLOR_IRC_WHITE = "irc_colorWhite";
     public static final String COLOR_IRC_BLUE = "irc_colorBlue";
@@ -45,8 +47,6 @@ public class ThemeInfo {
     public static final String COLOR_IRC_STATUS_TEXT = "irc_colorStatusText";
     public static final String COLOR_IRC_DISCONNECTED = "irc_colorDisconnected";
     public static final String COLOR_IRC_TOPIC = "irc_colorTopic";
-
-    public static final String PROP_LIGHT_TOOLBAR = "lightToolbar";
 
     public transient UUID uuid;
     public String name;

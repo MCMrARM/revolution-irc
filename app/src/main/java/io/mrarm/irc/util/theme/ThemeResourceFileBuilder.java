@@ -18,18 +18,10 @@ import java.util.zip.ZipOutputStream;
 import io.mrarm.arsc.ArscWriter;
 import io.mrarm.arsc.chunks.ResTable;
 import io.mrarm.arsc.chunks.ResValue;
-import io.mrarm.irc.R;
 
 public class ThemeResourceFileBuilder {
 
     private static int sessionThemeIndex = 0;
-
-    private static void setUseLightActionBar(ResTable.MapEntry theme) {
-        theme.addValue(R.attr.actionBarPopupTheme,
-                new ResValue.Reference(R.style.ThemeOverlay_AppCompat));
-        theme.addValue(R.attr.actionBarTheme,
-                new ResValue.Reference(R.style.ThemeOverlay_AppCompat_ActionBar));
-    }
 
     public static CustomTheme createTheme(Context ctx, ThemeInfo theme) {
         ResTable table = new ResTable();
@@ -74,10 +66,6 @@ public class ThemeResourceFileBuilder {
             Integer resId = ThemeAttrMapping.getIrcColorAttr(color);
             if (resId != null)
                 ircColors.addValue(resId, new ResValue.Reference(pkg, colorTypeSpec, i));
-        }
-        if (theme.getBool(ThemeInfo.PROP_LIGHT_TOOLBAR) == Boolean.TRUE) {
-            setUseLightActionBar(appTheme);
-            setUseLightActionBar(appThemeNoActionBar);
         }
         Collections.sort(appTheme.value, (a, b) -> a.name - b.name);
         Collections.sort(appThemeNoActionBar.value, (a, b) -> a.name - b.name);

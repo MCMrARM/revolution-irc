@@ -46,6 +46,8 @@ public class ThemeAttrMapping {
         mapColorToAttr(ThemeInfo.COLOR_TEXT_SECONDARY, android.R.attr.textColorTertiary);
         mapColorToAttr(ThemeInfo.COLOR_ICON, R.attr.iconColor);
         mapColorToAttr(ThemeInfo.COLOR_ICON_OPAQUE, R.attr.iconColorOpaque);
+        mapColorToAttr(ThemeInfo.COLOR_ACTION_BAR_TEXT_PRIMARY, R.attr.actionBarTextColorPrimary);
+        mapColorToAttr(ThemeInfo.COLOR_ACTION_BAR_TEXT_SECONDARY, R.attr.actionBarTextColorSecondary);
 
         ircColorToAttrs.put(ThemeInfo.COLOR_IRC_BLACK, R.attr.colorBlack);
         ircColorToAttrs.put(ThemeInfo.COLOR_IRC_WHITE, R.attr.colorWhite);

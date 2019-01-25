@@ -1,6 +1,7 @@
 package io.mrarm.irc;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 
 import androidx.fragment.app.Fragment;
@@ -17,7 +18,12 @@ import io.mrarm.irc.util.theme.live.LiveThemeViewFactory;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
 
 import com.google.android.material.tabs.TabLayout;
 
@@ -67,6 +73,37 @@ public class ThemeEditorActivity extends ThemedActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_settings_theme, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        if (item.getItemId() == R.id.action_rename) {
+            View view = LayoutInflater.from(this)
+                    .inflate(R.layout.dialog_edit_text, null);
+            EditText text = view.findViewById(R.id.edit_text);
+            text.setText(getThemeInfo().name);
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.action_rename)
+                    .setView(view)
+                    .setPositiveButton(R.string.action_ok, (dialog1, which) -> {
+                        getThemeInfo().name = text.getText().toString();
+                        notifyThemeNameChanged();
+                    })
+                    .setNegativeButton(R.string.action_cancel, null)
+                    .show();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public void onBackPressed() {
         ThemeManager.getInstance(this).invalidateCurrentCustomTheme();
         super.onBackPressed();
@@ -84,15 +121,6 @@ public class ThemeEditorActivity extends ThemedActivity {
 
     public void notifyThemeNameChanged() {
         mToolbar.setTitle(mThemeInfo.name);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     public ThemeInfo getThemeInfo() {

@@ -1,19 +1,11 @@
 package io.mrarm.irc.setting.fragment.theme;
 
-import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.View;
-import android.widget.EditText;
 
 import java.util.Collection;
 
 import io.mrarm.irc.R;
-import io.mrarm.irc.ThemeEditorActivity;
 import io.mrarm.irc.setting.ListSetting;
 import io.mrarm.irc.setting.SettingsListAdapter;
 import io.mrarm.irc.util.EntryRecyclerViewAdapter;
@@ -71,9 +63,16 @@ public class CommonThemeSettings extends BaseThemeEditorFragment {
                 .linkLiveApplyManager(liveThemeManager)
                 .setExpandGroup(colorExpandGroup)
                 .setSavedColors(themeInfo.savedColors));
-        a.add(new ThemeBoolSetting(getString(R.string.theme_light_toolbar))
-                .linkProperty(getContext(), themeInfo, ThemeInfo.PROP_LIGHT_TOOLBAR)
-                .addListener(applyListener));
+        a.add(new ThemeColorSetting(getString(R.string.theme_color_action_bar_text_primary))
+                .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_ACTION_BAR_TEXT_PRIMARY)
+                .linkLiveApplyManager(liveThemeManager)
+                .setExpandGroup(colorExpandGroup)
+                .setSavedColors(themeInfo.savedColors));
+        a.add(new ThemeColorSetting(getString(R.string.theme_color_action_bar_text_secondary))
+                .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_ACTION_BAR_TEXT_SECONDARY)
+                .linkLiveApplyManager(liveThemeManager)
+                .setExpandGroup(colorExpandGroup)
+                .setSavedColors(themeInfo.savedColors));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_background))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_BACKGROUND)
                 .linkLiveApplyManager(liveThemeManager)
@@ -105,28 +104,6 @@ public class CommonThemeSettings extends BaseThemeEditorFragment {
                 .setExpandGroup(colorExpandGroup)
                 .setSavedColors(themeInfo.savedColors));
         return a;
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.menu_settings_theme, menu);
-        menu.findItem(R.id.action_rename).setOnMenuItemClickListener(item -> {
-            View view = LayoutInflater.from(getContext())
-                    .inflate(R.layout.dialog_edit_text, null);
-            EditText text = view.findViewById(R.id.edit_text);
-            text.setText(getThemeInfo().name);
-            new AlertDialog.Builder(getContext())
-                    .setTitle(R.string.action_rename)
-                    .setView(view)
-                    .setPositiveButton(R.string.action_ok, (dialog1, which) -> {
-                        getThemeInfo().name = text.getText().toString();
-                        ((ThemeEditorActivity) getActivity()).notifyThemeNameChanged();
-                    })
-                    .setNegativeButton(R.string.action_cancel, null)
-                    .show();
-            return true;
-        });
     }
 
     private void onNonLivePropertyChanged() {
