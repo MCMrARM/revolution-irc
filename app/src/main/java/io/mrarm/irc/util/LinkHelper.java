@@ -1,5 +1,7 @@
 package io.mrarm.irc.util;
 
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -44,9 +46,17 @@ public class LinkHelper {
             mChannel = channel;
         }
 
+        private MainActivity findActivity(Context ctx) {
+            if (ctx instanceof MainActivity)
+                return (MainActivity) ctx;
+            if (ctx instanceof ContextWrapper)
+                return findActivity(((ContextWrapper) ctx).getBaseContext());
+            return null;
+        }
+
         @Override
         public void onClick(View view) {
-            MainActivity activity = ((MainActivity) view.getRootView().getContext());
+            MainActivity activity = findActivity(view.getContext());
             MenuBottomSheetDialog dialog = new MenuBottomSheetDialog(view.getContext());
             dialog.addHeader(mChannel);
             dialog.addItem(R.string.action_open, R.drawable.ic_open_in_new, (MenuBottomSheetDialog.Item item) -> {
