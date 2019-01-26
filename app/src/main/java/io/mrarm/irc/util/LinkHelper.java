@@ -7,7 +7,6 @@ import android.text.style.ClickableSpan;
 import android.text.util.Linkify;
 import android.view.View;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -59,41 +58,12 @@ public class LinkHelper {
                     activity.openServer(connection, mChannel);
                     return true;
                 }
-                connection.getApiInstance().joinChannels(channels, (Void v) -> {
-                    if (fragment.getConnectionInfo().hasChannel(mChannel)) {
-                        activity.runOnUiThread(() -> activity.openServer(connection, mChannel));
-                        return;
-                    }
-                    connection.addOnChannelListChangeListener(
-                            new OpenTaskChannelListListener(activity, connection, mChannel));
-                }, null);
+                fragment.setAutoOpenChannel(mChannel);
+                connection.getApiInstance().joinChannels(channels, null, null);
                 return true;
             });
             dialog.show();
             activity.setFragmentDialog(dialog);
-        }
-
-    }
-
-    private static class OpenTaskChannelListListener implements ServerConnectionInfo.ChannelListChangeListener {
-
-        private WeakReference<MainActivity> mActivity;
-        private ServerConnectionInfo mConnection;
-        private String mChannel;
-
-        public OpenTaskChannelListListener(MainActivity activity, ServerConnectionInfo info, String channel) {
-            mActivity = new WeakReference<>(activity);
-            mConnection = info;
-            mChannel = channel;
-        }
-
-        @Override
-        public void onChannelListChanged(ServerConnectionInfo connection, List<String> newChannels) {
-            MainActivity activity = mActivity.get();
-            if (newChannels.contains(mChannel) && activity != null) {
-                activity.runOnUiThread(() -> activity.openServer(mConnection, mChannel));
-            }
-            connection.removeOnChannelListChangeListener(this);
         }
 
     }

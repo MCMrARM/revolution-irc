@@ -462,8 +462,13 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
                     .setView(v)
                     .setPositiveButton(R.string.action_ok, (DialogInterface d, int which) -> {
                         editText.clearFocus();
-                        ChatApi api = ((ChatFragment) getCurrentFragment()).getConnectionInfo().getApiInstance();
-                        api.joinChannels(Arrays.asList(editText.getItems()), null, null);
+                        String[] channels = editText.getItems();
+                        if (channels.length == 0)
+                            return;
+                        ChatFragment currentChat = (ChatFragment) getCurrentFragment();
+                        ChatApi api = currentChat.getConnectionInfo().getApiInstance();
+                        currentChat.setAutoOpenChannel(channels[0]);
+                        api.joinChannels(Arrays.asList(channels), null, null);
                     })
                     .setNeutralButton(R.string.title_activity_channel_list, (DialogInterface d, int which) -> {
                         ServerConnectionInfo info = ((ChatFragment) getCurrentFragment()).getConnectionInfo();

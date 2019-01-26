@@ -49,6 +49,7 @@ public class ChatFragment extends Fragment implements
     private ChatFragmentSendMessageHelper mSendHelper;
     private int mNormalToolbarInset;
     private OneTimeMessageJump mMessageJump;
+    private String mAutoOpenChannel;
 
     public static ChatFragment newInstance(ServerConnectionInfo server, String channel, String messageId) {
         ChatFragment fragment = new ChatFragment();
@@ -310,6 +311,19 @@ public class ChatFragment extends Fragment implements
         return mSendHelper;
     }
 
+    public void setAutoOpenChannel(String channelName) {
+        mAutoOpenChannel = channelName;
+        checkForAutoOpenChannel();
+    }
+
+    private void checkForAutoOpenChannel() {
+        int i = mSectionsPagerAdapter.findChannel(mAutoOpenChannel);
+        if (i != 0) {
+            mViewPager.setCurrentItem(i);
+            mAutoOpenChannel = null;
+        }
+    }
+
     @Override
     public void onConnectionInfoChanged(ServerConnectionInfo connection) {
         getActivity().runOnUiThread(() -> {
@@ -321,6 +335,7 @@ public class ChatFragment extends Fragment implements
     public void onChannelListChanged(ServerConnectionInfo connection, List<String> newChannels) {
         getActivity().runOnUiThread(() -> {
             mSectionsPagerAdapter.updateChannelList();
+            checkForAutoOpenChannel();
         });
     }
 

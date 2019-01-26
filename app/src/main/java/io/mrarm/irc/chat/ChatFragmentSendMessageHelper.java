@@ -290,6 +290,10 @@ public class ChatFragmentSendMessageHelper implements SendMessageHelper.Callback
             l.getHandler(NickCommandHandler.class).onRequested(params.length > 1 ? params[1] : null, null, (String n, int i, String m) -> {
                 notifyCommandFailed(clientCommand, m);
             });
+        } else if (params[0].equalsIgnoreCase("JOIN")) {
+            if (params.length < 2)
+                return;
+            mFragment.setAutoOpenChannel(params[1]);
         }
     }
 
