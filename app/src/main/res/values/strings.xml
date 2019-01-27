@@ -416,6 +416,7 @@
     <string name="theme_color_accent">Accent color</string>
     <string name="theme_color_action_bar_text_primary">Appbar text color</string>
     <string name="theme_color_action_bar_text_secondary">Appbar secondary text color</string>
+    <string name="theme_color_status_bar_light">Light status bar</string>
     <string name="theme_color_background">Background color</string>
     <string name="theme_color_background_floating">Background color (popups/floating)</string>
     <string name="theme_color_text_primary">Primary text color</string>

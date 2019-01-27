@@ -48,6 +48,8 @@ public class ThemeInfo {
     public static final String COLOR_IRC_DISCONNECTED = "irc_colorDisconnected";
     public static final String COLOR_IRC_TOPIC = "irc_colorTopic";
 
+    public static final String PROP_LIGHT_STATUS_BAR = "windowLightStatusBar";
+
     public transient UUID uuid;
     public String name;
     public String base;

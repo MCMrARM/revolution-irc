@@ -44,7 +44,7 @@ public class CommonThemeSettings extends BaseThemeEditorFragment {
         });
         a.add(baseSetting);
 
-        SettingsListAdapter.SettingChangedListener applyListener =
+        SettingsListAdapter.SettingChangedListener restartListener =
                 (EntryRecyclerViewAdapter.Entry entry) -> onNonLivePropertyChanged();
         ExpandableColorSetting.ExpandGroup colorExpandGroup = new ExpandableColorSetting.ExpandGroup();
         LiveThemeManager liveThemeManager = getLiveThemeManager();
@@ -73,6 +73,9 @@ public class CommonThemeSettings extends BaseThemeEditorFragment {
                 .linkLiveApplyManager(liveThemeManager)
                 .setExpandGroup(colorExpandGroup)
                 .setSavedColors(themeInfo.savedColors));
+        a.add(new ThemeBoolSetting(getString(R.string.theme_color_status_bar_light))
+                .linkProperty(getContext(), themeInfo, ThemeInfo.PROP_LIGHT_STATUS_BAR)
+                .addListener(restartListener));
         a.add(new ThemeColorSetting(getString(R.string.theme_color_background))
                 .linkProperty(getContext(), themeInfo, ThemeInfo.COLOR_BACKGROUND)
                 .linkLiveApplyManager(liveThemeManager)

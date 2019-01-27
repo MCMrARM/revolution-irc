@@ -1,6 +1,7 @@
 package io.mrarm.irc.util.theme;
 
 import android.content.Context;
+import android.os.Build;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -67,6 +68,14 @@ public class ThemeResourceFileBuilder {
             if (resId != null)
                 ircColors.addValue(resId, new ResValue.Reference(pkg, colorTypeSpec, i));
         }
+
+        if (theme.getBool(ThemeInfo.PROP_LIGHT_STATUS_BAR) == Boolean.TRUE &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            ResValue boolTrue = new ResValue.Integer(ResValue.TYPE_INT_BOOLEAN, 1);
+            appTheme.addValue(android.R.attr.windowLightStatusBar, boolTrue);
+            appThemeNoActionBar.addValue(android.R.attr.windowLightStatusBar, boolTrue);
+        }
+
         Collections.sort(appTheme.value, (a, b) -> a.name - b.name);
         Collections.sort(appThemeNoActionBar.value, (a, b) -> a.name - b.name);
 
