@@ -264,6 +264,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 if (mAdapter == null)
                     return;
+                checkForUnreadMessages();
                 int firstVisible = mLayoutManager.findFirstVisibleItemPosition();
                 if (firstVisible >= 0 && firstVisible < LOAD_MORE_BEFORE_INDEX) {
                     if (mIsLoadingMore || mLoadOlderIdentifier == null || !mAdapter.hasMessages())
@@ -299,7 +300,6 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                                 });
                             }, null);
                 }
-                checkForUnreadMessages();
             }
         });
 
