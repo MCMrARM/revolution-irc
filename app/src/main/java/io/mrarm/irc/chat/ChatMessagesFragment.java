@@ -374,12 +374,12 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             mMessageFilterOptions = null;
         mUnreadCheckedFirst = -1;
         mUnreadCheckedLast = -1;
+        mAdapter.setNewMessagesStart(mConnection.getNotificationManager()
+                .getChannelManager(mChannelName, true).getFirstUnreadMessage());
         ResponseCallback<MessageList> cb = (MessageList messages) -> {
             Log.i(TAG, "Got message list for " + mChannelName + ": " +
                     messages.getMessages().size() + " messages");
             updateMessageList(() -> {
-                mAdapter.setNewMessagesStart(mConnection.getNotificationManager()
-                        .getChannelManager(mChannelName, true).getFirstUnreadMessage());
                 mAdapter.setMessages(messages.getMessages(), messages.getMessageIds());
                 if (mRecyclerView != null)
                     mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
