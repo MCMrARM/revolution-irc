@@ -11,48 +11,54 @@
         android:layout_marginBottom="2dp"
         android:ellipsize="end"
         android:maxLines="1"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+        android:textAppearance="@style/TextAppearance.Compat.Notification.Title" />
 
     <TextView
         android:id="@+id/message_0"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ellipsize="end"
-        android:maxLines="1" />
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.Compat.Notification.Line2" />
 
     <TextView
         android:id="@+id/message_1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ellipsize="end"
-        android:maxLines="1" />
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.Compat.Notification.Line2" />
 
     <TextView
         android:id="@+id/message_2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ellipsize="end"
-        android:maxLines="1" />
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.Compat.Notification.Line2" />
 
     <TextView
         android:id="@+id/message_3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ellipsize="end"
-        android:maxLines="1" />
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.Compat.Notification.Line2" />
 
     <TextView
         android:id="@+id/message_4"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ellipsize="end"
-        android:maxLines="1" />
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.Compat.Notification.Line2" />
 
     <TextView
         android:id="@+id/message_5"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ellipsize="end"
-        android:maxLines="1" />
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.Compat.Notification.Line2" />
 
 </LinearLayout>

@@ -11,13 +11,14 @@
         android:layout_marginBottom="2dp"
         android:ellipsize="end"
         android:maxLines="1"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+        android:textAppearance="@style/TextAppearance.Compat.Notification.Title" />
 
     <TextView
         android:id="@+id/message_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ellipsize="end"
-        android:maxLines="1" />
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.Compat.Notification.Line2" />
 
 </LinearLayout>
