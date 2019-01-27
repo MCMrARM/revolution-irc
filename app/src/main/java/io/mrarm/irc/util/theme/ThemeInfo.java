@@ -62,7 +62,8 @@ public class ThemeInfo {
     public void copyFrom(ThemeInfo otherTheme) {
         base = otherTheme.base;
         baseThemeInfo = otherTheme.baseThemeInfo;
-        colors = otherTheme.colors;
+        colors = new HashMap<>(otherTheme.colors);
+        properties = new HashMap<>(otherTheme.properties);
     }
 
     public Boolean getBool(String property) {
