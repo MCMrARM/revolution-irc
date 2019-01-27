@@ -15,7 +15,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.widget.ImageViewCompat;
 import io.mrarm.irc.R;
-import io.mrarm.irc.util.DrawableWrapper;
 import io.mrarm.irc.util.StyledAttributesHelper;
 
 public class ThemedToolbar extends Toolbar {

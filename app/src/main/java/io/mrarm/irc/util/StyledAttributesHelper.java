@@ -55,6 +55,14 @@ public class StyledAttributesHelper {
                 attributes, defStyleAttr, 0), attributes);
     }
 
+    public static StyledAttributesHelper obtainStyledAttributes(
+            Context ctx, Resources.Theme th, AttributeSet attributeSet, int[] attributes,
+            int defStyleAttr, int defStyleResId) {
+        Arrays.sort(attributes);
+        return new StyledAttributesHelper(ctx, th.obtainStyledAttributes(attributeSet,
+                attributes, defStyleAttr, defStyleResId), attributes);
+    }
+
     public static int getColor(Context ctx, int attribute, int def) {
         TypedArray ta = ctx.obtainStyledAttributes(new int[] { attribute });
         int ret = ta.getColor(0, def);
