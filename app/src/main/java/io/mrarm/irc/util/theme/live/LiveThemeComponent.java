@@ -1,9 +1,9 @@
 package io.mrarm.irc.util.theme.live;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
-import android.util.Log;
 import android.util.TypedValue;
 
 import java.lang.ref.WeakReference;
@@ -15,13 +15,14 @@ import java.util.WeakHashMap;
 
 import io.mrarm.irc.R;
 import io.mrarm.irc.util.StyledAttributesHelper;
+import io.mrarm.irc.util.theme.ThemeManager;
 
 public class LiveThemeComponent {
 
     private Context mContext;
     private LiveThemeManager mLiveThemeManager;
     private Map<Integer, List<LiveThemeManager.ColorPropertyApplier>> mColors = new HashMap<>();
-    private static final WeakHashMap<Resources, WeakReference<Resources.Theme>> sThemeCache
+    private static final WeakHashMap<Context, WeakReference<Resources.Theme>> sThemeCache
             = new WeakHashMap<>();
 
     public LiveThemeComponent(Context context) {
@@ -47,17 +48,43 @@ public class LiveThemeComponent {
         return mLiveThemeManager;
     }
 
-    public Resources.Theme getTheme() {
-        WeakReference<Resources.Theme> ref = sThemeCache.get(mContext.getResources());
-        if (ref != null) {
-            Resources.Theme theme = ref.get();
-            if (theme != null)
-                return theme;
+    private static Resources.Theme getThemeForContext(Context context) {
+        WeakReference<Resources.Theme> retWeak = sThemeCache.get(context);
+        Resources.Theme ret = null;
+        if (retWeak != null)
+            ret = retWeak.get();
+        if (ret != null)
+            return ret;
+
+        if (context instanceof ContextWrapper) {
+            Resources.Theme baseTheme = getThemeForContext(((ContextWrapper) context).getBaseContext());
+            ret = baseTheme;
+            int childResId = 0;
+            if (context instanceof androidx.appcompat.view.ContextThemeWrapper) {
+                childResId = ((androidx.appcompat.view.ContextThemeWrapper) context)
+                        .getThemeResId();
+            } else if (context instanceof android.view.ContextThemeWrapper) {
+                childResId = LiveThemeUtils.getContextThemeWrapperResId(
+                        (android.view.ContextThemeWrapper) context);
+            }
+            ThemeManager.ThemeResInfo t = ThemeManager.getInstance(context).getCurrentTheme();
+            if (childResId == t.getThemeResId() || childResId == t.getThemeNoActionBarResId())
+                childResId = R.style.LiveThemeHelperTheme;
+            if (childResId != 0) {
+                Resources.Theme newTheme = context.getResources().newTheme();
+                newTheme.setTo(baseTheme);
+                newTheme.applyStyle(childResId, true);
+                ret = newTheme;
+            }
+        } else {
+            ret = context.getResources().newTheme();
         }
-        Resources.Theme theme = mContext.getResources().newTheme();
-        theme.applyStyle(R.style.LiveThemeHelperTheme, true);
-        sThemeCache.put(mContext.getResources(), new WeakReference<>(theme));
-        return theme;
+        sThemeCache.put(context, new WeakReference<>(ret));
+        return ret;
+    }
+
+    public Resources.Theme getTheme() {
+        return getThemeForContext(mContext);
     }
 
     public boolean addColorAttr(StyledAttributesHelper attrs,

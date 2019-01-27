@@ -22,7 +22,7 @@ public class ThemedTextView extends AppCompatTextView {
             android.R.attr.drawableStart, android.R.attr.drawableTop, android.R.attr.drawableEnd,
             android.R.attr.drawableBottom};
 
-    private static final int[] TEXT_APPEARANCE_ATTRS = {android.R.attr.textColor,
+    static final int[] TEXT_APPEARANCE_ATTRS = {android.R.attr.textColor,
             android.R.attr.textColorLink, android.R.attr.textColorHint,
             android.R.attr.textColorHighlight};
 

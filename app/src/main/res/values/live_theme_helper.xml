@@ -7,6 +7,8 @@
     <color name="lt_colorBackgroundFloating">#fff</color>
     <color name="lt_textColorPrimary">#fff</color>
     <color name="lt_textColorSecondary">#fff</color>
+    <color name="lt_actionBarTextColorPrimary">#fff</color>
+    <color name="lt_actionBarTextColorSecondary">#fff</color>
 
 
     <style name="LiveThemeHelperTheme" parent="AppTheme">
@@ -16,6 +18,8 @@
         <item name="colorBackgroundFloating">@color/lt_colorBackgroundFloating</item>
         <item name="android:textColorPrimary">@color/lt_textColorPrimary</item>
         <item name="android:textColorSecondary">@color/lt_textColorSecondary</item>
+        <item name="actionBarTextColorPrimary">@color/lt_actionBarTextColorPrimary</item>
+        <item name="actionBarTextColorSecondary">@color/lt_actionBarTextColorSecondary</item>
     </style>
 
 </resources>

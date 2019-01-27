@@ -75,6 +75,10 @@ public class LiveThemeManager {
             res = android.R.attr.textColorPrimary;
         if (res == R.color.lt_textColorSecondary)
             res = android.R.attr.textColorSecondary;
+        if (res == R.color.lt_actionBarTextColorPrimary)
+            res = R.attr.actionBarTextColorPrimary;
+        if (res == R.color.lt_actionBarTextColorSecondary)
+            res = R.attr.actionBarTextColorSecondary;
 
         return res;
     }

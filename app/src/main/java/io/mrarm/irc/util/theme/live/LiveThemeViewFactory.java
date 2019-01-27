@@ -59,6 +59,8 @@ public class LiveThemeViewFactory implements LayoutInflater.Factory2 {
                 c.setLiveThemeManager(mLiveThemeManager);
                 return v;
             }
+            if (name.equals("androidx.appcompat.widget.Toolbar"))
+                return new ThemedToolbar(context, attrs, mLiveThemeManager);
         }
         if (mParentFactory == null)
             return null;

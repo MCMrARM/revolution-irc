@@ -1,18 +1,25 @@
 package io.mrarm.irc.util.theme.live;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.ContextThemeWrapper;
 
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import io.mrarm.irc.R;
 
 public class LiveThemeUtils {
+
+    private static Method sMethodGetThemeResId;
 
     public static int getAttribute(TypedArray attrs, int attr) {
         TypedValue typedValue = new TypedValue();
@@ -34,7 +41,7 @@ public class LiveThemeUtils {
             }
         } catch (Exception e) {
             Log.w("LiveThemeUtils", "tintAppCompatDrawable error");
-            e.printStackTrace();;
+            e.printStackTrace();
         }
     }
 
@@ -44,6 +51,21 @@ public class LiveThemeUtils {
         if (d == R.drawable.abc_edit_text_material)
             return ThemedColorStateList.createFromXml(r, r.getXml(R.color.abc_tint_edittext), t);
         return null;
+    }
+
+    static int getContextThemeWrapperResId(ContextThemeWrapper wrapper) {
+        if (sMethodGetThemeResId == null) {
+            try {
+                sMethodGetThemeResId = Context.class.getDeclaredMethod("getThemeResId");
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        try {
+            return (int) sMethodGetThemeResId.invoke(wrapper);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
