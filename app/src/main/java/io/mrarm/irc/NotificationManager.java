@@ -159,10 +159,8 @@ public class NotificationManager {
                 .setGroup(NOTIFICATION_GROUP_CHAT)
                 .setGroupSummary(true)
                 .setColor(context.getResources().getColor(R.color.colorNotificationMention))
-                .setDeleteIntent(dismissIntent);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            notification.setOnlyAlertOnce(true);
-        }
+                .setDeleteIntent(dismissIntent)
+                .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN);
         if (isLong) {
             PendingIntent intent = PendingIntent.getActivity(context, CHAT_SUMMARY_NOTIFICATION_ID,
                     MainActivity.getLaunchIntent(context, null, null), PendingIntent.FLAG_CANCEL_CURRENT);

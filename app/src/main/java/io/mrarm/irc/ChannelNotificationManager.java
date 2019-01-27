@@ -201,6 +201,7 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
                 .setCustomContentView(notificationsView)
                 .setCustomBigContentView(notificationsViewBig)
                 .setGroup(NotificationManager.NOTIFICATION_GROUP_CHAT)
+                .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN)
                 .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
                 .setColor(context.getResources().getColor(R.color.colorNotificationMention))
                 .addAction(replyAction)
