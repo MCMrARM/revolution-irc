@@ -3,10 +3,19 @@ package io.mrarm.irc.util.theme.live;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
 
+import androidx.appcompat.widget.ActionMenuView;
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.core.widget.ImageViewCompat;
 import io.mrarm.irc.R;
+import io.mrarm.irc.util.DrawableWrapper;
 import io.mrarm.irc.util.StyledAttributesHelper;
 
 public class ThemedToolbar extends Toolbar {
@@ -38,6 +47,22 @@ public class ThemedToolbar extends Toolbar {
 
     public void setLiveThemeManager(LiveThemeManager manager) {
         mThemeComponent.setLiveThemeManager(manager);
+    }
+
+    @Override
+    public void addView(View child, int index, ViewGroup.LayoutParams params) {
+        super.addView(child, index, params);
+        if (child instanceof AppCompatImageButton) {
+            mThemeComponent.addColorProperty(R.attr.actionBarTextColorPrimary, (c) ->
+                    ImageViewCompat.setImageTintList((ImageView) child, ColorStateList.valueOf(c)));
+        } else if (child instanceof ActionMenuView) {
+            mThemeComponent.addColorProperty(R.attr.actionBarTextColorPrimary, (c) -> {
+                ActionMenuView ch = (ActionMenuView) child;
+                Drawable d = DrawableCompat.wrap(ch.getOverflowIcon()).mutate();
+                DrawableCompat.setTint(d, c);
+                ch.setOverflowIcon(d);
+            });
+        }
     }
 
     static void setupTheming(Toolbar toolbar, LiveThemeComponent component, AttributeSet attrs, int defStyleAttr) {
