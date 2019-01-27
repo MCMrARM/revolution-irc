@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             app:tabMode="scrollable"
             app:tabContentStart="20dp"
-            app:tabIndicatorColor="#fff" />
+            app:tabIndicatorColor="?android:attr/textColorPrimary" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
