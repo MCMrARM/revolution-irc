@@ -425,6 +425,7 @@
     <string name="theme_color_icon_opaque">Icon color (opaque, used with text)</string>
 
     <string name="theme_category_chat">Chat</string>
+    <string name="theme_category_chat_irc">IRC formatting codes</string>
     <string name="theme_color_irc_black">Black</string>
     <string name="theme_color_irc_white">White</string>
     <string name="theme_color_irc_blue">Blue</string>
@@ -441,10 +442,12 @@
     <string name="theme_color_irc_pink">Pink</string>
     <string name="theme_color_irc_gray">Gray</string>
     <string name="theme_color_irc_light_gray">Light gray</string>
+    <string name="theme_category_chat_message">Messages</string>
     <string name="theme_color_message_timestamp">Message timestamp</string>
     <string name="theme_color_message_status_text">Message status text</string>
     <string name="theme_color_message_disconnected">Disconnection message</string>
     <string name="theme_color_message_topic">Topic message</string>
+    <string name="theme_category_chat_member_list">Member list</string>
     <string name="theme_color_member_owner">Owners</string>
     <string name="theme_color_member_admin">Administrators</string>
     <string name="theme_color_member_op">Operators</string>

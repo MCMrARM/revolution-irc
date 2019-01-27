@@ -1,6 +1,7 @@
 package io.mrarm.irc.setting.fragment.theme;
 
 import io.mrarm.irc.R;
+import io.mrarm.irc.setting.SettingsHeader;
 import io.mrarm.irc.setting.SettingsListAdapter;
 import io.mrarm.irc.util.theme.ThemeInfo;
 
@@ -12,6 +13,7 @@ public class ChatThemeSettings extends BaseThemeEditorFragment {
     @Override
     public SettingsListAdapter createAdapter() {
         SettingsListAdapter a = new SettingsListAdapter(this);
+        a.add(new SettingsHeader(getString(R.string.theme_category_chat_irc)));
         addIrcColorSetting(a, R.string.theme_color_irc_black, ThemeInfo.COLOR_IRC_BLACK);
         addIrcColorSetting(a, R.string.theme_color_irc_white, ThemeInfo.COLOR_IRC_WHITE);
         addIrcColorSetting(a, R.string.theme_color_irc_blue, ThemeInfo.COLOR_IRC_BLUE);
@@ -28,10 +30,12 @@ public class ChatThemeSettings extends BaseThemeEditorFragment {
         addIrcColorSetting(a, R.string.theme_color_irc_pink, ThemeInfo.COLOR_IRC_PINK);
         addIrcColorSetting(a, R.string.theme_color_irc_gray, ThemeInfo.COLOR_IRC_GRAY);
         addIrcColorSetting(a, R.string.theme_color_irc_light_gray, ThemeInfo.COLOR_IRC_LIGHT_GRAY);
+        a.add(new SettingsHeader(getString(R.string.theme_category_chat_message)));
         addIrcColorSetting(a, R.string.theme_color_message_timestamp, ThemeInfo.COLOR_IRC_TIMESTAMP);
         addIrcColorSetting(a, R.string.theme_color_message_status_text, ThemeInfo.COLOR_IRC_STATUS_TEXT);
         addIrcColorSetting(a, R.string.theme_color_message_disconnected, ThemeInfo.COLOR_IRC_DISCONNECTED);
         addIrcColorSetting(a, R.string.theme_color_message_topic, ThemeInfo.COLOR_IRC_TOPIC);
+        a.add(new SettingsHeader(getString(R.string.theme_category_chat_member_list)));
         addIrcColorSetting(a, R.string.theme_color_member_owner, ThemeInfo.COLOR_IRC_MEMBER_OWNER);
         addIrcColorSetting(a, R.string.theme_color_member_admin, ThemeInfo.COLOR_IRC_MEMBER_ADMIN);
         addIrcColorSetting(a, R.string.theme_color_member_op, ThemeInfo.COLOR_IRC_MEMBER_OP);
