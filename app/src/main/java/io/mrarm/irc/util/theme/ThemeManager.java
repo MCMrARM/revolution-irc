@@ -261,8 +261,10 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
             return appThemeId;
         if (appThemeId == R.style.AppTheme_NoActionBar)
             return currentTheme.getThemeNoActionBarResId();
-        else
+        else if (appThemeId == R.style.AppTheme)
             return currentTheme.getThemeResId();
+        else
+            return appThemeId;
     }
 
 
