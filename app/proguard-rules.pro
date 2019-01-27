@@ -30,3 +30,7 @@
 -keep public class * extends io.mrarm.irc.util.EntryRecyclerViewAdapter$EntryHolder {
     <init>(...);
 }
+
+-dontwarn org.spongycastle.**
+-dontwarn org.junit.**
+-dontwarn android.test.**
