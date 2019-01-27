@@ -11,7 +11,8 @@ import io.mrarm.irc.util.StyledAttributesHelper;
 
 public class ThemedTabLayout extends TabLayout {
 
-    private static final int[] THEME_ATTRS = { R.attr.tabTextColor, R.attr.tabTextAppearance };
+    private static final int[] THEME_ATTRS = { R.attr.tabTextColor, R.attr.tabTextAppearance,
+            R.attr.tabIndicatorColor };
     
     protected LiveThemeComponent mThemeComponent;
 
@@ -45,6 +46,7 @@ public class ThemedTabLayout extends TabLayout {
         StyledAttributesHelper textAppearance = r.obtainChildAttrs(t, R.attr.tabTextAppearance, ThemedTextView.TEXT_APPEARANCE_ATTRS);
         if (!component.addColorAttr(r, R.attr.tabTextColor, null, tabLayout::setTabTextColors))
             component.addColorAttr(textAppearance, android.R.attr.textColor, null, tabLayout::setTabTextColors);
+        component.addColorAttr(r, R.attr.tabIndicatorColor, tabLayout::setSelectedTabIndicatorColor, null);
         textAppearance.recycle();
         r.recycle();
     }
