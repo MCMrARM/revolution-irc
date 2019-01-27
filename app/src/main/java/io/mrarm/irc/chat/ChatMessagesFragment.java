@@ -1,6 +1,7 @@
 package io.mrarm.irc.chat;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -714,10 +715,19 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                     shareSelectedMessages();
                     mode.finish();
                     return true;
-                case R.id.action_delete:
-                    deleteSelectedMessages();
-                    mode.finish();
+                case R.id.action_delete: {
+                    int cnt = mAdapter.getSelectedItems().size();
+                    new AlertDialog.Builder(getContext())
+                            .setTitle(R.string.action_delete_confirm_title)
+                            .setMessage(getResources().getQuantityString(R.plurals.message_delete_confirm, cnt, cnt) + "\n\n" + getResources().getString(R.string.message_delete_confirm_note))
+                            .setPositiveButton(R.string.action_delete, (di, w) -> {
+                                deleteSelectedMessages();
+                                mode.finish();
+                            })
+                            .setNegativeButton(R.string.action_cancel, null)
+                            .show();
                     return true;
+                }
                 default:
                     return false;
             }

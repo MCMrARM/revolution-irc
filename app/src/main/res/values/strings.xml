@@ -68,6 +68,12 @@
         <item quantity="other">%d unread messages</item>
     </plurals>
 
+    <plurals name="message_delete_confirm">
+        <item quantity="one">Are you sure you want to delete the selected message?</item>
+        <item quantity="other">Are you sure you want to delete the selected %d messages?</item>
+    </plurals>
+    <string name="message_delete_confirm_note">The messages will only be deleted on this device.</string>
+
     <!-- Actions -->
 
     <string name="action_ok">OK</string>
