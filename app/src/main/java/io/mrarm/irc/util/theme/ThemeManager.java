@@ -53,6 +53,7 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
     private BaseTheme fallbackTheme;
     private Map<String, BaseTheme> baseThemes = new HashMap<>();
     private Map<UUID, ThemeInfo> customThemes = new HashMap<>();
+    private boolean mNeedsApplyIrcColors;
 
     public ThemeManager(Context context) {
         this.context = context;
@@ -200,7 +201,7 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
         currentCustomThemePatcher = null;
         if (theme == null)
             currentTheme = fallbackTheme;
-        IRCColorUtils.loadColors(context.getTheme(), currentTheme.getIRCColorsResId());
+        mNeedsApplyIrcColors = true;
     }
 
     private void applyTheme(ThemeInfo theme) {
@@ -209,6 +210,7 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
         currentCustomThemePatcher = null;
         if (theme == null)
             currentTheme = fallbackTheme;
+        mNeedsApplyIrcColors = true;
     }
 
     public void setTheme(BaseTheme theme) {
@@ -224,12 +226,12 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
             return;
         currentTheme = null;
         currentCustomThemePatcher = null;
+        mNeedsApplyIrcColors = true;
         for (ThemeChangeListener listener : themeChangeListeners)
             listener.onThemeChanged();
     }
 
     public void applyThemeToActivity(Activity activity) {
-        boolean needsApplyIrcColors = false;
         if (currentCustomThemePatcher == null && currentCustomTheme != null) {
             ThemeResourceFileBuilder.CustomTheme theme = ThemeResourceFileBuilder
                     .createTheme(context, currentCustomTheme);
@@ -237,12 +239,9 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
             File themeFile = ThemeResourceFileBuilder.createThemeZipFile(context,
                     theme.getResTable());
             currentCustomThemePatcher = new Theme(context, themeFile.getAbsolutePath());
-            needsApplyIrcColors = true;
         }
         if (currentCustomThemePatcher != null) {
             currentCustomThemePatcher.applyToActivity(activity);
-            if (needsApplyIrcColors)
-                IRCColorUtils.loadColors(activity.getTheme(), currentTheme.getIRCColorsResId());
         }
         ThemeResInfo currentBaseTheme = currentTheme;
         if (currentCustomTheme != null)
@@ -253,6 +252,8 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
             else
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         }
+        if (mNeedsApplyIrcColors)
+            IRCColorUtils.loadColors(activity.getTheme(), currentTheme.getIRCColorsResId());
     }
 
     public int getThemeIdToApply(int appThemeId) {
