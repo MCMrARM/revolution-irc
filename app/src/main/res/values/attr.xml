@@ -65,6 +65,13 @@
         <attr name="colorDisconnected" format="reference|color" />
         <attr name="colorSenderFallbackColor" format="reference|color" />
         <attr name="colorTopic" format="reference|color" />
+
+        <attr name="colorMemberOwner" format="color" />
+        <attr name="colorMemberAdmin" format="color" />
+        <attr name="colorMemberOp" format="color" />
+        <attr name="colorMemberHalfOp" format="color" />
+        <attr name="colorMemberVoice" format="color" />
+        <attr name="colorMemberNormal" format="color" />
     </declare-styleable>
 
 </resources>

@@ -78,6 +78,7 @@ public class ThemeResourceFileBuilder {
 
         Collections.sort(appTheme.value, (a, b) -> a.name - b.name);
         Collections.sort(appThemeNoActionBar.value, (a, b) -> a.name - b.name);
+        Collections.sort(ircColors.value, (a, b) -> a.name - b.name);
 
         table.addPackage(pkg);
         return new CustomTheme(ResTable.makeReference(pkg, styleTypeSpec, appTheme),

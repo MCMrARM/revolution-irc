@@ -576,19 +576,19 @@ public class MessageBuilder {
         for (char c : s) {
             switch (c) {
                 case 'v':
-                    b.append(mContext.getString(R.string.message_mode_nick_voice), new ForegroundColorSpan(mContext.getResources().getColor(R.color.memberVoice)));
+                    b.append(mContext.getString(R.string.message_mode_nick_voice), new ForegroundColorSpan(IRCColorUtils.getColorById(mContext, IRCColorUtils.COLOR_MEMBER_VOICE)));
                     break;
                 case 'h':
-                    b.append(mContext.getString(R.string.message_mode_nick_half_op), new ForegroundColorSpan(mContext.getResources().getColor(R.color.memberHalfOp)));
+                    b.append(mContext.getString(R.string.message_mode_nick_half_op), new ForegroundColorSpan(IRCColorUtils.getColorById(mContext, IRCColorUtils.COLOR_MEMBER_HALF_OP)));
                     break;
                 case 'o':
-                    b.append(mContext.getString(R.string.message_mode_nick_op), new ForegroundColorSpan(mContext.getResources().getColor(R.color.memberOp)));
+                    b.append(mContext.getString(R.string.message_mode_nick_op), new ForegroundColorSpan(IRCColorUtils.getColorById(mContext, IRCColorUtils.COLOR_MEMBER_OP)));
                     break;
                 case 'a':
-                    b.append(mContext.getString(R.string.message_mode_nick_admin), new ForegroundColorSpan(mContext.getResources().getColor(R.color.memberAdmin)));
+                    b.append(mContext.getString(R.string.message_mode_nick_admin), new ForegroundColorSpan(IRCColorUtils.getColorById(mContext, IRCColorUtils.COLOR_MEMBER_ADMIN)));
                     break;
                 case 'q':
-                    b.append(mContext.getString(R.string.message_mode_nick_owner), new ForegroundColorSpan(mContext.getResources().getColor(R.color.memberOwner)));
+                    b.append(mContext.getString(R.string.message_mode_nick_owner), new ForegroundColorSpan(IRCColorUtils.getColorById(mContext, IRCColorUtils.COLOR_MEMBER_OWNER)));
                     break;
                 default:
                     b.append("'" + c + "'");
@@ -710,7 +710,7 @@ public class MessageBuilder {
                 return IRCColorUtils.getTimestampTextColor(context);
             if (colorId == COLOR_STATUS)
                 return IRCColorUtils.getStatusTextColor(context);
-            return IRCColorUtils.getColor(context, colorId);
+            return IRCColorUtils.getIrcColor(context, colorId);
         }
 
         public MetaForegroundColorSpan(Context context, int colorId) {

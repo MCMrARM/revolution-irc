@@ -69,6 +69,12 @@ public class ThemeAttrMapping {
         ircColorToAttrs.put(ThemeInfo.COLOR_IRC_STATUS_TEXT, R.attr.colorStatusText);
         ircColorToAttrs.put(ThemeInfo.COLOR_IRC_DISCONNECTED, R.attr.colorDisconnected);
         ircColorToAttrs.put(ThemeInfo.COLOR_IRC_TOPIC, R.attr.colorTopic);
+        ircColorToAttrs.put(ThemeInfo.COLOR_IRC_MEMBER_OWNER, R.attr.colorMemberOwner);
+        ircColorToAttrs.put(ThemeInfo.COLOR_IRC_MEMBER_ADMIN, R.attr.colorMemberAdmin);
+        ircColorToAttrs.put(ThemeInfo.COLOR_IRC_MEMBER_OP, R.attr.colorMemberOp);
+        ircColorToAttrs.put(ThemeInfo.COLOR_IRC_MEMBER_HALF_OP, R.attr.colorMemberHalfOp);
+        ircColorToAttrs.put(ThemeInfo.COLOR_IRC_MEMBER_VOICE, R.attr.colorMemberVoice);
+        ircColorToAttrs.put(ThemeInfo.COLOR_IRC_MEMBER_NORMAL, R.attr.colorMemberNormal);
     }
 
 }

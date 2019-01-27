@@ -199,18 +199,18 @@ public class ChannelInfoAdapter extends RecyclerView.Adapter {
             if (nickWithPrefix.getNickPrefixes() != null &&
                     nickWithPrefix.getNickPrefixes().length() > 0)
                 prefix = nickWithPrefix.getNickPrefixes().get(0);
+            int colorId = IRCColorUtils.COLOR_MEMBER_NORMAL;
             if (prefix == '~')
-                text.setTextColor(text.getContext().getResources().getColor(R.color.memberOwner));
+                colorId = IRCColorUtils.COLOR_MEMBER_OWNER;
             else if (prefix == '&')
-                text.setTextColor(text.getContext().getResources().getColor(R.color.memberAdmin));
+                colorId = IRCColorUtils.COLOR_MEMBER_ADMIN;
             else if (prefix == '@')
-                text.setTextColor(text.getContext().getResources().getColor(R.color.memberOp));
+                colorId = IRCColorUtils.COLOR_MEMBER_OP;
             else if (prefix == '%')
-                text.setTextColor(text.getContext().getResources().getColor(R.color.memberHalfOp));
+                colorId = IRCColorUtils.COLOR_MEMBER_HALF_OP;
             else if (prefix == '+')
-                text.setTextColor(text.getContext().getResources().getColor(R.color.memberVoice));
-            else
-                text.setTextColor(text.getContext().getResources().getColor(R.color.memberNormal));
+                colorId = IRCColorUtils.COLOR_MEMBER_VOICE;
+            text.setTextColor(IRCColorUtils.getColorById(text.getContext(), colorId));
             if (prefix != ' ')
                 text.setText(prefix + nickWithPrefix.getNick());
             else

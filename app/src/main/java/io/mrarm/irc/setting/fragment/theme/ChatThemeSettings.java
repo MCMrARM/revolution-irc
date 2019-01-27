@@ -32,6 +32,12 @@ public class ChatThemeSettings extends BaseThemeEditorFragment {
         addIrcColorSetting(a, R.string.theme_color_message_status_text, ThemeInfo.COLOR_IRC_STATUS_TEXT);
         addIrcColorSetting(a, R.string.theme_color_message_disconnected, ThemeInfo.COLOR_IRC_DISCONNECTED);
         addIrcColorSetting(a, R.string.theme_color_message_topic, ThemeInfo.COLOR_IRC_TOPIC);
+        addIrcColorSetting(a, R.string.theme_color_member_owner, ThemeInfo.COLOR_IRC_MEMBER_OWNER);
+        addIrcColorSetting(a, R.string.theme_color_member_admin, ThemeInfo.COLOR_IRC_MEMBER_ADMIN);
+        addIrcColorSetting(a, R.string.theme_color_member_op, ThemeInfo.COLOR_IRC_MEMBER_OP);
+        addIrcColorSetting(a, R.string.theme_color_member_half_op, ThemeInfo.COLOR_IRC_MEMBER_HALF_OP);
+        addIrcColorSetting(a, R.string.theme_color_member_voice, ThemeInfo.COLOR_IRC_MEMBER_VOICE);
+        addIrcColorSetting(a, R.string.theme_color_member_normal, ThemeInfo.COLOR_IRC_MEMBER_NORMAL);
         return a;
     }
 

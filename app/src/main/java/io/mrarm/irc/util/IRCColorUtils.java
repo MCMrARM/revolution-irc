@@ -20,6 +20,13 @@ import io.mrarm.irc.R;
 
 public class IRCColorUtils {
 
+    public static final int COLOR_MEMBER_OWNER = R.styleable.IRCColors_colorMemberOwner;
+    public static final int COLOR_MEMBER_ADMIN = R.styleable.IRCColors_colorMemberAdmin;
+    public static final int COLOR_MEMBER_OP = R.styleable.IRCColors_colorMemberOp;
+    public static final int COLOR_MEMBER_HALF_OP = R.styleable.IRCColors_colorMemberHalfOp;
+    public static final int COLOR_MEMBER_VOICE = R.styleable.IRCColors_colorMemberVoice;
+    public static final int COLOR_MEMBER_NORMAL = R.styleable.IRCColors_colorMemberNormal;
+
     private static int[] COLOR_IDS = new int[] {
             R.styleable.IRCColors_colorBlack,
             R.styleable.IRCColors_colorWhite,
@@ -65,52 +72,48 @@ public class IRCColorUtils {
         loadColors(context.getTheme(), R.style.AppTheme_IRCColors);
     }
 
-    public static int getColor(Context context, int colorId) {
+    public static int getColorById(Context context, int colorId) {
         if (sColorValues == null)
             loadColors(context);
-        return sColorValues[COLOR_IDS[colorId]];
+        return sColorValues[colorId];
+    }
+
+    public static int getIrcColor(Context context, int colorId) {
+        return getColorById(context, COLOR_IDS[colorId]);
     }
 
     public static int getStatusTextColor(Context context) {
-        if (sColorValues == null)
-            loadColors(context);
-        return sColorValues[R.styleable.IRCColors_colorStatusText];
+        return getColorById(context, R.styleable.IRCColors_colorStatusText);
     }
 
     public static int getTimestampTextColor(Context context) {
-        if (sColorValues == null)
-            loadColors(context);
-        return sColorValues[R.styleable.IRCColors_colorTimestamp];
+        return getColorById(context, R.styleable.IRCColors_colorTimestamp);
     }
 
     public static int getTopicTextColor(Context context) {
-        if (sColorValues == null)
-            loadColors(context);
-        return sColorValues[R.styleable.IRCColors_colorTopic];
+        return getColorById(context, R.styleable.IRCColors_colorTopic);
     }
 
     public static int getSenderFallbackColor(Context context) {
-        if (sColorValues == null)
-            loadColors(context);
-        return sColorValues[R.styleable.IRCColors_colorSenderFallbackColor];
+        return getColorById(context, R.styleable.IRCColors_colorSenderFallbackColor);
     }
 
     public static int getBanMaskColor(Context context) {
-        return getColor(context, 4 /* light red */);
+        return getIrcColor(context, 4 /* light red */);
     }
 
     public static int getNickColor(Context context, String nick) {
         int sum = 0;
         for (int i = 0; i < nick.length(); i++)
             sum += nick.charAt(i);
-        return getColor(context, NICK_COLORS[sum % NICK_COLORS.length]);
+        return getIrcColor(context, NICK_COLORS[sum % NICK_COLORS.length]);
     }
 
     public static int findNearestIRCColor(Context context, int color) {
         int ret = -1;
         int retDiff = -1;
         for (int i = 0; i < COLOR_IDS.length; i++) {
-            int c = getColor(context, i);
+            int c = getIrcColor(context, i);
             int diff = Math.abs(Color.red(c) - Color.red(color)) + Math.abs(Color.green(c) - Color.green(color)) + Math.abs(Color.blue(c) - Color.blue(color));
             if (diff < retDiff || retDiff == -1) {
                 retDiff = diff;
@@ -198,7 +201,7 @@ public class IRCColorUtils {
 
                     builder.endSpans(ForegroundColorSpan.class);
                     if (fg != 99)
-                        builder.setSpan(new ForegroundColorSpan(getColor(context, fg)));
+                        builder.setSpan(new ForegroundColorSpan(getIrcColor(context, fg)));
 
                     if (string.charAt(i) != ',')
                         break;
@@ -215,7 +218,7 @@ public class IRCColorUtils {
 
                     builder.endSpans(BackgroundColorSpan.class);
                     if (bg != 99)
-                        builder.setSpan(new BackgroundColorSpan(getColor(context, bg)));
+                        builder.setSpan(new BackgroundColorSpan(getIrcColor(context, bg)));
                     break;
                 }
                 case 0x16: { // swap bg and fg
@@ -227,9 +230,9 @@ public class IRCColorUtils {
                     builder.endSpans(ForegroundColorSpan.class);
                     builder.endSpans(BackgroundColorSpan.class);
                     if (fg != 99)
-                        builder.setSpan(new ForegroundColorSpan(getColor(context, fg)));
+                        builder.setSpan(new ForegroundColorSpan(getIrcColor(context, fg)));
                     if (bg != 99)
-                        builder.setSpan(new BackgroundColorSpan(getColor(context, bg)));
+                        builder.setSpan(new BackgroundColorSpan(getIrcColor(context, bg)));
                     break;
                 }
                 default: {

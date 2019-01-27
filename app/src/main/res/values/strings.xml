@@ -445,6 +445,12 @@
     <string name="theme_color_message_status_text">Message status text</string>
     <string name="theme_color_message_disconnected">Disconnection message</string>
     <string name="theme_color_message_topic">Topic message</string>
+    <string name="theme_color_member_owner">Owners</string>
+    <string name="theme_color_member_admin">Administrators</string>
+    <string name="theme_color_member_op">Operators</string>
+    <string name="theme_color_member_half_op">Half-operators</string>
+    <string name="theme_color_member_voice">Voiced members</string>
+    <string name="theme_color_member_normal">Normal members</string>
 
     <string name="theme_default_dark">Default (dark)</string>
 

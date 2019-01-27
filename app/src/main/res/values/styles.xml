@@ -67,6 +67,13 @@
         <item name="colorDisconnected">@color/messageDisconnected</item>
         <item name="colorSenderFallbackColor">?attr/colorBlue</item>
         <item name="colorTopic">@color/messageTopic</item>
+
+        <item name="colorMemberOwner">@color/memberOwner</item>
+        <item name="colorMemberAdmin">@color/memberAdmin</item>
+        <item name="colorMemberOp">@color/memberOp</item>
+        <item name="colorMemberHalfOp">@color/memberHalfOp</item>
+        <item name="colorMemberVoice">@color/memberVoice</item>
+        <item name="colorMemberNormal">@color/memberNormal</item>
     </style>
 
     <style name="Icon">

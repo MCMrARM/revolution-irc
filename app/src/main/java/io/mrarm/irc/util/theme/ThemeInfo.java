@@ -47,6 +47,12 @@ public class ThemeInfo {
     public static final String COLOR_IRC_STATUS_TEXT = "irc_colorStatusText";
     public static final String COLOR_IRC_DISCONNECTED = "irc_colorDisconnected";
     public static final String COLOR_IRC_TOPIC = "irc_colorTopic";
+    public static final String COLOR_IRC_MEMBER_OWNER = "irc_colorMemberOwner";
+    public static final String COLOR_IRC_MEMBER_ADMIN = "irc_colorMemberAdmin";
+    public static final String COLOR_IRC_MEMBER_OP = "irc_colorMemberOp";
+    public static final String COLOR_IRC_MEMBER_HALF_OP = "irc_colorMemberHalfOp";
+    public static final String COLOR_IRC_MEMBER_VOICE = "irc_colorMemberVoice";
+    public static final String COLOR_IRC_MEMBER_NORMAL = "irc_colorMemberNormal";
 
     public static final String PROP_LIGHT_STATUS_BAR = "windowLightStatusBar";
 
