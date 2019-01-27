@@ -31,8 +31,8 @@ dependencies {
     androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0-alpha4', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    implementation 'androidx.vectordrawable:vectordrawable:1.0.0'
-    implementation 'androidx.appcompat:appcompat:1.0.0'
+    implementation 'androidx.vectordrawable:vectordrawable:1.0.1'
+    implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.google.android.material:material:1.0.0-rc01'
     implementation 'com.google.android:flexbox:0.2.7'
