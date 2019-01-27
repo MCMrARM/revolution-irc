@@ -119,6 +119,8 @@ public class NotificationManager {
 
 
     public void updateSummaryNotification(Context context, String channel) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
+            return;
         ChannelNotificationManager first = null;
         boolean isLong = false;
         int notificationCount = 0;

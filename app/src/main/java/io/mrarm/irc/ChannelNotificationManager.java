@@ -200,12 +200,15 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
                 .setSmallIcon(R.drawable.ic_notification_message)
                 .setCustomContentView(notificationsView)
                 .setCustomBigContentView(notificationsViewBig)
-                .setGroup(NotificationManager.NOTIFICATION_GROUP_CHAT)
-                .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN)
                 .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
                 .setColor(context.getResources().getColor(R.color.colorNotificationMention))
                 .addAction(replyAction)
                 .setDeleteIntent(dismissIntent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            notification
+                    .setGroup(NotificationManager.NOTIFICATION_GROUP_CHAT)
+                    .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN);
+        }
         int defaults = 0;
         if (rule.settings.soundEnabled) {
             if (rule.settings.soundUri != null)
