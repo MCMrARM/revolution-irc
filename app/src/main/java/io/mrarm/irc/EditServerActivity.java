@@ -440,7 +440,7 @@ public class EditServerActivity extends ThemedActivity {
             mEditServer.authUser = null;
             mEditServer.authPass = null;
             try {
-                mEditServer.authCertData = mServerCert.getEncoded();
+                mEditServer.authCertData = mServerCert != null ? mServerCert.getEncoded() : null;
             } catch (CertificateEncodingException e) {
                 throw new RuntimeException(e);
             }
