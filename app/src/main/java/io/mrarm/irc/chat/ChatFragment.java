@@ -282,7 +282,8 @@ public class ChatFragment extends Fragment implements
             // a notification.
             ChannelNotificationManager chanMgr = mConnectionInfo.getNotificationManager()
                     .getChannelManager(channel, false);
-            chanMgr.cancelNotification(getActivity());
+            if (chanMgr != null)
+                chanMgr.cancelNotification(getActivity());
         }
     }
 
