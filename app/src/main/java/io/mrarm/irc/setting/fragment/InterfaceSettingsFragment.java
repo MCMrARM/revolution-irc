@@ -4,13 +4,25 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
+
+import androidx.annotation.Nullable;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.widget.CompoundButtonCompat;
 import androidx.appcompat.app.AlertDialog;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
+import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 
@@ -44,6 +56,13 @@ public class InterfaceSettingsFragment extends SettingsListFragment
     private MessageInfo mSampleMessage;
     private ClickableSetting mAutocompleteItem;
     private int mThemeEditorRequestId;
+    private int mImportThemeRequestId;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
 
     @Override
     public String getName() {
@@ -56,6 +75,7 @@ public class InterfaceSettingsFragment extends SettingsListFragment
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         a.setRequestCodeCounter(((SettingsActivity) getActivity()).getRequestCodeCounter());
         mThemeEditorRequestId = ((SettingsActivity) getActivity()).getRequestCodeCounter().next();
+        mImportThemeRequestId = ((SettingsActivity) getActivity()).getRequestCodeCounter().next();
         a.add(new SettingsHeader(getString(R.string.pref_header_theme)));
         createThemeList(a);
         a.add(new ClickableSetting(getString(R.string.theme_create_new), null)
@@ -266,7 +286,37 @@ public class InterfaceSettingsFragment extends SettingsListFragment
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == mImportThemeRequestId) {
+            if (data == null || data.getData() == null)
+                return;
+            try {
+                Uri uri = data.getData();
+                ParcelFileDescriptor desc = getActivity().getContentResolver().openFileDescriptor(uri, "r");
+                BufferedReader re = new BufferedReader(new FileReader(desc.getFileDescriptor()));
+                ThemeManager.getInstance(getContext()).importTheme(re);
+                re.close();
+                desc.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(getContext(), R.string.error_generic, Toast.LENGTH_SHORT).show();
+            }
+            recreateAdapter();
+            return;
+        }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_settings_interface, menu);
+        menu.findItem(R.id.action_import_theme).setOnMenuItemClickListener((i) -> {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("*/*");
+            startActivityForResult(intent, mImportThemeRequestId);
+            return true;
+        });
     }
 
     public static final class ThemeOptionSetting extends RadioButtonSetting {

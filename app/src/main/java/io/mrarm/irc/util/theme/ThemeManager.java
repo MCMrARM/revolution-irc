@@ -135,6 +135,14 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
         SettingsHelper.getGson().toJson(theme, writer);
     }
 
+    public void importTheme(BufferedReader reader) throws IOException {
+        ThemeInfo theme = SettingsHelper.getGson().fromJson(reader, ThemeInfo.class);
+        if (theme == null)
+            throw new IOException("Empty file");
+        theme.baseThemeInfo = getBaseThemeOrFallback(theme.base);
+        saveTheme(theme);
+    }
+
     public void deleteTheme(ThemeInfo theme) {
         customThemes.remove(theme.uuid);
         new File(themesDir, FILENAME_PREFIX + theme.uuid + FILENAME_SUFFIX).delete();
