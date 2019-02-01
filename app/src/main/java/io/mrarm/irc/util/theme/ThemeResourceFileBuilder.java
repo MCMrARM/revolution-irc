@@ -97,7 +97,12 @@ public class ThemeResourceFileBuilder {
             writer.write(byteArrOS);
             byte[] bytes = byteArrOS.toByteArray();
 
-            ZipEntry entry = new ZipEntry("resources.arsc");
+            ZipEntry entry = new ZipEntry("AndroidManifest.xml");
+            entry.setSize(0);
+            entry.setCrc(new CRC32().getValue());
+            outStream.putNextEntry(entry);
+
+            entry = new ZipEntry("resources.arsc");
             entry.setSize(bytes.length);
             CRC32 crc = new CRC32();
             crc.update(bytes);
