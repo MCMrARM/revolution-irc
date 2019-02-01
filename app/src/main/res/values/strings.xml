@@ -118,6 +118,8 @@
     <string name="action_reject">Reject</string>
     <string name="action_ask_again">Ask again</string>
     <string name="action_rename">Rename</string>
+    <string name="action_import">Import</string>
+    <string name="action_export">Export</string>
 
     <string name="action_delete_confirm_title">Are you sure?</string>
     <string name="action_delete_confirm_body">Are you sure you want to delete %s? This cannot be undone.</string>

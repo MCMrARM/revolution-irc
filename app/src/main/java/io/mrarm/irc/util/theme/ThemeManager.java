@@ -131,6 +131,10 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
         }
     }
 
+    public void exportTheme(ThemeInfo theme, BufferedWriter writer) {
+        SettingsHelper.getGson().toJson(theme, writer);
+    }
+
     public void deleteTheme(ThemeInfo theme) {
         customThemes.remove(theme.uuid);
         new File(themesDir, FILENAME_PREFIX + theme.uuid + FILENAME_SUFFIX).delete();
