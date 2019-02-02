@@ -349,7 +349,10 @@ public class InterfaceSettingsFragment extends SettingsListFragment
         public ThemeOptionSetting linkBaseTheme(InterfaceSettingsFragment fragment,
                                                 ThemeManager.BaseTheme theme) {
             this.fragment = fragment;
-            setChecked(ThemeManager.getInstance(null).getCurrentTheme() == theme);
+            ThemeManager themeManager = ThemeManager.getInstance(null);
+            setChecked(themeManager.getCurrentTheme() == theme ||
+                    (themeManager.getCurrentTheme() == null &&
+                            themeManager.getFallbackTheme() == theme));
             linkedBaseTheme = theme;
             return this;
         }
