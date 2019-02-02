@@ -451,23 +451,23 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         LinearLayoutManager llm = (LinearLayoutManager) mRecyclerView.getLayoutManager();
         int firstPos = llm.findFirstCompletelyVisibleItemPosition();
         int lastPos = llm.findLastCompletelyVisibleItemPosition();
-        long firstId = mAdapter.getItemId(firstPos);
-        long lastId = mAdapter.getItemId(lastPos);
+        long firstId = firstPos != RecyclerView.NO_POSITION ? mAdapter.getItemId(firstPos) : -1;
+        long lastId = lastPos != RecyclerView.NO_POSITION ? mAdapter.getItemId(lastPos) : -1;
         boolean found = false;
-        if (mUnreadCheckedFirst == -1) {
+        if (mUnreadCheckedFirst == -1 && firstId != -1) {
             mUnreadCheckedFirst = firstId;
             mUnreadCheckedLast = firstId;
             found = checkItemForUnread(
                     mAdapter.getMessage(mAdapter.getItemPosition(firstId)), mUnreadCheckFor);
         }
-        while (firstId < mUnreadCheckedFirst) {
+        while (firstId != -1 && firstId < mUnreadCheckedFirst) {
             found |= checkItemForUnread(mAdapter.getMessage(
                     mAdapter.getItemPosition(mUnreadCheckedFirst)), mUnreadCheckFor);
             if (found)
                 break;
             --mUnreadCheckedFirst;
         }
-        while (lastId > mUnreadCheckedLast) {
+        while (lastId != -1 && lastId > mUnreadCheckedLast) {
             found |= checkItemForUnread(mAdapter.getMessage(
                     mAdapter.getItemPosition(mUnreadCheckedLast)), mUnreadCheckFor);
             if (found)
