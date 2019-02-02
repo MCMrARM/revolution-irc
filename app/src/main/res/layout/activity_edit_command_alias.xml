@@ -34,13 +34,13 @@
             android:layout_marginLeft="@dimen/activity_horizontal_margin_s4"
             android:layout_marginStart="@dimen/activity_horizontal_margin_s4"
             android:layout_toLeftOf="@id/type_ctr"
-            android:layout_toStartOf="@id/type_ctr">
+            android:layout_toStartOf="@id/type_ctr"
+            android:hint="@string/entry_name">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/name"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/entry_name" />
+                android:layout_height="wrap_content" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -51,14 +51,14 @@
             android:layout_below="@id/name_ctr"
             android:layout_marginLeft="@dimen/activity_horizontal_margin_s4"
             android:layout_marginRight="@dimen/activity_horizontal_margin_s4"
-            android:layout_marginTop="@dimen/edit_command_alias_spacing">
+            android:layout_marginTop="@dimen/edit_command_alias_spacing"
+            android:hint="@string/edit_command_alias_syntax">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/syntax"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="[message...]"
-                android:hint="@string/edit_command_alias_syntax" />
+                android:text="[message...]" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -69,14 +69,14 @@
             android:layout_below="@id/syntax_ctr"
             android:layout_marginLeft="@dimen/activity_horizontal_margin_s4"
             android:layout_marginRight="@dimen/activity_horizontal_margin_s4"
-            android:layout_marginTop="@dimen/edit_command_alias_spacing">
+            android:layout_marginTop="@dimen/edit_command_alias_spacing"
+            android:hint="@string/edit_command_alias_channel">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/channel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="${channel}"
-                android:hint="@string/edit_command_alias_channel" />
+                android:text="${channel}" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -87,14 +87,14 @@
             android:layout_below="@id/channel_ctr"
             android:layout_marginLeft="@dimen/activity_horizontal_margin_s4"
             android:layout_marginRight="@dimen/activity_horizontal_margin_s4"
-            android:layout_marginTop="@dimen/edit_command_alias_spacing">
+            android:layout_marginTop="@dimen/edit_command_alias_spacing"
+            android:hint="@string/entry_text">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="${message}"
-                android:hint="@string/entry_text" />
+                android:text="${message}" />
 
         </com.google.android.material.textfield.TextInputLayout>
 

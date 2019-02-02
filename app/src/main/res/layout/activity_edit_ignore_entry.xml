@@ -113,13 +113,13 @@
             android:layout_below="@id/direct_notices"
             android:layout_marginLeft="@dimen/activity_horizontal_margin_s4"
             android:layout_marginStart="@dimen/activity_horizontal_margin_s4"
-            android:layout_marginTop="@dimen/edit_command_alias_spacing">
+            android:layout_marginTop="@dimen/edit_command_alias_spacing"
+            android:hint="@string/entry_comment">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/comment"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/entry_comment" />
+                android:layout_height="wrap_content" />
 
         </com.google.android.material.textfield.TextInputLayout>
 

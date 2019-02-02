@@ -30,13 +30,13 @@
         android:layout_toRightOf="@id/match_mode_ctr"
         android:layout_toEndOf="@id/match_mode_ctr"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:hint="@string/entry_text">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/match_text"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/entry_text" />
+            android:layout_height="wrap_content" />
 
     </com.google.android.material.textfield.TextInputLayout>
 

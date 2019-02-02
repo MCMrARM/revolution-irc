@@ -25,13 +25,13 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/server_name_ctr"
-                style="@style/EditServerTextInput">
+                style="@style/EditServerTextInput"
+                android:hint="@string/entry_name">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/server_name"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/entry_name"/>
+                    android:layout_height="wrap_content"/>
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -50,14 +50,14 @@
                 android:layout_alignParentRight="true"
                 android:layout_alignParentEnd="true"
                 android:layout_marginRight="16dp"
-                android:layout_marginEnd="16dp">
+                android:layout_marginEnd="16dp"
+                android:hint="@string/server_port">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/server_address_port"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="text|numberSigned"
-                    android:hint="@string/server_port"/>
+                    android:inputType="text|numberSigned"/>
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -69,14 +69,14 @@
                 android:layout_marginRight="0dp"
                 android:layout_marginEnd="0dp"
                 android:layout_toLeftOf="@id/server_address_port_ctr"
-                android:layout_toStartOf="@id/server_address_port_ctr">
+                android:layout_toStartOf="@id/server_address_port_ctr"
+                android:hint="@string/server_address">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/server_address_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textUri"
-                    android:hint="@string/server_address"/>
+                    android:inputType="textUri"/>
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -165,13 +165,13 @@
                 android:layout_below="@+id/server_auth_mode_ctr"
                 android:layout_marginTop="8dp"
                 android:visibility="gone"
-                style="@style/EditServerTextInput">
+                style="@style/EditServerTextInput"
+                android:hint="@string/entry_username">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/server_username"
-                    android:hint="@string/entry_username" />
+                    android:id="@+id/server_username" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -293,13 +293,13 @@
                 android:id="@+id/server_user_ctr"
                 style="@style/EditServerTextInput"
                 android:layout_marginRight="56dp"
-                android:layout_marginEnd="56dp">
+                android:layout_marginEnd="56dp"
+                android:hint="@string/server_user">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/server_user"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/server_user"/>
+                    android:layout_height="wrap_content"/>
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -308,13 +308,13 @@
                 android:layout_marginRight="56dp"
                 android:layout_marginEnd="56dp"
                 android:layout_below="@+id/server_user_ctr"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="8dp"
+                android:hint="@string/server_realname">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/server_realname"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/server_realname"/>
+                    android:layout_height="wrap_content"/>
 
             </com.google.android.material.textfield.TextInputLayout>
 

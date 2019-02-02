@@ -26,12 +26,12 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/date_format_ctr"
-                style="@style/MessageFormatSettingsTextInputLayout">
+                style="@style/MessageFormatSettingsTextInputLayout"
+                android:hint="@string/message_format_date">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/date_format"
-                    style="@style/EditTextWithExpandIcon"
-                    android:hint="@string/message_format_date" />
+                    style="@style/EditTextWithExpandIcon" />
 
                 <ImageButton
                     android:id="@+id/date_format_preset"
@@ -53,12 +53,12 @@
                 android:layout_marginTop="8dp" />
 
             <com.google.android.material.textfield.TextInputLayout
-                style="@style/MessageFormatSettingsTextInputLayout">
+                style="@style/MessageFormatSettingsTextInputLayout"
+                android:hint="@string/message_format_normal">
 
                 <io.mrarm.irc.view.FormattableEditText
                     android:id="@+id/message_format_normal"
-                    style="@style/EditTextWithExpandIcon"
-                    android:hint="@string/message_format_normal" />
+                    style="@style/EditTextWithExpandIcon" />
 
                 <ImageButton
                     android:id="@+id/message_format_normal_preset"
@@ -74,12 +74,13 @@
 
             <View style="@style/MessageFormatSettingsDivider" />
 
-            <com.google.android.material.textfield.TextInputLayout style="@style/MessageFormatSettingsTextInputLayout">
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/MessageFormatSettingsTextInputLayout"
+                android:hint="@string/message_format_normal_mention">
 
                 <io.mrarm.irc.view.FormattableEditText
                     android:id="@+id/message_format_normal_mention"
-                    style="@style/EditTextWithExpandIcon"
-                    android:hint="@string/message_format_normal_mention" />
+                    style="@style/EditTextWithExpandIcon" />
 
                 <ImageButton
                     android:id="@+id/message_format_normal_mention_preset"
@@ -95,12 +96,13 @@
 
             <View style="@style/MessageFormatSettingsDivider" />
 
-            <com.google.android.material.textfield.TextInputLayout style="@style/MessageFormatSettingsTextInputLayout">
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/MessageFormatSettingsTextInputLayout"
+                android:hint="@string/message_format_action">
 
                 <io.mrarm.irc.view.FormattableEditText
                     android:id="@+id/message_format_action"
-                    style="@style/EditTextWithExpandIcon"
-                    android:hint="@string/message_format_action" />
+                    style="@style/EditTextWithExpandIcon" />
 
                 <ImageButton
                     android:id="@+id/message_format_action_preset"
@@ -116,12 +118,13 @@
 
             <View style="@style/MessageFormatSettingsDivider" />
 
-            <com.google.android.material.textfield.TextInputLayout style="@style/MessageFormatSettingsTextInputLayout">
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/MessageFormatSettingsTextInputLayout"
+                android:hint="@string/message_format_action_mention">
 
                 <io.mrarm.irc.view.FormattableEditText
                     android:id="@+id/message_format_action_mention"
-                    style="@style/EditTextWithExpandIcon"
-                    android:hint="@string/message_format_action_mention" />
+                    style="@style/EditTextWithExpandIcon" />
 
                 <ImageButton
                     android:id="@+id/message_format_action_mention_preset"
@@ -137,12 +140,13 @@
 
             <View style="@style/MessageFormatSettingsDivider" />
 
-            <com.google.android.material.textfield.TextInputLayout style="@style/MessageFormatSettingsTextInputLayout">
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/MessageFormatSettingsTextInputLayout"
+                android:hint="@string/message_format_notice">
 
                 <io.mrarm.irc.view.FormattableEditText
                     android:id="@+id/message_format_notice"
-                    style="@style/EditTextWithExpandIcon"
-                    android:hint="@string/message_format_notice" />
+                    style="@style/EditTextWithExpandIcon" />
 
                 <ImageButton
                     android:id="@+id/message_format_notice_preset"
@@ -158,12 +162,13 @@
 
             <View style="@style/MessageFormatSettingsDivider" />
 
-            <com.google.android.material.textfield.TextInputLayout style="@style/MessageFormatSettingsTextInputLayout">
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/MessageFormatSettingsTextInputLayout"
+                android:hint="@string/message_format_event">
 
                 <io.mrarm.irc.view.FormattableEditText
                     android:id="@+id/message_format_event"
-                    style="@style/EditTextWithExpandIcon"
-                    android:hint="@string/message_format_event" />
+                    style="@style/EditTextWithExpandIcon" />
 
                 <ImageButton
                     android:id="@+id/message_format_event_preset"

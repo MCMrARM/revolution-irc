@@ -23,65 +23,65 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="2">
+            android:layout_weight="2"
+            android:hint="@string/color_value_hex">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/value_hex"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/color_value_hex"/>
+                android:layout_height="wrap_content" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:hint="@string/color_value_red">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/value_r"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/color_value_red"/>
+                android:layout_height="wrap_content" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:hint="@string/color_value_green">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/value_g"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/color_value_green"/>
+                android:layout_height="wrap_content" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:hint="@string/color_value_blue">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/value_b"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/color_value_blue"/>
+                android:layout_height="wrap_content" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:hint="@string/color_value_alpha">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/value_a"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/color_value_alpha"/>
+                android:layout_height="wrap_content" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
