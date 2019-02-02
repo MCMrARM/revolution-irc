@@ -163,7 +163,7 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
             mHasSystemDirectoryAccess = false;
         }
         Log.d("DCCManager", "Download directory: " +
-                mDownloadDirectory.getAbsolutePath());
+                (mDownloadDirectory != null ? mDownloadDirectory.getAbsolutePath() : "null"));
     }
 
     public boolean needsAskSystemDownloadsPermission() {
@@ -607,6 +607,8 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
                 }
                 Log.d("DCCManager", "Starting a download: " + docFile.getUri().toString());
             } else {
+                if (mDownloadDirectory == null)
+                    throw new IOException("Download directory is null");
                 File filePath = new File(mDownloadDirectory, downloadFileName);
                 int attempt = 1;
                 while (filePath.exists()) {
