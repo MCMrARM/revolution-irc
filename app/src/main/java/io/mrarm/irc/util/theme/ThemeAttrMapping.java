@@ -1,5 +1,7 @@
 package io.mrarm.irc.util.theme;
 
+import android.os.Build;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -48,6 +50,8 @@ public class ThemeAttrMapping {
         mapColorToAttr(ThemeInfo.COLOR_ICON_OPAQUE, R.attr.iconColorOpaque);
         mapColorToAttr(ThemeInfo.COLOR_ACTION_BAR_TEXT_PRIMARY, R.attr.actionBarTextColorPrimary);
         mapColorToAttr(ThemeInfo.COLOR_ACTION_BAR_TEXT_SECONDARY, R.attr.actionBarTextColorSecondary);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            mapColorToAttr(ThemeInfo.COLOR_BACKGROUND_FLOATING, android.R.attr.colorBackgroundFloating);
 
         ircColorToAttrs.put(ThemeInfo.COLOR_IRC_BLACK, R.attr.colorBlack);
         ircColorToAttrs.put(ThemeInfo.COLOR_IRC_WHITE, R.attr.colorWhite);
