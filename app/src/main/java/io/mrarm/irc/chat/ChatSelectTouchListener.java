@@ -610,7 +610,7 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
             if (textViewEnd != null) {
                 textViewEnd.getLocationOnScreen(mTmpLocation2);
                 outRect.bottom = mTmpLocation2[1] - mTmpLocation[1];
-                outRect.bottom += textViewStart.getLayout().getLineBottom(lineEnd);
+                outRect.bottom += textViewEnd.getLayout().getLineBottom(lineEnd);
             }
             outRect.left = 0;
             outRect.right = view.getWidth();
