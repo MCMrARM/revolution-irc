@@ -61,6 +61,8 @@ public class LiveThemeViewFactory implements LayoutInflater.Factory2 {
             }
             if (name.equals("androidx.appcompat.widget.Toolbar"))
                 return new ThemedToolbar(context, attrs, mLiveThemeManager);
+            if (name.equals("com.google.android.material.appbar.AppBarLayout"))
+                return new ThemedAppBarLayout(context, attrs, mLiveThemeManager);
             if (name.equals("com.google.android.material.tabs.TabLayout"))
                 return new ThemedTabLayout(context, attrs, mLiveThemeManager);
         }
