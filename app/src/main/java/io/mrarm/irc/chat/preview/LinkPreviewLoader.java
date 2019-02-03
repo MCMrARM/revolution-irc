@@ -2,41 +2,67 @@ package io.mrarm.irc.chat.preview;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.util.Log;
 
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.List;
 
-import io.mrarm.irc.BuildConfig;
+import io.mrarm.irc.chat.preview.cache.LinkPreviewCacheManager;
+import io.mrarm.irc.chat.preview.cache.LinkPreviewInfo;
 
 public class LinkPreviewLoader implements Runnable {
 
     private static final String USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.81 Safari/537.36";
 
-    private URL mURL;
-    private BitmapFactory.Options mBitmapOptions;
-    private LoadCallback mLoadCallback;
+    private final URL mURL;
+    private final BitmapFactory.Options mBitmapOptions;
+    private final LinkPreviewCacheManager mCacheManager;
+    private List<LoadCallback> mLoadCallbacks = new ArrayList<>();
     private URLConnection mConnection;
     private Thread mThread;
+    private boolean mHasResult = false;
+    private LinkPreviewInfo mResult;
+    int mRefCount = 0; // used by LinkPreviewLoadManager
 
-    public LinkPreviewLoader(URL url) {
+    public LinkPreviewLoader(URL url, BitmapFactory.Options options,
+                             LinkPreviewCacheManager cacheManager) {
         mURL = url;
-    }
-
-    public void setBitmapOptions(BitmapFactory.Options options) {
         mBitmapOptions = options;
+        mCacheManager = cacheManager;
     }
 
-    public void setLoadCallback(LoadCallback callback) {
-        mLoadCallback = callback;
+    public URL getURL() {
+        return mURL;
+    }
+
+    public synchronized void addLoadCallback(LoadCallback callback) {
+        if (mHasResult) {
+            callback.onLinkPreviewLoaded(mResult);
+            return;
+        }
+        mLoadCallbacks.add(callback);
+    }
+
+    public synchronized void removeLoadCallback(LoadCallback callback) {
+        if (mLoadCallbacks != null)
+            mLoadCallbacks.remove(callback);
+    }
+
+    private void setResult(LinkPreviewInfo result) {
+        List<LoadCallback> callbacks;
+        synchronized (this) {
+            mHasResult = true;
+            mResult = result;
+            callbacks = mLoadCallbacks;
+            mLoadCallbacks = null;
+        }
+        for (LoadCallback callback : callbacks)
+            callback.onLinkPreviewLoaded(result);
     }
 
     private LinkPreviewInfo doLoad() throws IOException {
@@ -65,14 +91,7 @@ public class LinkPreviewLoader implements Runnable {
             String title = p.getTitle();
             String imageUrl = p.getImage();
             String desc = p.getDescription();
-            Bitmap image = null;
-            try {
-                if (imageUrl != null)
-                    image = loadImageFromUrl(imageUrl);
-            } catch (IOException ignored) {
-                Log.d("LinkPreviewLoader", "Failed to load image for link: " + mURL);
-            }
-            ret = LinkPreviewInfo.fromWebsite(mURL.toString(), title, desc, imageUrl, image);
+            ret = LinkPreviewInfo.fromWebsite(mURL.toString(), title, desc, imageUrl, null);
         } else {
             ret = null;
         }
@@ -101,28 +120,37 @@ public class LinkPreviewLoader implements Runnable {
         synchronized (this) {
             mThread = Thread.currentThread();
         }
-        LinkPreviewInfo result = null;
-        try {
-            result = doLoad();
-        } catch (IOException e) {
-            Log.d("LinkPreviewLoader", "Failed to load preview for link: " + mURL);
-            e.printStackTrace();
+        LinkPreviewInfo result;
+        result = mCacheManager.getDatabase().linkPreviewDao().findPreviewFor(mURL.toString());
+        if (result == null) {
+            try {
+                result = doLoad();
+            } catch (IOException e) {
+                Log.d("LinkPreviewLoader", "Failed to load preview for link: " + mURL);
+                e.printStackTrace();
+            }
+            mCacheManager.getDatabase().linkPreviewDao().insertPreview(result);
         }
-        if (mLoadCallback != null)
-            mLoadCallback.onLinkPreviewLoaded(result);
+        if (result.getType() == LinkPreviewInfo.TYPE_IMAGE && result.getImageUrl() != null) {
+            try {
+                if (result.getImageUrl() != null)
+                    result.setImage(loadImageFromUrl(result.getImageUrl()));
+            } catch (IOException ignored) {
+                Log.d("LinkPreviewLoader", "Failed to load image for link: " + mURL);
+            }
+        }
+        setResult(result);
         synchronized (this) {
             mConnection = null;
             mThread = null;
         }
     }
 
-    public void cancel() {
-        synchronized (this) {
-            if (mConnection instanceof HttpURLConnection)
-                ((HttpURLConnection) mConnection).disconnect();
-            if (mThread != null)
-                mThread.interrupt();
-        }
+    public synchronized void cancel() {
+        if (mConnection instanceof HttpURLConnection)
+            ((HttpURLConnection) mConnection).disconnect();
+        if (mThread != null)
+            mThread.interrupt();
     }
 
 

@@ -10,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.format.DateUtils;
@@ -37,7 +36,8 @@ import io.mrarm.chatlib.dto.MessageId;
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.irc.NotificationManager;
 import io.mrarm.irc.R;
-import io.mrarm.irc.chat.preview.LinkPreviewInfo;
+import io.mrarm.irc.chat.preview.LinkPreviewLoadManager;
+import io.mrarm.irc.chat.preview.cache.LinkPreviewInfo;
 import io.mrarm.irc.chat.preview.LinkPreviewLoader;
 import io.mrarm.irc.chat.preview.MessageLinkExtractor;
 import io.mrarm.irc.util.AlignToPointSpan;
@@ -479,7 +479,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         private final TextView mEmbedDescription;
         private final ImageView mEmbedImage;
 
-        private LinkPreviewLoader mLoadPreviewTask;
+        private LinkPreviewLoadManager.LoadHandle mLoadPreviewTask;
         private String mCurrentUrl;
 
         public MessageWithLinkPreviewHolder(View v) {
@@ -500,9 +500,8 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             mCurrentUrl = item.mExtractedLinks[0];
             try {
                 URL urlObj = new URL(mCurrentUrl);
-                LinkPreviewLoader task = new LinkPreviewLoader(urlObj);
-                task.setLoadCallback(this);
-                AsyncTask.THREAD_POOL_EXECUTOR.execute(task);
+                mLoadPreviewTask = LinkPreviewLoadManager.getInstance(mEmbedImage.getContext())
+                        .load(urlObj).addLoadCallback(this);
             } catch (MalformedURLException ignored) {
             }
             int o = mCurrentUrl.lastIndexOf('/');
