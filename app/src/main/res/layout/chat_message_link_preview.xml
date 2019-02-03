@@ -21,6 +21,7 @@
         android:background="?attr/selectableItemBackground" />
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/embed_card"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"

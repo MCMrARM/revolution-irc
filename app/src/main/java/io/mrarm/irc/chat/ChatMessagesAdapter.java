@@ -480,6 +480,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     public class MessageWithLinkPreviewHolder extends MessageHolder
             implements LinkPreviewLoader.LoadCallback {
 
+        private final View mEmbedCard;
         private final View mEmbedCtr;
         private final TextView mEmbedTitle;
         private final TextView mEmbedDescription;
@@ -492,6 +493,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
         public MessageWithLinkPreviewHolder(View v) {
             super(v);
+            mEmbedCard = v.findViewById(R.id.embed_card);
             mEmbedCtr = v.findViewById(R.id.embed_ctr);
             mEmbedTitle = v.findViewById(R.id.embed_title);
             mEmbedDescription = v.findViewById(R.id.embed_description);
@@ -543,19 +545,35 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 mEmbedTitle.setText(mCurrentUrl);
             mEmbedDescription.setText(null);
             mEmbedDescription.setVisibility(View.GONE);
-            if (item.mEmbedInfo != null) {
-                if (item.mEmbedInfo.mTitle != null && !item.mEmbedInfo.mTitle.isEmpty())
-                    mEmbedTitle.setText(item.mEmbedInfo.mTitle);
-                if (item.mEmbedInfo.mDesc != null) {
-                    mEmbedDescription.setText(item.mEmbedInfo.mDesc);
-                    mEmbedDescription.setVisibility(View.VISIBLE);
-                }
-            }
+            bindCommonEmbedInfo(item.mEmbedInfo);
             RecyclerView recyclerView = mFragment.mRecyclerView;
             LinearLayoutManager lm = (LinearLayoutManager) recyclerView.getLayoutManager();
             int first = lm.findFirstVisibleItemPosition();
             int last = lm.findLastVisibleItemPosition();
             mScrolledInFromBottom = getLayoutPosition() >= (first + last) / 2;
+        }
+
+        private void bindCommonEmbedInfo(MessageEmbedInfo info) {
+            if (info == null) {
+                mEmbedCard.setVisibility(View.GONE);
+                return;
+            }
+            if (info.mTitle != null && !info.mTitle.isEmpty())
+                mEmbedTitle.setText(info.mTitle);
+            if (info.mDesc != null && !info.mDesc.isEmpty()) {
+                mEmbedDescription.setText(info.mDesc);
+                mEmbedDescription.setVisibility(View.VISIBLE);
+            }
+            if (info.mDesc == null || info.mDesc.length() == 0)
+                mEmbedTitle.setMaxLines(10);
+            else
+                mEmbedTitle.setMaxLines(1);
+            if (info.mBitmapHeight <= 0 && (info.mTitle == null || info.mTitle.length() < 16) &&
+                    (info.mDesc == null || info.mDesc.length() == 0)) {
+                mEmbedCard.setVisibility(View.GONE);
+            } else {
+                mEmbedCard.setVisibility(View.VISIBLE);
+            }
         }
 
         private ImageView getImageViewForSize(int type, int width, int height) {
@@ -595,31 +613,25 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                     RecyclerView recyclerView = mFragment.mRecyclerView;
                     recyclerView.getLayoutManager().measureChild(itemView, 0, 0);
                     int oldHeight = itemView.getMeasuredHeight();
-                    if (previewInfo.getTitle() != null && !previewInfo.getTitle().isEmpty())
-                        mEmbedTitle.setText(Html.fromHtml(previewInfo.getTitle()));
-                    if (previewInfo.getDescription() != null) {
-                        mEmbedDescription.setVisibility(View.VISIBLE);
-                        mEmbedDescription.setText(Html.fromHtml(previewInfo.getDescription()));
-                    }
                     if (previewInfo.getImage() != null) {
                         ImageView iv = getImageViewForSize(previewInfo.getType(),
                                 previewInfo.getImageSourceWidth(),
                                 previewInfo.getImageSourceHeight());
                         iv.setImageBitmap(previewInfo.getImage());
                     }
-                    if (getAdapterPosition() != -1) {
-                        MessageEmbedInfo embedInfo = new MessageEmbedInfo();
-                        embedInfo.mType = previewInfo.getType();
-                        embedInfo.mTitle = previewInfo.getTitle();
-                        embedInfo.mDesc = previewInfo.getDescription();
-                        if (previewInfo.getImage() != null) {
-                            embedInfo.mBitmap = new WeakReference<>(previewInfo.getImage());
-                            embedInfo.mBitmapSourceWidth = previewInfo.getImageSourceWidth();
-                            embedInfo.mBitmapSourceHeight = previewInfo.getImageSourceHeight();
-                            embedInfo.mBitmapHeight = previewInfo.getImage().getHeight();
-                        }
-                        ((MessageItem) getMessage(getAdapterPosition())).mEmbedInfo = embedInfo;
+                    MessageEmbedInfo embedInfo = new MessageEmbedInfo();
+                    embedInfo.mType = previewInfo.getType();
+                    embedInfo.mTitle = previewInfo.getTitle();
+                    embedInfo.mDesc = previewInfo.getDescription();
+                    if (previewInfo.getImage() != null) {
+                        embedInfo.mBitmap = new WeakReference<>(previewInfo.getImage());
+                        embedInfo.mBitmapSourceWidth = previewInfo.getImageSourceWidth();
+                        embedInfo.mBitmapSourceHeight = previewInfo.getImageSourceHeight();
+                        embedInfo.mBitmapHeight = previewInfo.getImage().getHeight();
                     }
+                    bindCommonEmbedInfo(embedInfo);
+                    if (getAdapterPosition() != -1)
+                        ((MessageItem) getMessage(getAdapterPosition())).mEmbedInfo = embedInfo;
                     if (!mScrolledInFromBottom)
                         return;
                     recyclerView.getLayoutManager().measureChild(itemView, 0, 0);
