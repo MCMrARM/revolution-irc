@@ -123,6 +123,7 @@ public class LinkPreviewLoader implements Runnable {
         LinkPreviewInfo result;
         result = mCacheManager.getDatabase().linkPreviewDao().findPreviewFor(mURL.toString());
         if (result == null) {
+            Log.d("LinkPreviewLoader", "Loading link preview from network: " + mURL);
             try {
                 result = doLoad();
             } catch (IOException e) {
@@ -131,10 +132,19 @@ public class LinkPreviewLoader implements Runnable {
             }
             mCacheManager.getDatabase().linkPreviewDao().insertPreview(result);
         }
-        if (result.getType() == LinkPreviewInfo.TYPE_IMAGE && result.getImageUrl() != null) {
+        if (result != null && result.getImageUrl() != null && result.getImage() == null) {
             try {
-                if (result.getImageUrl() != null)
-                    result.setImage(loadImageFromUrl(result.getImageUrl()));
+                String url = result.getImageUrl();
+                Bitmap bmp = mCacheManager.getImageCache().getImageFromCache(url);
+                if (bmp != null) {
+                    Log.d("LinkPreviewLoader", "Got image from cache: " + mURL);
+                    result.setImage(bmp);
+                } else {
+                    bmp = loadImageFromUrl(url);
+                    result.setImage(bmp);
+                    if (bmp != null)
+                        mCacheManager.getImageCache().storeImageInCache(url, bmp);
+                }
             } catch (IOException ignored) {
                 Log.d("LinkPreviewLoader", "Failed to load image for link: " + mURL);
             }

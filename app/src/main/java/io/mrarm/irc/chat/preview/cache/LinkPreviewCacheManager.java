@@ -7,18 +7,22 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 
 public class LinkPreviewCacheManager {
 
-    private Context mContext;
-    private LinkPreviewDatabase mDatabase;
+    private final LinkPreviewDatabase mDatabase;
+    private final ImageCacheManager mImageCache;
 
     public LinkPreviewCacheManager(Context context) {
-        mContext = context;
         mDatabase = Room
-                .databaseBuilder(mContext, LinkPreviewDatabase.class, "link-preview-cache")
+                .databaseBuilder(context, LinkPreviewDatabase.class, "link-preview-cache")
                 .openHelperFactory(new FrameworkSQLiteOpenHelperFactory())
                 .build();
+        mImageCache = new ImageCacheManager(context, mDatabase);
     }
 
     public LinkPreviewDatabase getDatabase() {
         return mDatabase;
+    }
+
+    public ImageCacheManager getImageCache() {
+        return mImageCache;
     }
 }
