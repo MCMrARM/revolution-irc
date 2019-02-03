@@ -45,11 +45,13 @@ public class LinkPreviewLoadManager {
                     mTasks.remove(newTask.getURL());
                 }
             });
+            task.mRefCount++;
             AsyncTask.THREAD_POOL_EXECUTOR.execute(task);
             mTasks.put(task.getURL(), task);
-        }
-        synchronized (task) {
-            task.mRefCount++;
+        } else {
+            synchronized (task) {
+                task.mRefCount++;
+            }
         }
         return new LoadHandle(task);
     }
