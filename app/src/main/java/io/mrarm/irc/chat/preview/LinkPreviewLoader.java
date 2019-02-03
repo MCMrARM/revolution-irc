@@ -122,7 +122,11 @@ public class LinkPreviewLoader implements Runnable {
         }
         LinkPreviewInfo result;
         result = mCacheManager.getDatabase().linkPreviewDao().findPreviewFor(mURL.toString());
-        if (result == null) {
+        if (result != null) {
+            result.updateLastUsed();
+            mCacheManager.getDatabase().linkPreviewDao().updateLastUsed(mURL.toString(),
+                    result.getLastUsed());
+        } else {
             Log.d("LinkPreviewLoader", "Loading link preview from network: " + mURL);
             try {
                 result = doLoad();
@@ -132,6 +136,7 @@ public class LinkPreviewLoader implements Runnable {
             }
             mCacheManager.getDatabase().linkPreviewDao().insertPreview(result);
         }
+        mCacheManager.deleteLeastRecentlyUsedPreviews();
         if (result != null && result.getImageUrl() != null && result.getImage() == null) {
             try {
                 String url = result.getImageUrl();

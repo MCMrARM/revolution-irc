@@ -3,12 +3,14 @@ package io.mrarm.irc.chat.preview.cache;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.util.Base64;
 import android.util.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.security.MessageDigest;
+import java.util.List;
 
 public class ImageCacheManager {
 
@@ -19,6 +21,8 @@ public class ImageCacheManager {
         mDatabase = db;
         mCacheDir = new File(context.getCacheDir(), "image_preview");
         mCacheDir.mkdirs();
+
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> deleteLeastRecentlyUsedItems());
     }
 
     private synchronized ImageCacheEntry findEntryFor(String url) {
@@ -41,6 +45,7 @@ public class ImageCacheManager {
     }
 
     public void storeImageInCache(String url, Bitmap bitmap) {
+        deleteLeastRecentlyUsedItems();
         ImageCacheEntry entry = new ImageCacheEntry(url);
         File file = new File(mCacheDir, getURLHash(url));
         try (FileOutputStream fos = new FileOutputStream(file)) {
@@ -50,7 +55,22 @@ public class ImageCacheManager {
             e.printStackTrace();
             return;
         }
-        mDatabase.imageCacheDao().insertEntry(entry);
+        synchronized (this) {
+            mDatabase.imageCacheDao().insertEntry(entry);
+        }
+    }
+
+    public synchronized void deleteLeastRecentlyUsedItems() {
+        while (true) {
+            List<String> list = mDatabase.imageCacheDao().getItemsToDelete();
+            if (list == null || list.isEmpty())
+                break;
+            for (String url : list) {
+                File file = new File(mCacheDir, getURLHash(url));
+                file.delete();
+            }
+            mDatabase.imageCacheDao().deleteItems(list);
+        }
     }
 
     private static String getURLHash(String url) {

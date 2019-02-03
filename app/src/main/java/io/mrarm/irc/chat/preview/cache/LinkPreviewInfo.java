@@ -2,6 +2,8 @@ package io.mrarm.irc.chat.preview.cache;
 
 import android.graphics.Bitmap;
 
+import java.util.Date;
+
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -30,6 +32,10 @@ public class LinkPreviewInfo {
     @ColumnInfo(name = "image")
     private String mImageUrl;
 
+    @ColumnInfo(name = "last_used")
+    private long mLastUsed;
+
+
     private transient Bitmap mImage;
 
     public LinkPreviewInfo() {
@@ -43,6 +49,7 @@ public class LinkPreviewInfo {
         mDescription = description;
         mImageUrl = imageUrl;
         mImage = image;
+        updateLastUsed();
     }
 
     public String getUrl() {
@@ -91,6 +98,18 @@ public class LinkPreviewInfo {
 
     public void setImage(Bitmap mImage) {
         this.mImage = mImage;
+    }
+
+    public long getLastUsed() {
+        return mLastUsed;
+    }
+
+    public void setLastUsed(long value) {
+        mLastUsed = value;
+    }
+
+    public void updateLastUsed() {
+        mLastUsed = new Date().getTime();
     }
 
     public static LinkPreviewInfo fromWebsite(String url, String title, String description,

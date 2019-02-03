@@ -1,5 +1,7 @@
 package io.mrarm.irc.chat.preview.cache;
 
+import java.util.List;
+
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
@@ -17,5 +19,11 @@ public interface ImageCacheDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertEntry(ImageCacheEntry entry);
+
+    @Query("SELECT url FROM images ORDER BY last_used DESC LIMIT 100 OFFSET 100")
+    List<String> getItemsToDelete();
+
+    @Query("DELETE FROM images WHERE url IN (:items)")
+    void deleteItems(List<String> items);
 
 }

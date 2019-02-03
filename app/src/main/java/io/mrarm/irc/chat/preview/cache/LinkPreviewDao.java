@@ -13,4 +13,10 @@ public interface LinkPreviewDao {
     @Insert
     void insertPreview(LinkPreviewInfo preview);
 
+    @Query("UPDATE link_previews SET last_used=(:time) WHERE url=(:url)")
+    void updateLastUsed(String url, long time);
+
+    @Query("DELETE FROM link_previews WHERE url IN (SELECT url FROM link_previews ORDER BY last_used DESC LIMIT 100 OFFSET 100)")
+    int deleteLeastRecentlyUsed();
+
 }

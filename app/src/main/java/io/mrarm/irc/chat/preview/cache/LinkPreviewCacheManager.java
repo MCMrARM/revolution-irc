@@ -1,6 +1,7 @@
 package io.mrarm.irc.chat.preview.cache;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.room.Room;
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
@@ -25,4 +26,15 @@ public class LinkPreviewCacheManager {
     public ImageCacheManager getImageCache() {
         return mImageCache;
     }
+
+    public void deleteLeastRecentlyUsedPreviews() {
+        while (true) {
+            int cnt = mDatabase.linkPreviewDao().deleteLeastRecentlyUsed();
+            if (cnt <= 0)
+                break;
+            Log.d("LinkPreviewCacheManager", "Deleted " + cnt +
+                    " least recently used items");
+        }
+    }
+
 }
