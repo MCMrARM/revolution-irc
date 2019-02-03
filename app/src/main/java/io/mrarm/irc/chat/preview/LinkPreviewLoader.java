@@ -135,7 +135,8 @@ public class LinkPreviewLoader implements Runnable {
                 Log.d("LinkPreviewLoader", "Failed to load preview for link: " + mURL);
                 e.printStackTrace();
             }
-            mCacheManager.getDatabase().linkPreviewDao().insertPreview(result);
+            if (result != null)
+                mCacheManager.getDatabase().linkPreviewDao().insertPreview(result);
         }
         mCacheManager.deleteLeastRecentlyUsedPreviews();
         if (result != null && result.getImageUrl() != null && !result.getImageUrl().isEmpty() &&

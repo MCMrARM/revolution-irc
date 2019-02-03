@@ -79,7 +79,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     private String mChannelTopic;
     private MessageSenderInfo mChannelTopicSetBy;
     private Date mChannelTopicSetOn;
-    private RecyclerView mRecyclerView;
+    RecyclerView mRecyclerView;
     private ScrollPosLinearLayoutManager mLayoutManager;
     private ChatMessagesAdapter mAdapter;
     private ServerStatusMessagesAdapter mStatusAdapter;

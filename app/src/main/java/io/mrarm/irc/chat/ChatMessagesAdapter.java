@@ -7,6 +7,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.net.Uri;
@@ -14,11 +15,14 @@ import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.net.MalformedURLException;
@@ -481,6 +485,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
         private LinkPreviewLoadManager.LoadHandle mLoadPreviewTask;
         private String mCurrentUrl;
+        private boolean mScrolledInFromBottom;
 
         public MessageWithLinkPreviewHolder(View v) {
             super(v);
@@ -498,6 +503,8 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         public void bind(MessageItem item) {
             super.bind(item);
             mCurrentUrl = item.mExtractedLinks[0];
+            if (mLoadPreviewTask != null)
+                throw new RuntimeException("Invalid state");
             try {
                 URL urlObj = new URL(mCurrentUrl);
                 mLoadPreviewTask = LinkPreviewLoadManager.getInstance(mEmbedImage.getContext())
@@ -512,6 +519,11 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             mEmbedDescription.setText(null);
             mEmbedDescription.setVisibility(View.GONE);
             mEmbedImage.setVisibility(View.GONE);
+            RecyclerView recyclerView = mFragment.mRecyclerView;
+            LinearLayoutManager lm = (LinearLayoutManager) recyclerView.getLayoutManager();
+            int first = lm.findFirstVisibleItemPosition();
+            int last = lm.findLastVisibleItemPosition();
+            mScrolledInFromBottom = getLayoutPosition() >= (first + last) / 2;
         }
 
         @Override
@@ -528,6 +540,11 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         public void onLinkPreviewLoaded(LinkPreviewInfo previewInfo) {
             if (previewInfo != null) {
                 mEmbedImage.post(() -> {
+                    itemView.requestLayout();
+                    itemView.measure(0, 0);
+                    RecyclerView recyclerView = mFragment.mRecyclerView;
+                    recyclerView.getLayoutManager().measureChild(itemView, 0, 0);
+                    int oldHeight = itemView.getMeasuredHeight();
                     if (previewInfo.getTitle() != null && !previewInfo.getTitle().isEmpty())
                         mEmbedTitle.setText(Html.fromHtml(previewInfo.getTitle()));
                     if (previewInfo.getDescription() != null) {
@@ -538,6 +555,24 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                         mEmbedImage.setVisibility(View.VISIBLE);
                         mEmbedImage.setImageBitmap(previewInfo.getImage());
                     }
+                    if (!mScrolledInFromBottom)
+                        return;
+                    recyclerView.getLayoutManager().measureChild(itemView, 0, 0);
+                    int newHeight = itemView.getMeasuredHeight();
+                    itemView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                        private boolean mExecuted;
+                        @Override
+                        public void onGlobalLayout() {
+                            if (mExecuted)
+                                return; // apparently this is possible
+                            mExecuted = true;
+                            itemView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                            LinearLayoutManager lm = (LinearLayoutManager) recyclerView.getLayoutManager();
+                            if (lm.findLastCompletelyVisibleItemPosition() == lm.getItemCount() - 1)
+                                return;
+                            recyclerView.scrollBy(0, -(newHeight - oldHeight));
+                        }
+                    });
                 });
             }
         }
