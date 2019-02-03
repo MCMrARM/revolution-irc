@@ -38,7 +38,7 @@ public class LinkPreviewLoadManager {
     public synchronized LoadHandle load(URL url) {
         LinkPreviewLoader task = mTasks.get(url);
         if (task == null) {
-            LinkPreviewLoader newTask = new LinkPreviewLoader(url, null, getCache());
+            LinkPreviewLoader newTask = new LinkPreviewLoader(url, getCache());
             task = newTask;
             task.addLoadCallback((i) -> {
                 synchronized (this) {

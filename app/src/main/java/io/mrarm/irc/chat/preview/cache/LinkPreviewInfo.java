@@ -37,6 +37,8 @@ public class LinkPreviewInfo {
 
 
     private transient Bitmap mImage;
+    private transient int mImageSourceWidth;
+    private transient int mImageSourceHeight;
 
     public LinkPreviewInfo() {
     }
@@ -96,8 +98,18 @@ public class LinkPreviewInfo {
         return mImage;
     }
 
-    public void setImage(Bitmap mImage) {
-        this.mImage = mImage;
+    public void setImage(Bitmap image, int srcW, int srcH) {
+        mImage = image;
+        mImageSourceWidth = srcW;
+        mImageSourceHeight = srcH;
+    }
+
+    public int getImageSourceWidth() {
+        return mImageSourceWidth;
+    }
+
+    public int getImageSourceHeight() {
+        return mImageSourceHeight;
     }
 
     public long getLastUsed() {

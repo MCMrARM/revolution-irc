@@ -12,6 +12,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.mrarm.irc.chat.preview.cache.ImageCacheEntry;
 import io.mrarm.irc.chat.preview.cache.LinkPreviewCacheManager;
 import io.mrarm.irc.chat.preview.cache.LinkPreviewInfo;
 
@@ -20,7 +21,7 @@ public class LinkPreviewLoader implements Runnable {
     private static final String USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.81 Safari/537.36";
 
     private final URL mURL;
-    private final BitmapFactory.Options mBitmapOptions;
+    private BitmapFactory.Options mBitmapOptions;
     private final LinkPreviewCacheManager mCacheManager;
     private List<LoadCallback> mLoadCallbacks = new ArrayList<>();
     private URLConnection mConnection;
@@ -29,10 +30,8 @@ public class LinkPreviewLoader implements Runnable {
     private LinkPreviewInfo mResult;
     int mRefCount = 0; // used by LinkPreviewLoadManager
 
-    public LinkPreviewLoader(URL url, BitmapFactory.Options options,
-                             LinkPreviewCacheManager cacheManager) {
+    public LinkPreviewLoader(URL url, LinkPreviewCacheManager cacheManager) {
         mURL = url;
-        mBitmapOptions = options;
         mCacheManager = cacheManager;
     }
 
@@ -98,7 +97,9 @@ public class LinkPreviewLoader implements Runnable {
         return ret;
     }
 
-    private Bitmap decodeImage(InputStream stream) throws IOException {
+    private Bitmap decodeImage(InputStream stream) {
+        if (mBitmapOptions == null)
+            mBitmapOptions = new BitmapFactory.Options();
         return BitmapFactory.decodeStream(stream, null, mBitmapOptions);
     }
 
@@ -143,16 +144,18 @@ public class LinkPreviewLoader implements Runnable {
                 result.getImage() == null) {
             try {
                 String url = result.getImageUrl();
-                Bitmap bmp = mCacheManager.getImageCache().getImageFromCache(url);
-                if (bmp != null) {
+                ImageCacheEntry cached = mCacheManager.getImageCache().getImageFromCache(url);
+                if (cached != null) {
                     Log.d("LinkPreviewLoader", "Got image from cache: " + url);
-                    result.setImage(bmp);
+                    result.setImage(cached.getBitmap(),
+                            cached.getSourceWidth(), cached.getSourceHeight());
                 } else {
                     Log.d("LinkPreviewLoader", "Loading image from network: " + url);
-                    bmp = loadImageFromUrl(url);
-                    result.setImage(bmp);
+                    Bitmap bmp = loadImageFromUrl(url);
+                    result.setImage(bmp, mBitmapOptions.outWidth, mBitmapOptions.outHeight);
                     if (bmp != null)
-                        mCacheManager.getImageCache().storeImageInCache(url, bmp);
+                        mCacheManager.getImageCache().storeImageInCache(url, bmp,
+                                mBitmapOptions.outWidth, mBitmapOptions.outHeight);
                 }
             } catch (IOException ignored) {
                 Log.d("LinkPreviewLoader", "Failed to load image for link: " + mURL);

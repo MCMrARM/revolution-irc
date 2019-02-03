@@ -1,5 +1,7 @@
 package io.mrarm.irc.chat.preview.cache;
 
+import android.graphics.Bitmap;
+
 import java.util.Date;
 
 import androidx.annotation.NonNull;
@@ -16,17 +18,29 @@ public class ImageCacheEntry {
     @NonNull
     private String mUrl;
 
+    @ColumnInfo(name = "src_width")
+    private int mSourceWidth;
+
+    @ColumnInfo(name = "src_height")
+    private int mSourceHeight;
+
     @ColumnInfo(name = "last_used")
     private long mLastUsed;
 
-    public ImageCacheEntry(@NonNull String url, long lastUsed) {
+    private transient Bitmap mBitmap;
+
+    public ImageCacheEntry(@NonNull String url, int sourceWidth, int sourceHeight, long lastUsed) {
         mUrl = url;
+        mSourceWidth = sourceWidth;
+        mSourceHeight = sourceHeight;
         mLastUsed = lastUsed;
     }
 
     @Ignore
-    public ImageCacheEntry(@NonNull String url) {
+    public ImageCacheEntry(@NonNull String url, int sourceWidth, int sourceHeight) {
         mUrl = url;
+        mSourceWidth = sourceWidth;
+        mSourceHeight = sourceHeight;
         mLastUsed = new Date().getTime();
     }
 
@@ -37,6 +51,30 @@ public class ImageCacheEntry {
 
     public void setUrl(@NonNull String value) {
         mUrl = value;
+    }
+
+    public int getSourceWidth() {
+        return mSourceWidth;
+    }
+
+    public void setSourceWidth(int value) {
+        mSourceWidth = value;
+    }
+
+    public int getSourceHeight() {
+        return mSourceHeight;
+    }
+
+    public void setSourceHeight(int value) {
+        mSourceHeight = value;
+    }
+
+    public Bitmap getBitmap() {
+        return mBitmap;
+    }
+
+    public void setBitmap(Bitmap value) {
+        mBitmap = value;
     }
 
     public long getLastUsed() {

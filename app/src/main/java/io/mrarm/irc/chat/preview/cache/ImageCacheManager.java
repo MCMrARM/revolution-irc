@@ -29,24 +29,25 @@ public class ImageCacheManager {
         ImageCacheEntry ret = mDatabase.imageCacheDao().findEntryFor(url);
         if (ret != null) {
             ret.updateLastUsed();
-            mDatabase.imageCacheDao().updateEntry(ret);
+            mDatabase.imageCacheDao().updateLastUsed(ret.getUrl(), ret.getLastUsed());
         }
         return ret;
     }
 
-    public Bitmap getImageFromCache(String url) {
+    public ImageCacheEntry getImageFromCache(String url) {
         ImageCacheEntry entry = findEntryFor(url);
         if (entry == null)
             return null;
         File file = new File(mCacheDir, getURLHash(url));
         if (!file.exists())
             return null;
-        return BitmapFactory.decodeFile(file.getAbsolutePath());
+        entry.setBitmap(BitmapFactory.decodeFile(file.getAbsolutePath()));
+        return entry;
     }
 
-    public void storeImageInCache(String url, Bitmap bitmap) {
+    public void storeImageInCache(String url, Bitmap bitmap, int bmpW, int bmpH) {
         deleteLeastRecentlyUsedItems();
-        ImageCacheEntry entry = new ImageCacheEntry(url);
+        ImageCacheEntry entry = new ImageCacheEntry(url, bmpW, bmpH);
         File file = new File(mCacheDir, getURLHash(url));
         try (FileOutputStream fos = new FileOutputStream(file)) {
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);

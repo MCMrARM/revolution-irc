@@ -26,7 +26,7 @@
         android:layout_margin="8dp"
         app:elevation="1dp">
 
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/embed_ctr"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -39,17 +39,25 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@id/embed_small_image"
+                android:ellipsize="end"
+                android:lines="1"
                 tools:text="Embed title" />
 
             <TextView
                 android:id="@+id/embed_description"
+                android:layout_below="@id/embed_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@id/embed_small_image"
                 tools:text="Embed description" />
 
             <ImageView
                 android:id="@+id/embed_image"
+                android:layout_below="@id/embed_description"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:maxHeight="200dp"
@@ -57,7 +65,18 @@
                 android:adjustViewBounds="true"
                 tools:srcCompat="@tools:sample/backgrounds/scenic" />
 
-        </LinearLayout>
+            <ImageView
+                android:id="@+id/embed_small_image"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxHeight="64dp"
+                android:adjustViewBounds="true"
+                tools:srcCompat="@tools:sample/avatars"
+                android:visibility="gone"/>
+
+        </RelativeLayout>
 
     </androidx.cardview.widget.CardView>
 
