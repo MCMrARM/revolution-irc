@@ -2,6 +2,7 @@ package io.mrarm.irc.chat;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -25,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -505,11 +507,26 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             mCurrentUrl = item.mExtractedLinks[0];
             if (mLoadPreviewTask != null)
                 throw new RuntimeException("Invalid state");
-            try {
-                URL urlObj = new URL(mCurrentUrl);
-                mLoadPreviewTask = LinkPreviewLoadManager.getInstance(mEmbedImage.getContext())
-                        .load(urlObj).addLoadCallback(this);
-            } catch (MalformedURLException ignored) {
+            Bitmap cachedBitmap = null;
+            if (item.mEmbedInfo != null && item.mEmbedInfo.mBitmap != null)
+                cachedBitmap = item.mEmbedInfo.mBitmap.get();
+            if (cachedBitmap == null) {
+                try {
+                    URL urlObj = new URL(mCurrentUrl);
+                    mLoadPreviewTask = LinkPreviewLoadManager.getInstance(mEmbedImage.getContext())
+                            .load(urlObj).addLoadCallback(this);
+                } catch (MalformedURLException ignored) {
+                }
+                if (item.mEmbedInfo != null && item.mEmbedInfo.mBitmapHeight > 0) {
+                    ViewGroup.LayoutParams p = mEmbedImage.getLayoutParams();
+                    p.height = Math.min(item.mEmbedInfo.mBitmapHeight, mEmbedImage.getMaxHeight());
+                    mEmbedImage.setLayoutParams(p);
+                } else {
+                    mEmbedImage.setVisibility(View.GONE);
+                }
+            } else {
+                mEmbedImage.setImageBitmap(cachedBitmap);
+                mEmbedImage.setVisibility(View.VISIBLE);
             }
             int o = mCurrentUrl.lastIndexOf('/');
             if (o != -1)
@@ -518,7 +535,14 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 mEmbedTitle.setText(mCurrentUrl);
             mEmbedDescription.setText(null);
             mEmbedDescription.setVisibility(View.GONE);
-            mEmbedImage.setVisibility(View.GONE);
+            if (item.mEmbedInfo != null) {
+                if (item.mEmbedInfo.mTitle != null && !item.mEmbedInfo.mTitle.isEmpty())
+                    mEmbedTitle.setText(item.mEmbedInfo.mTitle);
+                if (item.mEmbedInfo.mDesc != null) {
+                    mEmbedDescription.setText(item.mEmbedInfo.mDesc);
+                    mEmbedDescription.setVisibility(View.VISIBLE);
+                }
+            }
             RecyclerView recyclerView = mFragment.mRecyclerView;
             LinearLayoutManager lm = (LinearLayoutManager) recyclerView.getLayoutManager();
             int first = lm.findFirstVisibleItemPosition();
@@ -534,6 +558,9 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 mLoadPreviewTask = null;
             }
             mEmbedImage.setImageDrawable(null);
+            ViewGroup.LayoutParams p = mEmbedImage.getLayoutParams();
+            p.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            mEmbedImage.setLayoutParams(p);
         }
 
         @Override
@@ -554,6 +581,16 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                     if (previewInfo.getImage() != null) {
                         mEmbedImage.setVisibility(View.VISIBLE);
                         mEmbedImage.setImageBitmap(previewInfo.getImage());
+                    }
+                    if (getAdapterPosition() != -1) {
+                        MessageEmbedInfo embedInfo = new MessageEmbedInfo();
+                        embedInfo.mTitle = previewInfo.getTitle();
+                        embedInfo.mDesc = previewInfo.getDescription();
+                        if (previewInfo.getImage() != null) {
+                            embedInfo.mBitmap = new WeakReference<>(previewInfo.getImage());
+                            embedInfo.mBitmapHeight = previewInfo.getImage().getHeight();
+                        }
+                        ((MessageItem) getMessage(getAdapterPosition())).mEmbedInfo = embedInfo;
                     }
                     if (!mScrolledInFromBottom)
                         return;
@@ -581,12 +618,20 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     public static class Item {
     }
 
+    private static class MessageEmbedInfo {
+        String mTitle;
+        String mDesc;
+        WeakReference<Bitmap> mBitmap;
+        int mBitmapHeight;
+    }
+
     public static class MessageItem extends Item {
 
         MessageInfo mMessage;
         MessageId mMessageId;
         boolean mHidden;
         String[] mExtractedLinks;
+        MessageEmbedInfo mEmbedInfo;
 
         public MessageItem(MessageInfo message, MessageId msgId) {
             mMessage = message;
