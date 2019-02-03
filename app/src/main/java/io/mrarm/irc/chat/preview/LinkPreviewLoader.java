@@ -103,7 +103,7 @@ public class LinkPreviewLoader implements Runnable {
     }
 
     private Bitmap loadImageFromUrl(String url) throws IOException {
-        URLConnection connection = mURL.openConnection();
+        URLConnection connection = new URL(url).openConnection();
         connection.setRequestProperty("User-Agent", USER_AGENT);
         connection.setConnectTimeout(5000);
         connection.setReadTimeout(5000);
@@ -122,10 +122,11 @@ public class LinkPreviewLoader implements Runnable {
         }
         LinkPreviewInfo result;
         result = mCacheManager.getDatabase().linkPreviewDao().findPreviewFor(mURL.toString());
+        boolean updateLastUsed = false;
         if (result != null) {
+            Log.d("LinkPreviewLoader", "Got link preview from cache: " + mURL);
             result.updateLastUsed();
-            mCacheManager.getDatabase().linkPreviewDao().updateLastUsed(mURL.toString(),
-                    result.getLastUsed());
+            updateLastUsed = true;
         } else {
             Log.d("LinkPreviewLoader", "Loading link preview from network: " + mURL);
             try {
@@ -137,14 +138,16 @@ public class LinkPreviewLoader implements Runnable {
             mCacheManager.getDatabase().linkPreviewDao().insertPreview(result);
         }
         mCacheManager.deleteLeastRecentlyUsedPreviews();
-        if (result != null && result.getImageUrl() != null && result.getImage() == null) {
+        if (result != null && result.getImageUrl() != null && !result.getImageUrl().isEmpty() &&
+                result.getImage() == null) {
             try {
                 String url = result.getImageUrl();
                 Bitmap bmp = mCacheManager.getImageCache().getImageFromCache(url);
                 if (bmp != null) {
-                    Log.d("LinkPreviewLoader", "Got image from cache: " + mURL);
+                    Log.d("LinkPreviewLoader", "Got image from cache: " + url);
                     result.setImage(bmp);
                 } else {
+                    Log.d("LinkPreviewLoader", "Loading image from network: " + url);
                     bmp = loadImageFromUrl(url);
                     result.setImage(bmp);
                     if (bmp != null)
@@ -156,6 +159,10 @@ public class LinkPreviewLoader implements Runnable {
         }
         setResult(result);
         synchronized (this) {
+            if (updateLastUsed) {
+                mCacheManager.getDatabase().linkPreviewDao().updateLastUsed(mURL.toString(),
+                        result.getLastUsed());
+            }
             mConnection = null;
             mThread = null;
         }
