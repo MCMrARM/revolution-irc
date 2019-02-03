@@ -1,12 +1,17 @@
 package io.mrarm.irc.chat;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
@@ -14,8 +19,12 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -28,6 +37,9 @@ import io.mrarm.chatlib.dto.MessageId;
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.irc.NotificationManager;
 import io.mrarm.irc.R;
+import io.mrarm.irc.chat.preview.LinkPreviewInfo;
+import io.mrarm.irc.chat.preview.LinkPreviewLoader;
+import io.mrarm.irc.chat.preview.MessageLinkExtractor;
 import io.mrarm.irc.util.AlignToPointSpan;
 import io.mrarm.irc.util.LongPressSelectTouchListener;
 import io.mrarm.irc.util.MessageBuilder;
@@ -39,6 +51,8 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private static final int TYPE_MESSAGE = 0;
     private static final int TYPE_DAY_MARKER = 1;
     private static final int TYPE_MESSAGE_WITH_NEW_MESSAGE_MARKER = 2;
+    private static final int TYPE_MESSAGE_WITH_PREVIEW = 3;
+    private static final int TYPE_MESSAGE_WITH_PREVIEW_AND_NEW_MESSAGE_MARKER = 4;
 
     private ChatMessagesFragment mFragment;
     private List<Item> mMessages;
@@ -254,15 +268,23 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        if (viewType == TYPE_MESSAGE) {
-            View view = LayoutInflater.from(viewGroup.getContext())
-                    .inflate(R.layout.chat_message, viewGroup, false);
-            return new MessageHolder(view);
-        }
-        if (viewType == TYPE_MESSAGE_WITH_NEW_MESSAGE_MARKER) {
-            View view = LayoutInflater.from(viewGroup.getContext())
+        boolean useParent = false;
+        if (viewType == TYPE_MESSAGE_WITH_NEW_MESSAGE_MARKER ||
+                viewType == TYPE_MESSAGE_WITH_PREVIEW_AND_NEW_MESSAGE_MARKER) {
+            viewGroup = (ViewGroup) LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.chat_new_messages_marker, viewGroup, false);
-            return new MessageHolder(view);
+            useParent = true;
+        }
+        if (viewType == TYPE_MESSAGE || viewType == TYPE_MESSAGE_WITH_NEW_MESSAGE_MARKER) {
+            View view = LayoutInflater.from(viewGroup.getContext())
+                    .inflate(R.layout.chat_message, viewGroup, useParent);
+            return new MessageHolder(useParent ? viewGroup : view);
+        }
+        if (viewType == TYPE_MESSAGE_WITH_PREVIEW ||
+                viewType == TYPE_MESSAGE_WITH_PREVIEW_AND_NEW_MESSAGE_MARKER) {
+            View view = LayoutInflater.from(viewGroup.getContext())
+                    .inflate(R.layout.chat_message_link_preview, viewGroup, useParent);
+            return new MessageWithLinkPreviewHolder(useParent ? viewGroup : view);
         }
         if (viewType == TYPE_DAY_MARKER) {
             View view = LayoutInflater.from(viewGroup.getContext())
@@ -276,7 +298,7 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         int viewType = holder.getItemViewType();
         Object msg = getMessage(position);
-        if (viewType == TYPE_MESSAGE || viewType == TYPE_MESSAGE_WITH_NEW_MESSAGE_MARKER) {
+        if (viewType == TYPE_MESSAGE || viewType == TYPE_MESSAGE_WITH_NEW_MESSAGE_MARKER || viewType == TYPE_MESSAGE_WITH_PREVIEW || viewType == TYPE_MESSAGE_WITH_PREVIEW_AND_NEW_MESSAGE_MARKER) {
             ((MessageHolder) holder).bind((MessageItem) msg);
         } else if (viewType == TYPE_DAY_MARKER) {
             ((DayMarkerHolder) holder).bind((DayMarkerItem) msg);
@@ -308,9 +330,15 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     public int getItemViewType(int position) {
         Object m = getMessage(position);
         if (m instanceof MessageItem) {
-            if (((MessageItem) m).mMessageId.equals(mNewMessagesStart))
-                return TYPE_MESSAGE_WITH_NEW_MESSAGE_MARKER;
-            return TYPE_MESSAGE;
+            if (((MessageItem) m).mExtractedLinks != null) {
+                if (((MessageItem) m).mMessageId.equals(mNewMessagesStart))
+                    return TYPE_MESSAGE_WITH_PREVIEW_AND_NEW_MESSAGE_MARKER;
+                return TYPE_MESSAGE_WITH_PREVIEW;
+            } else {
+                if (((MessageItem) m).mMessageId.equals(mNewMessagesStart))
+                    return TYPE_MESSAGE_WITH_NEW_MESSAGE_MARKER;
+                return TYPE_MESSAGE;
+            }
         }
         if (m instanceof DayMarkerItem)
             return TYPE_DAY_MARKER;
@@ -442,6 +470,80 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     }
 
+
+    public class MessageWithLinkPreviewHolder extends MessageHolder
+            implements LinkPreviewLoader.LoadCallback {
+
+        private final View mEmbedCtr;
+        private final TextView mEmbedTitle;
+        private final TextView mEmbedDescription;
+        private final ImageView mEmbedImage;
+
+        private LinkPreviewLoader mLoadPreviewTask;
+        private String mCurrentUrl;
+
+        public MessageWithLinkPreviewHolder(View v) {
+            super(v);
+            mEmbedCtr = v.findViewById(R.id.embed_ctr);
+            mEmbedTitle = v.findViewById(R.id.embed_title);
+            mEmbedDescription = v.findViewById(R.id.embed_description);
+            mEmbedImage = v.findViewById(R.id.embed_image);
+            mEmbedCtr.setOnClickListener((vv) -> {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(mCurrentUrl));
+                mFragment.startActivity(browserIntent);
+            });
+        }
+
+        @Override
+        public void bind(MessageItem item) {
+            super.bind(item);
+            mCurrentUrl = item.mExtractedLinks[0];
+            try {
+                URL urlObj = new URL(mCurrentUrl);
+                LinkPreviewLoader task = new LinkPreviewLoader(urlObj);
+                task.setLoadCallback(this);
+                AsyncTask.THREAD_POOL_EXECUTOR.execute(task);
+            } catch (MalformedURLException ignored) {
+            }
+            int o = mCurrentUrl.lastIndexOf('/');
+            if (o != -1)
+                mEmbedTitle.setText(URLDecoder.decode(mCurrentUrl.substring(o + 1)));
+            else
+                mEmbedTitle.setText(mCurrentUrl);
+            mEmbedDescription.setText(null);
+            mEmbedDescription.setVisibility(View.GONE);
+            mEmbedImage.setVisibility(View.GONE);
+        }
+
+        @Override
+        public void unbind() {
+            super.unbind();
+            if (mLoadPreviewTask != null) {
+                mLoadPreviewTask.cancel();
+                mLoadPreviewTask = null;
+            }
+            mEmbedImage.setImageDrawable(null);
+        }
+
+        @Override
+        public void onLinkPreviewLoaded(LinkPreviewInfo previewInfo) {
+            if (previewInfo != null) {
+                mEmbedImage.post(() -> {
+                    if (previewInfo.getTitle() != null && !previewInfo.getTitle().isEmpty())
+                        mEmbedTitle.setText(Html.fromHtml(previewInfo.getTitle()));
+                    if (previewInfo.getDescription() != null) {
+                        mEmbedDescription.setVisibility(View.VISIBLE);
+                        mEmbedDescription.setText(Html.fromHtml(previewInfo.getDescription()));
+                    }
+                    if (previewInfo.getImage() != null) {
+                        mEmbedImage.setVisibility(View.VISIBLE);
+                        mEmbedImage.setImageBitmap(previewInfo.getImage());
+                    }
+                });
+            }
+        }
+    }
+
     public static class Item {
     }
 
@@ -450,10 +552,12 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         MessageInfo mMessage;
         MessageId mMessageId;
         boolean mHidden;
+        String[] mExtractedLinks;
 
         public MessageItem(MessageInfo message, MessageId msgId) {
             mMessage = message;
             mMessageId = msgId;
+            mExtractedLinks = MessageLinkExtractor.extractLinks(message.getMessage());
         }
 
     }
