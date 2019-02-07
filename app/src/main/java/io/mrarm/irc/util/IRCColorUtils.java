@@ -28,8 +28,8 @@ public class IRCColorUtils {
     public static final int COLOR_MEMBER_NORMAL = R.styleable.IRCColors_colorMemberNormal;
 
     private static int[] COLOR_IDS = new int[] {
-            R.styleable.IRCColors_colorBlack,
             R.styleable.IRCColors_colorWhite,
+            R.styleable.IRCColors_colorBlack,
             R.styleable.IRCColors_colorBlue,
             R.styleable.IRCColors_colorGreen,
             R.styleable.IRCColors_colorLightRed,
