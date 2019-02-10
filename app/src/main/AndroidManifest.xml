@@ -142,6 +142,9 @@
         </service>
 
         <receiver
+            android:name=".IRCService$ExitActionReceiver"
+            android:exported="false" />
+        <receiver
             android:name=".IRCService$BootReceiver"
             android:enabled="false"
             android:exported="false">
