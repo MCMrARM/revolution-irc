@@ -14,6 +14,7 @@ import androidx.annotation.RequiresApi;
 import android.util.Log;
 
 import io.mrarm.irc.ServerConnectionManager;
+import io.mrarm.irc.config.AppSettings;
 import io.mrarm.irc.config.SettingsHelper;
 
 public class ServerPingScheduler implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -50,10 +51,9 @@ public class ServerPingScheduler implements SharedPreferences.OnSharedPreference
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-        SettingsHelper helper = SettingsHelper.getInstance(context);
-        enabled = helper.isPingEnabled();
-        onlyOnWifi = helper.isPingWifIOnly();
-        interval = helper.getPingInterval();
+        enabled = AppSettings.isPingEnabled();
+        onlyOnWifi = AppSettings.isPingWiFiOnly();
+        interval = AppSettings.getPingInterval();
         stop();
         startIfEnabled();
     }

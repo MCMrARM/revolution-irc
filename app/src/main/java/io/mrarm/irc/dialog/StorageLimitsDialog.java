@@ -16,6 +16,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import io.mrarm.irc.R;
+import io.mrarm.irc.config.AppSettings;
 import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.util.StyledAttributesHelper;
 
@@ -76,14 +77,13 @@ public class StorageLimitsDialog extends Dialog {
             dismiss();
         });
 
-        SettingsHelper settings = SettingsHelper.getInstance(getContext());
-        long v = settings.getStorageLimitGlobal();
+        long v = AppSettings.getStorageLimitGlobal();
         if (v == -1L)
             mGlobalLimitSeekBar.setProgress(SIZES.length);
         else
             mGlobalLimitSeekBar.setProgress(findNearestSizeIndex(v));
         mServerLimitSeekBar.setMax(mGlobalLimitSeekBar.getProgress());
-        v = settings.getStorageLimitServer();
+        v = AppSettings.getStorageLimitServer();
         if (v == -1L)
             mServerLimitSeekBar.setProgress(SIZES.length);
         else

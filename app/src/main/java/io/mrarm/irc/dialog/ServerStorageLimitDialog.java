@@ -12,9 +12,9 @@ import android.widget.TextView;
 import java.io.IOException;
 
 import io.mrarm.irc.R;
+import io.mrarm.irc.config.AppSettings;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
-import io.mrarm.irc.config.SettingsHelper;
 
 public class ServerStorageLimitDialog extends AlertDialog {
 
@@ -63,8 +63,7 @@ public class ServerStorageLimitDialog extends AlertDialog {
         if (mServer.storageLimit == -1L) {
             mSeekBar.setProgress(StorageLimitsDialog.SIZES.length);
         } else if (mServer.storageLimit == 0L) {
-            SettingsHelper settings = SettingsHelper.getInstance(getContext());
-            long limit = settings.getStorageLimitGlobal();
+            long limit = AppSettings.getStorageLimitGlobal();
             if (limit == -1L)
                 mSeekBar.setProgress(StorageLimitsDialog.SIZES.length);
             else

@@ -53,6 +53,8 @@ import io.mrarm.irc.NotificationManager;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
+import io.mrarm.irc.config.AppSettings;
+import io.mrarm.irc.config.ChatSettings;
 import io.mrarm.irc.util.LongPressSelectTouchListener;
 import io.mrarm.irc.util.ScrollPosLinearLayoutManager;
 import io.mrarm.irc.config.SettingsHelper;
@@ -175,7 +177,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         SettingsHelper settingsHelper = SettingsHelper.getInstance(getContext());
         if (mChannelName != null) {
             mAdapter = new ChatMessagesAdapter(this, new ArrayList<>(), new ArrayList<>());
-            mAdapter.setMessageFont(settingsHelper.getChatFont(), settingsHelper.getChatFontSize());
+            mAdapter.setMessageFont(settingsHelper.getChatFont(), ChatSettings.getFontSize());
 
             Log.i(TAG, "Request message list for: " + mChannelName);
             connectionInfo.getApiInstance().getChannelInfo(mChannelName,
@@ -194,10 +196,10 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             MessageId msgId = null;
             if (msgIdStr != null)
                 msgId = mConnection.getApiInstance().getMessageStorageApi().getMessageIdParser().parse(msgIdStr);
-            reloadMessages(settingsHelper, msgId);
+            reloadMessages(msgId);
         } else if (getArguments().getBoolean(ARG_DISPLAY_STATUS)) {
             mStatusAdapter = new ServerStatusMessagesAdapter(mConnection, new StatusMessageList(new ArrayList<>()));
-            mStatusAdapter.setMessageFont(settingsHelper.getChatFont(), settingsHelper.getChatFontSize());
+            mStatusAdapter.setMessageFont(settingsHelper.getChatFont(), ChatSettings.getFontSize());
 
             Log.i(TAG, "Request status message list");
             connectionInfo.getApiInstance().getStatusMessages(100, null,
@@ -311,7 +313,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             if (index != -1)
                 ((LinearLayoutManager) mRecyclerView.getLayoutManager()).scrollToPositionWithOffset(index, 0);
             else
-                reloadMessages(SettingsHelper.getInstance(getContext()), msgId);
+                reloadMessages(msgId);
             mgr.clearUnreadMessages();
         });
         mUnreadDiscard.setOnClickListener((v) -> {
@@ -327,7 +329,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             mAdapter.setMultiSelectListener(selectTouchListener);
             mRecyclerView.addOnItemTouchListener(selectTouchListener);
 
-            if (!SettingsHelper.getInstance(getContext()).getChatUseMultiSelect()) {
+            if (!ChatSettings.shouldUseOnlyMultiSelectMode()) {
                 ChatSelectTouchListener newSelectTouchListener =
                         new ChatSelectTouchListener(mRecyclerView);
                 newSelectTouchListener.setMultiSelectListener(selectTouchListener);
@@ -368,8 +370,8 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             IRCChooserTargetService.unsetChannel(mConnection.getUUID(), mChannelName);
     }
 
-    private void reloadMessages(SettingsHelper settingsHelper, MessageId nearMessage) {
-        if (settingsHelper.shouldHideJoinPartMessages())
+    private void reloadMessages(MessageId nearMessage) {
+        if (ChatSettings.shouldHideJoinPartMessages())
             mMessageFilterOptions = sFilterJoinParts;
         else
             mMessageFilterOptions = null;
@@ -526,16 +528,16 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         SettingsHelper settingsHelper = SettingsHelper.getInstance(getContext());
         if (mAdapter != null) {
-            mAdapter.setMessageFont(settingsHelper.getChatFont(), settingsHelper.getChatFontSize());
+            mAdapter.setMessageFont(settingsHelper.getChatFont(), ChatSettings.getFontSize());
             mAdapter.notifyDataSetChanged();
         }
         if (mStatusAdapter != null) {
-            mStatusAdapter.setMessageFont(settingsHelper.getChatFont(), settingsHelper.getChatFontSize());
+            mStatusAdapter.setMessageFont(settingsHelper.getChatFont(), ChatSettings.getFontSize());
             mStatusAdapter.notifyDataSetChanged();
         }
-        if (settingsHelper.shouldHideJoinPartMessages() != (mMessageFilterOptions != null) &&
+        if (ChatSettings.shouldHideJoinPartMessages() != (mMessageFilterOptions != null) &&
                 mChannelName != null) {
-            reloadMessages(settingsHelper, null);
+            reloadMessages(null);
         }
     }
 

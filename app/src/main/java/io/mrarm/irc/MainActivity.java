@@ -20,7 +20,6 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AlertDialog;
 
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
@@ -48,10 +47,11 @@ import io.mrarm.chatlib.irc.dcc.DCCServer;
 import io.mrarm.chatlib.irc.dcc.DCCUtils;
 import io.mrarm.irc.chat.ChannelInfoAdapter;
 import io.mrarm.irc.chat.ChatFragment;
+import io.mrarm.irc.config.AppSettings;
+import io.mrarm.irc.config.ChatSettings;
 import io.mrarm.irc.dialog.UserSearchDialog;
 import io.mrarm.irc.drawer.DrawerHelper;
 import io.mrarm.irc.util.NightModeRecreateHelper;
-import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.util.StyledAttributesHelper;
 import io.mrarm.irc.util.WarningHelper;
 import io.mrarm.irc.view.ChipsEditText;
@@ -133,7 +133,7 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
             openManageServers();
         });
 
-        if (SettingsHelper.getInstance(this).isDrawerPinned())
+        if (AppSettings.isDrawerPinned())
             mDrawerLayout.setLocked(true);
 
         mChannelInfoAdapter = new ChannelInfoAdapter();
@@ -441,8 +441,7 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
                 partItem.setTitle(R.string.action_part_channel);
             }
             boolean wasDccSendVisible = menu.findItem(R.id.action_dcc_send).isVisible();
-            boolean dccSendVisible = SettingsHelper.getInstance(this).isChatDccSendVisible()
-                    && connected && inDirectChat;
+            boolean dccSendVisible = ChatSettings.isDccSendVisible() && connected && inDirectChat;
             if (dccSendVisible != wasDccSendVisible) {
                 menu.findItem(R.id.action_dcc_send).setVisible(dccSendVisible);
                 hasChanges = true;
@@ -490,7 +489,7 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
             ChatApi api = ((ChatFragment) getCurrentFragment()).getConnectionInfo().getApiInstance();
             String channel = ((ChatFragment) getCurrentFragment()).getCurrentChannel();
             if (channel != null)
-                api.leaveChannel(channel, SettingsHelper.getInstance(this).getDefaultPartMessage(), null, null);
+                api.leaveChannel(channel, AppSettings.getDefaultPartMessage(), null, null);
         } else if (id == R.id.action_dcc_send) {
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);

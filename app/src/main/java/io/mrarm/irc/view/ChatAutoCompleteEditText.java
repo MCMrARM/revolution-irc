@@ -24,7 +24,9 @@ import io.mrarm.chatlib.irc.ServerConnectionData;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.chat.ChatSuggestionsAdapter;
 import io.mrarm.irc.chat.CommandListSuggestionsAdapter;
+import io.mrarm.irc.config.ChatSettings;
 import io.mrarm.irc.config.CommandAliasManager;
+import io.mrarm.irc.config.NickAutocompleteSettings;
 import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.util.CommandAliasSyntaxParser;
 import io.mrarm.irc.util.SelectableRecyclerViewAdapter;
@@ -252,11 +254,10 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        SettingsHelper s = SettingsHelper.getInstance(getContext());
-        mDoThresholdSuggestions = s.shouldShowNickAutocompleteSuggestions();
-        mDoAtSuggestions = s.shouldShowNickAutocompleteAtSuggestions();
-        mAtSuggestionsRemoveAt = s.shouldRemoveAtWithNickAutocompleteAtSuggestions();
-        mDoChannelSuggestions = s.shouldShowChannelAutocompleteSuggestions();
+        mDoThresholdSuggestions = NickAutocompleteSettings.areSuggestionsEnabled();
+        mDoAtSuggestions =  NickAutocompleteSettings.areAtSuggestionsEnabled();
+        mAtSuggestionsRemoveAt = NickAutocompleteSettings.isAtSuggestionsRemoveAtEnabled();
+        mDoChannelSuggestions = NickAutocompleteSettings.areChannelSuggestionsEnabled();
         if (mAdapter != null)
             mAdapter.setEnabledSuggestions(true, mDoChannelSuggestions, false);
     }
@@ -424,13 +425,13 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
         @Override
         public boolean onDoubleTap(MotionEvent e) {
             mDoubleTapTextPos = mLastTextPos;
-            return SettingsHelper.getInstance(getContext()).isNickAutocompleteDoubleTapEnabled();
+            return NickAutocompleteSettings.isDoubleTapEnabled();
         }
 
         @Override
         public boolean onDoubleTapEvent(MotionEvent e) {
             if (e.getAction() == MotionEvent.ACTION_UP &&
-                    SettingsHelper.getInstance(getContext()).isNickAutocompleteDoubleTapEnabled()) {
+                    NickAutocompleteSettings.isDoubleTapEnabled()) {
                 setSelection(mDoubleTapTextPos);
                 requestTabComplete();
                 return true;
@@ -440,8 +441,7 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            String swipeMode = SettingsHelper.getInstance(getContext())
-                    .getChatSendBoxHistorySwipeMode();
+            String swipeMode = ChatSettings.getSendBoxHistorySwipeMode();
             if (swipeMode.equals(SettingsHelper.SWIPE_DISABLED))
                 return false;
 

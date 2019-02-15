@@ -27,6 +27,7 @@ AppSettings:
       pref: ping_wifi
     - spec: int pingInterval = 15 * 60 * 1000
 
+    - spec: boolean drawerPinned = false
     - spec: boolean drawerAlwaysShowServer = false
       getter: shouldDrawerAlwaysShowServer
 
@@ -45,12 +46,14 @@ ChatSettings:
       pref: chat_text_autocorrect
 
     - spec: boolean hideJoinPartMessages = false
+      getter: shouldHideJoinPartMessages
     - spec: String appbarCompactMode = "auto"
       enum: ["auto", "always", "never"]
     - spec: String sendBoxHistorySwipeMode = "left_to_right"
       enum: ["disabled", "left_to_right", "right_to_left", "up_to_down", "down_to_up"]
     - spec: boolean sendBoxAlwaysMultiline = true
     - spec: boolean showDccSend = false
+      getter: isDccSendVisible
     - spec: boolean onlyMultiSelectMode = false
       getter: shouldUseOnlyMultiSelectMode
 
@@ -58,10 +61,16 @@ NickAutocompleteSettings:
   pref_prefix: nick_autocomplete
   settings:
     - spec: boolean showButton = false
+      getter: isButtonVisible
     - spec: boolean doubleTap = true
+      getter: isDoubleTapEnabled
     - spec: boolean suggestions = false
+      getter: areSuggestionsEnabled
     - spec: boolean atSuggestions = true
+      getter: areAtSuggestionsEnabled
     - spec: boolean atSuggestionsRemoveAt = true
+      getter: isAtSuggestionsRemoveAtEnabled
     - spec: boolean channelSuggestions = true
       pref: channel_autocomplete_suggestions
+      getter: areChannelSuggestionsEnabled
 

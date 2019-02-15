@@ -25,10 +25,10 @@ import io.mrarm.chatlib.irc.filters.ZNCPlaybackMessageFilter;
 import io.mrarm.chatlib.irc.handlers.MessageCommandHandler;
 import io.mrarm.chatlib.message.MessageStorageApi;
 import io.mrarm.irc.chat.ChatUIData;
+import io.mrarm.irc.config.AppSettings;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.util.IgnoreListMessageFilter;
-import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.util.StubMessageStorageApi;
 import io.mrarm.irc.util.UserAutoRunCommandHelper;
 
@@ -195,7 +195,7 @@ public class ServerConnectionInfo {
                 disconnectThread.start();
             } else if (isConnected()) {
                 mDisconnecting = true;
-                String message = SettingsHelper.getInstance(mManager.getContext()).getDefaultQuitMessage();
+                String message = AppSettings.getDefaultQuitMessage();
                 if (userExecutedQuit) {
                     ((IRCConnection) mApi).disconnect(null, null);
                 } else {
@@ -271,11 +271,10 @@ public class ServerConnectionInfo {
     public void notifyConnectivityChanged(boolean hasAnyConnectivity, boolean hasWifi) {
         mReconnectHandler.removeCallbacks(mReconnectRunnable);
 
-        SettingsHelper helper = SettingsHelper.getInstance(getConnectionManager().getContext());
-        if (!hasAnyConnectivity || !helper.isReconnectEnabled() || (helper.isReconnectWifiRequired()
-                && !hasWifi))
+        if (!hasAnyConnectivity || !AppSettings.isReconnectEnabled() ||
+                (AppSettings.isReconnectWiFiOnly() && !hasWifi))
             return;
-        if (helper.shouldReconnectOnConnectivityChange()) {
+        if (AppSettings.isReconnectOnConnectivityChangeEnabled()) {
             connect(); // this will be ignored if we are already connected
         } else if (mReconnectQueueTime != -1L) {
             long reconnectDelay = mManager.getReconnectDelay(mCurrentReconnectAttempt++);
@@ -430,8 +429,7 @@ public class ServerConnectionInfo {
 
     private Runnable mReconnectRunnable = () -> {
         mReconnectQueueTime = -1L;
-        SettingsHelper helper = SettingsHelper.getInstance(mManager.getContext());
-        if (!helper.isReconnectEnabled() || (helper.isReconnectWifiRequired() &&
+        if (!AppSettings.isReconnectEnabled() || (AppSettings.isReconnectWiFiOnly() &&
                 !ServerConnectionManager.isWifiConnected(mManager.getContext())))
             return;
         this.connect();

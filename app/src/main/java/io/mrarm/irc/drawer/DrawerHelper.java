@@ -18,6 +18,7 @@ import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
 import io.mrarm.irc.SettingsActivity;
+import io.mrarm.irc.config.AppSettings;
 import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.dialog.ChannelSearchDialog;
 import io.mrarm.irc.view.LockableDrawerLayout;
@@ -47,7 +48,7 @@ public class DrawerHelper implements ServerConnectionManager.ConnectionsListener
         Resources r = activity.getResources();
 
         mAdapter = new DrawerMenuListAdapter(activity, mDrawerLayout,
-                SettingsHelper.getInstance(activity).shouldDrawerAlwaysShowServer());
+                AppSettings.shouldDrawerAlwaysShowServer());
 
         mSearchItem = new DrawerMenuItem(r.getString(R.string.action_search), R.drawable.ic_search_white);
         mSearchItem.setOnClickListener((View view) -> {
@@ -189,8 +190,7 @@ public class DrawerHelper implements ServerConnectionManager.ConnectionsListener
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         mActivity.runOnUiThread(() -> {
-            mAdapter.setAlwaysShowServer(SettingsHelper.getInstance(mActivity)
-                    .shouldDrawerAlwaysShowServer());
+            mAdapter.setAlwaysShowServer(AppSettings.shouldDrawerAlwaysShowServer());
         });
     }
 }
