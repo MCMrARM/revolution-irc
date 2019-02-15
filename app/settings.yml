@@ -29,10 +29,12 @@ AppSettings:
     - spec: int pingInterval = 15 * 60 * 1000
 
     - spec: boolean drawerPinned = false
+      setter: true
     - spec: boolean drawerAlwaysShowServer = false
       getter: shouldDrawerAlwaysShowServer
 
     - spec: String theme
+      setter: true
 
     - spec: long storageLimitGlobal = StorageLimitsDialog.DEFAULT_LIMIT_GLOBAL
     - spec: long storageLimitServer = StorageLimitsDialog.DEFAULT_LIMIT_SERVER

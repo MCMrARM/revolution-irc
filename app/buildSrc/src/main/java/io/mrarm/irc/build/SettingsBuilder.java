@@ -75,6 +75,8 @@ public class SettingsBuilder {
                     prefName = prefPrefix + "_" + prefName;
             }
             writeGetterFunc(writer, type, name, prefName, defaultValue, s);
+            if (s.containsKey("setter"))
+                writeSetterFunc(writer, type, name, prefName, s);
         }
 
         if (helpers != null) {
@@ -142,6 +144,12 @@ public class SettingsBuilder {
         writer.endMethod();
     }
 
+    private static String getGetterPrefix(String type) {
+        if (type.equals("boolean"))
+            return "is";
+        return "get";
+    }
+
     private static void writeSimpleGetterFuncBody(JavaWriter writer, String type, String prefName,
                                                   String defValue) throws IOException {
         writer.emitStatement("return getPreferences().%s(\"%s\", %s)",
@@ -160,10 +168,42 @@ public class SettingsBuilder {
         writer.emitStatement("return s.split(String.valueOf(%s))", separator);
     }
 
-    private static String getGetterPrefix(String type) {
-        if (type.equals("boolean"))
-            return "is";
-        return "get";
+    private static void writeSetterFunc(JavaWriter writer, String type, String name,
+                                        String prefName, Map properties)
+            throws IOException {
+        Object setterNameObj = properties.get("setter");
+        String setterName = setterNameObj instanceof String
+                ? (String) properties.get("setter") : null;
+        if (setterName == null)
+            setterName = "set" + capitalize(name);
+
+        writer.beginMethod("void", setterName,
+                EnumSet.of(Modifier.PUBLIC, Modifier.STATIC), type, "value");
+
+        switch (type) {
+            case "boolean":
+                writeSimpleSetterFuncBody(writer, "putBoolean", prefName);
+                break;
+            case "int":
+                writeSimpleSetterFuncBody(writer, "putInt", prefName);
+                break;
+            case "String":
+                writeSimpleSetterFuncBody(writer, "putString", prefName);
+                break;
+            case "long":
+                writeSimpleSetterFuncBody(writer, "putLong", prefName);
+                break;
+            default:
+                throw new IllegalArgumentException("Type not supported: " + type);
+        }
+
+        writer.endMethod();
+    }
+
+    private static void writeSimpleSetterFuncBody(JavaWriter writer, String type, String prefName)
+            throws IOException {
+        writer.emitStatement("getPreferences().edit().%s(\"%s\", %s).apply()",
+                type, prefName, "value");
     }
 
     private static String capitalize(String str) {

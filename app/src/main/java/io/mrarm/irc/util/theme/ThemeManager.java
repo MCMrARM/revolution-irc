@@ -6,9 +6,7 @@ import android.content.SharedPreferences;
 
 import androidx.appcompat.app.AppCompatDelegate;
 
-import android.content.res.Resources;
 import android.util.Log;
-import android.util.TypedValue;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -227,11 +225,11 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
     }
 
     public void setTheme(BaseTheme theme) {
-        SettingsHelper.getInstance(context).setTheme(theme.getId());
+        AppSettings.setTheme(theme.getId());
     }
 
     public void setTheme(ThemeInfo theme) {
-        SettingsHelper.getInstance(context).setTheme(PREF_THEME_CUSTOM_PREFIX + theme.uuid);
+        AppSettings.setTheme(PREF_THEME_CUSTOM_PREFIX + theme.uuid);
     }
 
     public void invalidateCurrentCustomTheme() {
