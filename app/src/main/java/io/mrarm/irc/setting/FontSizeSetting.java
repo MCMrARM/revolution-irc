@@ -10,7 +10,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import io.mrarm.irc.R;
-import io.mrarm.irc.config.SettingsHelper;
+import io.mrarm.irc.config.ChatSettings;
 
 public class FontSizeSetting extends SimpleSetting {
 
@@ -69,7 +69,7 @@ public class FontSizeSetting extends SimpleSetting {
             FontSizeSetting entry = getEntry();
             View view = LayoutInflater.from(v.getContext()).inflate(R.layout.dialog_font_size, null);
             TextView sampleText = view.findViewById(R.id.example_text);
-            sampleText.setTypeface(SettingsHelper.getInstance(view.getContext()).getChatFont());
+            sampleText.setTypeface(ChatSettings.getFont());
             int fontSize = entry.mFontSize;
             if (fontSize < 0)
                 fontSize = (int) (sampleText.getTextSize() /

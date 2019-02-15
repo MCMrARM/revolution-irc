@@ -6,6 +6,7 @@ AppSettings:
     - io.mrarm.irc.view.ChipsEditText
     - io.mrarm.irc.setting.ReconnectIntervalSetting
     - io.mrarm.irc.dialog.StorageLimitsDialog
+    - java.util.List
   settings:
     - spec: String[] defaultNicks = new String[0]
       separator: io.mrarm.irc.view.ChipsEditText.SEPARATOR
@@ -35,11 +36,15 @@ AppSettings:
 
     - spec: long storageLimitGlobal = StorageLimitsDialog.DEFAULT_LIMIT_GLOBAL
     - spec: long storageLimitServer = StorageLimitsDialog.DEFAULT_LIMIT_SERVER
+  helpers:
+    - List<ReconnectIntervalSetting.Rule> getReconnectIntervalRules()
 
 ChatSettings:
   pref_prefix: chat
+  import:
+    - android.graphics.Typeface
   settings:
-    - spec: String fontString
+    - spec: String fontString = "default"
       pref: chat_font
     - spec: int fontSize = -1
     - spec: boolean textAutocorrectEnabled = true
@@ -56,6 +61,8 @@ ChatSettings:
       getter: isDccSendVisible
     - spec: boolean onlyMultiSelectMode = false
       getter: shouldUseOnlyMultiSelectMode
+  helpers:
+    - Typeface getFont()
 
 NickAutocompleteSettings:
   pref_prefix: nick_autocomplete

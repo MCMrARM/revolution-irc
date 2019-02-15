@@ -304,7 +304,7 @@ public class ServerConnectionManager {
     int getReconnectDelay(int attemptNumber) {
         if (!AppSettings.isReconnectEnabled())
             return -1;
-        List<ReconnectIntervalSetting.Rule> rules = SettingsHelper.getInstance(mContext).getReconnectIntervalRules();
+        List<ReconnectIntervalSetting.Rule> rules = AppSettings.getReconnectIntervalRules();
         if (rules.size() == 0)
             return -1;
         int att = 0;

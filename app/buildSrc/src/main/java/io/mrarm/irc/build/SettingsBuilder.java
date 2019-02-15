@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,7 @@ public class SettingsBuilder {
         String prefPrefix = (String) map.getOrDefault("pref_prefix", null);
         List<String> imports = (List<String>) map.get("import");
         List<Map> settings = (List<Map>) map.get("settings");
+        List<String> helpers = (List<String>) map.get("helpers");
 
         JavaWriter writer = new JavaWriter(new FileWriter(outputFile));
         writer.emitPackage(packageName);
@@ -74,6 +76,34 @@ public class SettingsBuilder {
             }
             writeGetterFunc(writer, type, name, prefName, defaultValue, s);
         }
+
+        if (helpers != null) {
+            for (String s : helpers) {
+                int typeIof = s.indexOf(' ');
+                int argsStartIof = s.indexOf('(', typeIof + 1);
+                int argsEndIof = s.indexOf(')', argsStartIof + 1);
+                String type = s.substring(0, typeIof).trim();
+                String name = s.substring(typeIof + 1, argsStartIof).trim();
+                String[] args = s.substring(argsStartIof + 1, argsEndIof).trim().split(",");
+                if (args.length == 1 && args[0].length() == 0)
+                    args = new String[0];
+                List<String> argsWithNames = new ArrayList<>();
+                StringBuilder argsNames = new StringBuilder();
+                int pi = 0;
+                for (String ar : args) {
+                    argsWithNames.add(ar);
+                    argsWithNames.add("p" + (++pi));
+                    if (argsNames.length() > 0)
+                        argsNames.append(", ");
+                    argsNames.append("p" + pi);
+                }
+                writer.beginMethod(type, name, EnumSet.of(Modifier.PUBLIC, Modifier.STATIC),
+                        argsWithNames, null);
+                writer.emitStatement("return %sHelper.%s(%s)", className, name, argsNames);
+                writer.endMethod();
+            }
+        }
+
         writer.endType();
         writer.close();
     }
