@@ -1,0 +1,25 @@
+apply plugin: 'java-gradle-plugin'
+apply plugin: 'groovy'
+
+group = 'io.mrarm.irc'
+version = '1.0'
+
+repositories {
+    mavenCentral()
+    google()
+}
+
+gradlePlugin {
+    plugins {
+        settingsPlugin {
+            id = 'io.mrarm.irc.build.settings-builder'
+            implementationClass = 'io.mrarm.irc.build.SettingsBuilderPlugin'
+        }
+    }
+}
+
+dependencies {
+    implementation 'com.android.tools.build:gradle:3.3.1'
+    implementation 'org.yaml:snakeyaml:1.23'
+    implementation 'com.squareup:javawriter:2.5.1'
+}
