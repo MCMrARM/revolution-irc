@@ -2,7 +2,6 @@ package io.mrarm.irc.view;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,13 +27,13 @@ import io.mrarm.irc.config.ChatSettings;
 import io.mrarm.irc.config.CommandAliasManager;
 import io.mrarm.irc.config.NickAutocompleteSettings;
 import io.mrarm.irc.config.SettingsHelper;
+import io.mrarm.irc.config.UiSettingChangeCallback;
 import io.mrarm.irc.util.CommandAliasSyntaxParser;
 import io.mrarm.irc.util.SelectableRecyclerViewAdapter;
 import io.mrarm.irc.util.SimpleTextWatcher;
 import io.mrarm.irc.util.SpannableStringHelper;
 
 public class ChatAutoCompleteEditText extends FormattableEditText implements
-        SharedPreferences.OnSharedPreferenceChangeListener,
         ChatSuggestionsAdapter.OnItemClickListener {
 
     private static final int THRESHOLD = 2;
@@ -85,7 +84,7 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
         mGestureListener = new SendTextGestureListener();
         mGestureDetector = new GestureDetector(getContext(), mGestureListener);
 
-        onSharedPreferenceChanged(null, null);
+        onSettingChanged();
     }
 
     public void setSuggestionsListView(View suggestionsContainer, View suggestionsCard, RecyclerView suggestionsList) {
@@ -234,26 +233,23 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        SettingsHelper s = SettingsHelper.getInstance(getContext());
-        s.addPreferenceChangeListener(SettingsHelper.PREF_NICK_AUTOCOMPLETE_SUGGESTIONS, this);
-        s.addPreferenceChangeListener(SettingsHelper.PREF_NICK_AUTOCOMPLETE_AT_SUGGESTIONS, this);
-        s.addPreferenceChangeListener(SettingsHelper.PREF_NICK_AUTOCOMPLETE_AT_SUGGESTIONS_REMOVE_AT, this);
-        s.addPreferenceChangeListener(SettingsHelper.PREF_CHANNEL_AUTOCOMPLETE_SUGGESTIONS, this);
-        onSharedPreferenceChanged(null, null);
+        SettingsHelper.registerCallbacks(this);
+        onSettingChanged();
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        SettingsHelper s = SettingsHelper.getInstance(getContext());
-        s.removePreferenceChangeListener(SettingsHelper.PREF_NICK_AUTOCOMPLETE_SUGGESTIONS, this);
-        s.removePreferenceChangeListener(SettingsHelper.PREF_NICK_AUTOCOMPLETE_AT_SUGGESTIONS, this);
-        s.removePreferenceChangeListener(SettingsHelper.PREF_NICK_AUTOCOMPLETE_AT_SUGGESTIONS_REMOVE_AT, this);
-        s.removePreferenceChangeListener(SettingsHelper.PREF_CHANNEL_AUTOCOMPLETE_SUGGESTIONS, this);
+        SettingsHelper.unregisterCallbacks(this);
     }
 
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+    @UiSettingChangeCallback(keys = {
+            NickAutocompleteSettings.PREF_SUGGESTIONS,
+            NickAutocompleteSettings.PREF_AT_SUGGESTIONS,
+            NickAutocompleteSettings.PREF_AT_SUGGESTIONS_REMOVE_AT,
+            NickAutocompleteSettings.PREF_CHANNEL_SUGGESTIONS
+    })
+    private void onSettingChanged() {
         mDoThresholdSuggestions = NickAutocompleteSettings.areSuggestionsEnabled();
         mDoAtSuggestions =  NickAutocompleteSettings.areAtSuggestionsEnabled();
         mAtSuggestionsRemoveAt = NickAutocompleteSettings.isAtSuggestionsRemoveAtEnabled();

@@ -20,8 +20,9 @@ AppSettings:
       pref: reconnect_wifi
     - spec: boolean reconnectOnConnectivityChangeEnabled = true
       pref: reconnect_connchg
-    - spec: String reconnectIntervalString
+    - spec: String reconnectInterval
       pref: reconnect_interval
+      getter: getReconnectIntervalString
 
     - spec: boolean pingEnabled = false
     - spec: boolean pingWiFiOnly = true
@@ -46,8 +47,8 @@ ChatSettings:
   import:
     - android.graphics.Typeface
   settings:
-    - spec: String fontString = "default"
-      pref: chat_font
+    - spec: String font = "default"
+      getter: getFontString
     - spec: int fontSize = -1
     - spec: boolean textAutocorrectEnabled = true
       pref: chat_text_autocorrect

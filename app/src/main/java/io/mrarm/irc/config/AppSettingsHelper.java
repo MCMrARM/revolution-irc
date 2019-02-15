@@ -23,7 +23,7 @@ class AppSettingsHelper {
     }
 
     static {
-        SettingsHelper.changeEvent().listen(SettingsHelper.PREF_RECONNECT_INTERVAL, () -> {
+        SettingsHelper.changeEvent().listen(AppSettings.PREF_RECONNECT_INTERVAL, () -> {
             sCachedIntervalRules = null;
         });
     }

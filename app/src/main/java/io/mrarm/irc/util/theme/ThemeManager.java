@@ -2,7 +2,6 @@ package io.mrarm.irc.util.theme;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 
 import androidx.appcompat.app.AppCompatDelegate;
 
@@ -27,7 +26,7 @@ import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.util.IRCColorUtils;
 import io.mrarm.thememonkey.Theme;
 
-public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class ThemeManager {
 
     private static final String FILENAME_PREFIX = "theme-";
     private static final String FILENAME_SUFFIX = ".json";
@@ -67,8 +66,7 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
                 true));
         reloadThemes();
 
-        SettingsHelper.getInstance(context).addPreferenceChangeListener(
-                SettingsHelper.PREF_THEME, this);
+        SettingsHelper.changeEvent().listen(AppSettings.PREF_THEME, this::onThemeSettingChanged);
     }
 
     public File getThemesDir() {
@@ -99,7 +97,7 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
                 }
             }
         }
-        onSharedPreferenceChanged(null, SettingsHelper.PREF_THEME);
+        onThemeSettingChanged();
     }
 
     private ThemeInfo loadTheme(File themeFile, UUID uuid) throws IOException {
@@ -188,8 +186,7 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
         themeChangeListeners.remove(listener);
     }
 
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+    private void onThemeSettingChanged() {
         String theme = AppSettings.getTheme();
         if (theme != null && theme.startsWith(PREF_THEME_CUSTOM_PREFIX)) {
             try {

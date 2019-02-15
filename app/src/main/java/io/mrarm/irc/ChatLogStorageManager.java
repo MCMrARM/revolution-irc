@@ -23,10 +23,11 @@ import java.util.concurrent.Executor;
 import io.mrarm.irc.config.AppSettings;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
+import io.mrarm.irc.config.SettingChangeCallback;
 import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.util.PoolSerialExecutor;
 
-public class ChatLogStorageManager implements SharedPreferences.OnSharedPreferenceChangeListener, ServerConfigManager.ConnectionsListener {
+public class ChatLogStorageManager implements ServerConfigManager.ConnectionsListener {
 
     private static final int MIN_GLOBAL_MESSAGES_UPDATE = 1024;
     private static final int MIN_SERVER_MESSAGES_UPDATE = 128;
@@ -59,10 +60,7 @@ public class ChatLogStorageManager implements SharedPreferences.OnSharedPreferen
         mConnectionManager = ServerConnectionManager.getInstance(context);
         mServerConfigManager = ServerConfigManager.getInstance(context);
 
-        SettingsHelper helper = SettingsHelper.getInstance(context);
-        helper.addPreferenceChangeListener(SettingsHelper.PREF_STORAGE_LIMIT_GLOBAL, this);
-        helper.addPreferenceChangeListener(SettingsHelper.PREF_STORAGE_LIMIT_SERVER, this);
-        onSharedPreferenceChanged(null, null);
+        SettingsHelper.registerCallbacks(this);
 
         mExecutor = new PoolSerialExecutor();
 
@@ -75,8 +73,11 @@ public class ChatLogStorageManager implements SharedPreferences.OnSharedPreferen
         });
     }
 
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+    @SettingChangeCallback(keys = {
+            AppSettings.PREF_STORAGE_LIMIT_GLOBAL,
+            AppSettings.PREF_STORAGE_LIMIT_SERVER
+    })
+    private void onSettingChanged() {
         mGlobalLimit = AppSettings.getStorageLimitGlobal();
         mDefaultServerLimit = AppSettings.getStorageLimitServer();
     }
