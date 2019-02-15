@@ -2,7 +2,6 @@ package io.mrarm.irc.config;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Typeface;
 import android.preference.PreferenceManager;
 
 import com.google.gson.Gson;
@@ -14,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 
 import io.mrarm.irc.setting.ListWithCustomSetting;
-import io.mrarm.irc.setting.ReconnectIntervalSetting;
 
 public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -150,18 +148,6 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
             String key, SharedPreferences.OnSharedPreferenceChangeListener listener) {
         if (listener != null && mListeners.containsKey(key))
             mListeners.get(key).remove(listener);
-    }
-
-    public void setDrawerPinned(boolean pinned) {
-        mPreferences.edit()
-                .putBoolean(PREF_DRAWER_PINNED, pinned)
-                .apply();
-    }
-
-    public void setTheme(String name) {
-        mPreferences.edit()
-                .putString(PREF_THEME, name)
-                .apply();
     }
 
 
