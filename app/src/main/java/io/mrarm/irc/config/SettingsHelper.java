@@ -95,7 +95,6 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
     private Context mContext;
     private SharedPreferences mPreferences;
     private Map<String, List<SharedPreferences.OnSharedPreferenceChangeListener>> mListeners = new HashMap<>();
-    private Typeface mCachedFont;
 
     private static final Map<String, List<SettingChangeCallback>> sListeners = new HashMap<>();
 
@@ -129,8 +128,6 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(PREF_CHAT_FONT))
-            mCachedFont = null;
         if (mListeners.containsKey(key)) {
             for (SharedPreferences.OnSharedPreferenceChangeListener l : mListeners.get(key))
                 l.onSharedPreferenceChanged(sharedPreferences, key);
@@ -159,26 +156,6 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         mPreferences.edit()
                 .putBoolean(PREF_DRAWER_PINNED, pinned)
                 .apply();
-    }
-
-    public Typeface getChatFont() {
-        if (mCachedFont != null)
-            return mCachedFont;
-        String font = mPreferences.getString(PREF_CHAT_FONT, "default");
-        if (ListWithCustomSetting.isPrefCustomValue(font)) {
-            File file = ListWithCustomSetting.getCustomFile(mContext, PREF_CHAT_FONT, font);
-            try {
-                mCachedFont = Typeface.createFromFile(file);
-                return mCachedFont;
-            } catch (Exception ignored) {
-            }
-        }
-        if (font.equals("monospace"))
-            return Typeface.MONOSPACE;
-        else if (font.equals("serif"))
-            return Typeface.SERIF;
-        else
-            return Typeface.DEFAULT;
     }
 
     public void setTheme(String name) {

@@ -53,7 +53,6 @@ import io.mrarm.irc.NotificationManager;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
-import io.mrarm.irc.config.AppSettings;
 import io.mrarm.irc.config.ChatSettings;
 import io.mrarm.irc.util.LongPressSelectTouchListener;
 import io.mrarm.irc.util.ScrollPosLinearLayoutManager;
@@ -177,7 +176,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         SettingsHelper settingsHelper = SettingsHelper.getInstance(getContext());
         if (mChannelName != null) {
             mAdapter = new ChatMessagesAdapter(this, new ArrayList<>(), new ArrayList<>());
-            mAdapter.setMessageFont(settingsHelper.getChatFont(), ChatSettings.getFontSize());
+            mAdapter.setMessageFont(ChatSettings.getFont(), ChatSettings.getFontSize());
 
             Log.i(TAG, "Request message list for: " + mChannelName);
             connectionInfo.getApiInstance().getChannelInfo(mChannelName,
@@ -199,7 +198,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             reloadMessages(msgId);
         } else if (getArguments().getBoolean(ARG_DISPLAY_STATUS)) {
             mStatusAdapter = new ServerStatusMessagesAdapter(mConnection, new StatusMessageList(new ArrayList<>()));
-            mStatusAdapter.setMessageFont(settingsHelper.getChatFont(), ChatSettings.getFontSize());
+            mStatusAdapter.setMessageFont(ChatSettings.getFont(), ChatSettings.getFontSize());
 
             Log.i(TAG, "Request status message list");
             connectionInfo.getApiInstance().getStatusMessages(100, null,
@@ -526,13 +525,12 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        SettingsHelper settingsHelper = SettingsHelper.getInstance(getContext());
         if (mAdapter != null) {
-            mAdapter.setMessageFont(settingsHelper.getChatFont(), ChatSettings.getFontSize());
+            mAdapter.setMessageFont(ChatSettings.getFont(), ChatSettings.getFontSize());
             mAdapter.notifyDataSetChanged();
         }
         if (mStatusAdapter != null) {
-            mStatusAdapter.setMessageFont(settingsHelper.getChatFont(), ChatSettings.getFontSize());
+            mStatusAdapter.setMessageFont(ChatSettings.getFont(), ChatSettings.getFontSize());
             mStatusAdapter.notifyDataSetChanged();
         }
         if (ChatSettings.shouldHideJoinPartMessages() != (mMessageFilterOptions != null) &&

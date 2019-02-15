@@ -162,7 +162,7 @@ public class ChatFragment extends Fragment implements
         s.addPreferenceChangeListener(SettingsHelper.PREF_NICK_AUTOCOMPLETE_DOUBLE_TAP, this);
 
         mSendHelper.setTabButtonVisible(NickAutocompleteSettings.isButtonVisible());
-        mSendHelper.setMessageFieldTypeface(s.getChatFont());
+        mSendHelper.setMessageFieldTypeface(ChatSettings.getFont());
         mSendHelper.setAutocorrectEnabled(ChatSettings.isTextAutocorrectEnabled());
         mSendHelper.setAlwaysMultiline(ChatSettings.isSendBoxAlwaysMultiline());
 
@@ -204,9 +204,8 @@ public class ChatFragment extends Fragment implements
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (getView() != null) {
             updateToolbarCompactLayoutStatus(getView().getBottom() - getView().getTop());
-            SettingsHelper s = SettingsHelper.getInstance(getContext());
             mSendHelper.setTabButtonVisible(NickAutocompleteSettings.isButtonVisible());
-            mSendHelper.setMessageFieldTypeface(s.getChatFont());
+            mSendHelper.setMessageFieldTypeface(ChatSettings.getFont());
             mSendHelper.setAutocorrectEnabled(ChatSettings.isTextAutocorrectEnabled());
             mSendHelper.setAlwaysMultiline(ChatSettings.isSendBoxAlwaysMultiline());
         }
