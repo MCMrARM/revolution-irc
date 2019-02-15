@@ -94,9 +94,10 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
 
     private Context mContext;
     private SharedPreferences mPreferences;
-    private List<ReconnectIntervalSetting.Rule> mCachedIntervalRules;
     private Map<String, List<SharedPreferences.OnSharedPreferenceChangeListener>> mListeners = new HashMap<>();
     private Typeface mCachedFont;
+
+    private static final Map<String, List<SettingChangeCallback>> sListeners = new HashMap<>();
 
     public SettingsHelper(Context context) {
         mContext = context;
@@ -128,13 +129,15 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(PREF_RECONNECT_INTERVAL))
-            mCachedIntervalRules = null;
         if (key.equals(PREF_CHAT_FONT))
             mCachedFont = null;
         if (mListeners.containsKey(key)) {
             for (SharedPreferences.OnSharedPreferenceChangeListener l : mListeners.get(key))
                 l.onSharedPreferenceChanged(sharedPreferences, key);
+        }
+        if (sListeners.containsKey(key)) {
+            for (SettingChangeCallback l : sListeners.get(key))
+                l.onSettingChanged(key);
         }
     }
 
@@ -150,19 +153,6 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
             String key, SharedPreferences.OnSharedPreferenceChangeListener listener) {
         if (listener != null && mListeners.containsKey(key))
             mListeners.get(key).remove(listener);
-    }
-
-    public List<ReconnectIntervalSetting.Rule> getReconnectIntervalRules() {
-        if (mCachedIntervalRules == null) {
-            mCachedIntervalRules = ReconnectIntervalSetting.getDefaultValue();
-            try {
-                List<ReconnectIntervalSetting.Rule> rules = getGson().fromJson(mPreferences.getString(PREF_RECONNECT_INTERVAL, null), ReconnectIntervalSetting.sListRuleType);
-                if (rules != null)
-                    mCachedIntervalRules = rules;
-            } catch (Exception ignored) {
-            }
-        }
-        return mCachedIntervalRules;
     }
 
     public void setDrawerPinned(boolean pinned) {
@@ -206,6 +196,61 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
             // from a backup, as in JSON we have no idea of differentiating longs from ints.
             return prefs.contains(key) ? prefs.getInt(key, 0) : def;
         }
+    }
+
+
+    public static ListenerHandle changeEvent() {
+        return new ListenerHandle();
+    }
+
+
+    public interface SettingChangeCallback {
+        void onSettingChanged(String name);
+    }
+
+    public static class ListenerHandle {
+
+        private final Map<String, List<SettingChangeCallback>> mCallbacks = new HashMap<>();
+
+        private ListenerHandle() {
+        }
+
+        public ListenerHandle cancel() {
+            synchronized (sListeners) {
+                for (Map.Entry<String, List<SettingChangeCallback>> e : mCallbacks.entrySet()) {
+                    List<SettingChangeCallback> globalList = sListeners.get(e.getKey());
+                    if (globalList == null)
+                        continue;
+                    globalList.removeAll(e.getValue());
+                }
+            }
+            mCallbacks.clear();
+            return this;
+        }
+
+        public ListenerHandle listen(String property, SettingChangeCallback cb) {
+            synchronized (sListeners) {
+                List<SettingChangeCallback> globalList = sListeners.get(property);
+                if (globalList == null) {
+                    globalList = new ArrayList<>();
+                    sListeners.put(property, globalList);
+                }
+                globalList.add(cb);
+            }
+            List<SettingChangeCallback> localList = sListeners.get(property);
+            if (localList == null) {
+                localList = new ArrayList<>();
+                sListeners.put(property, localList);
+            }
+            localList.add(cb);
+            return this;
+        }
+
+        public ListenerHandle listen(String property, Runnable cb) {
+            listen(property, (c) -> cb.run());
+            return this;
+        }
+
     }
 
 }
