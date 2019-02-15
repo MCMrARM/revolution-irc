@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/irc.iml" filepath="$PROJECT_DIR$/irc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/revolution-irc.iml" filepath="$PROJECT_DIR$/revolution-irc.iml" />
     </modules>
   </component>
 </project>
