@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.CompoundButton;
 
 import io.mrarm.irc.R;
+import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.util.EntryRecyclerViewAdapter;
 
 public class CheckBoxSetting extends SimpleSetting {
@@ -24,10 +25,20 @@ public class CheckBoxSetting extends SimpleSetting {
         mChecked = checked;
     }
 
+    public CheckBoxSetting(String name, String desc) {
+        this(name, desc, false);
+    }
+
     public CheckBoxSetting linkPreference(SharedPreferences prefs, String pref) {
         setChecked(prefs.getBoolean(pref, mChecked));
         setAssociatedPreference(prefs, pref);
         return this;
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    public CheckBoxSetting linkSetting(SharedPreferences prefs, String pref) {
+        mChecked = (Boolean) SettingsHelper.getDefaultValue(pref);
+        return linkPreference(prefs, pref);
     }
 
     public void setChecked(boolean checked) {

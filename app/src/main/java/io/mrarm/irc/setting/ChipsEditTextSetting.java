@@ -9,6 +9,7 @@ import android.view.View;
 import java.util.Arrays;
 
 import io.mrarm.irc.R;
+import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.view.ChipsEditText;
 
 public class ChipsEditTextSetting extends SimpleSetting {
@@ -31,6 +32,12 @@ public class ChipsEditTextSetting extends SimpleSetting {
             setItems(itms.split(String.valueOf(ChipsEditText.SEPARATOR)));
         setAssociatedPreference(prefs, pref);
         return this;
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    public ChipsEditTextSetting linkSetting(SharedPreferences prefs, String pref) {
+        mItems = (String[]) SettingsHelper.getDefaultValue(pref);
+        return linkPreference(prefs, pref);
     }
 
     public void setItems(String[] items) {

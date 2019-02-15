@@ -33,7 +33,8 @@ public class SettingsBuilder {
     }
 
     private static void generateJavaFile(Map map, String packageName, String className,
-                                         File outputFile) throws IOException {
+                                         File outputFile)
+            throws IOException {
         outputFile.getParentFile().mkdirs();
 
         String prefPrefix = (String) map.getOrDefault("pref_prefix", null);
@@ -64,17 +65,31 @@ public class SettingsBuilder {
         List<SettingInfo> settings = new ArrayList<>();
         for (Map m : settingsMap)
             settings.add(parseSetting(m, prefPrefix));
-        for (SettingInfo s : settings) {
+        for (SettingInfo s : settings)
             writer.emitField("String", s.staticMemberName,
                     EnumSet.of(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL),
                     "\"" + s.prefName + "\"");
-        }
         writer.emitEmptyLine();
         for (SettingInfo s : settings) {
             writeGetterFunc(writer, s);
             if (s.properties.containsKey("setter"))
                 writeSetterFunc(writer, s);
         }
+
+        writer.beginMethod("Object", "getDefaultValue",
+                EnumSet.of(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL),
+                "String", "key");
+        writer.beginControlFlow("switch (key)");
+        for (SettingInfo s : settings) {
+            writer.beginControlFlow("case \"%s\":", s.prefName);
+            writer.emitStatement("return %s", s.defaultValue);
+            writer.endControlFlow();
+        }
+        writer.beginControlFlow("default:");
+        writer.emitStatement("return null");
+        writer.endControlFlow();
+        writer.endControlFlow();
+        writer.endMethod();
 
         if (helpers != null) {
             for (String s : helpers) {

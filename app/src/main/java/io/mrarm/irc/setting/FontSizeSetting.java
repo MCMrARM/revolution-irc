@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import io.mrarm.irc.R;
 import io.mrarm.irc.config.ChatSettings;
+import io.mrarm.irc.config.SettingsHelper;
 
 public class FontSizeSetting extends SimpleSetting {
 
@@ -26,10 +27,20 @@ public class FontSizeSetting extends SimpleSetting {
         setFontSize(value);
     }
 
+    public FontSizeSetting(String name) {
+        this(name, -1);
+    }
+
     public FontSizeSetting linkPreference(SharedPreferences prefs, String pref) {
         setFontSize(prefs.getInt(pref, mFontSize));
         setAssociatedPreference(prefs, pref);
         return this;
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    public FontSizeSetting linkSetting(SharedPreferences prefs, String pref) {
+        mFontSize = (Integer) SettingsHelper.getDefaultValue(pref);
+        return linkPreference(prefs, pref);
     }
 
     public void setFontSize(int value) {

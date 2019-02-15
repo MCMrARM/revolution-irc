@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.EditText;
 
 import io.mrarm.irc.R;
+import io.mrarm.irc.config.SettingsHelper;
 
 public class EditTextSetting extends SimpleSetting {
 
@@ -27,6 +28,12 @@ public class EditTextSetting extends SimpleSetting {
         setText(prefs.getString(pref, mText));
         setAssociatedPreference(prefs, pref);
         return this;
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    public EditTextSetting linkSetting(SharedPreferences prefs, String pref) {
+        mText = (String) SettingsHelper.getDefaultValue(pref);
+        return linkPreference(prefs, pref);
     }
 
     public void setText(String text) {

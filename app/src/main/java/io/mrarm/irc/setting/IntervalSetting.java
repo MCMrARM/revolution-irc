@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 import io.mrarm.irc.R;
+import io.mrarm.irc.config.SettingsHelper;
 
 public class IntervalSetting extends SimpleSetting {
 
@@ -29,10 +30,20 @@ public class IntervalSetting extends SimpleSetting {
         mDuration = duration;
     }
 
+    public IntervalSetting(String name) {
+        this(name, 0);
+    }
+
     public IntervalSetting linkPreference(SharedPreferences prefs, String pref) {
         setDuration(prefs.getInt(pref, mDuration));
         setAssociatedPreference(prefs, pref);
         return this;
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    public IntervalSetting linkSetting(SharedPreferences prefs, String pref) {
+        mDuration = (Integer) SettingsHelper.getDefaultValue(pref);
+        return linkPreference(prefs, pref);
     }
 
     public IntervalSetting setMinDuration(int duration) {

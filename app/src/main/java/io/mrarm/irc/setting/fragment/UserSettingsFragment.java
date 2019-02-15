@@ -22,19 +22,19 @@ public class UserSettingsFragment extends SettingsListFragment implements NamedS
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         a.add(new ChipsEditTextSetting(getString(R.string.pref_title_default_nick), null,
                 getString(R.string.value_not_set))
-                .linkPreference(prefs, AppSettings.PREF_DEFAULT_NICKS));
+                .linkSetting(prefs, AppSettings.PREF_DEFAULT_NICKS));
         a.add(new EditTextSetting(getString(R.string.pref_title_default_user), null,
                 getString(R.string.value_not_set))
-                .linkPreference(prefs, AppSettings.PREF_DEFAULT_USER));
+                .linkSetting(prefs, AppSettings.PREF_DEFAULT_USER));
         a.add(new EditTextSetting(getString(R.string.pref_title_default_realname), null,
                 getString(R.string.value_not_set))
-                .linkPreference(prefs, AppSettings.PREF_DEFAULT_REALNAME));
+                .linkSetting(prefs, AppSettings.PREF_DEFAULT_REALNAME));
         a.add(new EditTextSetting(getString(R.string.pref_title_default_quit_message),
                 null, getString(R.string.pref_value_default_quit_message))
-                .linkPreference(prefs, AppSettings.PREF_DEFAULT_QUIT_MESSAGE));
+                .linkSetting(prefs, AppSettings.PREF_DEFAULT_QUIT_MESSAGE));
         a.add(new EditTextSetting(getString(R.string.pref_title_default_part_message),
                 null, getString(R.string.pref_value_default_part_message))
-                .linkPreference(prefs, AppSettings.PREF_DEFAULT_PART_MESSAGE));
+                .linkSetting(prefs, AppSettings.PREF_DEFAULT_PART_MESSAGE));
         return a;
     }
 
