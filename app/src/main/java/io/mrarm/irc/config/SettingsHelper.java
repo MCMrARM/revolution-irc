@@ -107,6 +107,14 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         mPreferences.registerOnSharedPreferenceChangeListener(this);
     }
 
+    public static SharedPreferences getPreferences() {
+        return SettingsHelper.getInstance(null).mPreferences;
+    }
+
+    public static Context getContext() {
+        return SettingsHelper.getInstance(null).mContext;
+    }
+
     public List<File> getCustomFiles() {
         List<File> ret = new ArrayList<>();
         String font = mPreferences.getString(PREF_CHAT_FONT, "default");
@@ -330,12 +338,17 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
 
 
     private long getLong(String key, long def) {
+        return getLong(mPreferences, key, def);
+    }
+
+
+    static long getLong(SharedPreferences prefs, String key, long def) {
         try {
-            return mPreferences.getLong(key, def);
+            return prefs.getLong(key, def);
         } catch (Exception e) {
             // We most likely got a ClassCastException and this situation happened after restoring
             // from a backup, as in JSON we have no idea of differentiating longs from ints.
-            return mPreferences.contains(key) ? mPreferences.getInt(key, 0) : def;
+            return prefs.contains(key) ? prefs.getInt(key, 0) : def;
         }
     }
 

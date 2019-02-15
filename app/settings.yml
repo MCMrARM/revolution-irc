@@ -1,0 +1,67 @@
+package: io.mrarm.irc.config
+
+AppSettings:
+  import:
+    - io.mrarm.irc.R
+    - io.mrarm.irc.view.ChipsEditText
+    - io.mrarm.irc.setting.ReconnectIntervalSetting
+    - io.mrarm.irc.dialog.StorageLimitsDialog
+  settings:
+    - spec: String[] defaultNicks = new String[0]
+      separator: io.mrarm.irc.view.ChipsEditText.SEPARATOR
+    - spec: String defaultUser
+    - spec: String defaultRealname
+    - spec: String defaultQuitMessage = getContext().getString(R.string.pref_value_default_quit_message)
+    - spec: String defaultPartMessage = getContext().getString(R.string.pref_value_default_part_message)
+
+    - spec: boolean reconnectEnabled = true
+    - spec: boolean reconnectWiFiOnly = false
+      pref: reconnect_wifi
+    - spec: boolean reconnectOnConnectivityChangeEnabled = true
+      pref: reconnect_connchg
+    - spec: String reconnectIntervalString
+      pref: reconnect_interval
+
+    - spec: boolean pingEnabled = false
+    - spec: boolean pingWiFiOnly = true
+      pref: ping_wifi
+    - spec: int pingInterval = 15 * 60 * 1000
+
+    - spec: boolean drawerAlwaysShowServer = false
+      getter: shouldDrawerAlwaysShowServer
+
+    - spec: String theme
+
+    - spec: long storageLimitGlobal = StorageLimitsDialog.DEFAULT_LIMIT_GLOBAL
+    - spec: long storageLimitServer = StorageLimitsDialog.DEFAULT_LIMIT_SERVER
+
+ChatSettings:
+  pref_prefix: chat
+  settings:
+    - spec: String fontString
+      pref: chat_font
+    - spec: int fontSize = -1
+    - spec: boolean textAutocorrectEnabled = true
+      pref: chat_text_autocorrect
+
+    - spec: boolean hideJoinPartMessages = false
+    - spec: String appbarCompactMode = "auto"
+      enum: ["auto", "always", "never"]
+    - spec: String sendBoxHistorySwipeMode = "left_to_right"
+      enum: ["disabled", "left_to_right", "right_to_left", "up_to_down", "down_to_up"]
+    - spec: boolean sendBoxAlwaysMultiline = true
+    - spec: boolean showDccSend = false
+    - spec: boolean onlyMultiSelectMode = false
+      getter: shouldUseOnlyMultiSelectMode
+
+NickAutocompleteSettings:
+  pref_prefix: nick_autocomplete
+  settings:
+    - spec: boolean showButton = false
+    - spec: boolean doubleTap = true
+    - spec: boolean suggestions = false
+    - spec: boolean atSuggestions = true
+    - spec: boolean atSuggestionsRemoveAt = true
+    - spec: boolean channelSuggestions = true
+      pref: channel_autocomplete_suggestions
+

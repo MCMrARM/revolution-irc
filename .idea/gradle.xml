@@ -4,7 +4,15 @@
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
         <compositeConfiguration>
-          <compositeBuild compositeDefinitionSource="SCRIPT" />
+          <compositeBuild compositeDefinitionSource="SCRIPT">
+            <builds>
+              <build path="$PROJECT_DIR$/app/buildSrc">
+                <projects>
+                  <project path="$PROJECT_DIR$/app/buildSrc" />
+                </projects>
+              </build>
+            </builds>
+          </compositeBuild>
         </compositeConfiguration>
         <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
