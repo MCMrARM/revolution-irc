@@ -27,6 +27,8 @@ import io.mrarm.irc.NotificationManager;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
+import io.mrarm.irc.config.ChatSettings;
+import io.mrarm.irc.config.NickAutocompleteSettings;
 import io.mrarm.irc.config.SettingsHelper;
 
 public class ChatFragment extends Fragment implements
@@ -159,10 +161,10 @@ public class ChatFragment extends Fragment implements
         s.addPreferenceChangeListener(SettingsHelper.PREF_NICK_AUTOCOMPLETE_SHOW_BUTTON, this);
         s.addPreferenceChangeListener(SettingsHelper.PREF_NICK_AUTOCOMPLETE_DOUBLE_TAP, this);
 
-        mSendHelper.setTabButtonVisible(s.isNickAutocompleteButtonVisible());
+        mSendHelper.setTabButtonVisible(NickAutocompleteSettings.isButtonVisible());
         mSendHelper.setMessageFieldTypeface(s.getChatFont());
-        mSendHelper.setAutocorrectEnabled(s.isChatAutocorrectEnabled());
-        mSendHelper.setAlwaysMultiline(s.isChatSendBoxAlwaysMuliline());
+        mSendHelper.setAutocorrectEnabled(ChatSettings.isTextAutocorrectEnabled());
+        mSendHelper.setAlwaysMultiline(ChatSettings.isSendBoxAlwaysMultiline());
 
         return rootView;
     }
@@ -203,15 +205,15 @@ public class ChatFragment extends Fragment implements
         if (getView() != null) {
             updateToolbarCompactLayoutStatus(getView().getBottom() - getView().getTop());
             SettingsHelper s = SettingsHelper.getInstance(getContext());
-            mSendHelper.setTabButtonVisible(s.isNickAutocompleteButtonVisible());
+            mSendHelper.setTabButtonVisible(NickAutocompleteSettings.isButtonVisible());
             mSendHelper.setMessageFieldTypeface(s.getChatFont());
-            mSendHelper.setAutocorrectEnabled(s.isChatAutocorrectEnabled());
-            mSendHelper.setAlwaysMultiline(s.isChatSendBoxAlwaysMuliline());
+            mSendHelper.setAutocorrectEnabled(ChatSettings.isTextAutocorrectEnabled());
+            mSendHelper.setAlwaysMultiline(ChatSettings.isSendBoxAlwaysMultiline());
         }
     }
 
     public void updateToolbarCompactLayoutStatus(int height) {
-        String mode = SettingsHelper.getInstance(getContext()).getChatAppbarCompactMode();
+        String mode = ChatSettings.getAppbarCompactMode();
         boolean enabled = mode.equals(SettingsHelper.COMPACT_MODE_ALWAYS) ||
                 (mode.equals(SettingsHelper.COMPACT_MODE_AUTO) &&
                         height < getResources().getDimensionPixelSize(R.dimen.compact_toolbar_activate_height));

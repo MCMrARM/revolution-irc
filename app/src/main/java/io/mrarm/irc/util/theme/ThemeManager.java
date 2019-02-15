@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import io.mrarm.irc.R;
+import io.mrarm.irc.config.AppSettings;
 import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.util.IRCColorUtils;
 import io.mrarm.thememonkey.Theme;
@@ -191,7 +192,7 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        String theme = SettingsHelper.getInstance(context).getTheme();
+        String theme = AppSettings.getTheme();
         if (theme != null && theme.startsWith(PREF_THEME_CUSTOM_PREFIX)) {
             try {
                 UUID uuid = UUID.fromString(

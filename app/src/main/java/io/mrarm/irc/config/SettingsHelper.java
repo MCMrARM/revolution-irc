@@ -13,11 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.mrarm.irc.R;
-import io.mrarm.irc.dialog.StorageLimitsDialog;
 import io.mrarm.irc.setting.ListWithCustomSetting;
 import io.mrarm.irc.setting.ReconnectIntervalSetting;
-import io.mrarm.irc.view.ChipsEditText;
 
 public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -155,48 +152,6 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
             mListeners.get(key).remove(listener);
     }
 
-    public String[] getDefaultNicks() {
-        String s = mPreferences.getString(PREF_DEFAULT_NICKS, null);
-        if (s == null || s.equals(""))
-            return new String[0];
-        return s.split(String.valueOf(ChipsEditText.SEPARATOR));
-    }
-
-    public String getDefaultPrimaryNick() {
-        String[] nicks = getDefaultNicks();
-        return nicks != null && nicks.length > 0 ? nicks[0] : null;
-    }
-
-    public String getDefaultUser() {
-        return mPreferences.getString(PREF_DEFAULT_USER, null);
-    }
-
-    public String getDefaultRealname() {
-        return mPreferences.getString(PREF_DEFAULT_REALNAME, null);
-    }
-
-    public String getDefaultQuitMessage() {
-        return mPreferences.getString(PREF_DEFAULT_QUIT_MESSAGE,
-                mContext.getString(R.string.pref_value_default_quit_message));
-    }
-
-    public String getDefaultPartMessage() {
-        return mPreferences.getString(PREF_DEFAULT_PART_MESSAGE,
-                mContext.getString(R.string.pref_value_default_part_message));
-    }
-
-    public boolean isReconnectEnabled() {
-        return mPreferences.getBoolean(PREF_RECONNECT_ENABLED, true);
-    }
-
-    public boolean isReconnectWifiRequired() {
-        return mPreferences.getBoolean(PREF_RECONNECT_WIFI, false);
-    }
-
-    public boolean shouldReconnectOnConnectivityChange() {
-        return mPreferences.getBoolean(PREF_RECONNECT_CONNCHG, true);
-    }
-
     public List<ReconnectIntervalSetting.Rule> getReconnectIntervalRules() {
         if (mCachedIntervalRules == null) {
             mCachedIntervalRules = ReconnectIntervalSetting.getDefaultValue();
@@ -208,32 +163,6 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
             }
         }
         return mCachedIntervalRules;
-    }
-
-    public boolean isPingEnabled() {
-        return mPreferences.getBoolean(PREF_PING_ENABLED, false);
-    }
-
-    public boolean isPingWifIOnly() {
-        return mPreferences.getBoolean(PREF_PING_WIFI, true);
-    }
-
-    public int getPingInterval() {
-        return mPreferences.getInt(PREF_PING_INTERVAL, 15 * 60 * 1000);
-    }
-
-    public boolean shouldDrawerAlwaysShowServer() {
-        return mPreferences.getBoolean(PREF_DRAWER_ALWAYS_SHOW_SERVER, false);
-    }
-
-    public void setDrawerAlwaysShowServer(boolean value) {
-        mPreferences.edit()
-                .putBoolean(PREF_DRAWER_PINNED, value)
-                .apply();
-    }
-
-    public boolean isDrawerPinned() {
-        return mPreferences.getBoolean(PREF_DRAWER_PINNED, false);
     }
 
     public void setDrawerPinned(boolean pinned) {
@@ -262,83 +191,10 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
             return Typeface.DEFAULT;
     }
 
-    public int getChatFontSize() {
-        return mPreferences.getInt(PREF_CHAT_FONT_SIZE, -1);
-    }
-
-    public boolean isChatAutocorrectEnabled() {
-        return mPreferences.getBoolean(PREF_CHAT_TEXT_AUTOCORRECT, true);
-    }
-
-    public boolean shouldHideJoinPartMessages() {
-        return mPreferences.getBoolean(PREF_CHAT_HIDE_JOIN_PART, false);
-    }
-
-    public String getChatAppbarCompactMode() {
-        return mPreferences.getString(PREF_CHAT_APPBAR_COMPACT_MODE, COMPACT_MODE_AUTO);
-    }
-
-    public String getChatSendBoxHistorySwipeMode() {
-        return mPreferences.getString(PREF_CHAT_SEND_BOX_HISTORY_SWIPE_MODE, SWIPE_LEFT_TO_RIGHT);
-    }
-
-    public boolean isChatSendBoxAlwaysMuliline() {
-        return mPreferences.getBoolean(PREF_CHAT_SEND_BOX_ALWAYS_MULTILINE, true);
-    }
-
-    public boolean isChatDccSendVisible() {
-        return mPreferences.getBoolean(PREF_CHAT_SHOW_DCC_SEND, false);
-    }
-
-    public boolean getChatUseMultiSelect() {
-        return mPreferences.getBoolean(PREF_CHAT_MULTI_SELECT_MODE, false);
-    }
-
-    public boolean isNickAutocompleteButtonVisible() {
-        return mPreferences.getBoolean(PREF_NICK_AUTOCOMPLETE_SHOW_BUTTON, false);
-    }
-
-    public boolean isNickAutocompleteDoubleTapEnabled() {
-        return mPreferences.getBoolean(PREF_NICK_AUTOCOMPLETE_DOUBLE_TAP, true);
-    }
-
-    public boolean shouldShowNickAutocompleteSuggestions() {
-        return mPreferences.getBoolean(PREF_NICK_AUTOCOMPLETE_SUGGESTIONS, false);
-    }
-
-    public boolean shouldShowNickAutocompleteAtSuggestions() {
-        return mPreferences.getBoolean(PREF_NICK_AUTOCOMPLETE_AT_SUGGESTIONS, true);
-    }
-
-    public boolean shouldRemoveAtWithNickAutocompleteAtSuggestions() {
-        return mPreferences.getBoolean(PREF_NICK_AUTOCOMPLETE_AT_SUGGESTIONS_REMOVE_AT, true);
-    }
-
-    public boolean shouldShowChannelAutocompleteSuggestions() {
-        return mPreferences.getBoolean(PREF_CHANNEL_AUTOCOMPLETE_SUGGESTIONS, true);
-    }
-
-    public long getStorageLimitGlobal() {
-        return getLong(PREF_STORAGE_LIMIT_GLOBAL, StorageLimitsDialog.DEFAULT_LIMIT_GLOBAL);
-    }
-
-    public long getStorageLimitServer() {
-        return getLong(PREF_STORAGE_LIMIT_SERVER, StorageLimitsDialog.DEFAULT_LIMIT_SERVER);
-    }
-
-    public String getTheme() {
-        return mPreferences.getString(PREF_THEME, null);
-    }
-
     public void setTheme(String name) {
         mPreferences.edit()
                 .putString(PREF_THEME, name)
                 .apply();
-    }
-
-
-    private long getLong(String key, long def) {
-        return getLong(mPreferences, key, def);
     }
 
 

@@ -12,7 +12,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +23,7 @@ import javax.net.ssl.TrustManager;
 
 import io.mrarm.chatlib.irc.IRCConnectionRequest;
 import io.mrarm.chatlib.irc.cap.SASLOptions;
+import io.mrarm.irc.config.AppSettings;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.config.SettingsHelper;
@@ -153,8 +153,6 @@ public class ServerConnectionManager {
     private ServerConnectionInfo createConnection(ServerConfigData data, List<String> joinChannels, boolean saveAutoconnect) {
         killDisconnectingConnection(data.uuid);
 
-        SettingsHelper settings = SettingsHelper.getInstance(mContext);
-
         IRCConnectionRequest request = new IRCConnectionRequest();
         request
                 .setServerAddress(data.address, data.port);
@@ -164,21 +162,21 @@ public class ServerConnectionManager {
             for (String nick : data.nicks)
                 request.addNick(nick);
         } else {
-            for (String nick : settings.getDefaultNicks())
+            for (String nick : AppSettings.getDefaultNicks())
                 request.addNick(nick);
             if (request.getNickList() == null)
                 throw new NickNotSetException();
         }
         if (data.user != null)
             request.setUser(data.user);
-        else if (settings.getDefaultUser() != null && settings.getDefaultUser().length() > 0)
-            request.setUser(settings.getDefaultUser());
+        else if (AppSettings.getDefaultUser() != null && AppSettings.getDefaultUser().length() > 0)
+            request.setUser(AppSettings.getDefaultUser());
         else
             request.setUser(request.getNickList().get(0));
         if (data.realname != null)
             request.setRealName(data.realname);
-        else if (settings.getDefaultRealname() != null && settings.getDefaultRealname().length() > 0)
-            request.setRealName(settings.getDefaultRealname());
+        else if (AppSettings.getDefaultRealname() != null && AppSettings.getDefaultRealname().length() > 0)
+            request.setRealName(AppSettings.getDefaultRealname());
         else
             request.setRealName(request.getNickList().get(0));
 
@@ -304,8 +302,7 @@ public class ServerConnectionManager {
     }
 
     int getReconnectDelay(int attemptNumber) {
-        SettingsHelper settings = SettingsHelper.getInstance(mContext);
-        if (!settings.isReconnectEnabled())
+        if (!AppSettings.isReconnectEnabled())
             return -1;
         List<ReconnectIntervalSetting.Rule> rules = SettingsHelper.getInstance(mContext).getReconnectIntervalRules();
         if (rules.size() == 0)

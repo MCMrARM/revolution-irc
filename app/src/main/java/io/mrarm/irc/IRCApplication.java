@@ -7,6 +7,8 @@ import android.os.Bundle;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.mrarm.irc.config.SettingsHelper;
+
 public class IRCApplication extends Application implements Application.ActivityLifecycleCallbacks {
 
     private List<Activity> mActivities = new ArrayList<>();
@@ -16,6 +18,7 @@ public class IRCApplication extends Application implements Application.ActivityL
     @Override
     public void onCreate() {
         super.onCreate();
+        SettingsHelper.getInstance(this);
         NotificationManager.createDefaultChannels(this);
         registerActivityLifecycleCallbacks(this);
     }

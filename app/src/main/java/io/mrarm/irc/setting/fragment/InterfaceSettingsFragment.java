@@ -33,6 +33,7 @@ import io.mrarm.irc.R;
 import io.mrarm.irc.SettingsActivity;
 import io.mrarm.irc.ThemeEditorActivity;
 import io.mrarm.irc.ThemedActivity;
+import io.mrarm.irc.config.NickAutocompleteSettings;
 import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.dialog.MenuBottomSheetDialog;
 import io.mrarm.irc.setting.CheckBoxSetting;
@@ -245,17 +246,16 @@ public class InterfaceSettingsFragment extends SettingsListFragment
         mMessageFormatItem.setDescription(MessageBuilder.getInstance(getActivity())
                 .buildMessage(mSampleMessage));
 
-        SettingsHelper settingsHelper = SettingsHelper.getInstance(getActivity());
         StringBuilder builder = new StringBuilder();
-        if (settingsHelper.isNickAutocompleteButtonVisible())
+        if (NickAutocompleteSettings.isButtonVisible())
             appendString(builder, getString(R.string.pref_title_nick_autocomplete_show_button));
-        if (settingsHelper.isNickAutocompleteDoubleTapEnabled())
+        if (NickAutocompleteSettings.isDoubleTapEnabled())
             appendString(builder, getString(R.string.pref_title_nick_autocomplete_double_tap));
-        if (settingsHelper.shouldShowNickAutocompleteSuggestions())
+        if (NickAutocompleteSettings.areSuggestionsEnabled())
             appendString(builder, getString(R.string.pref_title_nick_autocomplete_suggestions));
-        if (settingsHelper.shouldShowNickAutocompleteAtSuggestions())
+        if (NickAutocompleteSettings.areAtSuggestionsEnabled())
             appendString(builder, getString(R.string.pref_title_nick_autocomplete_at_suggestions));
-        if (settingsHelper.shouldShowChannelAutocompleteSuggestions())
+        if (NickAutocompleteSettings.areChannelSuggestionsEnabled())
             appendString(builder, getString(R.string.pref_title_channel_autocomplete_suggestions));
         mAutocompleteItem.setDescription(builder.toString());
     }

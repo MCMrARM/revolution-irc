@@ -20,6 +20,7 @@ import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 
+import io.mrarm.irc.config.AppSettings;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.config.SettingsHelper;
@@ -76,9 +77,8 @@ public class ChatLogStorageManager implements SharedPreferences.OnSharedPreferen
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-        SettingsHelper helper = SettingsHelper.getInstance(null);
-        mGlobalLimit = helper.getStorageLimitGlobal();
-        mDefaultServerLimit = helper.getStorageLimitServer();
+        mGlobalLimit = AppSettings.getStorageLimitGlobal();
+        mDefaultServerLimit = AppSettings.getStorageLimitServer();
     }
 
     public void requestUpdate(UUID serverUUID) {
