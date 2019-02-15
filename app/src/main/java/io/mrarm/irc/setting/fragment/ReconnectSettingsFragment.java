@@ -5,11 +5,9 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
 
-import org.spongycastle.util.Pack;
-
 import io.mrarm.irc.IRCService;
 import io.mrarm.irc.R;
-import io.mrarm.irc.config.SettingsHelper;
+import io.mrarm.irc.config.AppSettings;
 import io.mrarm.irc.setting.CheckBoxSetting;
 import io.mrarm.irc.setting.IntervalSetting;
 import io.mrarm.irc.setting.ReconnectIntervalSetting;
@@ -30,31 +28,31 @@ public class ReconnectSettingsFragment extends SettingsListFragment
         CheckBoxSetting mainSetting = new CheckBoxSetting(
                 getString(R.string.pref_title_auto_reconnect),
                 getString(R.string.pref_description_auto_reconnect), true);
-        mainSetting.linkPreference(prefs, SettingsHelper.PREF_RECONNECT_ENABLED);
+        mainSetting.linkPreference(prefs, AppSettings.PREF_RECONNECT_ENABLED);
         a.add(mainSetting);
         a.add(new CheckBoxSetting(getString(R.string.pref_title_reconnect_connchg),
                 getString(R.string.pref_description_reconnect_connchg), true)
-                .linkPreference(prefs, SettingsHelper.PREF_RECONNECT_CONNCHG)
+                .linkPreference(prefs, AppSettings.PREF_RECONNECT_ON_CONNECTIVITY_CHANGE_ENABLED)
                 .requires(mainSetting));
         a.add(new CheckBoxSetting(getString(R.string.pref_title_reconnect_wifi),
                 getString(R.string.pref_description_reconnect_wifi), true)
-                .linkPreference(prefs, SettingsHelper.PREF_RECONNECT_WIFI)
+                .linkPreference(prefs, AppSettings.PREF_RECONNECT_WI_FI_ONLY)
                 .requires(mainSetting));
         a.add(new ReconnectIntervalSetting(getString(R.string.pref_title_reconnect_pattern))
-                .linkPreference(prefs, SettingsHelper.PREF_RECONNECT_INTERVAL)
+                .linkPreference(prefs, AppSettings.PREF_RECONNECT_INTERVAL)
                 .requires(mainSetting));
         CheckBoxSetting pingSetting = new CheckBoxSetting(getString(R.string.pref_title_ping_enabled),
                 getString(R.string.pref_description_ping_enabled), false);
-        pingSetting.linkPreference(prefs, SettingsHelper.PREF_PING_ENABLED);
+        pingSetting.linkPreference(prefs, AppSettings.PREF_PING_ENABLED);
         a.add(pingSetting);
         a.add(new CheckBoxSetting(getString(R.string.pref_title_ping_wifi),
                 getString(R.string.pref_description_ping_wifi), true)
-                .linkPreference(prefs, SettingsHelper.PREF_PING_WIFI)
+                .linkPreference(prefs, AppSettings.PREF_PING_WI_FI_ONLY)
                 .requires(pingSetting));
         a.add(new IntervalSetting(getString(R.string.pref_title_ping_interval),
                 15 * 60 * 1000)
                 .setMinDuration(15 * 60 * 1000)
-                .linkPreference(prefs, SettingsHelper.PREF_PING_INTERVAL)
+                .linkPreference(prefs, AppSettings.PREF_PING_INTERVAL)
                 .requires(pingSetting));
         CheckBoxSetting bootSetting = new CheckBoxSetting(
                 getString(R.string.pref_title_start_on_boot),

@@ -6,7 +6,6 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
@@ -54,14 +53,15 @@ import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
 import io.mrarm.irc.config.ChatSettings;
+import io.mrarm.irc.config.MessageFormatSettings;
+import io.mrarm.irc.config.UiSettingChangeCallback;
 import io.mrarm.irc.util.LongPressSelectTouchListener;
 import io.mrarm.irc.util.ScrollPosLinearLayoutManager;
 import io.mrarm.irc.config.SettingsHelper;
 
 
 public class ChatMessagesFragment extends Fragment implements StatusMessageListener,
-        MessageListener, ChannelInfoListener, SharedPreferences.OnSharedPreferenceChangeListener,
-        NotificationManager.UnreadMessageCountCallback {
+        MessageListener, ChannelInfoListener, NotificationManager.UnreadMessageCountCallback {
 
     private static final String TAG = "ChatMessagesFragment";
 
@@ -173,7 +173,6 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         mConnection = connectionInfo;
         mChannelName = getArguments().getString(ARG_CHANNEL_NAME);
 
-        SettingsHelper settingsHelper = SettingsHelper.getInstance(getContext());
         if (mChannelName != null) {
             mAdapter = new ChatMessagesAdapter(this, new ArrayList<>(), new ArrayList<>());
             mAdapter.setMessageFont(ChatSettings.getFont(), ChatSettings.getFontSize());
@@ -217,22 +216,14 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
                     }, null);
         }
 
-        settingsHelper.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT, this);
-        settingsHelper.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT_SIZE, this);
-        settingsHelper.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_HIDE_JOIN_PART, this);
-        // it's enough to only register to the last format preference, as all preferences are always rewritten
-        settingsHelper.addPreferenceChangeListener(SettingsHelper.PREF_MESSAGE_FORMAT_EVENT_HOSTNAME, this);
+        SettingsHelper.registerCallbacks(this);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
 
-        SettingsHelper s = SettingsHelper.getInstance(getContext());
-        s.removePreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT, this);
-        s.removePreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT_SIZE, this);
-        s.removePreferenceChangeListener(SettingsHelper.PREF_CHAT_HIDE_JOIN_PART, this);
-        s.removePreferenceChangeListener(SettingsHelper.PREF_MESSAGE_FORMAT_EVENT_HOSTNAME, this);
+        SettingsHelper.unregisterCallbacks(this);
 
         if (mNeedsUnsubscribeChannelInfo)
             mConnection.getApiInstance().unsubscribeChannelInfo(getArguments().getString(ARG_CHANNEL_NAME), ChatMessagesFragment.this, null, null);
@@ -523,8 +514,14 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
         mUnreadCtr.setVisibility(View.GONE);
     }
 
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+    @UiSettingChangeCallback(keys = {
+            ChatSettings.PREF_FONT,
+            ChatSettings.PREF_FONT_SIZE,
+            ChatSettings.PREF_HIDE_JOIN_PART_MESSAGES,
+            // it's enough to only register to the last format preference, as all preferences are always rewritten
+            MessageFormatSettings.PREF_MESSAGE_FORMAT_EVENT_HOSTNAME
+    })
+    private void onSettingChanged() {
         if (mAdapter != null) {
             mAdapter.setMessageFont(ChatSettings.getFont(), ChatSettings.getFontSize());
             mAdapter.notifyDataSetChanged();

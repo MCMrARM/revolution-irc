@@ -4,7 +4,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import io.mrarm.irc.R;
-import io.mrarm.irc.config.SettingsHelper;
+import io.mrarm.irc.config.AppSettings;
 import io.mrarm.irc.setting.ChipsEditTextSetting;
 import io.mrarm.irc.setting.EditTextSetting;
 import io.mrarm.irc.setting.SettingsListAdapter;
@@ -22,19 +22,19 @@ public class UserSettingsFragment extends SettingsListFragment implements NamedS
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         a.add(new ChipsEditTextSetting(getString(R.string.pref_title_default_nick), null,
                 getString(R.string.value_not_set))
-                .linkPreference(prefs, SettingsHelper.PREF_DEFAULT_NICKS));
+                .linkPreference(prefs, AppSettings.PREF_DEFAULT_NICKS));
         a.add(new EditTextSetting(getString(R.string.pref_title_default_user), null,
                 getString(R.string.value_not_set))
-                .linkPreference(prefs, SettingsHelper.PREF_DEFAULT_USER));
+                .linkPreference(prefs, AppSettings.PREF_DEFAULT_USER));
         a.add(new EditTextSetting(getString(R.string.pref_title_default_realname), null,
                 getString(R.string.value_not_set))
-                .linkPreference(prefs, SettingsHelper.PREF_DEFAULT_REALNAME));
+                .linkPreference(prefs, AppSettings.PREF_DEFAULT_REALNAME));
         a.add(new EditTextSetting(getString(R.string.pref_title_default_quit_message),
                 null, getString(R.string.pref_value_default_quit_message))
-                .linkPreference(prefs, SettingsHelper.PREF_DEFAULT_QUIT_MESSAGE));
+                .linkPreference(prefs, AppSettings.PREF_DEFAULT_QUIT_MESSAGE));
         a.add(new EditTextSetting(getString(R.string.pref_title_default_part_message),
                 null, getString(R.string.pref_value_default_part_message))
-                .linkPreference(prefs, SettingsHelper.PREF_DEFAULT_PART_MESSAGE));
+                .linkPreference(prefs, AppSettings.PREF_DEFAULT_PART_MESSAGE));
         return a;
     }
 

@@ -17,7 +17,6 @@ import android.widget.TextView;
 
 import io.mrarm.irc.R;
 import io.mrarm.irc.config.AppSettings;
-import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.util.StyledAttributesHelper;
 
 public class StorageLimitsDialog extends Dialog {
@@ -114,13 +113,13 @@ public class StorageLimitsDialog extends Dialog {
     public void dismiss() {
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getContext()).edit();
         if (mGlobalLimitSeekBar.getProgress() == SIZES.length)
-            editor.putLong(SettingsHelper.PREF_STORAGE_LIMIT_GLOBAL, -1L);
+            editor.putLong(AppSettings.PREF_STORAGE_LIMIT_GLOBAL, -1L);
         else
-            editor.putLong(SettingsHelper.PREF_STORAGE_LIMIT_GLOBAL, SIZES[mGlobalLimitSeekBar.getProgress()] * 1024L * 1024L);
+            editor.putLong(AppSettings.PREF_STORAGE_LIMIT_GLOBAL, SIZES[mGlobalLimitSeekBar.getProgress()] * 1024L * 1024L);
         if (mServerLimitSeekBar.getProgress() == SIZES.length)
-            editor.putLong(SettingsHelper.PREF_STORAGE_LIMIT_SERVER, -1L);
+            editor.putLong(AppSettings.PREF_STORAGE_LIMIT_SERVER, -1L);
         else
-            editor.putLong(SettingsHelper.PREF_STORAGE_LIMIT_SERVER, SIZES[mServerLimitSeekBar.getProgress()] * 1024L * 1024L);
+            editor.putLong(AppSettings.PREF_STORAGE_LIMIT_SERVER, SIZES[mServerLimitSeekBar.getProgress()] * 1024L * 1024L);
         editor.commit();
 
         super.dismiss();

@@ -8,7 +8,6 @@ import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import androidx.annotation.RequiresApi;
 import android.util.Log;
@@ -16,8 +15,9 @@ import android.util.Log;
 import io.mrarm.irc.ServerConnectionManager;
 import io.mrarm.irc.config.AppSettings;
 import io.mrarm.irc.config.SettingsHelper;
+import io.mrarm.irc.config.UiSettingChangeCallback;
 
-public class ServerPingScheduler implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class ServerPingScheduler {
 
     private static final String TAG = "ServerPingScheduler";
 
@@ -42,15 +42,13 @@ public class ServerPingScheduler implements SharedPreferences.OnSharedPreference
     public ServerPingScheduler(Context ctx) {
         this.context = ctx;
 
-        SettingsHelper helper = SettingsHelper.getInstance(context);
-        helper.addPreferenceChangeListener(SettingsHelper.PREF_PING_ENABLED, this);
-        helper.addPreferenceChangeListener(SettingsHelper.PREF_PING_WIFI, this);
-        helper.addPreferenceChangeListener(SettingsHelper.PREF_PING_INTERVAL, this);
-        onSharedPreferenceChanged(null, null);
+        SettingsHelper.registerCallbacks(this);
+        onSettingChanged();
     }
 
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+    @UiSettingChangeCallback(keys = {AppSettings.PREF_PING_ENABLED,
+            AppSettings.PREF_PING_WI_FI_ONLY, AppSettings.PREF_PING_INTERVAL})
+    private void onSettingChanged() {
         enabled = AppSettings.isPingEnabled();
         onlyOnWifi = AppSettings.isPingWiFiOnly();
         interval = AppSettings.getPingInterval();

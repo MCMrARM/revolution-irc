@@ -1,6 +1,5 @@
 package io.mrarm.irc.chat;
 
-import android.content.SharedPreferences;
 import android.database.DataSetObserver;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
@@ -30,12 +29,12 @@ import io.mrarm.irc.ServerConnectionManager;
 import io.mrarm.irc.config.ChatSettings;
 import io.mrarm.irc.config.NickAutocompleteSettings;
 import io.mrarm.irc.config.SettingsHelper;
+import io.mrarm.irc.config.UiSettingChangeCallback;
 
 public class ChatFragment extends Fragment implements
         ServerConnectionInfo.ChannelListChangeListener,
         ServerConnectionInfo.InfoChangeListener,
-        NotificationManager.UnreadMessageCountCallback,
-        SharedPreferences.OnSharedPreferenceChangeListener {
+        NotificationManager.UnreadMessageCountCallback {
 
     public static final String ARG_SERVER_UUID = "server_uuid";
     public static final String ARG_CHANNEL_NAME = "channel";
@@ -153,20 +152,22 @@ public class ChatFragment extends Fragment implements
         if (sendText != null)
             mSendHelper.setMessageText(sendText);
 
-        SettingsHelper s = SettingsHelper.getInstance(getContext());
-        s.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_APPBAR_COMPACT_MODE, this);
-        s.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_TEXT_AUTOCORRECT, this);
-        s.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT, this);
-        s.addPreferenceChangeListener(SettingsHelper.PREF_CHAT_SEND_BOX_ALWAYS_MULTILINE, this);
-        s.addPreferenceChangeListener(SettingsHelper.PREF_NICK_AUTOCOMPLETE_SHOW_BUTTON, this);
-        s.addPreferenceChangeListener(SettingsHelper.PREF_NICK_AUTOCOMPLETE_DOUBLE_TAP, this);
-
-        mSendHelper.setTabButtonVisible(NickAutocompleteSettings.isButtonVisible());
-        mSendHelper.setMessageFieldTypeface(ChatSettings.getFont());
-        mSendHelper.setAutocorrectEnabled(ChatSettings.isTextAutocorrectEnabled());
-        mSendHelper.setAlwaysMultiline(ChatSettings.isSendBoxAlwaysMultiline());
+        SettingsHelper.registerCallbacks(this);
+        onSettingChange();
 
         return rootView;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mSendHelper.setCurrentChannel(null);
+        if (mConnectionInfo == null)
+            return;
+        mConnectionInfo.removeOnChannelListChangeListener(this);
+        mConnectionInfo.removeOnChannelInfoChangeListener(this);
+        mConnectionInfo.getNotificationManager().removeUnreadMessageCountCallback(this);
+        SettingsHelper.unregisterCallbacks(this);
     }
 
     private void updateTabLayoutTabs() {
@@ -200,15 +201,21 @@ public class ChatFragment extends Fragment implements
         tab.getCustomView().findViewById(R.id.notification_icon).setVisibility(highlight ? View.VISIBLE : View.GONE);
     }
 
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (getView() != null) {
+    @UiSettingChangeCallback(keys = {
+            ChatSettings.PREF_APPBAR_COMPACT_MODE,
+            ChatSettings.PREF_TEXT_AUTOCORRECT_ENABLED,
+            ChatSettings.PREF_FONT,
+            ChatSettings.PREF_SEND_BOX_ALWAYS_MULTILINE,
+            NickAutocompleteSettings.PREF_SHOW_BUTTON,
+            NickAutocompleteSettings.PREF_DOUBLE_TAP
+    })
+    private void onSettingChange() {
+        if (getView() != null)
             updateToolbarCompactLayoutStatus(getView().getBottom() - getView().getTop());
-            mSendHelper.setTabButtonVisible(NickAutocompleteSettings.isButtonVisible());
-            mSendHelper.setMessageFieldTypeface(ChatSettings.getFont());
-            mSendHelper.setAutocorrectEnabled(ChatSettings.isTextAutocorrectEnabled());
-            mSendHelper.setAlwaysMultiline(ChatSettings.isSendBoxAlwaysMultiline());
-        }
+        mSendHelper.setTabButtonVisible(NickAutocompleteSettings.isButtonVisible());
+        mSendHelper.setMessageFieldTypeface(ChatSettings.getFont());
+        mSendHelper.setAutocorrectEnabled(ChatSettings.isTextAutocorrectEnabled());
+        mSendHelper.setAlwaysMultiline(ChatSettings.isSendBoxAlwaysMultiline());
     }
 
     public void updateToolbarCompactLayoutStatus(int height) {
@@ -243,23 +250,6 @@ public class ChatFragment extends Fragment implements
 
     public void setTabsHidden(boolean hidden) {
         mTabLayout.setVisibility(hidden ? View.GONE : View.VISIBLE);
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        mSendHelper.setCurrentChannel(null);
-        if (mConnectionInfo == null)
-            return;
-        mConnectionInfo.removeOnChannelListChangeListener(this);
-        mConnectionInfo.removeOnChannelInfoChangeListener(this);
-        mConnectionInfo.getNotificationManager().removeUnreadMessageCountCallback(this);
-        SettingsHelper s = SettingsHelper.getInstance(getContext());
-        s.removePreferenceChangeListener(SettingsHelper.PREF_CHAT_APPBAR_COMPACT_MODE, this);
-        s.removePreferenceChangeListener(SettingsHelper.PREF_CHAT_TEXT_AUTOCORRECT, this);
-        s.removePreferenceChangeListener(SettingsHelper.PREF_CHAT_FONT, this);
-        s.removePreferenceChangeListener(SettingsHelper.PREF_NICK_AUTOCOMPLETE_SHOW_BUTTON, this);
-        s.removePreferenceChangeListener(SettingsHelper.PREF_NICK_AUTOCOMPLETE_DOUBLE_TAP, this);
     }
 
     @Override

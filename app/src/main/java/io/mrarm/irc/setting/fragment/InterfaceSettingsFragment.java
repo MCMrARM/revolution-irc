@@ -20,9 +20,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 
@@ -33,6 +31,8 @@ import io.mrarm.irc.R;
 import io.mrarm.irc.SettingsActivity;
 import io.mrarm.irc.ThemeEditorActivity;
 import io.mrarm.irc.ThemedActivity;
+import io.mrarm.irc.config.AppSettings;
+import io.mrarm.irc.config.ChatSettings;
 import io.mrarm.irc.config.NickAutocompleteSettings;
 import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.dialog.MenuBottomSheetDialog;
@@ -90,21 +90,21 @@ public class InterfaceSettingsFragment extends SettingsListFragment
         a.add(new ListWithCustomSetting(a, getString(R.string.pref_title_font),
                 getResources().getStringArray(R.array.pref_entries_font),
                 getResources().getStringArray(R.array.pref_entry_values_font), "default",
-                SettingsHelper.PREF_CHAT_FONT, ListWithCustomSetting.TYPE_FONT)
-                .linkPreference(prefs, SettingsHelper.PREF_CHAT_FONT));
+                ChatSettings.PREF_FONT, ListWithCustomSetting.TYPE_FONT)
+                .linkPreference(prefs, ChatSettings.PREF_FONT));
         a.add(new FontSizeSetting(getString(R.string.pref_title_font_size), -1)
-                .linkPreference(prefs, SettingsHelper.PREF_CHAT_FONT_SIZE));
+                .linkPreference(prefs, ChatSettings.PREF_FONT_SIZE));
         a.add(new CheckBoxSetting(getString(R.string.pref_title_hide_join_part),
                 getString(R.string.pref_summary_hide_join_part), false)
-                .linkPreference(prefs, SettingsHelper.PREF_CHAT_HIDE_JOIN_PART));
+                .linkPreference(prefs, ChatSettings.PREF_HIDE_JOIN_PART_MESSAGES));
         a.add(new CheckBoxSetting(getString(R.string.pref_title_autocorrect),
                 getString(R.string.pref_summary_autocorrect), true)
-                .linkPreference(prefs, SettingsHelper.PREF_CHAT_TEXT_AUTOCORRECT));
+                .linkPreference(prefs, ChatSettings.PREF_TEXT_AUTOCORRECT_ENABLED));
         a.add(new ListSetting(getString(R.string.pref_title_appbar_compact_mode),
                 getResources().getStringArray(R.array.pref_entries_appbar_compact_mode),
                 getResources().getStringArray(R.array.pref_entry_values_appbar_compact_mode),
                 SettingsHelper.COMPACT_MODE_AUTO)
-                .linkPreference(prefs, SettingsHelper.PREF_CHAT_APPBAR_COMPACT_MODE));
+                .linkPreference(prefs, ChatSettings.PREF_APPBAR_COMPACT_MODE));
         mMessageFormatItem = new ClickableSetting(getString(R.string.pref_title_message_format), null)
                 .setIntent(new Intent(getActivity(), MessageFormatSettingsActivity.class));
         a.add(mMessageFormatItem);
@@ -116,23 +116,23 @@ public class InterfaceSettingsFragment extends SettingsListFragment
         a.add(mAutocompleteItem);
         a.add(new CheckBoxSetting(getString(R.string.pref_title_chat_box_always_multiline),
                 getString(R.string.pref_summary_chat_box_always_multiline), true)
-                .linkPreference(prefs, SettingsHelper.PREF_CHAT_SEND_BOX_ALWAYS_MULTILINE));
+                .linkPreference(prefs, ChatSettings.PREF_SEND_BOX_ALWAYS_MULTILINE));
         a.add(new ListSetting(getString(R.string.pref_title_chat_box_history_swipe_mode),
                 getResources().getStringArray(R.array.pref_entries_chat_history_swipe_mode),
                 getResources().getStringArray(R.array.pref_entry_values_chat_history_swipe_mode),
                 SettingsHelper.SWIPE_LEFT_TO_RIGHT)
-                .linkPreference(prefs, SettingsHelper.PREF_CHAT_SEND_BOX_HISTORY_SWIPE_MODE));
+                .linkPreference(prefs, ChatSettings.PREF_SEND_BOX_HISTORY_SWIPE_MODE));
         a.add(new CheckBoxSetting(getString(R.string.pref_title_chat_multi_scroll_mode),
                 getString(R.string.pref_summary_chat_multi_scroll_mode), false)
-                .linkPreference(prefs, SettingsHelper.PREF_CHAT_MULTI_SELECT_MODE));
+                .linkPreference(prefs, ChatSettings.PREF_ONLY_MULTI_SELECT_MODE));
 
         a.add(new SettingsHeader(getString(R.string.pref_header_misc)));
         a.add(new CheckBoxSetting(getString(R.string.pref_title_drawer_always_show_server),
                 getString(R.string.pref_summary_drawer_always_show_server), false)
-                .linkPreference(prefs, SettingsHelper.PREF_DRAWER_ALWAYS_SHOW_SERVER));
+                .linkPreference(prefs, AppSettings.PREF_DRAWER_ALWAYS_SHOW_SERVER));
         a.add(new CheckBoxSetting(getString(R.string.pref_title_chat_show_dcc_send),
                 getString(R.string.pref_summary_chat_show_dcc_send), false)
-                .linkPreference(prefs, SettingsHelper.PREF_CHAT_SHOW_DCC_SEND)
+                .linkPreference(prefs, ChatSettings.PREF_SHOW_DCC_SEND)
                 .addListener((EntryRecyclerViewAdapter.Entry entry) -> {
                     boolean checked = ((CheckBoxSetting) entry).isChecked();
                     if (checked)

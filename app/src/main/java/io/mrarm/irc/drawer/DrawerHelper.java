@@ -20,6 +20,7 @@ import io.mrarm.irc.ServerConnectionManager;
 import io.mrarm.irc.SettingsActivity;
 import io.mrarm.irc.config.AppSettings;
 import io.mrarm.irc.config.SettingsHelper;
+import io.mrarm.irc.config.UiSettingChangeCallback;
 import io.mrarm.irc.dialog.ChannelSearchDialog;
 import io.mrarm.irc.view.LockableDrawerLayout;
 
@@ -108,25 +109,28 @@ public class DrawerHelper implements ServerConnectionManager.ConnectionsListener
     public void registerListeners() {
         if (mHasRegisteredListeners)
             return;
-        SettingsHelper settings = SettingsHelper.getInstance(mActivity);
         ServerConnectionManager.getInstance(mActivity).addListener(this);
         ServerConnectionManager.getInstance(mActivity).addGlobalConnectionInfoListener(this);
         ServerConnectionManager.getInstance(mActivity).addGlobalChannelListListener(this);
         NotificationManager.getInstance().addGlobalUnreadMessageCountCallback(this);
-        settings.addPreferenceChangeListener(SettingsHelper.PREF_DRAWER_ALWAYS_SHOW_SERVER, this);
+        SettingsHelper.registerCallbacks(this);
         mHasRegisteredListeners = true;
     }
 
     public void unregisterListeners() {
         if (!mHasRegisteredListeners)
             return;
-        SettingsHelper settings = SettingsHelper.getInstance(mActivity);
         ServerConnectionManager.getInstance(mActivity).removeListener(this);
         ServerConnectionManager.getInstance(mActivity).removeGlobalConnectionInfoListener(this);
         ServerConnectionManager.getInstance(mActivity).removeGlobalChannelListListener(this);
         NotificationManager.getInstance().removeGlobalUnreadMessageCountCallback(this);
-        settings.removePreferenceChangeListener(SettingsHelper.PREF_DRAWER_ALWAYS_SHOW_SERVER, this);
+        SettingsHelper.unregisterCallbacks(this);
         mHasRegisteredListeners = false;
+    }
+
+    @UiSettingChangeCallback(keys = {AppSettings.PREF_DRAWER_ALWAYS_SHOW_SERVER})
+    private void onSettingChanged() {
+        mAdapter.setAlwaysShowServer(AppSettings.shouldDrawerAlwaysShowServer());
     }
 
     public void setChannelClickListener(DrawerMenuListAdapter.ChannelClickListener listener) {

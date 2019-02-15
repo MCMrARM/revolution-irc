@@ -38,6 +38,7 @@ import io.mrarm.chatlib.dto.TopicWhoTimeMessageInfo;
 import io.mrarm.chatlib.dto.WhoisStatusMessageInfo;
 import io.mrarm.irc.MessageFormatSettingsActivity;
 import io.mrarm.irc.R;
+import io.mrarm.irc.config.MessageFormatSettings;
 import io.mrarm.irc.config.SettingsHelper;
 
 public class MessageBuilder {
@@ -155,42 +156,42 @@ public class MessageBuilder {
         SharedPreferences mgr = PreferenceManager.getDefaultSharedPreferences(context);
         try {
             mMessageTimeFormat = new SimpleDateFormat(mgr.getString(
-                    SettingsHelper.PREF_MESSAGE_TIME_FORMAT, DEFAULT_TIME_FORMAT), Locale.getDefault());
+                    MessageFormatSettings.PREF_MESSAGE_TIME_FORMAT, DEFAULT_TIME_FORMAT), Locale.getDefault());
         } catch (Exception ignored) {
         }
-        mMessageTimeFixedWidth = mgr.getBoolean(SettingsHelper.PREF_MESSAGE_TIME_FIXED_WIDTH, mMessageTimeFixedWidth);
-        mMessageFormat = getMessageFormat(mgr, SettingsHelper.PREF_MESSAGE_FORMAT);
+        mMessageTimeFixedWidth = mgr.getBoolean(MessageFormatSettings.PREF_MESSAGE_TIME_FIXED_WIDTH, mMessageTimeFixedWidth);
+        mMessageFormat = getMessageFormat(mgr, MessageFormatSettings.PREF_MESSAGE_FORMAT);
         if (mMessageFormat == null)
             mMessageFormat = buildDefaultMessageFormat(context);
-        mMentionMessageFormat = getMessageFormat(mgr, SettingsHelper.PREF_MESSAGE_FORMAT_MENTION);
+        mMentionMessageFormat = getMessageFormat(mgr, MessageFormatSettings.PREF_MESSAGE_FORMAT_MENTION);
         if (mMentionMessageFormat == null)
             mMentionMessageFormat = buildDefaultMentionMessageFormat(context);
-        mActionMessageFormat = getMessageFormat(mgr, SettingsHelper.PREF_MESSAGE_FORMAT_ACTION);
+        mActionMessageFormat = getMessageFormat(mgr, MessageFormatSettings.PREF_MESSAGE_FORMAT_ACTION);
         if (mActionMessageFormat == null)
             mActionMessageFormat = buildDefaultActionMessageFormat(context);
-        mActionMentionMessageFormat = getMessageFormat(mgr, SettingsHelper.PREF_MESSAGE_FORMAT_ACTION_MENTION);
+        mActionMentionMessageFormat = getMessageFormat(mgr, MessageFormatSettings.PREF_MESSAGE_FORMAT_ACTION_MENTION);
         if (mActionMentionMessageFormat == null)
             mActionMentionMessageFormat = buildDefaultActionMentionMessageFormat(context);
-        mNoticeMessageFormat = getMessageFormat(mgr, SettingsHelper.PREF_MESSAGE_FORMAT_NOTICE);
+        mNoticeMessageFormat = getMessageFormat(mgr, MessageFormatSettings.PREF_MESSAGE_FORMAT_NOTICE);
         if (mNoticeMessageFormat == null)
             mNoticeMessageFormat = buildDefaultNoticeMessageFormat(context);
-        mEventMessageFormat = getMessageFormat(mgr, SettingsHelper.PREF_MESSAGE_FORMAT_EVENT);
+        mEventMessageFormat = getMessageFormat(mgr, MessageFormatSettings.PREF_MESSAGE_FORMAT_EVENT);
         if (mEventMessageFormat == null)
             mEventMessageFormat = buildDefaultEventMessageFormat(context);
-        mEventMessageShowHostname = mgr.getBoolean(SettingsHelper.PREF_MESSAGE_FORMAT_EVENT_HOSTNAME, mEventMessageShowHostname);
+        mEventMessageShowHostname = mgr.getBoolean(MessageFormatSettings.PREF_MESSAGE_FORMAT_EVENT_HOSTNAME, mEventMessageShowHostname);
     }
 
     public void saveFormats() {
         SharedPreferences.Editor mgr = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
-        mgr.putString(SettingsHelper.PREF_MESSAGE_TIME_FORMAT, mMessageTimeFormat.toPattern());
-        mgr.putBoolean(SettingsHelper.PREF_MESSAGE_TIME_FIXED_WIDTH, mMessageTimeFixedWidth);
-        mgr.putString(SettingsHelper.PREF_MESSAGE_FORMAT, SettingsHelper.getGson().toJson(spannableToJson(mMessageFormat)));
-        mgr.putString(SettingsHelper.PREF_MESSAGE_FORMAT_MENTION, SettingsHelper.getGson().toJson(spannableToJson(mMentionMessageFormat)));
-        mgr.putString(SettingsHelper.PREF_MESSAGE_FORMAT_ACTION, SettingsHelper.getGson().toJson(spannableToJson(mActionMessageFormat)));
-        mgr.putString(SettingsHelper.PREF_MESSAGE_FORMAT_ACTION_MENTION, SettingsHelper.getGson().toJson(spannableToJson(mActionMentionMessageFormat)));
-        mgr.putString(SettingsHelper.PREF_MESSAGE_FORMAT_NOTICE, SettingsHelper.getGson().toJson(spannableToJson(mNoticeMessageFormat)));
-        mgr.putString(SettingsHelper.PREF_MESSAGE_FORMAT_EVENT, SettingsHelper.getGson().toJson(spannableToJson(mEventMessageFormat)));
-        mgr.putBoolean(SettingsHelper.PREF_MESSAGE_FORMAT_EVENT_HOSTNAME, mEventMessageShowHostname);
+        mgr.putString(MessageFormatSettings.PREF_MESSAGE_TIME_FORMAT, mMessageTimeFormat.toPattern());
+        mgr.putBoolean(MessageFormatSettings.PREF_MESSAGE_TIME_FIXED_WIDTH, mMessageTimeFixedWidth);
+        mgr.putString(MessageFormatSettings.PREF_MESSAGE_FORMAT, SettingsHelper.getGson().toJson(spannableToJson(mMessageFormat)));
+        mgr.putString(MessageFormatSettings.PREF_MESSAGE_FORMAT_MENTION, SettingsHelper.getGson().toJson(spannableToJson(mMentionMessageFormat)));
+        mgr.putString(MessageFormatSettings.PREF_MESSAGE_FORMAT_ACTION, SettingsHelper.getGson().toJson(spannableToJson(mActionMessageFormat)));
+        mgr.putString(MessageFormatSettings.PREF_MESSAGE_FORMAT_ACTION_MENTION, SettingsHelper.getGson().toJson(spannableToJson(mActionMentionMessageFormat)));
+        mgr.putString(MessageFormatSettings.PREF_MESSAGE_FORMAT_NOTICE, SettingsHelper.getGson().toJson(spannableToJson(mNoticeMessageFormat)));
+        mgr.putString(MessageFormatSettings.PREF_MESSAGE_FORMAT_EVENT, SettingsHelper.getGson().toJson(spannableToJson(mEventMessageFormat)));
+        mgr.putBoolean(MessageFormatSettings.PREF_MESSAGE_FORMAT_EVENT_HOSTNAME, mEventMessageShowHostname);
         mgr.apply();
     }
 

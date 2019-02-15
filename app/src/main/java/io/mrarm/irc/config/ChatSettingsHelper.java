@@ -16,7 +16,7 @@ public class ChatSettingsHelper {
         String font = ChatSettings.getFontString();
         if (ListWithCustomSetting.isPrefCustomValue(font)) {
             File file = ListWithCustomSetting.getCustomFile(SettingsHelper.getContext(),
-                    SettingsHelper.PREF_CHAT_FONT, font);
+                    ChatSettings.PREF_FONT, font);
             try {
                 sCachedFont = Typeface.createFromFile(file);
                 return sCachedFont;
@@ -32,7 +32,7 @@ public class ChatSettingsHelper {
     }
 
     static {
-        SettingsHelper.changeEvent().listen(SettingsHelper.PREF_CHAT_FONT, () -> {
+        SettingsHelper.changeEvent().listen(ChatSettings.PREF_FONT, () -> {
             sCachedFont = null;
         });
     }
