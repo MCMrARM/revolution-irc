@@ -27,36 +27,35 @@ public class ReconnectSettingsFragment extends SettingsListFragment
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         CheckBoxSetting mainSetting = new CheckBoxSetting(
                 getString(R.string.pref_title_auto_reconnect),
-                getString(R.string.pref_description_auto_reconnect), true);
-        mainSetting.linkPreference(prefs, AppSettings.PREF_RECONNECT_ENABLED);
+                getString(R.string.pref_description_auto_reconnect));
+        mainSetting.linkSetting(prefs, AppSettings.PREF_RECONNECT_ENABLED);
         a.add(mainSetting);
         a.add(new CheckBoxSetting(getString(R.string.pref_title_reconnect_connchg),
-                getString(R.string.pref_description_reconnect_connchg), true)
-                .linkPreference(prefs, AppSettings.PREF_RECONNECT_ON_CONNECTIVITY_CHANGE_ENABLED)
+                getString(R.string.pref_description_reconnect_connchg))
+                .linkSetting(prefs, AppSettings.PREF_RECONNECT_ON_CONNECTIVITY_CHANGE_ENABLED)
                 .requires(mainSetting));
         a.add(new CheckBoxSetting(getString(R.string.pref_title_reconnect_wifi),
-                getString(R.string.pref_description_reconnect_wifi), true)
-                .linkPreference(prefs, AppSettings.PREF_RECONNECT_WI_FI_ONLY)
+                getString(R.string.pref_description_reconnect_wifi))
+                .linkSetting(prefs, AppSettings.PREF_RECONNECT_WI_FI_ONLY)
                 .requires(mainSetting));
         a.add(new ReconnectIntervalSetting(getString(R.string.pref_title_reconnect_pattern))
                 .linkPreference(prefs, AppSettings.PREF_RECONNECT_INTERVAL)
                 .requires(mainSetting));
         CheckBoxSetting pingSetting = new CheckBoxSetting(getString(R.string.pref_title_ping_enabled),
-                getString(R.string.pref_description_ping_enabled), false);
-        pingSetting.linkPreference(prefs, AppSettings.PREF_PING_ENABLED);
+                getString(R.string.pref_description_ping_enabled));
+        pingSetting.linkSetting(prefs, AppSettings.PREF_PING_ENABLED);
         a.add(pingSetting);
         a.add(new CheckBoxSetting(getString(R.string.pref_title_ping_wifi),
                 getString(R.string.pref_description_ping_wifi), true)
-                .linkPreference(prefs, AppSettings.PREF_PING_WI_FI_ONLY)
+                .linkSetting(prefs, AppSettings.PREF_PING_WI_FI_ONLY)
                 .requires(pingSetting));
-        a.add(new IntervalSetting(getString(R.string.pref_title_ping_interval),
-                15 * 60 * 1000)
+        a.add(new IntervalSetting(getString(R.string.pref_title_ping_interval))
                 .setMinDuration(15 * 60 * 1000)
-                .linkPreference(prefs, AppSettings.PREF_PING_INTERVAL)
+                .linkSetting(prefs, AppSettings.PREF_PING_INTERVAL)
                 .requires(pingSetting));
         CheckBoxSetting bootSetting = new CheckBoxSetting(
                 getString(R.string.pref_title_start_on_boot),
-                getString(R.string.pref_description_start_on_boot), true);
+                getString(R.string.pref_description_start_on_boot));
         bootSetting.setChecked(isStartOnBootEnabled());
         bootSetting.addListener((e) -> setStartOnBootEnabled(bootSetting.isChecked()));
         a.add(bootSetting);

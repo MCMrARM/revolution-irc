@@ -95,6 +95,19 @@ public class SettingsHelper implements SharedPreferences.OnSharedPreferenceChang
         }
     }
 
+    public static Object getDefaultValue(String key) {
+        Object o = AppSettings.getDefaultValue(key);
+        if (o != null)
+            return o;
+        o = ChatSettings.getDefaultValue(key);
+        if (o != null)
+            return o;
+        o = NickAutocompleteSettings.getDefaultValue(key);
+        if (o != null)
+            return o;
+        return null;
+    }
+
 
     static long getLong(SharedPreferences prefs, String key, long def) {
         try {

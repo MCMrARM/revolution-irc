@@ -6,6 +6,7 @@ import androidx.appcompat.app.AlertDialog;
 import android.view.View;
 
 import io.mrarm.irc.R;
+import io.mrarm.irc.config.SettingsHelper;
 
 public class ListSetting extends SimpleSetting {
 
@@ -33,6 +34,10 @@ public class ListSetting extends SimpleSetting {
             mValue = mOptions[mSelectedOption];
     }
 
+    public ListSetting(String name, String[] options, String[] values) {
+        this(name, options, values, null);
+    }
+
     public ListSetting linkPreference(SharedPreferences prefs, String pref, String[] optionValues) {
         mPrefOptionValues = optionValues;
         return linkPreference(prefs, pref);
@@ -44,6 +49,11 @@ public class ListSetting extends SimpleSetting {
             setSelectedOption(i);
         setAssociatedPreference(prefs, pref);
         return this;
+    }
+
+    public ListSetting linkSetting(SharedPreferences prefs, String pref) {
+        mSelectedOption = getPrefValueIndex((String) SettingsHelper.getDefaultValue(pref));
+        return linkPreference(prefs, pref);
     }
 
     protected int getPrefValueIndex(String val) {
