@@ -276,6 +276,8 @@
     <string name="error_generic">An error has occurred.</string>
     <string name="error_file_open">Failed to open the file.</string>
 
+    <string name="time_now">now</string>
+
     <!-- Time -->
 
     <plurals name="time_seconds">
@@ -733,5 +735,9 @@
     <string name="dcc_download_dir_custom">Custom</string>
 
     <string name="dcc_error_no_activity">No application found to open the specified file</string>
+
+    <!-- New UI / Main -->
+    <string name="main_tab_chats">Chats</string>
+    <string name="main_tab_servers">Servers</string>
 
 </resources>

@@ -71,7 +71,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
 
     private static final int LOAD_MORE_BEFORE_INDEX = 10;
 
-    private static final MessageFilterOptions sFilterJoinParts;
+    public static final MessageFilterOptions sFilterJoinParts;
 
     private List<NickWithPrefix> mMembers = null;
 

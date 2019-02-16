@@ -39,6 +39,8 @@ AppSettings:
 
     - spec: long storageLimitGlobal = StorageLimitsDialog.DEFAULT_LIMIT_GLOBAL
     - spec: long storageLimitServer = StorageLimitsDialog.DEFAULT_LIMIT_SERVER
+
+    - spec: boolean newUiEnabled = true
   helpers:
     - List<ReconnectIntervalSetting.Rule> getReconnectIntervalRules()
 

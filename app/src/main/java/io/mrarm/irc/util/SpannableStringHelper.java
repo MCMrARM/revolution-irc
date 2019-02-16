@@ -23,7 +23,15 @@ public class SpannableStringHelper {
         SpannableStringBuilder builder = new SpannableStringBuilder(seq);
         for (int i = 0; i < builder.length() - 1; i++) {
             if (builder.charAt(i) == '%') {
-                int c = builder.charAt(++i);
+                char c = builder.charAt(++i);
+                if (c == 'S') { // custom: span
+                    Object span = args[argI++];
+                    builder.delete(i - 1, i + 1);
+                    builder.setSpan(span, i - 1, builder.length(),
+                            Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
+                    i -= 2;
+                    continue;
+                }
                 CharSequence replacement = null;
                 switch (c) {
                     case 's':
