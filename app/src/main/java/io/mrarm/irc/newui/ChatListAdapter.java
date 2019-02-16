@@ -1,6 +1,8 @@
 package io.mrarm.irc.newui;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.format.DateUtils;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
@@ -18,6 +20,9 @@ import io.mrarm.irc.util.StyledAttributesHelper;
 
 public class ChatListAdapter extends RecyclerView.Adapter {
 
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
+    private boolean mNotifyDataSetPosted = false;
+
     private final ChatListData mData;
 
     private int mTextColorPrimary;
@@ -30,6 +35,19 @@ public class ChatListAdapter extends RecyclerView.Adapter {
                 StyledAttributesHelper.getColor(ctx, android.R.attr.textColorPrimary, 0);
         mTextColorSecondary =
                 StyledAttributesHelper.getColor(ctx, android.R.attr.textColorSecondary, 0);
+
+        data.addListener(() -> {
+            if (mNotifyDataSetPosted)
+                return;
+            mNotifyDataSetPosted = true;
+            mHandler.post(() -> {
+                notifyDataSetChanged();
+                mNotifyDataSetPosted = false;
+            });
+        });
+        mHandler.postDelayed(() -> {
+            notifyDataSetChanged();
+        }, 1000L);
     }
 
     @NonNull
@@ -77,7 +95,6 @@ public class ChatListAdapter extends RecyclerView.Adapter {
             mItem = item;
             item.observe(mUpdateCb);
 
-            Context ctx = mChannel.getContext();
             mChannel.setText(SpannableStringHelper.format("%S%s%S (%s)",
                     new ForegroundColorSpan(mTextColorPrimary), item.getChannel(),
                     new ForegroundColorSpan(mTextColorSecondary), item.getConnectionName()));
