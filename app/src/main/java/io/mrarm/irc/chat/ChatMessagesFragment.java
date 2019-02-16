@@ -190,10 +190,12 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             connectionInfo.getApiInstance().subscribeChannelInfo(mChannelName, this, null, null);
             mNeedsUnsubscribeChannelInfo = true;
 
-            String msgIdStr = ((ChatFragment) getParentFragment()).getAndClearMessageJump(mChannelName);
             MessageId msgId = null;
-            if (msgIdStr != null)
-                msgId = mConnection.getApiInstance().getMessageStorageApi().getMessageIdParser().parse(msgIdStr);
+            if (getParentFragment() instanceof ChatFragment) {
+                String msgIdStr = ((ChatFragment) getParentFragment()).getAndClearMessageJump(mChannelName);
+                if (msgIdStr != null)
+                    msgId = mConnection.getApiInstance().getMessageStorageApi().getMessageIdParser().parse(msgIdStr);
+            }
             reloadMessages(msgId);
         } else if (getArguments().getBoolean(ARG_DISPLAY_STATUS)) {
             mStatusAdapter = new ServerStatusMessagesAdapter(mConnection, new StatusMessageList(new ArrayList<>()));
@@ -337,7 +339,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             mRecyclerView.setAdapter(mStatusAdapter);
         }
 
-        if (getUserVisibleHint())
+        if (getUserVisibleHint() && getParentFragment() instanceof ChatFragment)
             ((ChatFragment) getParentFragment()).getSendMessageHelper()
                     .setCurrentChannel(mChannelName);
 
@@ -505,7 +507,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     @Override
     public void onPause() {
         super.onPause();
-        MainActivity activity = (MainActivity) getActivity();
+        MainActivity activity = getActivity() instanceof MainActivity ? (MainActivity) getActivity() : null;
         if (getUserVisibleHint() && (activity == null || !activity.isAppExiting()))
             mConnection.getNotificationManager().getChannelManager(mChannelName, true).setOpened(getContext(), false);
         if (mConnection != null && getUserVisibleHint() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
@@ -538,7 +540,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
 
     private void updateParentCurrentChannel() {
         Activity activity = getActivity();
-        if (activity == null)
+        if (activity == null || !(getParentFragment() instanceof ChatFragment))
             return;
         activity.runOnUiThread(() -> ((ChatFragment) getParentFragment())
                 .setCurrentChannelInfo(mChannelTopic,

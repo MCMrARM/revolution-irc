@@ -8,11 +8,14 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import io.mrarm.irc.R;
+import io.mrarm.irc.ServerConnectionInfo;
+import io.mrarm.irc.chat.ChatMessagesFragment;
 
-public class ChatListFragment extends Fragment {
+public class ChatListFragment extends Fragment implements ChatListAdapter.CallbackInterface {
 
     public static ChatListFragment newInstance() {
         return new ChatListFragment();
@@ -26,6 +29,7 @@ public class ChatListFragment extends Fragment {
         super.onCreate(savedInstanceState);
         mChatListData = new ChatListData(getContext());
         mChatListAdapter = new ChatListAdapter(getContext(), mChatListData);
+        mChatListAdapter.setCallbackInterface(this);
     }
 
     @Nullable
@@ -45,6 +49,15 @@ public class ChatListFragment extends Fragment {
         super.onDestroy();
         mChatListData = null;
         mChatListAdapter = null;
+    }
+
+    @Override
+    public void onChatOpened(ServerConnectionInfo server, String channel) {
+        ChatMessagesFragment fragment = ChatMessagesFragment.newInstance(server, channel);
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .replace(R.id.container, fragment)
+                .commit();
     }
 
 }

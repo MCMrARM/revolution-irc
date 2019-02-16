@@ -15,6 +15,7 @@ import java.util.Date;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import io.mrarm.irc.R;
+import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.util.SpannableStringHelper;
 import io.mrarm.irc.util.StyledAttributesHelper;
 
@@ -27,6 +28,8 @@ public class ChatListAdapter extends RecyclerView.Adapter {
 
     private int mTextColorPrimary;
     private int mTextColorSecondary;
+
+    private CallbackInterface mInterface;
 
     public ChatListAdapter(Context ctx, ChatListData data) {
         mData = data;
@@ -45,9 +48,10 @@ public class ChatListAdapter extends RecyclerView.Adapter {
                 mNotifyDataSetPosted = false;
             });
         });
-        mHandler.postDelayed(() -> {
-            notifyDataSetChanged();
-        }, 1000L);
+    }
+
+    public void setCallbackInterface(CallbackInterface callbackInterface) {
+        mInterface = callbackInterface;
     }
 
     @NonNull
@@ -89,6 +93,9 @@ public class ChatListAdapter extends RecyclerView.Adapter {
             mMessageDate = itemView.findViewById(R.id.chat_time);
             mMessageText = itemView.findViewById(R.id.chat_message);
             mUnreadCounter = itemView.findViewById(R.id.chat_counter);
+
+            itemView.setOnClickListener((v) ->
+                    mInterface.onChatOpened(mItem.getConnection(), mItem.getChannel()));
         }
 
         public void bind(ChatListData.Item item) {
@@ -125,6 +132,12 @@ public class ChatListAdapter extends RecyclerView.Adapter {
         if (DateUtils.isToday(date.getTime()))
             return DateUtils.formatDateTime(context, date.getTime(), DateUtils.FORMAT_SHOW_TIME);
         return DateUtils.formatDateTime(context, date.getTime(), DateUtils.FORMAT_SHOW_DATE);
+
+    }
+
+    public interface CallbackInterface {
+
+        void onChatOpened(ServerConnectionInfo server, String channel);
 
     }
 
