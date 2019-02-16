@@ -135,7 +135,7 @@ public class EditNotificationSettingsActivity extends ThemedActivity {
                 }
             }
 
-            mMatchEntry.mCaseSensitive = mEditingRule.isRegexCaseInsensitive();
+            mMatchEntry.mCaseSensitive = !mEditingRule.isRegexCaseInsensitive();
             mUseMentionFormattingEntry.setChecked(mEditingRule.settings.mentionFormatting);
             mShowNotificationEntry.setChecked(!mEditingRule.settings.noNotification);
 
