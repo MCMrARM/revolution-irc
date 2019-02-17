@@ -101,7 +101,8 @@ public class SlideableFragmentContainer extends FrameLayout {
             return;
         Set<Fragment> mKeepFragments = new HashSet<>();
         mKeepFragments.add(mFragments.get(mFragments.size() - 1));
-        for (int i = 1; i <= Math.min(mKeepFragmentsInMemory, getChildCount() - 1); i++) {
+        for (int i = 1; i <= Math.min(mKeepFragmentsInMemory,
+                Math.min(getChildCount(), mFragments.size()) - 1); i++) {
             View v = getChildAt(getChildCount() - 1 - i);
             v.setVisibility(View.GONE);
             mKeepFragments.add(mFragments.get(mFragments.size() - 1 - i));
