@@ -6,7 +6,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.FragmentTransaction;
 import io.mrarm.irc.DCCActivity;
 import io.mrarm.irc.IRCApplication;
 import io.mrarm.irc.R;
@@ -14,6 +13,8 @@ import io.mrarm.irc.SettingsActivity;
 import io.mrarm.irc.ThemedActivity;
 
 public class MainActivity extends ThemedActivity {
+
+    private SlideableFragmentContainer mContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,12 +25,14 @@ public class MainActivity extends ThemedActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(null);
 
-        getSupportFragmentManager().beginTransaction()
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .replace(R.id.container, new MainFragment())
-                .commit();
+        mContainer = findViewById(R.id.container);
+        mContainer.setFragmentManager(getSupportFragmentManager());
+        mContainer.push(new MainFragment());
     }
 
+    public SlideableFragmentContainer getContainer() {
+        return mContainer;
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

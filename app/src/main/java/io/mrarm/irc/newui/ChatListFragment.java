@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import io.mrarm.irc.R;
@@ -53,11 +52,8 @@ public class ChatListFragment extends Fragment implements ChatListAdapter.Callba
 
     @Override
     public void onChatOpened(ServerConnectionInfo server, String channel) {
-        ChatMessagesFragment fragment = ChatMessagesFragment.newInstance(server, channel);
-        getActivity().getSupportFragmentManager().beginTransaction()
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .replace(R.id.container, fragment)
-                .commit();
+        Fragment fragment = ChatMessagesFragment.newInstance(server, channel);
+        ((MainActivity) getActivity()).getContainer().push(fragment);
     }
 
 }
