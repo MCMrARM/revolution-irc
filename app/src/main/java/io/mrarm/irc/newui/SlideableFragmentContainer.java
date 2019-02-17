@@ -14,7 +14,9 @@ import android.view.ViewConfiguration;
 import android.widget.FrameLayout;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -37,6 +39,7 @@ public class SlideableFragmentContainer extends FrameLayout {
     private VelocityTracker mTouchDragVelocity;
     private boolean mTouchDragUnsetBg;
     private int mFallbackBackgroundColor;
+    private int mKeepFragmentsInMemory = 1;
     private final FragmentLifecycleWatcher mFragmentLifecycleWatcher =
             new FragmentLifecycleWatcher();
 
@@ -78,8 +81,10 @@ public class SlideableFragmentContainer extends FrameLayout {
     }
 
     private boolean attachParentFragment() {
-        if (getChildCount() > 1)
+        if (getChildCount() > 1) {
+            getChildAt(getChildCount() - 2).setVisibility(View.VISIBLE);
             return true;
+        }
         if (mFragments.size() <= 1)
             return false;
         Fragment df = mFragments.get(mFragments.size() - 2);
@@ -92,9 +97,16 @@ public class SlideableFragmentContainer extends FrameLayout {
     private void detachParentFragments() {
         if (mFragments.size() == 0)
             return;
+        Set<Fragment> mKeepFragments = new HashSet<>();
+        mKeepFragments.add(mFragments.get(mFragments.size() - 1));
+        for (int i = 1; i <= Math.min(mKeepFragmentsInMemory, getChildCount() - 1); i++) {
+            View v = getChildAt(getChildCount() - 1 - i);
+            v.setVisibility(View.GONE);
+            mKeepFragments.add(mFragments.get(mFragments.size() - 1 - i));
+        }
         FragmentTransaction t = mFragmentManager.beginTransaction();
         for (Fragment f : mFragmentManager.getFragments()) {
-            if (f.getId() == getId() && f != mFragments.get(mFragments.size() - 1))
+            if (f.getId() == getId() && !mKeepFragments.contains(f))
                 t.detach(f);
         }
         t.commitNow();
@@ -196,6 +208,7 @@ public class SlideableFragmentContainer extends FrameLayout {
     private void deelevateView(View v) {
         if (mTouchDragUnsetBg) {
             v.setBackground(null);
+            mTouchDragUnsetBg = false;
         }
         ViewCompat.setElevation(v, 0.f);
     }
