@@ -5,7 +5,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -29,12 +28,14 @@ import io.mrarm.irc.util.StyledAttributesHelper;
 public class SlideableFragmentContainer extends FrameLayout {
 
     private static final float MIN_VELOCITY = 20;
+    private static final float PARENT_VIEW_TRANSLATION_M = 0.3f;
 
     private FragmentManager mFragmentManager;
     private final List<Fragment> mFragments = new ArrayList<>();
     private int mTouchSlop;
     private float mMinVelocity;
     private View mTouchDragView;
+    private View mTouchDragParentView;
     private float mTouchDragStartX;
     private VelocityTracker mTouchDragVelocity;
     private boolean mTouchDragUnsetBg;
@@ -80,18 +81,19 @@ public class SlideableFragmentContainer extends FrameLayout {
                 .commit();
     }
 
-    private boolean attachParentFragment() {
+    private View attachParentFragment() {
         if (getChildCount() > 1) {
-            getChildAt(getChildCount() - 2).setVisibility(View.VISIBLE);
-            return true;
+            View v = getChildAt(getChildCount() - 2);
+            v.setVisibility(View.VISIBLE);
+            return v;
         }
         if (mFragments.size() <= 1)
-            return false;
+            return null;
         Fragment df = mFragments.get(mFragments.size() - 2);
         mFragmentManager.beginTransaction()
                 .attach(df)
                 .commitNow();
-        return true;
+        return getChildAt(getChildCount() - 1);
     }
 
     private void detachParentFragments() {
@@ -126,12 +128,14 @@ public class SlideableFragmentContainer extends FrameLayout {
                     if (ev.getX() - mTouchDragStartX > mTouchSlop) {
                         mTouchDragStartX += mTouchSlop;
                         View currentView = getChildAt(getChildCount() - 1);
-                        if (!attachParentFragment()) {
+                        View pv = attachParentFragment();
+                        if (pv == null) {
                             mTouchDragVelocity.recycle();
                             mTouchDragVelocity = null;
                             break;
                         }
                         mTouchDragView = currentView;
+                        mTouchDragParentView = pv;
                         currentView.bringToFront();
                         elevateView(mTouchDragView);
                         return true;
@@ -141,6 +145,7 @@ public class SlideableFragmentContainer extends FrameLayout {
             case MotionEvent.ACTION_UP:
                 if (mTouchDragVelocity != null) {
                     mTouchDragView = null;
+                    mTouchDragParentView = null;
                     mTouchDragVelocity.recycle();
                     mTouchDragVelocity = null;
                 }
@@ -155,7 +160,10 @@ public class SlideableFragmentContainer extends FrameLayout {
             case MotionEvent.ACTION_MOVE: {
                 if (mTouchDragView != null) {
                     mTouchDragVelocity.addMovement(ev);
-                    mTouchDragView.setTranslationX(Math.max(ev.getX() - mTouchDragStartX, 0));
+                    float m = Math.max(ev.getX() - mTouchDragStartX, 0);
+                    mTouchDragView.setTranslationX(m);
+                    mTouchDragParentView.setTranslationX(
+                            (m - getWidth()) * PARENT_VIEW_TRANSLATION_M);
                 }
                 return true;
             }
@@ -173,6 +181,7 @@ public class SlideableFragmentContainer extends FrameLayout {
                                         v.animate().setListener(null);
                                     }
                                 }).start();
+                        mTouchDragParentView.animate().translationX(0).start();
                     } else {
                         mTouchDragView.animate().translationX(0)
                                 .setListener(new AnimatorListenerAdapter() {
@@ -182,8 +191,11 @@ public class SlideableFragmentContainer extends FrameLayout {
                                         detachParentFragments();
                                     }
                                 }).start();
+                        mTouchDragParentView.animate().translationX(
+                                - getWidth() * (1 - PARENT_VIEW_TRANSLATION_M)).start();
                     }
                     mTouchDragView = null;
+                    mTouchDragParentView = null;
                 }
                 if (mTouchDragVelocity != null) {
                     mTouchDragVelocity.recycle();
