@@ -54,15 +54,15 @@ public class MessagesData implements MessageListener {
         return mChannel;
     }
 
-    public Item get(int i) {
+    public synchronized Item get(int i) {
         return mItems.get(i);
     }
 
-    public int size() {
+    public synchronized int size() {
         return mItems.size();
     }
 
-    public int findMessageWithId(MessageId id) {
+    public synchronized int findMessageWithId(MessageId id) {
         if (id == null)
             return -1;
         for (int i = mItems.size() - 1; i >= 0; --i) {
@@ -206,7 +206,7 @@ public class MessagesData implements MessageListener {
     }
 
     @Override
-    public void onMessage(String channel, MessageInfo message, MessageId messageId) {
+    public synchronized void onMessage(String channel, MessageInfo message, MessageId messageId) {
         if (mNewerMessages == null)
             appendMessage(message, messageId);
     }
