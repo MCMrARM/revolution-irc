@@ -28,12 +28,14 @@ import io.mrarm.irc.util.StyledAttributesHelper;
 public class SlideableFragmentContainer extends FrameLayout {
 
     private static final float MIN_VELOCITY = 20;
+    private static final float MIN_ANIM_VELOCITY = 0.4f;
     private static final float PARENT_VIEW_TRANSLATION_M = 0.3f;
 
     private FragmentManager mFragmentManager;
     private final List<Fragment> mFragments = new ArrayList<>();
     private int mTouchSlop;
     private float mMinVelocity;
+    private float mMinAnimVelocity;
     private View mTouchDragView;
     private View mTouchDragParentView;
     private float mTouchDragStartX;
@@ -59,6 +61,8 @@ public class SlideableFragmentContainer extends FrameLayout {
                 context, android.R.attr.colorBackground, 0);
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
         mMinVelocity = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, MIN_VELOCITY,
+                context.getResources().getDisplayMetrics());
+        mMinAnimVelocity = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, MIN_ANIM_VELOCITY,
                 context.getResources().getDisplayMetrics());
     }
 
@@ -139,6 +143,8 @@ public class SlideableFragmentContainer extends FrameLayout {
                         mTouchDragParentView = pv;
                         currentView.bringToFront();
                         elevateView(mTouchDragView);
+                        mTouchDragView.animate().setListener(null).cancel();
+                        mTouchDragParentView.animate().setListener(null).cancel();
                         return true;
                     }
                 }
@@ -171,11 +177,12 @@ public class SlideableFragmentContainer extends FrameLayout {
             case MotionEvent.ACTION_UP: {
                 if (mTouchDragView != null) {
                     mTouchDragVelocity.computeCurrentVelocity(1000);
-                    int animDuration = Math.min((int) (1000000 /
-                                    Math.abs(mTouchDragVelocity.getXVelocity())),
-                            500);
+                    float animDurationM = Math.min(1000.f /
+                                    Math.abs(mTouchDragVelocity.getXVelocity()), mMinAnimVelocity);
                     if (mTouchDragVelocity.getXVelocity() > mMinVelocity) {
                         View v = mTouchDragView;
+                        int animDuration = (int) ((getWidth() - v.getTranslationX()) *
+                                animDurationM);
                         v.animate().translationX(getWidth()).setDuration(animDuration)
                                 .setListener(new AnimatorListenerAdapter() {
                                     @Override
@@ -186,9 +193,11 @@ public class SlideableFragmentContainer extends FrameLayout {
                                     }
                                 }).start();
                         mTouchDragParentView.animate().translationX(0).setDuration(animDuration)
-                                .start();
+                                .setListener(null).start();
                     } else {
-                        mTouchDragView.animate().translationX(0).setDuration(animDuration)
+                        View v = mTouchDragView;
+                        int animDuration = (int) (v.getTranslationX() * animDurationM);
+                        v.animate().translationX(0).setDuration(animDuration)
                                 .setListener(new AnimatorListenerAdapter() {
                                     @Override
                                     public void onAnimationEnd(Animator animation) {
@@ -198,7 +207,7 @@ public class SlideableFragmentContainer extends FrameLayout {
                                 }).start();
                         mTouchDragParentView.animate().translationX(
                                 - getWidth() * PARENT_VIEW_TRANSLATION_M)
-                                .setDuration(animDuration).start();
+                                .setDuration(animDuration).setListener(null).start();
                     }
                     mTouchDragView = null;
                     mTouchDragParentView = null;
