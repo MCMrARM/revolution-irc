@@ -11,9 +11,8 @@ import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
-
-import org.spongycastle.jcajce.provider.digest.MD2;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -71,6 +70,7 @@ public class SlideableFragmentContainer extends FrameLayout {
         mMinAnimVelocity = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, MIN_ANIM_VELOCITY,
                 context.getResources().getDisplayMetrics());
         mDragAnimator.addUpdateListener((a) -> setDragValue((float) a.getAnimatedValue()));
+        mDragAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
     }
 
     public void addDragListener(DragListener listener) {
