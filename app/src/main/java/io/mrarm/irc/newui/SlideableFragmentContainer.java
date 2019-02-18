@@ -181,8 +181,8 @@ public class SlideableFragmentContainer extends FrameLayout {
                                     Math.abs(mTouchDragVelocity.getXVelocity()), mMinAnimVelocity);
                     if (mTouchDragVelocity.getXVelocity() > mMinVelocity) {
                         View v = mTouchDragView;
-                        int animDuration = (int) ((getWidth() - v.getTranslationX()) *
-                                animDurationM);
+                        int animDuration = Math.min((int) ((getWidth() - v.getTranslationX()) *
+                                animDurationM), 300);
                         v.animate().translationX(getWidth()).setDuration(animDuration)
                                 .setListener(new AnimatorListenerAdapter() {
                                     @Override
@@ -196,7 +196,8 @@ public class SlideableFragmentContainer extends FrameLayout {
                                 .setListener(null).start();
                     } else {
                         View v = mTouchDragView;
-                        int animDuration = (int) (v.getTranslationX() * animDurationM);
+                        int animDuration = Math.min((int) (v.getTranslationX() * animDurationM),
+                                300);
                         v.animate().translationX(0).setDuration(animDuration)
                                 .setListener(new AnimatorListenerAdapter() {
                                     @Override
