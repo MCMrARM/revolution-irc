@@ -1,9 +1,12 @@
 package io.mrarm.irc.newui;
 
 import android.content.Context;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -35,6 +38,7 @@ public class MessagesData implements MessageListener {
     private MessageListAfterIdentifier mOlderMessages;
     private CancellableMessageListCallback mLoadingMessages;
     private boolean mListenerRegistered;
+    private DayMarkerHandler mDayMarkerHandler = new DayMarkerHandler(this);
 
     public MessagesData(Context context,  ServerConnectionInfo connection, String channel) {
         mContext = context;
@@ -143,13 +147,17 @@ public class MessagesData implements MessageListener {
     }
 
     private int appendMessageInternal(MessageInfo m, MessageId mi) {
+        int ret = 1;
+        ret += mDayMarkerHandler.onMessageAppend(m);
         mItems.addLast(new MessageItem(m, mi));
-        return 1;
+        return ret;
     }
 
     private int prependMessageInternal(MessageInfo m, MessageId mi) {
+        int ret = 1;
+        ret += mDayMarkerHandler.onMessagePrepend(m);
         mItems.addFirst(new MessageItem(m, mi));
-        return 1;
+        return ret;
     }
 
     private void appendMessage(MessageInfo m, MessageId mi) {
@@ -167,14 +175,17 @@ public class MessagesData implements MessageListener {
     }
 
     private void prependMessages(List<MessageInfo> m, List<MessageId> mi) {
+        mDayMarkerHandler.onBeforeMessagePrepend();
         int cnt = 0;
         for (int i = m.size() - 1; i >= 0; i--)
             cnt += prependMessageInternal(m.get(i), mi.get(i));
         mListener.onItemsAdded(0, cnt);
+        mDayMarkerHandler.onAfterMessagePrepend();
     }
 
     private void setMessages(List<MessageInfo> m, List<MessageId> mi) {
         mItems.clear();
+        mDayMarkerHandler.onClear();
         for (int i = 0; i < m.size(); i++)
             appendMessageInternal(m.get(i), mi.get(i));
         mListener.onReloaded();
@@ -209,6 +220,95 @@ public class MessagesData implements MessageListener {
 
     }
 
+    public static class DayMarkerItem extends Item {
+
+        int mDate;
+
+        public DayMarkerItem(int date) {
+            mDate = date;
+        }
+
+        public String getMessageText(Context ctx) {
+            return DateUtils.formatDateTime(ctx, DayMarkerHandler.getDateIntMs(mDate),
+                    DateUtils.FORMAT_SHOW_DATE);
+        }
+
+    }
+
+    private static class DayMarkerHandler {
+
+        private static final Calendar sDayIntCalendar = Calendar.getInstance();
+        private static final int sDaysInYear = sDayIntCalendar.getMaximum(Calendar.DAY_OF_YEAR);
+
+        private MessagesData mData;
+
+        private int mFirstMessageDate = -1;
+        private int mLastMessageDate = -1;
+
+        public DayMarkerHandler(MessagesData data) {
+            mData = data;
+        }
+
+        public void onClear() {
+            mFirstMessageDate = -1;
+            mLastMessageDate = -1;
+        }
+
+        public int onMessageAppend(MessageInfo messageInfo) {
+            int date = getDayInt(messageInfo.getDate());
+            if (mFirstMessageDate == -1)
+                mFirstMessageDate = date;
+            if (date != mLastMessageDate) {
+                mLastMessageDate = date;
+                mData.mItems.addLast(new DayMarkerItem(date));
+                return 1;
+            }
+            return 0;
+        }
+
+        public void onBeforeMessagePrepend() {
+            if (mData.mItems.size() == 0)
+                return;
+            if (mData.mItems.get(0) instanceof DayMarkerItem) {
+                mData.mItems.removeFirst();
+                mData.mListener.onItemsRemoved(0, 1);
+            }
+        }
+
+        public void onAfterMessagePrepend() {
+            if (mData.mItems.size() == 0)
+                return;
+            mData.mItems.addFirst(new DayMarkerItem(mFirstMessageDate));
+        }
+
+        public int onMessagePrepend(MessageInfo messageInfo) {
+            int date = getDayInt(messageInfo.getDate());
+            if (mLastMessageDate == -1)
+                mLastMessageDate = date;
+            if (date != mFirstMessageDate) {
+                mData.mItems.addFirst(new DayMarkerItem(mFirstMessageDate));
+                mFirstMessageDate = date;
+                return 1;
+            }
+            return 0;
+        }
+
+
+        private static int getDayInt(Date date) {
+            sDayIntCalendar.setTime(date);
+            return sDayIntCalendar.get(Calendar.YEAR) * (sDaysInYear + 1) +
+                    sDayIntCalendar.get(Calendar.DAY_OF_YEAR);
+        }
+
+        private static long getDateIntMs(int date) {
+            sDayIntCalendar.setTimeInMillis(0);
+            sDayIntCalendar.set(Calendar.YEAR, date / (sDaysInYear + 1));
+            sDayIntCalendar.set(Calendar.DAY_OF_YEAR, date % (sDaysInYear + 1));
+            return sDayIntCalendar.getTimeInMillis();
+        }
+
+    }
+
     public interface Listener {
 
         /**
@@ -217,12 +317,19 @@ public class MessagesData implements MessageListener {
         void onReloaded();
 
         /**
-         * Called when nwe items have been added at the specified position. This might also be
+         * Called when new items have been added at the specified position. This might also be
          * called for a single new item.
-         * @param pos the position at which the items has been added.
+         * @param pos the position at which the items has been added
          * @param count the number of added items
          */
         void onItemsAdded(int pos, int count);
+
+        /**
+         * Called when an item range has been removed.
+         * @param pos the position at which the items have been removed
+         * @param count the number of removed items
+         */
+        void onItemsRemoved(int pos, int count);
 
     }
 

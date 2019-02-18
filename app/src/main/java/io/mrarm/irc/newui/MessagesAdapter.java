@@ -17,6 +17,9 @@ import io.mrarm.irc.util.UiThreadHelper;
 public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.BaseHolder<?>>
         implements MessagesData.Listener {
 
+    public static final int TYPE_MESSAGE = 0;
+    public static final int TYPE_DAY_MARKER = 1;
+
     private final MessagesData mData;
 
     public MessagesAdapter(MessagesData data) {
@@ -24,19 +27,38 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.BaseHo
         mData.setListener(this);
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        MessagesData.Item item = mData.get(position);
+        if (item instanceof MessagesData.MessageItem)
+            return TYPE_MESSAGE;
+        if (item instanceof MessagesData.DayMarkerItem)
+            return TYPE_DAY_MARKER;
+        throw new RuntimeException("Invalid item in MessagesData");
+    }
 
     @NonNull
     @Override
     public MessagesAdapter.BaseHolder<?> onCreateViewHolder(
             @NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.chat_message, parent, false);
-        return new MessageHolder(view);
+        if (viewType == TYPE_MESSAGE) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.chat_message, parent, false);
+            return new MessageHolder(view);
+        } else if (viewType == TYPE_DAY_MARKER) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.chat_day_marker, parent, false);
+            return new DayMarkerHolder(view);
+        }
+        throw new RuntimeException("Invalid viewType");
     }
 
     @Override
     public void onBindViewHolder(@NonNull MessagesAdapter.BaseHolder<?> holder, int position) {
-        ((MessageHolder) holder).bind((MessagesData.MessageItem) mData.get(position));
+        if (holder instanceof MessageHolder)
+            ((MessageHolder) holder).bind((MessagesData.MessageItem) mData.get(position));
+        else if (holder instanceof DayMarkerHolder)
+            ((DayMarkerHolder) holder).bind((MessagesData.DayMarkerItem) mData.get(position));
     }
 
     @Override
@@ -62,6 +84,13 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.BaseHo
                 notifyItemRangeInserted(pos, count);
             else
                 notifyItemInserted(pos);
+        });
+    }
+
+    @Override
+    public void onItemsRemoved(int pos, int count) {
+        UiThreadHelper.runOnUiThread(() -> {
+            notifyItemRangeRemoved(pos, count);
         });
     }
 
@@ -101,6 +130,21 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.BaseHo
         @Override
         public void bind(MessagesData.MessageItem item) {
             mText.setText(AlignToPointSpan.apply(mText, buildMessage(item)));
+        }
+
+    }
+
+    public class DayMarkerHolder extends BaseHolder<MessagesData.DayMarkerItem> {
+
+        private TextView mText;
+
+        public DayMarkerHolder(View itemView) {
+            super(itemView);
+            mText = itemView.findViewById(R.id.text);
+        }
+
+        public void bind(MessagesData.DayMarkerItem item) {
+            mText.setText(item.getMessageText(mText.getContext()));
         }
 
     }
