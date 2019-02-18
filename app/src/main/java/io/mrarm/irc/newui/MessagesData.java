@@ -8,7 +8,6 @@ import android.widget.Toast;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import io.mrarm.chatlib.ResponseCallback;
 import io.mrarm.chatlib.dto.MessageFilterOptions;
@@ -20,7 +19,6 @@ import io.mrarm.chatlib.message.MessageListener;
 import io.mrarm.chatlib.message.MessageStorageApi;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
-import io.mrarm.irc.chat.ChatMessagesAdapter;
 import io.mrarm.irc.util.TwoWayList;
 
 public class MessagesData implements MessageListener {
@@ -175,7 +173,8 @@ public class MessagesData implements MessageListener {
     private void appendMessage(MessageInfo m, MessageId mi) {
         int pos = mItems.size();
         int cnt = appendMessageInternal(m, mi);
-        mListener.onItemsAdded(pos, cnt);
+        if (mListener != null)
+            mListener.onItemsAdded(pos, cnt);
     }
 
     private void appendMessages(List<MessageInfo> m, List<MessageId> mi) {
@@ -183,7 +182,8 @@ public class MessagesData implements MessageListener {
         int cnt = 0;
         for (int i = 0; i < m.size(); i++)
             cnt += appendMessageInternal(m.get(i), mi.get(i));
-        mListener.onItemsAdded(pos, cnt);
+        if (mListener != null)
+            mListener.onItemsAdded(pos, cnt);
     }
 
     private void prependMessages(List<MessageInfo> m, List<MessageId> mi) {
@@ -191,7 +191,8 @@ public class MessagesData implements MessageListener {
         int cnt = 0;
         for (int i = m.size() - 1; i >= 0; i--)
             cnt += prependMessageInternal(m.get(i), mi.get(i));
-        mListener.onItemsAdded(0, cnt);
+        if (mListener != null)
+            mListener.onItemsAdded(0, cnt);
         mDayMarkerHandler.onAfterMessagePrepend();
     }
 
@@ -200,7 +201,8 @@ public class MessagesData implements MessageListener {
         mDayMarkerHandler.onClear();
         for (int i = 0; i < m.size(); i++)
             appendMessageInternal(m.get(i), mi.get(i));
-        mListener.onReloaded();
+        if (mListener != null)
+            mListener.onReloaded();
     }
 
     @Override
@@ -283,7 +285,8 @@ public class MessagesData implements MessageListener {
                 return;
             if (mData.mItems.get(0) instanceof DayMarkerItem) {
                 mData.mItems.removeFirst();
-                mData.mListener.onItemsRemoved(0, 1);
+                if (mData.mListener != null)
+                    mData.mListener.onItemsRemoved(0, 1);
             }
         }
 
