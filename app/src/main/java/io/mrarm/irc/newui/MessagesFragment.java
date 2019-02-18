@@ -26,6 +26,7 @@ public class MessagesFragment extends Fragment {
     private ServerConnectionInfo mConnection;
     private String mChannelName;
     private MessagesData mData;
+    private MessagesUnreadData mUnreadData;
 
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
@@ -52,12 +53,16 @@ public class MessagesFragment extends Fragment {
 
         mData = new MessagesData(getContext(), mConnection, mChannelName);
         mData.load(null);
+
+        mUnreadData = new MessagesUnreadData(mConnection, mChannelName);
+        mUnreadData.load();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         mData.unload();
+        mUnreadData.unload();
     }
 
     @Override
@@ -68,7 +73,9 @@ public class MessagesFragment extends Fragment {
         mLayoutManager = new LinearLayoutManager(getContext());
         mLayoutManager.setStackFromEnd(true);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.setAdapter(new MessagesAdapter(mData));
+        MessagesAdapter adapter = new MessagesAdapter(mData);
+        adapter.setUnreadData(mUnreadData);
+        mRecyclerView.setAdapter(adapter);
         mRecyclerView.addOnScrollListener(new MessagesScrollListener());
         return rootView;
     }

@@ -20,6 +20,7 @@ import io.mrarm.chatlib.message.MessageListener;
 import io.mrarm.chatlib.message.MessageStorageApi;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
+import io.mrarm.irc.chat.ChatMessagesAdapter;
 import io.mrarm.irc.util.TwoWayList;
 
 public class MessagesData implements MessageListener {
@@ -61,6 +62,17 @@ public class MessagesData implements MessageListener {
 
     public int size() {
         return mItems.size();
+    }
+
+    public int findMessageWithId(MessageId id) {
+        if (id == null)
+            return -1;
+        for (int i = mItems.size() - 1; i >= 0; --i) {
+            Item item = mItems.get(i);
+            if (item instanceof MessageItem && id.equals(((MessageItem) item).getMessageId()))
+                return i;
+        }
+        return -1;
     }
 
     public void setListener(Listener listener) {

@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import io.mrarm.chatlib.dto.MessageId;
 import io.mrarm.irc.NotificationManager;
 import io.mrarm.irc.R;
 import io.mrarm.irc.util.AlignToPointSpan;
@@ -15,23 +16,33 @@ import io.mrarm.irc.util.MessageBuilder;
 import io.mrarm.irc.util.UiThreadHelper;
 
 public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.BaseHolder<?>>
-        implements MessagesData.Listener {
+        implements MessagesData.Listener, MessagesUnreadData.FirstUnreadMessageListener {
 
     public static final int TYPE_MESSAGE = 0;
-    public static final int TYPE_DAY_MARKER = 1;
+    public static final int TYPE_MESSAGE_WITH_NEW_MESSAGES_MARKER = 1;
+    public static final int TYPE_DAY_MARKER = 2;
 
     private final MessagesData mData;
+    private MessageId mFirstUnreadMessageId;
 
     public MessagesAdapter(MessagesData data) {
         mData = data;
         mData.setListener(this);
     }
 
+    public void setUnreadData(MessagesUnreadData data) {
+        data.setFirstUnreadMessageListener(this);
+        mFirstUnreadMessageId = data.getFirstUnreadMessageId();
+    }
+
     @Override
     public int getItemViewType(int position) {
         MessagesData.Item item = mData.get(position);
-        if (item instanceof MessagesData.MessageItem)
+        if (item instanceof MessagesData.MessageItem) {
+            if (((MessagesData.MessageItem) item).getMessageId().equals(mFirstUnreadMessageId))
+                return TYPE_MESSAGE_WITH_NEW_MESSAGES_MARKER;
             return TYPE_MESSAGE;
+        }
         if (item instanceof MessagesData.DayMarkerItem)
             return TYPE_DAY_MARKER;
         throw new RuntimeException("Invalid item in MessagesData");
@@ -44,6 +55,10 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.BaseHo
         if (viewType == TYPE_MESSAGE) {
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.chat_message, parent, false);
+            return new MessageHolder(view);
+        } else if (viewType == TYPE_MESSAGE_WITH_NEW_MESSAGES_MARKER) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.chat_new_messages_marker, parent, false);
             return new MessageHolder(view);
         } else if (viewType == TYPE_DAY_MARKER) {
             View view = LayoutInflater.from(parent.getContext())
@@ -91,6 +106,19 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.BaseHo
     public void onItemsRemoved(int pos, int count) {
         UiThreadHelper.runOnUiThread(() -> {
             notifyItemRangeRemoved(pos, count);
+        });
+    }
+
+    @Override
+    public void onFirstUnreadMesssageSet(MessageId m) {
+        UiThreadHelper.runOnUiThread(() -> {
+            int oldI = mData.findMessageWithId(mFirstUnreadMessageId);
+            mFirstUnreadMessageId = m;
+            int newI = mData.findMessageWithId(m);
+            if (oldI != -1)
+                notifyItemChanged(oldI);
+            if (newI != -1)
+                notifyItemChanged(newI);
         });
     }
 
