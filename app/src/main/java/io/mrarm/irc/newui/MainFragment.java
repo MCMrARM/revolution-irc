@@ -12,7 +12,6 @@ import com.google.android.material.tabs.TabLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.ActionMenuView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
@@ -22,7 +21,8 @@ import io.mrarm.irc.IRCApplication;
 import io.mrarm.irc.R;
 import io.mrarm.irc.SettingsActivity;
 
-public class MainFragment extends Fragment implements MainActivity.FragmentToolbarCallback {
+public class MainFragment extends Fragment
+        implements SlideableFragmentToolbar.FragmentToolbarCallback {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
@@ -59,19 +59,22 @@ public class MainFragment extends Fragment implements MainActivity.FragmentToolb
     }
 
     @Override
-    public View onCreateToolbar(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
-        View view = inflater.inflate(R.layout.activity_newui_main_fragment_toolbar, container, false);
+    public SlideableFragmentToolbar.ToolbarHolder onCreateToolbar(
+            @NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        View toolbar = inflater.inflate(R.layout.activity_newui_main_fragment_toolbar, container, false);
+        SlideableFragmentToolbar.SimpleToolbarHolder holder =
+                new SlideableFragmentToolbar.SimpleToolbarHolder(toolbar);
+        holder.addMenu(R.id.action_menu_view, this);
 
-        ActionMenuView actionMenuView = view.findViewById(R.id.action_menu_view);
-        onCreateOptionsMenu(actionMenuView.getMenu(), getActivity().getMenuInflater());
+        TabLayout tabs = holder.getView().findViewById(R.id.tabs);
+        tabs.setupWithViewPager(mViewPager);
 
-        TabLayout tabLayout = view.findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(mViewPager);
+        mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
+        tabs.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
-        mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
+        holder.addAnimationElement(tabs, 0.f, -0.2f);
 
-        return view;
+        return holder;
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {

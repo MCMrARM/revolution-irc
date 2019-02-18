@@ -6,7 +6,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import java.util.UUID;
 
@@ -20,7 +19,8 @@ import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
 
-public class MessagesFragment extends Fragment implements MainActivity.FragmentToolbarCallback {
+public class MessagesFragment extends Fragment
+        implements SlideableFragmentToolbar.FragmentToolbarCallback {
 
     private static final String ARG_SERVER_UUID = "server_uuid";
     private static final String ARG_CHANNEL_NAME = "channel";
@@ -85,13 +85,12 @@ public class MessagesFragment extends Fragment implements MainActivity.FragmentT
     }
 
     @Override
-    public View onCreateToolbar(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
-        View view = inflater.inflate(R.layout.activity_newui_simple_toolbar, container, false);
-        TextView title = view.findViewById(R.id.title);
-        ActionMenuView actionMenuView = view.findViewById(R.id.action_menu_view);
-        title.setText(mChannelName);
-        onCreateOptionsMenu(actionMenuView.getMenu(), getActivity().getMenuInflater());
-        return view;
+    public SlideableFragmentToolbar.ToolbarHolder onCreateToolbar(@NonNull LayoutInflater inflater,
+                                                                  @Nullable ViewGroup container) {
+        SlideableFragmentToolbar.TextToolbarHolder toolbar =
+                new SlideableFragmentToolbar.TextToolbarHolder(this, container);
+        toolbar.setTitle(mChannelName);
+        return toolbar;
     }
 
     @Override
