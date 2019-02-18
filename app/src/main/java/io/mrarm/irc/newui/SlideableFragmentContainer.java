@@ -2,6 +2,7 @@ package io.mrarm.irc.newui;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.AttributeSet;
@@ -36,13 +37,16 @@ public class SlideableFragmentContainer extends FrameLayout {
     private int mTouchSlop;
     private float mMinVelocity;
     private float mMinAnimVelocity;
-    private View mTouchDragView;
-    private View mTouchDragParentView;
+    private View mDragView;
+    private View mDragParentView;
+    private ValueAnimator mDragAnimator = ValueAnimator.ofFloat(0, 0);
+    private boolean mTouchDragActive = false;
     private float mTouchDragStartX;
     private VelocityTracker mTouchDragVelocity;
     private boolean mTouchDragUnsetBg;
     private int mFallbackBackgroundColor;
     private int mKeepFragmentsInMemory = 1;
+    private final List<DragListener> mDragListeners = new ArrayList<>();
     private final FragmentLifecycleWatcher mFragmentLifecycleWatcher =
             new FragmentLifecycleWatcher();
 
@@ -64,6 +68,15 @@ public class SlideableFragmentContainer extends FrameLayout {
                 context.getResources().getDisplayMetrics());
         mMinAnimVelocity = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, MIN_ANIM_VELOCITY,
                 context.getResources().getDisplayMetrics());
+        mDragAnimator.addUpdateListener((a) -> setDragValue((float) a.getAnimatedValue()));
+    }
+
+    public void addDragListener(DragListener listener) {
+        mDragListeners.add(listener);
+    }
+
+    public void removeDragListener(DragListener listener) {
+        mDragListeners.remove(listener);
     }
 
     public void setFragmentManager(FragmentManager mgr) {
@@ -132,27 +145,19 @@ public class SlideableFragmentContainer extends FrameLayout {
                     mTouchDragVelocity.addMovement(ev);
                     if (ev.getX() - mTouchDragStartX > mTouchSlop) {
                         mTouchDragStartX += mTouchSlop;
-                        View currentView = getChildAt(getChildCount() - 1);
-                        View pv = attachParentFragment();
-                        if (pv == null) {
+                        if (!prepareDrag()) {
                             mTouchDragVelocity.recycle();
                             mTouchDragVelocity = null;
                             break;
                         }
-                        mTouchDragView = currentView;
-                        mTouchDragParentView = pv;
-                        currentView.bringToFront();
-                        elevateView(mTouchDragView);
-                        mTouchDragView.animate().setListener(null).cancel();
-                        mTouchDragParentView.animate().setListener(null).cancel();
+                        mTouchDragActive = true;
                         return true;
                     }
                 }
                 break;
             case MotionEvent.ACTION_UP:
+                mTouchDragActive = false;
                 if (mTouchDragVelocity != null) {
-                    mTouchDragView = null;
-                    mTouchDragParentView = null;
                     mTouchDragVelocity.recycle();
                     mTouchDragVelocity = null;
                 }
@@ -165,53 +170,34 @@ public class SlideableFragmentContainer extends FrameLayout {
     public boolean onTouchEvent(MotionEvent ev) {
         switch (ev.getAction()) {
             case MotionEvent.ACTION_MOVE: {
-                if (mTouchDragView != null) {
+                if (mTouchDragActive) {
                     mTouchDragVelocity.addMovement(ev);
-                    float m = Math.max(ev.getX() - mTouchDragStartX, 0);
-                    mTouchDragView.setTranslationX(m);
-                    mTouchDragParentView.setTranslationX(
-                            (m - getWidth()) * PARENT_VIEW_TRANSLATION_M);
+                    setDragValue(Math.max(ev.getX() - mTouchDragStartX, 0));
                 }
                 return true;
             }
             case MotionEvent.ACTION_UP: {
-                if (mTouchDragView != null) {
+                if (mTouchDragActive) {
                     mTouchDragVelocity.computeCurrentVelocity(1000);
                     float animDurationM = Math.min(1000.f /
                                     Math.abs(mTouchDragVelocity.getXVelocity()), mMinAnimVelocity);
                     if (mTouchDragVelocity.getXVelocity() > mMinVelocity) {
-                        View v = mTouchDragView;
+                        View v = mDragView;
                         int animDuration = Math.min((int) ((getWidth() - v.getTranslationX()) *
                                 animDurationM), 300);
-                        v.animate().translationX(getWidth()).setDuration(animDuration)
-                                .setListener(new AnimatorListenerAdapter() {
-                                    @Override
-                                    public void onAnimationEnd(Animator animation) {
-                                        pop();
-                                        deelevateView(v);
-                                        v.animate().setListener(null);
-                                    }
-                                }).start();
-                        mTouchDragParentView.animate().translationX(0).setDuration(animDuration)
-                                .setListener(null).start();
+                        setDragValueAnimated(getWidth(), animDuration, () -> {
+                            cancelDrag();
+                            pop();
+                        });
                     } else {
-                        View v = mTouchDragView;
+                        View v = mDragView;
                         int animDuration = Math.min((int) (v.getTranslationX() * animDurationM),
                                 300);
-                        v.animate().translationX(0).setDuration(animDuration)
-                                .setListener(new AnimatorListenerAdapter() {
-                                    @Override
-                                    public void onAnimationEnd(Animator animation) {
-                                        // detach parent fragment
-                                        detachParentFragments();
-                                    }
-                                }).start();
-                        mTouchDragParentView.animate().translationX(
-                                - getWidth() * PARENT_VIEW_TRANSLATION_M)
-                                .setDuration(animDuration).setListener(null).start();
+                        setDragValueAnimated(0, animDuration, () -> {
+                            cancelDrag();
+                            detachParentFragments();
+                        });
                     }
-                    mTouchDragView = null;
-                    mTouchDragParentView = null;
                 }
                 if (mTouchDragVelocity != null) {
                     mTouchDragVelocity.recycle();
@@ -221,6 +207,58 @@ public class SlideableFragmentContainer extends FrameLayout {
             }
         }
         return super.onTouchEvent(ev);
+    }
+
+    private boolean prepareDrag() {
+        if (mDragView != null && mDragParentView != null)
+            return true;
+        View currentView = getChildAt(getChildCount() - 1);
+        View pv = attachParentFragment();
+        if (pv == null)
+            return false;
+        mDragView = currentView;
+        mDragParentView = pv;
+        mDragView.bringToFront();
+        elevateView(mDragView);
+        return true;
+    }
+
+    private void cancelDrag() {
+        if (mDragView == null)
+            return;
+        deelevateView(mDragView);
+        mDragView = null;
+        mDragParentView = null;
+    }
+
+    private void setDragValue(float value) {
+        if (mDragView == null && !prepareDrag())
+            return;
+        float m = value;
+        mDragView.setTranslationX(m);
+        if (mDragParentView != null) {
+            mDragParentView.setTranslationX(
+                    (m - getWidth()) * PARENT_VIEW_TRANSLATION_M);
+        }
+        for (DragListener l : mDragListeners)
+            l.onDragValueChanged(value);
+    }
+
+    private void setDragValueAnimated(float value, int duration, Runnable finishCb) {
+        if (mDragView == null && !prepareDrag())
+            return;
+        mDragAnimator.setFloatValues(mDragView.getTranslationX(), value);
+        mDragAnimator.setDuration(duration);
+        mDragAnimator.removeAllListeners();
+        mDragAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if (finishCb != null)
+                    finishCb.run();
+                mDragAnimator.removeAllListeners();
+            }
+        });
+        mDragAnimator.start();
     }
 
     private void elevateView(View v) {
@@ -250,15 +288,18 @@ public class SlideableFragmentContainer extends FrameLayout {
                 return;
             elevateView(v);
             v.setTranslationX(getWidth());
-            v.animate().translationX(0)
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            deelevateView(v);
-                            detachParentFragments();
-                        }
-                    }).start();
+            setDragValueAnimated(0.f, 500, () -> {
+                cancelDrag();
+                deelevateView(v);
+                detachParentFragments();
+            });
         }
+    }
+
+    public interface DragListener {
+
+        void onDragValueChanged(float value);
+
     }
 
 }
