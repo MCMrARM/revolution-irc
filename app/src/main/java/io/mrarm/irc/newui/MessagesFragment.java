@@ -2,13 +2,17 @@ package io.mrarm.irc.newui;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.util.UUID;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.ActionMenuView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,7 +20,7 @@ import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
 
-public class MessagesFragment extends Fragment {
+public class MessagesFragment extends Fragment implements MainActivity.FragmentToolbarCallback {
 
     private static final String ARG_SERVER_UUID = "server_uuid";
     private static final String ARG_CHANNEL_NAME = "channel";
@@ -78,6 +82,21 @@ public class MessagesFragment extends Fragment {
         mRecyclerView.setAdapter(adapter);
         mRecyclerView.addOnScrollListener(new MessagesScrollListener());
         return rootView;
+    }
+
+    @Override
+    public View onCreateToolbar(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        View view = inflater.inflate(R.layout.activity_newui_simple_toolbar, container, false);
+        TextView title = view.findViewById(R.id.title);
+        ActionMenuView actionMenuView = view.findViewById(R.id.action_menu_view);
+        title.setText(mChannelName);
+        onCreateOptionsMenu(actionMenuView.getMenu(), getActivity().getMenuInflater());
+        return view;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_chat, menu);
     }
 
     private class MessagesScrollListener extends RecyclerView.OnScrollListener {

@@ -13,6 +13,8 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.FrameLayout;
 
+import org.spongycastle.jcajce.provider.digest.MD2;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -84,18 +86,39 @@ public class SlideableFragmentContainer extends FrameLayout {
         mFragmentManager.registerFragmentLifecycleCallbacks(mFragmentLifecycleWatcher, false);
     }
 
+    public Fragment getCurrentFragment() {
+        if (mFragments.size() > 0)
+            return mFragments.get(mFragments.size() - 1);
+        return null;
+    }
+
+    public int getFragmentCount() {
+        return mFragments.size();
+    }
+
+    public Fragment getFragment(int index) {
+        return mFragments.get(mFragments.size() - 1 - index);
+    }
+
     public void push(Fragment fragment) {
+        mFragments.add(fragment);
         mFragmentManager.beginTransaction()
                 .add(getId(), fragment)
                 .commit();
-        mFragments.add(fragment);
     }
 
     public void pop() {
         Fragment fragment = mFragments.remove(mFragments.size() - 1);
         mFragmentManager.beginTransaction()
                 .remove(fragment)
-                .commit();
+                .commitNow();
+    }
+
+    public void popAnim() {
+        setDragValueAnimated(getWidth(), 500, () -> {
+            cancelDrag();
+            pop();
+        });
     }
 
     private View attachParentFragment() {
@@ -220,6 +243,8 @@ public class SlideableFragmentContainer extends FrameLayout {
         mDragParentView = pv;
         mDragView.bringToFront();
         elevateView(mDragView);
+        for (DragListener l : mDragListeners)
+            l.onDragStarted(mDragView, mDragParentView);
         return true;
     }
 
@@ -229,6 +254,8 @@ public class SlideableFragmentContainer extends FrameLayout {
         deelevateView(mDragView);
         mDragView = null;
         mDragParentView = null;
+        for (DragListener l : mDragListeners)
+            l.onDragEnded();
     }
 
     private void setDragValue(float value) {
@@ -298,7 +325,11 @@ public class SlideableFragmentContainer extends FrameLayout {
 
     public interface DragListener {
 
+        void onDragStarted(View dragView, View parentView);
+
         void onDragValueChanged(float value);
+
+        void onDragEnded();
 
     }
 
