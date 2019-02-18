@@ -171,7 +171,8 @@ public class SlideableFragmentContainer extends FrameLayout {
             case MotionEvent.ACTION_UP: {
                 if (mTouchDragView != null) {
                     mTouchDragVelocity.computeCurrentVelocity(1000);
-                    int animDuration = Math.min((int) (1000000 / mTouchDragVelocity.getXVelocity()),
+                    int animDuration = Math.min((int) (1000000 /
+                                    Math.abs(mTouchDragVelocity.getXVelocity())),
                             500);
                     if (mTouchDragVelocity.getXVelocity() > mMinVelocity) {
                         View v = mTouchDragView;
@@ -196,7 +197,7 @@ public class SlideableFragmentContainer extends FrameLayout {
                                     }
                                 }).start();
                         mTouchDragParentView.animate().translationX(
-                                - getWidth() * (1 - PARENT_VIEW_TRANSLATION_M))
+                                - getWidth() * PARENT_VIEW_TRANSLATION_M)
                                 .setDuration(animDuration).start();
                     }
                     mTouchDragView = null;
