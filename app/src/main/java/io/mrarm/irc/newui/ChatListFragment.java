@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
-import io.mrarm.irc.chat.ChatMessagesFragment;
 
 public class ChatListFragment extends Fragment implements ChatListAdapter.CallbackInterface {
 
@@ -52,7 +51,7 @@ public class ChatListFragment extends Fragment implements ChatListAdapter.Callba
 
     @Override
     public void onChatOpened(ServerConnectionInfo server, String channel) {
-        Fragment fragment = ChatMessagesFragment.newInstance(server, channel);
+        Fragment fragment = MessagesFragment.newInstance(server, channel);
         ((MainActivity) getActivity()).getContainer().push(fragment);
     }
 
