@@ -12,8 +12,10 @@ import io.mrarm.irc.NotificationManager;
 import io.mrarm.irc.R;
 import io.mrarm.irc.util.AlignToPointSpan;
 import io.mrarm.irc.util.MessageBuilder;
+import io.mrarm.irc.util.UiThreadHelper;
 
-public class MessagesAdapter extends RecyclerView.Adapter implements MessagesData.Listener {
+public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.BaseHolder<?>>
+        implements MessagesData.Listener {
 
     private final MessagesData mData;
 
@@ -25,15 +27,21 @@ public class MessagesAdapter extends RecyclerView.Adapter implements MessagesDat
 
     @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public MessagesAdapter.BaseHolder<?> onCreateViewHolder(
+            @NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.chat_message, parent, false);
         return new MessageHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MessagesAdapter.BaseHolder<?> holder, int position) {
         ((MessageHolder) holder).bind((MessagesData.MessageItem) mData.get(position));
+    }
+
+    @Override
+    public void onViewRecycled(@NonNull MessagesAdapter.BaseHolder<?> holder) {
+        holder.unbind();
     }
 
     @Override
@@ -44,18 +52,20 @@ public class MessagesAdapter extends RecyclerView.Adapter implements MessagesDat
 
     @Override
     public void onReloaded() {
-        notifyDataSetChanged();
+        UiThreadHelper.runOnUiThread(this::notifyDataSetChanged);
     }
 
     @Override
     public void onItemsAdded(int pos, int count) {
-        if (count > 1)
-            notifyItemRangeInserted(pos, count);
-        else
-            notifyItemInserted(pos);
+        UiThreadHelper.runOnUiThread(() -> {
+            if (count > 1)
+                notifyItemRangeInserted(pos, count);
+            else
+                notifyItemInserted(pos);
+        });
     }
 
-    private abstract static class BaseHolder<T extends MessagesData.Item>
+    public abstract static class BaseHolder<T extends MessagesData.Item>
             extends RecyclerView.ViewHolder {
 
         public BaseHolder(@NonNull View itemView) {
@@ -64,7 +74,7 @@ public class MessagesAdapter extends RecyclerView.Adapter implements MessagesDat
 
         public abstract void bind(T item);
 
-        public void unbind(T item) {
+        public void unbind() {
         }
 
     }

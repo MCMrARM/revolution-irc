@@ -61,6 +61,7 @@ public class MessagesData {
     }
 
     public void load(MessageFilterOptions filterOptions) {
+        Log.d("MessagesData", "Loading messages");
         synchronized (this) {
             mFilterOptions = filterOptions;
             mNewerMessages = null;
@@ -75,6 +76,9 @@ public class MessagesData {
                             return;
                         mNewerMessages = l.getNewer();
                         mOlderMessages = l.getOlder();
+                        mLoadingMessages = null;
+                        Log.d("MessagesData", "Loaded " +
+                                l.getMessages().size() + " messages");
                         setMessages(l.getMessages(), l.getMessageIds());
                     }
                 }
@@ -89,6 +93,7 @@ public class MessagesData {
     }
 
     public synchronized boolean loadMoreMessages(boolean newer) {
+        Log.d("MessagesData", "Loading more messages " + (newer ? "(newer)" : "(older)"));
         MessageListAfterIdentifier after = newer ? mNewerMessages : mOlderMessages;
         if (after == null || mLoadingMessages != null)
             return false;
@@ -98,21 +103,31 @@ public class MessagesData {
                 synchronized (MessagesData.this) {
                     if (isCancelled())
                         return;
-                    if (newer)
+                    mLoadingMessages = null;
+                    Log.d("MessagesData", "Loaded " +
+                            l.getMessages().size() + " messages");
+                    if (newer) {
+                        mNewerMessages = l.getNewer();
                         appendMessages(l.getMessages(), l.getMessageIds());
-                    // TODO: older
+                    } else {
+                        mOlderMessages = l.getOlder();
+                        prependMessages(l.getMessages(), l.getMessageIds());
+                    }
                 }
             }
         };
         mSource.getMessages(mChannel, ITEMS_ON_SCREEN, mFilterOptions, after,
                 mLoadingMessages, null);
-        mOlderMessages = null;
-        mNewerMessages = null;
         return true;
     }
 
     private int appendMessageInternal(MessageInfo m, MessageId mi) {
         mItems.addLast(new MessageItem(m, mi));
+        return 1;
+    }
+
+    private int prependMessageInternal(MessageInfo m, MessageId mi) {
+        mItems.addFirst(new MessageItem(m, mi));
         return 1;
     }
 
@@ -128,6 +143,13 @@ public class MessagesData {
         for (int i = 0; i < m.size(); i++)
             cnt += appendMessageInternal(m.get(i), mi.get(i));
         mListener.onItemsAdded(pos, cnt);
+    }
+
+    private void prependMessages(List<MessageInfo> m, List<MessageId> mi) {
+        int cnt = 0;
+        for (int i = m.size() - 1; i >= 0; i--)
+            cnt += prependMessageInternal(m.get(i), mi.get(i));
+        mListener.onItemsAdded(0, cnt);
     }
 
     private void setMessages(List<MessageInfo> m, List<MessageId> mi) {

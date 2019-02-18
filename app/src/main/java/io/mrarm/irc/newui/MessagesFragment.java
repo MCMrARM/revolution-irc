@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 
 import java.util.UUID;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -20,11 +21,14 @@ public class MessagesFragment extends Fragment {
     private static final String ARG_SERVER_UUID = "server_uuid";
     private static final String ARG_CHANNEL_NAME = "channel";
 
+    private static final int LOAD_MORE_REMAINING_ITEM_COUNT = 10;
+
     private ServerConnectionInfo mConnection;
     private String mChannelName;
     private MessagesData mData;
 
     private RecyclerView mRecyclerView;
+    private LinearLayoutManager mLayoutManager;
 
     public static MessagesFragment newInstance(ServerConnectionInfo server,
                                                    String channelName) {
@@ -55,11 +59,28 @@ public class MessagesFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.chat_messages_fragment, container, false);
         mRecyclerView = rootView.findViewById(R.id.messages);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-        layoutManager.setStackFromEnd(true);
-        mRecyclerView.setLayoutManager(layoutManager);
+        mLayoutManager = new LinearLayoutManager(getContext());
+        mLayoutManager.setStackFromEnd(true);
+        mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(new MessagesAdapter(mData));
+        mRecyclerView.addOnScrollListener(new MessagesScrollListener());
         return rootView;
+    }
+
+    private class MessagesScrollListener extends RecyclerView.OnScrollListener {
+
+        @Override
+        public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+            int firstVisible = mLayoutManager.findFirstVisibleItemPosition();
+            int lastVisible = mLayoutManager.findLastVisibleItemPosition();
+            if (firstVisible <= LOAD_MORE_REMAINING_ITEM_COUNT) {
+                mData.loadMoreMessages(false);
+            }
+            if (lastVisible >= mLayoutManager.getItemCount() - LOAD_MORE_REMAINING_ITEM_COUNT) {
+                mData.loadMoreMessages(true);
+            }
+        }
+
     }
 
 }
