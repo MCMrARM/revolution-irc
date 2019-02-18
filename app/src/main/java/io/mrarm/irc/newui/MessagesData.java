@@ -5,6 +5,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import io.mrarm.chatlib.ResponseCallback;
 import io.mrarm.chatlib.dto.MessageFilterOptions;
@@ -12,12 +13,13 @@ import io.mrarm.chatlib.dto.MessageId;
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.dto.MessageList;
 import io.mrarm.chatlib.dto.MessageListAfterIdentifier;
+import io.mrarm.chatlib.message.MessageListener;
 import io.mrarm.chatlib.message.MessageStorageApi;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.util.TwoWayList;
 
-public class MessagesData {
+public class MessagesData implements MessageListener {
 
     private static final int ITEMS_ON_SCREEN = 100;
 
@@ -32,6 +34,7 @@ public class MessagesData {
     private MessageListAfterIdentifier mNewerMessages;
     private MessageListAfterIdentifier mOlderMessages;
     private CancellableMessageListCallback mLoadingMessages;
+    private boolean mListenerRegistered;
 
     public MessagesData(Context context,  ServerConnectionInfo connection, String channel) {
         mContext = context;
@@ -64,10 +67,7 @@ public class MessagesData {
         Log.d("MessagesData", "Loading messages");
         synchronized (this) {
             mFilterOptions = filterOptions;
-            mNewerMessages = null;
-            mOlderMessages = null;
-            if (mLoadingMessages != null)
-                mLoadingMessages.setCancelled();
+            unload();
             mLoadingMessages = new CancellableMessageListCallback() {
                 @Override
                 public void onResponse(MessageList l) {
@@ -80,6 +80,9 @@ public class MessagesData {
                         Log.d("MessagesData", "Loaded " +
                                 l.getMessages().size() + " messages");
                         setMessages(l.getMessages(), l.getMessageIds());
+                        mConnection.getApiInstance().getMessageStorageApi().subscribeChannelMessages(
+                                mChannel, MessagesData.this, null, null);
+                        mListenerRegistered = true;
                     }
                 }
             };
@@ -90,6 +93,24 @@ public class MessagesData {
                     Log.e("MessagesData", "Failed to load messages");
                     e.printStackTrace();
                 });
+    }
+
+    public void unload() {
+        synchronized (this) {
+            mNewerMessages = null;
+            mOlderMessages = null;
+            if (mLoadingMessages != null)
+                mLoadingMessages.setCancelled();
+            if (mListenerRegistered) {
+                try {
+                    mConnection.getApiInstance().getMessageStorageApi().unsubscribeChannelMessages(
+                            mChannel, MessagesData.this, null, null).get();
+                } catch (Exception e) {
+                    Log.e("MessagesData", "unsubscribeChannelMessages error");
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     public synchronized boolean loadMoreMessages(boolean newer) {
@@ -159,6 +180,11 @@ public class MessagesData {
         mListener.onReloaded();
     }
 
+    @Override
+    public void onMessage(String channel, MessageInfo message, MessageId messageId) {
+        if (mNewerMessages == null)
+            appendMessage(message, messageId);
+    }
 
     public static class Item {
     }
