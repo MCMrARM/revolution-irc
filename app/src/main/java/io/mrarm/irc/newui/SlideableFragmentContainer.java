@@ -313,11 +313,9 @@ public class SlideableFragmentContainer extends FrameLayout {
                                           @NonNull View v, @Nullable Bundle savedInstanceState) {
             if (f != mFragments.get(mFragments.size() - 1))
                 return;
-            elevateView(v);
             v.setTranslationX(getWidth());
             setDragValueAnimated(0.f, 500, () -> {
                 cancelDrag();
-                deelevateView(v);
                 detachParentFragments();
             });
         }
