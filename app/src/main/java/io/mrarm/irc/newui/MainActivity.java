@@ -21,6 +21,11 @@ public class MainActivity extends ThemedActivity {
         mToolbar = findViewById(R.id.toolbar);
         mToolbar.setContainer(getSupportFragmentManager(), mContainer);
 
+        mToolbar.setNavigationButtonAction(() -> {
+            if (mContainer.getFragmentCount() > 1)
+                mContainer.popAnim();
+        });
+
         mContainer.push(new MainFragment());
     }
 
@@ -28,5 +33,12 @@ public class MainActivity extends ThemedActivity {
         return mContainer;
     }
 
-
+    @Override
+    public void onBackPressed() {
+        if (mContainer.getFragmentCount() > 1) {
+            mContainer.popAnim();
+            return;
+        }
+        super.onBackPressed();
+    }
 }

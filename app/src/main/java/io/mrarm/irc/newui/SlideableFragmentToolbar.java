@@ -70,6 +70,10 @@ public class SlideableFragmentToolbar extends ViewGroup
         fm.registerFragmentLifecycleCallbacks(new FragmentLifecycleWatcher(), false);
     }
 
+    public void setNavigationButtonAction(Runnable r) {
+        mNavigationButton.setOnClickListener((v) -> r.run());
+    }
+
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         mToolbarRootContainer.layout(0, 0, getWidth(), getHeight());
