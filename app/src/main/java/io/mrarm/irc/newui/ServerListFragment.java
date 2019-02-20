@@ -27,7 +27,7 @@ public class ServerListFragment extends Fragment implements ChatListAdapter.Call
         super.onCreate(savedInstanceState);
         mChannelData = new ServerListChannelData(getContext());
         mChannelData.load();
-        mAdapter = new ServerListAdapter(mChannelData);
+        mAdapter = new ServerListAdapter(getContext(), mChannelData);
     }
 
     @Nullable

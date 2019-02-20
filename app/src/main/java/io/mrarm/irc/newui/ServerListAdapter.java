@@ -1,6 +1,6 @@
 package io.mrarm.irc.newui;
 
-import android.util.Log;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,9 +9,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import io.mrarm.irc.R;
+import io.mrarm.irc.util.RecyclerViewElevationDecoration;
 
 public class ServerListAdapter extends RecyclerView.Adapter<ServerListAdapter.Holder>
-        implements ServerListChannelData.Listener {
+        implements ServerListChannelData.Listener,
+        RecyclerViewElevationDecoration.ItemElevationCallback {
 
     /**
      * The count of items in a server group before the channels start (accounting for stuff like
@@ -22,11 +24,13 @@ public class ServerListAdapter extends RecyclerView.Adapter<ServerListAdapter.Ho
     public static final int TYPE_SERVER_HEADER = 0;
     public static final int TYPE_CHANNEL = 1;
 
-    private ServerListChannelData mChannelData;
+    private final ServerListChannelData mChannelData;
+    private final RecyclerViewElevationDecoration mDecoration;
 
-    public ServerListAdapter(ServerListChannelData channelData) {
+    public ServerListAdapter(Context context, ServerListChannelData channelData) {
         mChannelData = channelData;
         channelData.addListener(this);
+        mDecoration = new RecyclerViewElevationDecoration(context, this);
     }
 
     private int getServerItemCount(ServerListChannelData.ServerGroup g) {
@@ -71,16 +75,33 @@ public class ServerListAdapter extends RecyclerView.Adapter<ServerListAdapter.Ho
         return TYPE_CHANNEL;
     }
 
+    @Override
+    public boolean isItemElevated(int position) {
+        ServerListChannelData.ServerGroup g = findServerAt(position);
+        int sPos = position - findServerStartPosition(g);
+        return sPos != 0;
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        recyclerView.addItemDecoration(mDecoration);
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        recyclerView.removeItemDecoration(mDecoration);
+    }
+
     @NonNull
     @Override
     public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == TYPE_SERVER_HEADER) {
             View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.settings_list_header, parent, false);
+                    .inflate(R.layout.main_server_list_header, parent, false);
             return new ServerHeaderHolder(v);
         } else if (viewType == TYPE_CHANNEL) {
             View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.simple_list_item, parent, false);
+                    .inflate(R.layout.main_server_list_channel, parent, false);
             return new ChannelHolder(v);
         }
         throw new IllegalArgumentException("Invalid viewType");
