@@ -85,7 +85,11 @@ public class MainFragment extends Fragment
 
         @Override
         public Fragment getItem(int position) {
-            return ChatListFragment.newInstance();
+            if (position == 0)
+                return ChatListFragment.newInstance();
+            if (position == 1)
+                return ServerListFragment.newInstance();
+            return null;
         }
 
         @Nullable

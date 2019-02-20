@@ -53,6 +53,7 @@ public class ServerConnectionInfo {
     private UserAutoRunCommandHelper mAutoRunHelper;
     private final List<InfoChangeListener> mInfoListeners = new ArrayList<>();
     private final List<ChannelListChangeListener> mChannelsListeners = new ArrayList<>();
+    private final List<DetailedChannelListListener> mDetailedChannelListListeners = new ArrayList<>();
     private int mCurrentReconnectAttempt = -1;
     int mChatLogStorageUpdateCounter = 0;
     private final ChatUIData mChatUIData = new ChatUIData();
@@ -75,6 +76,10 @@ public class ServerConnectionInfo {
             mApi = api;
             api.getJoinedChannelList((List<String> channels) -> {
                 setChannels(channels);
+                synchronized (mDetailedChannelListListeners) {
+                    for (DetailedChannelListListener l : mDetailedChannelListListeners)
+                        l.onChannelListReset(channels);
+                }
             }, null);
             api.subscribeChannelList(new ChannelListListener() {
                 @Override
@@ -84,10 +89,18 @@ public class ServerConnectionInfo {
 
                 @Override
                 public void onChannelJoined(String s) {
+                    synchronized (mDetailedChannelListListeners) {
+                        for (DetailedChannelListListener l : mDetailedChannelListListeners)
+                            l.onChannelJoined(ServerConnectionInfo.this, s);
+                    }
                 }
 
                 @Override
                 public void onChannelLeft(String s) {
+                    synchronized (mDetailedChannelListListeners) {
+                        for (DetailedChannelListListener l : mDetailedChannelListListeners)
+                            l.onChannelLeft(ServerConnectionInfo.this, s);
+                    }
                 }
             }, null, null);
             mChatUIData.attachToConnection(api);
@@ -357,7 +370,7 @@ public class ServerConnectionInfo {
         }
     }
 
-    public void setChannels(List<String> channels) {
+    private void setChannels(List<String> channels) {
         Collections.sort(channels, String::compareToIgnoreCase);
         synchronized (this) {
             mChannels = channels;
@@ -419,6 +432,18 @@ public class ServerConnectionInfo {
         }
     }
 
+    public void addChannelListListener(DetailedChannelListListener listener) {
+        synchronized (mDetailedChannelListListeners) {
+            mDetailedChannelListListeners.add(listener);
+        }
+    }
+
+    public void removeChannelListListener(DetailedChannelListListener listener) {
+        synchronized (mDetailedChannelListListeners) {
+            mDetailedChannelListListeners.remove(listener);
+        }
+    }
+
     private void notifyInfoChanged() {
         synchronized (mInfoListeners) {
             for (InfoChangeListener listener : mInfoListeners)
@@ -441,6 +466,14 @@ public class ServerConnectionInfo {
 
     public interface ChannelListChangeListener {
         void onChannelListChanged(ServerConnectionInfo connection, List<String> newChannels);
+    }
+
+    public interface DetailedChannelListListener {
+        void onChannelJoined(ServerConnectionInfo connection, String channel);
+
+        void onChannelLeft(ServerConnectionInfo connection, String channel);
+
+        void onChannelListReset(List<String> channels);
     }
 
 }
