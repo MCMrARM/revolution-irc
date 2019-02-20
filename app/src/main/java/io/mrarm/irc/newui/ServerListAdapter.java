@@ -1,6 +1,7 @@
 package io.mrarm.irc.newui;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -184,24 +185,39 @@ public class ServerListAdapter extends RecyclerView.Adapter<ServerListAdapter.Ho
 
     }
 
-    public static class ChannelHolder extends Holder {
+    public static class ChannelHolder extends Holder
+            implements ServerListChannelData.ChannelEntry.Listener {
 
+        private ServerListChannelData.ChannelEntry mEntry;
         private TextView mName;
+        private TextView mTopic;
 
         public ChannelHolder(@NonNull View itemView) {
             super(itemView);
-            mName = (TextView) itemView;
+            mName = itemView.findViewById(R.id.name);
+            mTopic = itemView.findViewById(R.id.topic);
         }
 
         public void bind(ServerListChannelData.ChannelEntry e) {
+            if (mEntry != null)
+                throw new IllegalStateException("mEntry is not null");
+            mEntry = e;
+            e.bind(this);
             mName.setText(e.getName());
+            onInfoChanged();
         }
 
         @Override
         public void unbind() {
-            super.unbind();
+            mEntry.unbind(this);
+            mEntry = null;
         }
 
+        @Override
+        public void onInfoChanged() {
+            mTopic.setVisibility(TextUtils.isEmpty(mEntry.getTopic()) ? View.GONE : View.VISIBLE);
+            mTopic.setText(mEntry.getTopic());
+        }
     }
 
 }
