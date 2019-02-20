@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 
-public class ServerListFragment extends Fragment implements ChatListAdapter.CallbackInterface {
+public class ServerListFragment extends Fragment implements ServerListAdapter.CallbackInterface {
 
     public static ServerListFragment newInstance() {
         return new ServerListFragment();
@@ -28,6 +28,7 @@ public class ServerListFragment extends Fragment implements ChatListAdapter.Call
         mChannelData = new ServerListChannelData(getContext());
         mChannelData.load();
         mAdapter = new ServerListAdapter(getContext(), mChannelData);
+        mAdapter.setCallbackInterface(this);
     }
 
     @Nullable

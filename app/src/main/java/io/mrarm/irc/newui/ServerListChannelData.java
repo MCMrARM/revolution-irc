@@ -168,6 +168,10 @@ public class ServerListChannelData implements ServerConnectionManager.Connection
             mName = name;
         }
 
+        public ServerGroup getGroup() {
+            return mGroup;
+        }
+
         public String getName() {
             return mName;
         }

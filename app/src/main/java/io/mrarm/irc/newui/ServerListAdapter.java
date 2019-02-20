@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import io.mrarm.irc.R;
+import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.util.RecyclerViewElevationDecoration;
 
 public class ServerListAdapter extends RecyclerView.Adapter<ServerListAdapter.Holder>
@@ -28,10 +29,16 @@ public class ServerListAdapter extends RecyclerView.Adapter<ServerListAdapter.Ho
     private final ServerListChannelData mChannelData;
     private final RecyclerViewElevationDecoration mDecoration;
 
+    private CallbackInterface mInterface;
+
     public ServerListAdapter(Context context, ServerListChannelData channelData) {
         mChannelData = channelData;
         channelData.addListener(this);
         mDecoration = new RecyclerViewElevationDecoration(context, this);
+    }
+
+    public void setCallbackInterface(CallbackInterface callbackInterface) {
+        mInterface = callbackInterface;
     }
 
     private int getServerItemCount(ServerListChannelData.ServerGroup g) {
@@ -185,8 +192,8 @@ public class ServerListAdapter extends RecyclerView.Adapter<ServerListAdapter.Ho
 
     }
 
-    public static class ChannelHolder extends Holder
-            implements ServerListChannelData.ChannelEntry.Listener {
+    public class ChannelHolder extends Holder
+            implements ServerListChannelData.ChannelEntry.Listener, View.OnClickListener {
 
         private ServerListChannelData.ChannelEntry mEntry;
         private TextView mName;
@@ -196,6 +203,7 @@ public class ServerListAdapter extends RecyclerView.Adapter<ServerListAdapter.Ho
             super(itemView);
             mName = itemView.findViewById(R.id.name);
             mTopic = itemView.findViewById(R.id.topic);
+            itemView.setOnClickListener(this);
         }
 
         public void bind(ServerListChannelData.ChannelEntry e) {
@@ -218,6 +226,17 @@ public class ServerListAdapter extends RecyclerView.Adapter<ServerListAdapter.Ho
             mTopic.setVisibility(TextUtils.isEmpty(mEntry.getTopic()) ? View.GONE : View.VISIBLE);
             mTopic.setText(mEntry.getTopic());
         }
+
+        @Override
+        public void onClick(View v) {
+            mInterface.onChatOpened(mEntry.getGroup().getConnection(), mEntry.getName());
+        }
+    }
+
+    public interface CallbackInterface {
+
+        void onChatOpened(ServerConnectionInfo server, String channel);
+
     }
 
 }
