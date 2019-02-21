@@ -1,5 +1,6 @@
 package io.mrarm.irc.newui;
 
+import android.text.Editable;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
@@ -20,6 +21,7 @@ import io.mrarm.irc.chat.ChatSuggestionsAdapter;
 import io.mrarm.irc.chat.CommandListSuggestionsAdapter;
 import io.mrarm.irc.chat.SendMessageHelper;
 import io.mrarm.irc.config.FeatureFlags;
+import io.mrarm.irc.util.SimpleTextWatcher;
 import io.mrarm.irc.view.ChatAutoCompleteEditText;
 
 public class MessagesSendBoxCoordinator implements ChatAutoCompleteEditText.SuggestionListDropDown,
@@ -50,6 +52,7 @@ public class MessagesSendBoxCoordinator implements ChatAutoCompleteEditText.Sugg
 
         mSendText.setSuggestionListDropDown(this);
         mSendText.setCommandListAdapter(new CommandListSuggestionsAdapter(sendBox.getContext()));
+        mSendText.addTextChangedListener(new SimpleTextWatcher(this::onSendTextChanged));
 
         mSendButton.setOnClickListener((v) -> sendMessage());
 
@@ -134,6 +137,10 @@ public class MessagesSendBoxCoordinator implements ChatAutoCompleteEditText.Sugg
     @Override
     public void onMemberListChanged(ChannelInfoData data) {
         mSuggestionListAdapter.setMembers(data.getMembers());
+    }
+
+    private void onSendTextChanged(Editable s) {
+        mSendButton.setEnabled(s.length() > 0);
     }
 
     public void sendMessage() {
