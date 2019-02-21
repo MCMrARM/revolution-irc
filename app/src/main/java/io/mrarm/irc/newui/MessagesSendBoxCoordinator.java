@@ -1,19 +1,21 @@
 package io.mrarm.irc.newui;
 
+import android.animation.ValueAnimator;
+import android.content.res.ColorStateList;
 import android.text.Editable;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.ImageView;
 
+import com.google.android.material.animation.ArgbEvaluatorCompat;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
-
-import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.widget.ImageViewCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import io.mrarm.chatlib.dto.NickWithPrefix;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.chat.ChannelUIData;
@@ -22,6 +24,7 @@ import io.mrarm.irc.chat.CommandListSuggestionsAdapter;
 import io.mrarm.irc.chat.SendMessageHelper;
 import io.mrarm.irc.config.FeatureFlags;
 import io.mrarm.irc.util.SimpleTextWatcher;
+import io.mrarm.irc.util.StyledAttributesHelper;
 import io.mrarm.irc.view.ChatAutoCompleteEditText;
 
 public class MessagesSendBoxCoordinator implements ChatAutoCompleteEditText.SuggestionListDropDown,
@@ -29,6 +32,7 @@ public class MessagesSendBoxCoordinator implements ChatAutoCompleteEditText.Sugg
 
     private ChatAutoCompleteEditText mSendText;
     private AppCompatImageView mSendButton;
+    private SendButtonColorAnimator mSendButtonAnimator;
 
     private CoordinatorLayout mOverlayLayout;
     private RecyclerView mSuggestionList;
@@ -49,6 +53,8 @@ public class MessagesSendBoxCoordinator implements ChatAutoCompleteEditText.Sugg
         mSuggestionListCard = overlay.findViewById(R.id.suggestion_list_card);
         mSuggestionListDismissView = overlay.findViewById(R.id.suggestion_list_dismiss);
         mSuggestionList.setLayoutManager(new LinearLayoutManager(sendBox.getContext()));
+
+        mSendButtonAnimator = new SendButtonColorAnimator(mSendButton);
 
         mSendText.setSuggestionListDropDown(this);
         mSendText.setCommandListAdapter(new CommandListSuggestionsAdapter(sendBox.getContext()));
@@ -141,6 +147,7 @@ public class MessagesSendBoxCoordinator implements ChatAutoCompleteEditText.Sugg
 
     private void onSendTextChanged(Editable s) {
         mSendButton.setEnabled(s.length() > 0);
+        mSendButtonAnimator.setEnabled(s.length() > 0);
     }
 
     public void sendMessage() {
@@ -163,6 +170,37 @@ public class MessagesSendBoxCoordinator implements ChatAutoCompleteEditText.Sugg
 
     @Override
     public void onClientCommandError(CharSequence error) {
+    }
+
+    private static class SendButtonColorAnimator {
+
+        private final ImageView mView;
+        private final ValueAnimator mAnimator;
+        private int mDisabledColor;
+        private int mEnabledColor;
+
+        public SendButtonColorAnimator(ImageView view) {
+            mView = view;
+            mAnimator = new ValueAnimator();
+            mDisabledColor = StyledAttributesHelper.getColor(view.getContext(), R.attr.colorControlNormal, 0);
+            mEnabledColor = StyledAttributesHelper.getColor(view.getContext(), R.attr.colorControlActivated, 0);
+            mAnimator.setIntValues(mDisabledColor, mDisabledColor);
+            mAnimator.setEvaluator(ArgbEvaluatorCompat.getInstance());
+            mAnimator.addUpdateListener((a) ->
+                    ImageViewCompat.setImageTintList(mView,
+                            ColorStateList.valueOf((int) mAnimator.getAnimatedValue())));
+            mAnimator.setDuration(100);
+        }
+
+        public void setColor(int color) {
+            mAnimator.setIntValues((int) mAnimator.getAnimatedValue(), color);
+            mAnimator.start();
+        }
+
+        public void setEnabled(boolean enabled) {
+            setColor(enabled ? mEnabledColor : mDisabledColor);
+        }
+
     }
 
     private static class BottomSheetDismissCallback extends BottomSheetBehavior.BottomSheetCallback {

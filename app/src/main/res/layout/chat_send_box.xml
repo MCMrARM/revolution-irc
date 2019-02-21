@@ -28,7 +28,6 @@
         android:contentDescription="@string/action_send"
         android:padding="12dp"
         android:scaleType="center"
-        android:tint="@color/send_button"
         app:srcCompat="@drawable/ic_send" />
 
 </LinearLayout>
