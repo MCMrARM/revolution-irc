@@ -9,16 +9,18 @@
     android:fitsSystemWindows="true"
     tools:context=".newui.MainActivity">
 
-    <io.mrarm.irc.newui.SlideableFragmentToolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="?attr/actionBarTheme" />
-
     <io.mrarm.irc.newui.SlideableFragmentContainer
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/toolbar" />
+
+    <io.mrarm.irc.newui.SlideableFragmentToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp" />
 
 </io.mrarm.irc.view.OpaqueStatusBarRelativeLayout>

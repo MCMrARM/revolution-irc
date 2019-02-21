@@ -7,6 +7,7 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -30,7 +31,6 @@ public class SlideableFragmentToolbar extends ViewGroup
     private DrawerArrowDrawable mDrawerDrawable;
     private ToolbarHolder mFragmentToolbar;
     private ToolbarHolder mParentFragmentToolbar;
-    private View mToolbarRootContainer;
     private ViewGroup mToolbarContainer;
     private AppCompatImageButton mNavigationButton;
     private SlideableFragmentContainer mContainer;
@@ -49,9 +49,7 @@ public class SlideableFragmentToolbar extends ViewGroup
                                     int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        mToolbarRootContainer = LayoutInflater.from(context)
-                .inflate(R.layout.newui_toolbar_container, this, false);
-        mToolbarContainer = mToolbarRootContainer.findViewById(R.id.toolbar);
+        mToolbarContainer = new FrameLayout(context);
 
         mNavigationButton = new AppCompatImageButton(context, null,
                 R.attr.toolbarNavigationButtonStyle);
@@ -60,7 +58,7 @@ public class SlideableFragmentToolbar extends ViewGroup
         ViewCompat.setElevation(mNavigationButton, TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics()));
 
-        addView(mToolbarRootContainer);
+        addView(mToolbarContainer);
         addView(mNavigationButton);
     }
 
@@ -76,16 +74,16 @@ public class SlideableFragmentToolbar extends ViewGroup
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        mToolbarRootContainer.layout(0, 0, getWidth(), getHeight());
+        mToolbarContainer.layout(0, 0, getWidth(), getHeight());
         mNavigationButton.layout(0, 0,
                 mNavigationButton.getMeasuredWidth(), mNavigationButton.getMeasuredHeight());
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        mToolbarRootContainer.measure(widthMeasureSpec, heightMeasureSpec);
-        setMeasuredDimension(mToolbarRootContainer.getMeasuredWidth(),
-                mToolbarRootContainer.getMeasuredHeight());
+        mToolbarContainer.measure(widthMeasureSpec, heightMeasureSpec);
+        setMeasuredDimension(mToolbarContainer.getMeasuredWidth(),
+                mToolbarContainer.getMeasuredHeight());
 
         mNavigationButton.measure(MeasureSpec.makeMeasureSpec(getMeasuredWidth(), MeasureSpec.AT_MOST),
                 MeasureSpec.makeMeasureSpec(getMeasuredHeight(), MeasureSpec.EXACTLY));
@@ -216,7 +214,7 @@ public class SlideableFragmentToolbar extends ViewGroup
         @Override
         public void onAnimateStart(boolean isParent) {
             if (!isParent)
-                getView().setBackground(((View) getView().getParent())
+                getView().setBackground(((View) getView().getParent().getParent())
                         .getBackground().getConstantState().newDrawable());
             else
                 getView().setAlpha(1.f);
