@@ -11,7 +11,6 @@ import java.util.UUID;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.ActionMenuView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,8 +19,7 @@ import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
 import io.mrarm.irc.util.UiThreadHelper;
 
-public class MessagesFragment extends Fragment
-        implements SlideableFragmentToolbar.FragmentToolbarCallback, MessagesData.Listener {
+public class MessagesFragment extends Fragment implements MessagesData.Listener {
 
     protected static final String ARG_SERVER_UUID = "server_uuid";
     protected static final String ARG_CHANNEL_NAME = "channel";
@@ -85,15 +83,6 @@ public class MessagesFragment extends Fragment
         mRecyclerView.setAdapter(adapter);
         mRecyclerView.addOnScrollListener(new MessagesScrollListener());
         return rootView;
-    }
-
-    @Override
-    public SlideableFragmentToolbar.ToolbarHolder onCreateToolbar(@NonNull LayoutInflater inflater,
-                                                                  @Nullable ViewGroup container) {
-        SlideableFragmentToolbar.TextToolbarHolder toolbar =
-                new SlideableFragmentToolbar.TextToolbarHolder(this, container);
-        toolbar.setTitle(mChannelName);
-        return toolbar;
     }
 
     @Override

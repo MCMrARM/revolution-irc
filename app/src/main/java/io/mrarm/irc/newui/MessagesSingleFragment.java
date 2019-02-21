@@ -6,11 +6,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 
-public class MessagesSingleFragment extends MessagesFragment {
+public class MessagesSingleFragment extends MessagesFragment
+        implements SlideableFragmentToolbar.FragmentToolbarCallback {
 
     public static MessagesSingleFragment newInstance(ServerConnectionInfo server,
                                                      String channelName) {
@@ -54,4 +56,14 @@ public class MessagesSingleFragment extends MessagesFragment {
 
         return view;
     }
+
+    @Override
+    public SlideableFragmentToolbar.ToolbarHolder onCreateToolbar(@NonNull LayoutInflater inflater,
+                                                                  @Nullable ViewGroup container) {
+        SlideableFragmentToolbar.TextToolbarHolder toolbar =
+                new SlideableFragmentToolbar.TextToolbarHolder(this, container);
+        toolbar.setTitle(getChannelName());
+        return toolbar;
+    }
+
 }
