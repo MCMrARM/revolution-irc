@@ -1,13 +1,16 @@
 package io.mrarm.irc.newui;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 
@@ -60,10 +63,30 @@ public class MessagesSingleFragment extends MessagesFragment
     @Override
     public SlideableFragmentToolbar.ToolbarHolder onCreateToolbar(@NonNull LayoutInflater inflater,
                                                                   @Nullable ViewGroup container) {
-        SlideableFragmentToolbar.TextToolbarHolder toolbar =
-                new SlideableFragmentToolbar.TextToolbarHolder(this, container);
-        toolbar.setTitle(getChannelName());
-        return toolbar;
+        return new ToolbarHolder(this, container);
+    }
+
+
+    public class ToolbarHolder extends SlideableFragmentToolbar.SimpleToolbarHolder {
+
+        private TextView mName;
+        private TextView mTopic;
+
+        public ToolbarHolder(Fragment f, ViewGroup parentView) {
+            super(LayoutInflater.from(f.getContext()).inflate(
+                    R.layout.chat_single_toolbar, parentView, false));
+            mName = getView().findViewById(R.id.name);
+            mTopic = getView().findViewById(R.id.topic);
+            addMenu(R.id.action_menu_view, f);
+            addAnimationElement(mName, 0.3f, -0.2f);
+            addAnimationElement(mTopic, 0.3f, -0.2f);
+
+            mName.setText(getChannelName());
+            mTopic.setText(mChannelInfoData.getTopic());
+            mTopic.setVisibility(TextUtils.isEmpty(mChannelInfoData.getTopic())
+                    ? View.GONE : View.VISIBLE);
+        }
+
     }
 
 }
