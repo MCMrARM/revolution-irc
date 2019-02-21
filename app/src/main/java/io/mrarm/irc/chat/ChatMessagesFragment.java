@@ -24,7 +24,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -55,6 +54,7 @@ import io.mrarm.irc.ServerConnectionManager;
 import io.mrarm.irc.config.ChatSettings;
 import io.mrarm.irc.config.MessageFormatSettings;
 import io.mrarm.irc.config.UiSettingChangeCallback;
+import io.mrarm.irc.newui.ChannelInfoData;
 import io.mrarm.irc.util.LongPressSelectTouchListener;
 import io.mrarm.irc.util.ScrollPosLinearLayoutManager;
 import io.mrarm.irc.config.SettingsHelper;
@@ -613,21 +613,7 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
     @Override
     public void onMemberListChanged(List<NickWithPrefix> list) {
         this.mMembers = list;
-        Collections.sort(list, (NickWithPrefix left, NickWithPrefix right) -> {
-            if (left.getNickPrefixes() != null && right.getNickPrefixes() != null) {
-                char leftPrefix = left.getNickPrefixes().get(0);
-                char rightPrefix = right.getNickPrefixes().get(0);
-                for (char c : ((ServerConnectionApi) mConnection.getApiInstance())
-                        .getServerConnectionData().getSupportList().getSupportedNickPrefixes()) {
-                    if (leftPrefix == c && rightPrefix != c)
-                        return -1;
-                    if (rightPrefix == c && leftPrefix != c)
-                        return 1;
-                }
-            } else if (left.getNickPrefixes() != null || right.getNickPrefixes() != null)
-                return left.getNickPrefixes() != null ? -1 : 1;
-            return left.getNick().compareToIgnoreCase(right.getNick());
-        });
+        ChannelInfoData.sortMembers(mConnection, list);
         if (getUserVisibleHint())
             updateParentCurrentChannel();
     }

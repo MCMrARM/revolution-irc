@@ -5,11 +5,14 @@ import android.view.ViewTreeObserver;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
+import java.util.List;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import io.mrarm.chatlib.dto.NickWithPrefix;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.chat.ChannelUIData;
@@ -18,7 +21,7 @@ import io.mrarm.irc.chat.CommandListSuggestionsAdapter;
 import io.mrarm.irc.config.FeatureFlags;
 import io.mrarm.irc.view.ChatAutoCompleteEditText;
 
-public class MessagesSendBoxCoordinator implements ChatAutoCompleteEditText.SuggestionListDropDown {
+public class MessagesSendBoxCoordinator implements ChatAutoCompleteEditText.SuggestionListDropDown, ChannelInfoData.MemberListListener {
 
     private ChatAutoCompleteEditText mSendText;
     private AppCompatImageView mSendButton;
@@ -30,6 +33,8 @@ public class MessagesSendBoxCoordinator implements ChatAutoCompleteEditText.Sugg
 
     private ServerConnectionInfo mConnection;
     private String mChannelName;
+    private ChannelInfoData mChannelInfoData;
+    private ChatSuggestionsAdapter mSuggestionListAdapter;
 
     public MessagesSendBoxCoordinator(View sendBox, View overlay) {
         mSendText = sendBox.findViewById(R.id.send_text);
@@ -54,21 +59,25 @@ public class MessagesSendBoxCoordinator implements ChatAutoCompleteEditText.Sugg
 
     public void setConnectionContext(ServerConnectionInfo connection) {
         mConnection = connection;
+        mSuggestionListAdapter = new ChatSuggestionsAdapter(mSuggestionList.getContext(),
+                mConnection, null);
         mSendText.setConnectionContext(connection);
+        mSendText.setAdapter(mSuggestionListAdapter);
     }
 
-    public void setChannelContext(String channel) {
+    public void setChannelContext(String channel, ChannelInfoData infoData) {
         ChannelUIData oldUiData = mConnection.getChatUIData().getOrCreateChannelData(mChannelName);
         oldUiData.setCurrentText(mSendText.getText());
         mChannelName = channel;
+        if (mChannelInfoData != null)
+            mChannelInfoData.addMemberListListener(this);
+        mChannelInfoData = infoData;
         ChannelUIData uiData = mConnection.getChatUIData().getOrCreateChannelData(channel);
         mSendText.setHistory(uiData.getSentMessageHistory());
         mSendText.setText(uiData.getCurrentText());
         mSendText.setSelection(mSendText.length());
-    }
-
-    public void setSuggestionAdapter(ChatSuggestionsAdapter adapter) {
-        mSendText.setAdapter(adapter);
+        mSuggestionListAdapter.setMembers(infoData.getMembers());
+        infoData.addMemberListListener(this);
     }
 
     @Override
@@ -118,6 +127,11 @@ public class MessagesSendBoxCoordinator implements ChatAutoCompleteEditText.Sugg
         mSuggestionList.scrollToPosition(position);
     }
 
+    @Override
+    public void onMemberListChanged(ChannelInfoData data) {
+        mSuggestionListAdapter.setMembers(data.getMembers());
+    }
+
     private static class BottomSheetDismissCallback extends BottomSheetBehavior.BottomSheetCallback {
 
         private Runnable mHideListener;
@@ -136,5 +150,6 @@ public class MessagesSendBoxCoordinator implements ChatAutoCompleteEditText.Sugg
         public void onSlide(@NonNull View bottomSheet, float slideOffset) {
         }
 
-    };
+    }
+
 }

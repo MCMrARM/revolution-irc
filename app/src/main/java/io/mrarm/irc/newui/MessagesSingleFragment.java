@@ -6,9 +6,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import androidx.annotation.Nullable;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
-import io.mrarm.irc.chat.ChatSuggestionsAdapter;
 
 public class MessagesSingleFragment extends MessagesFragment {
 
@@ -23,7 +23,21 @@ public class MessagesSingleFragment extends MessagesFragment {
         return fragment;
     }
 
-    private ChatSuggestionsAdapter mSuggestionsAdapter;
+    private ChannelInfoData mChannelInfoData;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mChannelInfoData = new ChannelInfoData(getConnection(), getChannelName());
+        mChannelInfoData.setSortMembers(true);
+        mChannelInfoData.load();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mChannelInfoData.unload();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -36,9 +50,7 @@ public class MessagesSingleFragment extends MessagesFragment {
         MessagesSendBoxCoordinator sendBoxCoordinator = new MessagesSendBoxCoordinator(
                 view.findViewById(R.id.send_box), view.findViewById(R.id.send_overlay));
         sendBoxCoordinator.setConnectionContext(getConnection());
-        sendBoxCoordinator.setChannelContext(getChannelName());
-        mSuggestionsAdapter = new ChatSuggestionsAdapter(getContext(), getConnection(), null);
-        sendBoxCoordinator.setSuggestionAdapter(mSuggestionsAdapter);
+        sendBoxCoordinator.setChannelContext(getChannelName(), mChannelInfoData);
 
         return view;
     }
