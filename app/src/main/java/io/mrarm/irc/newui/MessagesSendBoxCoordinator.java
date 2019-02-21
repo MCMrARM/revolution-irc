@@ -18,10 +18,12 @@ import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.chat.ChannelUIData;
 import io.mrarm.irc.chat.ChatSuggestionsAdapter;
 import io.mrarm.irc.chat.CommandListSuggestionsAdapter;
+import io.mrarm.irc.chat.SendMessageHelper;
 import io.mrarm.irc.config.FeatureFlags;
 import io.mrarm.irc.view.ChatAutoCompleteEditText;
 
-public class MessagesSendBoxCoordinator implements ChatAutoCompleteEditText.SuggestionListDropDown, ChannelInfoData.MemberListListener {
+public class MessagesSendBoxCoordinator implements ChatAutoCompleteEditText.SuggestionListDropDown,
+        ChannelInfoData.MemberListListener, SendMessageHelper.Callback {
 
     private ChatAutoCompleteEditText mSendText;
     private AppCompatImageView mSendButton;
@@ -48,6 +50,8 @@ public class MessagesSendBoxCoordinator implements ChatAutoCompleteEditText.Sugg
 
         mSendText.setSuggestionListDropDown(this);
         mSendText.setCommandListAdapter(new CommandListSuggestionsAdapter(sendBox.getContext()));
+
+        mSendButton.setOnClickListener((v) -> sendMessage());
 
         BottomSheetBehavior.from(mSuggestionListCard).setBottomSheetCallback(
                 new BottomSheetDismissCallback(this::onDropDownBottomSheetHidden));
@@ -130,6 +134,28 @@ public class MessagesSendBoxCoordinator implements ChatAutoCompleteEditText.Sugg
     @Override
     public void onMemberListChanged(ChannelInfoData data) {
         mSuggestionListAdapter.setMembers(data.getMembers());
+    }
+
+    public void sendMessage() {
+        SendMessageHelper.sendMessage(mSendText.getContext(), mConnection, mChannelName,
+                mSendText.getText(), this);
+    }
+
+    @Override
+    public void onMessageSent() {
+        mSendText.setText("");
+    }
+
+    @Override
+    public void onRawCommandExecuted(String clientCommand, String sentCommand) {
+    }
+
+    @Override
+    public void onNoCommandHandlerFound(String message) {
+    }
+
+    @Override
+    public void onClientCommandError(CharSequence error) {
     }
 
     private static class BottomSheetDismissCallback extends BottomSheetBehavior.BottomSheetCallback {
