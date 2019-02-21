@@ -11,10 +11,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
+import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.util.RecyclerViewElevationDecoration;
 
 public class ServerListAdapter extends RecyclerView.Adapter<ServerListAdapter.Holder>
-        implements ServerListChannelData.Listener,
+        implements ServerListChannelData.Listener, ServerListData.Listener,
         RecyclerViewElevationDecoration.ItemElevationCallback {
 
     /**
@@ -23,17 +24,27 @@ public class ServerListAdapter extends RecyclerView.Adapter<ServerListAdapter.Ho
      */
     private static final int SERVER_ITEMS_BEFORE_CHANNELS = 1;
 
-    public static final int TYPE_SERVER_HEADER = 0;
+    /**
+     * The count of items in the last group (inactive servers).
+     */
+    private static final int ITEMS_BEFORE_SERVERS = 1;
+
+    public static final int TYPE_HEADER = 0;
     public static final int TYPE_CHANNEL = 1;
+    public static final int TYPE_SERVER = 2;
 
     private final ServerListChannelData mChannelData;
+    private final ServerListData mServerData;
     private final RecyclerViewElevationDecoration mDecoration;
 
     private CallbackInterface mInterface;
 
-    public ServerListAdapter(Context context, ServerListChannelData channelData) {
+    public ServerListAdapter(Context context, ServerListChannelData channelData,
+                             ServerListData serverData) {
         mChannelData = channelData;
+        mServerData = serverData;
         channelData.addListener(this);
+        serverData.setListener(this);
         mDecoration = new RecyclerViewElevationDecoration(context, this);
     }
 
@@ -65,8 +76,7 @@ public class ServerListAdapter extends RecyclerView.Adapter<ServerListAdapter.Ho
         return -1;
     }
 
-    @Override
-    public int getItemCount() {
+    private int getServerListStart() {
         int cnt = 0;
         for (ServerListChannelData.ServerGroup g : mChannelData.getServers()) {
             cnt += getServerItemCount(g);
@@ -75,17 +85,32 @@ public class ServerListAdapter extends RecyclerView.Adapter<ServerListAdapter.Ho
     }
 
     @Override
+    public int getItemCount() {
+        return getServerListStart() + ITEMS_BEFORE_SERVERS + mServerData.size();
+    }
+
+    @Override
     public int getItemViewType(int position) {
         ServerListChannelData.ServerGroup g = findServerAt(position);
+        if (g == null) { // This means it's the inactive connections group
+            int sPos = position - getServerListStart();
+            if (sPos == 0)
+                return TYPE_HEADER;
+            return TYPE_SERVER;
+        }
         int sPos = position - findServerStartPosition(g);
         if (sPos == 0)
-            return TYPE_SERVER_HEADER;
+            return TYPE_HEADER;
         return TYPE_CHANNEL;
     }
 
     @Override
     public boolean isItemElevated(int position) {
         ServerListChannelData.ServerGroup g = findServerAt(position);
+        if (g == null) {
+            int sPos = position - getServerListStart();
+            return sPos != 0;
+        }
         int sPos = position - findServerStartPosition(g);
         return sPos != 0;
     }
@@ -103,23 +128,30 @@ public class ServerListAdapter extends RecyclerView.Adapter<ServerListAdapter.Ho
     @NonNull
     @Override
     public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        if (viewType == TYPE_SERVER_HEADER) {
+        if (viewType == TYPE_HEADER) {
             View v = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.main_server_list_header, parent, false);
-            return new ServerHeaderHolder(v);
+            return new HeaderHolder(v);
         } else if (viewType == TYPE_CHANNEL) {
             View v = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.main_server_list_channel, parent, false);
             return new ChannelHolder(v);
+        } else if (viewType == TYPE_SERVER) {
+            View v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.main_server_list_channel, parent, false);
+            return new ServerHolder(v);
         }
         throw new IllegalArgumentException("Invalid viewType");
     }
 
     @Override
     public void onBindViewHolder(@NonNull Holder holder, int position) {
-        if (holder instanceof ServerHeaderHolder) {
+        if (holder instanceof HeaderHolder) {
             ServerListChannelData.ServerGroup g = findServerAt(position);
-            ((ServerHeaderHolder) holder).bind(g);
+            if (g != null)
+                ((HeaderHolder) holder).bind(g);
+            else
+                ((HeaderHolder) holder).bindInactiveConnections();
         }
         if (holder instanceof ChannelHolder) {
             ServerListChannelData.ServerGroup g = findServerAt(position);
@@ -127,6 +159,10 @@ public class ServerListAdapter extends RecyclerView.Adapter<ServerListAdapter.Ho
                 int p = findServerStartPosition(g);
                 ((ChannelHolder) holder).bind(g.get(position - p - SERVER_ITEMS_BEFORE_CHANNELS));
             }
+        }
+        if (holder instanceof ServerHolder) {
+            int p = position - getServerListStart() - ITEMS_BEFORE_SERVERS;
+            ((ServerHolder) holder).bind(mServerData.get(p));
         }
     }
 
@@ -166,6 +202,24 @@ public class ServerListAdapter extends RecyclerView.Adapter<ServerListAdapter.Ho
         notifyItemRangeInserted(pos + SERVER_ITEMS_BEFORE_CHANNELS, group.size());
     }
 
+    @Override
+    public void onConnectionAdded(int index) {
+        int pos = getServerListStart();
+        notifyItemInserted(pos + ITEMS_BEFORE_SERVERS + index);
+    }
+
+    @Override
+    public void onConnectionRemoved(int index) {
+        int pos = getServerListStart();
+        notifyItemRemoved(pos + ITEMS_BEFORE_SERVERS + index);
+    }
+
+    @Override
+    public void onConnectionUpdated(int index) {
+        int pos = getServerListStart();
+        notifyItemChanged(pos + ITEMS_BEFORE_SERVERS + index);
+    }
+
     public static class Holder extends RecyclerView.ViewHolder {
 
         public Holder(@NonNull View itemView) {
@@ -177,17 +231,21 @@ public class ServerListAdapter extends RecyclerView.Adapter<ServerListAdapter.Ho
 
     }
 
-    public static class ServerHeaderHolder extends Holder {
+    public static class HeaderHolder extends Holder {
 
         private TextView mTextView;
 
-        public ServerHeaderHolder(@NonNull View itemView) {
+        public HeaderHolder(@NonNull View itemView) {
             super(itemView);
             mTextView = itemView.findViewById(R.id.title);
         }
 
         public void bind(ServerListChannelData.ServerGroup g) {
             mTextView.setText(g.getConnection().getName());
+        }
+
+        public void bindInactiveConnections() {
+            mTextView.setText(R.string.server_list_header_inactive);
         }
 
     }
@@ -233,9 +291,35 @@ public class ServerListAdapter extends RecyclerView.Adapter<ServerListAdapter.Ho
         }
     }
 
+    public class ServerHolder extends Holder implements View.OnClickListener {
+
+        private ServerConfigData mEntry;
+        private TextView mName;
+
+        public ServerHolder(@NonNull View itemView) {
+            super(itemView);
+            mName = itemView.findViewById(R.id.name);
+            itemView.findViewById(R.id.topic).setVisibility(View.GONE);
+            itemView.setOnClickListener(this);
+        }
+
+        public void bind(ServerConfigData s) {
+            mEntry = s;
+            mName.setText(s.name);
+        }
+
+        @Override
+        public void onClick(View v) {
+            mInterface.onServerClicked(mEntry);
+        }
+
+    }
+
     public interface CallbackInterface {
 
         void onChatOpened(ServerConnectionInfo server, String channel);
+
+        void onServerClicked(ServerConfigData d);
 
     }
 
