@@ -1,10 +1,12 @@
 package io.mrarm.irc.newui;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -58,6 +60,17 @@ public class MessagesSingleFragment extends MessagesFragment
         sendBoxCoordinator.setChannelContext(getChannelName(), mChannelInfoData);
 
         return view;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        if (getActivity() != null) {
+            InputMethodManager manager = (InputMethodManager) getActivity().getSystemService(
+                    Context.INPUT_METHOD_SERVICE);
+            manager.hideSoftInputFromWindow(getActivity().getWindow()
+                    .getDecorView().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
     }
 
     @Override
