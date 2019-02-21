@@ -1,6 +1,7 @@
 package io.mrarm.irc.newui;
 
 import android.view.View;
+import android.view.ViewTreeObserver;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
@@ -45,6 +46,10 @@ public class MessagesSendBoxCoordinator implements ChatAutoCompleteEditText.Sugg
 
         BottomSheetBehavior.from(mSuggestionListCard).setBottomSheetCallback(
                 new BottomSheetDismissCallback(this::onDropDownBottomSheetHidden));
+        if (FeatureFlags.areChatSuggestionListAnimationsEnabled()) {
+            BottomSheetBehavior.from(mSuggestionListCard).setHideable(true);
+            BottomSheetBehavior.from(mSuggestionListCard).setState(BottomSheetBehavior.STATE_HIDDEN);
+        }
     }
 
     public void setConnectionContext(ServerConnectionInfo connection) {
@@ -68,12 +73,18 @@ public class MessagesSendBoxCoordinator implements ChatAutoCompleteEditText.Sugg
 
     @Override
     public void showDropDown() {
-        if (FeatureFlags.areChatSuggestionListAnimationsEnabled()) {
-            BottomSheetBehavior.from(mSuggestionListCard).setState(BottomSheetBehavior.STATE_COLLAPSED);
-            BottomSheetBehavior.from(mSuggestionListCard).setHideable(false);
-        }
         mSuggestionListCard.setVisibility(View.VISIBLE);
         mSuggestionListDismissView.setVisibility(View.VISIBLE);
+        if (FeatureFlags.areChatSuggestionListAnimationsEnabled()) {
+            mSuggestionList.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    BottomSheetBehavior.from(mSuggestionListCard).setState(BottomSheetBehavior.STATE_COLLAPSED);
+                    BottomSheetBehavior.from(mSuggestionListCard).setHideable(false);
+                    mSuggestionList.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                }
+            });
+        }
     }
 
     @Override
