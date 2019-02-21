@@ -119,7 +119,7 @@ public class ServerConfigManager {
 
     public List<ServerConfigData> getServers() {
         synchronized (this) {
-            return mServers;
+            return new ArrayList<>(mServers);
         }
     }
 
