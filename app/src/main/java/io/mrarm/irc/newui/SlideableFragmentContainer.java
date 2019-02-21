@@ -11,7 +11,7 @@ import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 
 import java.util.ArrayList;
@@ -70,7 +70,7 @@ public class SlideableFragmentContainer extends FrameLayout {
         mMinAnimVelocity = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, MIN_ANIM_VELOCITY,
                 context.getResources().getDisplayMetrics());
         mDragAnimator.addUpdateListener((a) -> setDragValue((float) a.getAnimatedValue()));
-        mDragAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        mDragAnimator.setInterpolator(new DecelerateInterpolator());
     }
 
     public void addDragListener(DragListener listener) {
@@ -115,7 +115,7 @@ public class SlideableFragmentContainer extends FrameLayout {
     }
 
     public void popAnim() {
-        setDragValueAnimated(getWidth(), 500, () -> {
+        setDragValueAnimated(getWidth(), 250, () -> {
             cancelDrag();
             pop();
         });
@@ -314,7 +314,7 @@ public class SlideableFragmentContainer extends FrameLayout {
             if (f != mFragments.get(mFragments.size() - 1))
                 return;
             v.setTranslationX(getWidth());
-            setDragValueAnimated(0.f, 500, () -> {
+            setDragValueAnimated(0.f, 300, () -> {
                 cancelDrag();
                 detachParentFragments();
             });
