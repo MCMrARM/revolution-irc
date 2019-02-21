@@ -86,3 +86,8 @@ NickAutocompleteSettings:
       pref: channel_autocomplete_suggestions
       getter: areChannelSuggestionsEnabled
 
+FeatureFlags:
+  pref_prefix: feature
+  settings:
+    - spec: boolean chatSuggestionListAnimationsEnabled = false
+      getter: areChatSuggestionListAnimationsEnabled

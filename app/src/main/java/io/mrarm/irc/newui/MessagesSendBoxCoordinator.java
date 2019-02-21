@@ -14,6 +14,7 @@ import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.chat.ChannelUIData;
 import io.mrarm.irc.chat.ChatSuggestionsAdapter;
 import io.mrarm.irc.chat.CommandListSuggestionsAdapter;
+import io.mrarm.irc.config.FeatureFlags;
 import io.mrarm.irc.view.ChatAutoCompleteEditText;
 
 public class MessagesSendBoxCoordinator implements ChatAutoCompleteEditText.SuggestionListDropDown {
@@ -67,17 +68,22 @@ public class MessagesSendBoxCoordinator implements ChatAutoCompleteEditText.Sugg
 
     @Override
     public void showDropDown() {
-        BottomSheetBehavior.from(mSuggestionListCard).setState(BottomSheetBehavior.STATE_COLLAPSED);
-        BottomSheetBehavior.from(mSuggestionListCard).setHideable(false);
+        if (FeatureFlags.areChatSuggestionListAnimationsEnabled()) {
+            BottomSheetBehavior.from(mSuggestionListCard).setState(BottomSheetBehavior.STATE_COLLAPSED);
+            BottomSheetBehavior.from(mSuggestionListCard).setHideable(false);
+        }
         mSuggestionListCard.setVisibility(View.VISIBLE);
         mSuggestionListDismissView.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void dismissDropDown() {
-        // Dismisses the drop down with an animation
-        BottomSheetBehavior.from(mSuggestionListCard).setHideable(true);
-        BottomSheetBehavior.from(mSuggestionListCard).setState(BottomSheetBehavior.STATE_HIDDEN);
+        if (FeatureFlags.areChatSuggestionListAnimationsEnabled()) {
+            BottomSheetBehavior.from(mSuggestionListCard).setHideable(true);
+            BottomSheetBehavior.from(mSuggestionListCard).setState(BottomSheetBehavior.STATE_HIDDEN);
+        } else {
+            onDropDownBottomSheetHidden();
+        }
     }
 
     private void onDropDownBottomSheetHidden() {
