@@ -22,8 +22,8 @@ import io.mrarm.irc.ServerConnectionManager;
 public class MessagesFragment extends Fragment
         implements SlideableFragmentToolbar.FragmentToolbarCallback {
 
-    private static final String ARG_SERVER_UUID = "server_uuid";
-    private static final String ARG_CHANNEL_NAME = "channel";
+    protected static final String ARG_SERVER_UUID = "server_uuid";
+    protected static final String ARG_CHANNEL_NAME = "channel";
 
     private static final int LOAD_MORE_REMAINING_ITEM_COUNT = 10;
 
@@ -96,6 +96,14 @@ public class MessagesFragment extends Fragment
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_chat, menu);
+    }
+
+    public ServerConnectionInfo getConnection() {
+        return mConnection;
+    }
+
+    public String getChannelName() {
+        return mChannelName;
     }
 
     private class MessagesScrollListener extends RecyclerView.OnScrollListener {

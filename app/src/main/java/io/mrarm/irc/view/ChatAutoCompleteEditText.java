@@ -3,14 +3,12 @@ package io.mrarm.irc.view;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.Editable;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
-import android.view.View;
 import android.widget.Filter;
 
 import java.util.ArrayList;
@@ -43,9 +41,7 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
     private boolean mAtSuggestionsRemoveAt;
     private boolean mDoChannelSuggestions;
 
-    private View mSuggestionsContainer;
-    private View mSuggestionsCard;
-    private RecyclerView mSuggestionsList;
+    private SuggestionListDropDown mSuggestionListDropDown;
     private ServerConnectionInfo mConnection;
     private ChatSuggestionsAdapter mAdapter;
     private CommandListSuggestionsAdapter mCommandAdapter;
@@ -87,10 +83,8 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
         onSettingChanged();
     }
 
-    public void setSuggestionsListView(View suggestionsContainer, View suggestionsCard, RecyclerView suggestionsList) {
-        mSuggestionsContainer = suggestionsContainer;
-        mSuggestionsCard = suggestionsCard;
-        mSuggestionsList = suggestionsList;
+    public void setSuggestionListDropDown(SuggestionListDropDown dropDown) {
+        mSuggestionListDropDown = dropDown;
     }
 
     public void setAdapter(ChatSuggestionsAdapter adapter) {
@@ -106,13 +100,21 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
 
     public void setConnectionContext(ServerConnectionInfo info) {
         mConnection = info;
+        if (info.getApiInstance() instanceof ServerConnectionApi)
+            setChannelTypes(((ServerConnectionApi) info.getApiInstance())
+                    .getServerConnectionData().getSupportList().getSupportedChannelTypes());
     }
 
     private void setCurrentCommandAdapter(boolean command) {
-        if (command && mSuggestionsList.getAdapter() != mCommandAdapter)
-            mSuggestionsList.setAdapter(mCommandAdapter);
-        else if (!command && mSuggestionsList.getAdapter() != mAdapter)
-            mSuggestionsList.setAdapter(mAdapter);
+        if (mSuggestionListDropDown == null)
+            return;
+        RecyclerView.Adapter newAdapter;
+        if (command)
+            newAdapter = mCommandAdapter;
+        else
+            newAdapter = mAdapter;
+        if (newAdapter != mSuggestionListDropDown.getDropDownAdapter())
+            mSuggestionListDropDown.setDropDownAdapter(newAdapter);
     }
 
     public void setChannelTypes(ModeList channelTypes) {
@@ -131,15 +133,13 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
     }
 
     public void dismissDropDown() {
-        mSuggestionsContainer.setVisibility(View.GONE);
-        if (mSuggestionsList.getAdapter() instanceof SelectableRecyclerViewAdapter)
-            ((SelectableRecyclerViewAdapter) mSuggestionsList.getAdapter()).setSelection(-1);
-        mSuggestionsList.setAdapter(null);
-        BottomSheetBehavior.from(mSuggestionsCard).setState(BottomSheetBehavior.STATE_COLLAPSED);
+        if (mSuggestionListDropDown != null)
+            mSuggestionListDropDown.dismissDropDown();
     }
 
     private void showDropDown() {
-        mSuggestionsContainer.setVisibility(View.VISIBLE);
+        if (mSuggestionListDropDown != null)
+            mSuggestionListDropDown.showDropDown();
     }
 
     private void performFiltering(boolean completeIfSingle) {
@@ -310,14 +310,13 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (event.getKeyCode() == KeyEvent.KEYCODE_TAB) {
             if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                if (mSuggestionsList.getAdapter() != null &&
-                        mSuggestionsList.getAdapter() instanceof SelectableRecyclerViewAdapter) {
-                    int i = ((SelectableRecyclerViewAdapter) mSuggestionsList.getAdapter()).
-                            getSelection();
+                RecyclerView.Adapter adapter = mSuggestionListDropDown.getDropDownAdapter();
+                if (adapter instanceof SelectableRecyclerViewAdapter) {
+                    int i = ((SelectableRecyclerViewAdapter) adapter).getSelection();
                     if (i != -1) {
-                        if (mSuggestionsList.getAdapter() == mAdapter)
+                        if (adapter == mAdapter)
                             onItemClick(mAdapter.getItem(i));
-                        else if (mSuggestionsList.getAdapter() == mCommandAdapter)
+                        else if (adapter == mCommandAdapter)
                             onItemClick(mCommandAdapter.getItem(i));
                     }
                     return true;
@@ -330,15 +329,15 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
         if (event.getKeyCode() == KeyEvent.KEYCODE_DPAD_UP ||
                 event.getKeyCode() == KeyEvent.KEYCODE_DPAD_DOWN) {
             if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                if (mSuggestionsList.getAdapter() != null &&
-                        mSuggestionsList.getAdapter() instanceof SelectableRecyclerViewAdapter) {
-                    SelectableRecyclerViewAdapter adapter = (SelectableRecyclerViewAdapter)
-                            mSuggestionsList.getAdapter();
+                RecyclerView.Adapter uAdapter = mSuggestionListDropDown.getDropDownAdapter();
+                if (uAdapter instanceof SelectableRecyclerViewAdapter) {
+                    SelectableRecyclerViewAdapter adapter = (SelectableRecyclerViewAdapter) uAdapter;
                     if (event.getKeyCode() == KeyEvent.KEYCODE_DPAD_DOWN)
                         adapter.setSelection(Math.min(adapter.getSelection() + 1, adapter.getItemCount() - 1));
                     else
                         adapter.setSelection(Math.max(adapter.getSelection() - 1, 0));
-                    mSuggestionsList.scrollToPosition(adapter.getSelection());
+
+                    mSuggestionListDropDown.scrollDropDownToPosition(adapter.getSelection());
                     return true;
                 }
                 moveInHistory(event.getKeyCode() == KeyEvent.KEYCODE_DPAD_UP);
@@ -462,6 +461,20 @@ public class ChatAutoCompleteEditText extends FormattableEditText implements
             }
             return false;
         }
+    }
+
+    public interface SuggestionListDropDown {
+
+        void showDropDown();
+
+        void dismissDropDown();
+
+        void setDropDownAdapter(RecyclerView.Adapter adapter);
+
+        RecyclerView.Adapter getDropDownAdapter();
+
+        void scrollDropDownToPosition(int position);
+
     }
 
 }

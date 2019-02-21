@@ -39,6 +39,7 @@ import io.mrarm.irc.dialog.UserBottomSheetDialog;
 import io.mrarm.irc.util.AutoMultilineTextListener;
 import io.mrarm.irc.util.ColoredTextBuilder;
 import io.mrarm.irc.util.ImageViewTintUtils;
+import io.mrarm.irc.util.SelectableRecyclerViewAdapter;
 import io.mrarm.irc.util.SimpleTextWatcher;
 import io.mrarm.irc.util.StyledAttributesHelper;
 import io.mrarm.irc.view.ChatAutoCompleteEditText;
@@ -52,6 +53,9 @@ public class ChatFragmentSendMessageHelper implements SendMessageHelper.Callback
     private ChatAutoCompleteEditText mSendText;
     private AutoMultilineTextListener mSendTextMultilineHelper;
     private ChatSuggestionsAdapter mChannelMembersListAdapter;
+    private View mSuggestionsContainer;
+    private View mSuggestionsCard;
+    private RecyclerView mSuggestionsRecyclerView;
     private View mFormatBarDivider;
     private TextFormatBar mFormatBar;
     private ImageView mSendIcon;
@@ -83,16 +87,44 @@ public class ChatFragmentSendMessageHelper implements SendMessageHelper.Callback
             setFormatBarVisible(false);
         });
 
-        RecyclerView suggestionsRecyclerView = rootView.findViewById(R.id.suggestions_list);
-        suggestionsRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+        mSuggestionsRecyclerView = rootView.findViewById(R.id.suggestions_list);
+        mSuggestionsRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         mChannelMembersListAdapter = new ChatSuggestionsAdapter(mContext, connectionInfo, null);
-        mSendText.setSuggestionsListView(rootView.findViewById(R.id.suggestions_container), rootView.findViewById(R.id.suggestions_card), suggestionsRecyclerView);
+        mSuggestionsContainer = rootView.findViewById(R.id.suggestions_container);
+        mSuggestionsCard = rootView.findViewById(R.id.suggestions_card);
+        mSendText.setSuggestionListDropDown(new ChatAutoCompleteEditText.SuggestionListDropDown() {
+            @Override
+            public void showDropDown() {
+                mSuggestionsContainer.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void dismissDropDown() {
+                mSuggestionsContainer.setVisibility(View.GONE);
+                if (mSuggestionsRecyclerView.getAdapter() instanceof SelectableRecyclerViewAdapter)
+                    ((SelectableRecyclerViewAdapter) mSuggestionsRecyclerView.getAdapter()).setSelection(-1);
+                mSuggestionsRecyclerView.setAdapter(null);
+                BottomSheetBehavior.from(mSuggestionsCard).setState(BottomSheetBehavior.STATE_COLLAPSED);
+            }
+
+            @Override
+            public void setDropDownAdapter(RecyclerView.Adapter adapter) {
+                mSuggestionsRecyclerView.setAdapter(adapter);
+            }
+
+            @Override
+            public RecyclerView.Adapter getDropDownAdapter() {
+                return mSuggestionsRecyclerView.getAdapter();
+            }
+
+            @Override
+            public void scrollDropDownToPosition(int position) {
+                mSuggestionsRecyclerView.scrollToPosition(position);
+            }
+        });
         mSendText.setAdapter(mChannelMembersListAdapter);
         mSendText.setCommandListAdapter(new CommandListSuggestionsAdapter(mContext));
         mSendText.setConnectionContext(connectionInfo);
-        if (connectionInfo.getApiInstance() instanceof ServerConnectionApi)
-            mSendText.setChannelTypes(((ServerConnectionApi) connectionInfo.getApiInstance())
-                    .getServerConnectionData().getSupportList().getSupportedChannelTypes());
         rootView.findViewById(R.id.suggestions_dismiss).setOnTouchListener((View view, MotionEvent motionEvent) -> {
             if (motionEvent.getAction() == MotionEvent.ACTION_DOWN)
                 mSendText.dismissDropDown();

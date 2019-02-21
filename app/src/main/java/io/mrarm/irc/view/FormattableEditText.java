@@ -103,10 +103,12 @@ public class FormattableEditText extends AppCompatEditText {
     @Override
     protected void onFocusChanged(boolean focused, int direction, Rect previouslyFocusedRect) {
         super.onFocusChanged(focused, direction, previouslyFocusedRect);
-        if (focused)
-            mFormatBar.setEditText(this);
-        else
-            mFormatBar.setEditText(null);
+        if (mFormatBar != null) {
+            if (focused)
+                mFormatBar.setEditText(this);
+            else
+                mFormatBar.setEditText(null);
+        }
     }
 
     @Override

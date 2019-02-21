@@ -53,7 +53,7 @@ public class ServerListFragment extends Fragment implements ServerListAdapter.Ca
 
     @Override
     public void onChatOpened(ServerConnectionInfo server, String channel) {
-        Fragment fragment = MessagesFragment.newInstance(server, channel);
+        Fragment fragment = MessagesSingleFragment.newInstance(server, channel);
         ((MainActivity) getActivity()).getContainer().push(fragment);
     }
 

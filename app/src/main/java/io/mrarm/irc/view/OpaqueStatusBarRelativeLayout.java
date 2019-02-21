@@ -7,8 +7,11 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.WindowInsets;
 import android.widget.RelativeLayout;
 
 import io.mrarm.irc.R;
@@ -37,14 +40,17 @@ public class OpaqueStatusBarRelativeLayout extends RelativeLayout {
 
         setWillNotDraw(false);
 
-        ViewCompat.setOnApplyWindowInsetsListener(this, (View v, WindowInsetsCompat insets) -> {
-            mTopInset = insets.getSystemWindowInsetTop();
-            setPadding(0, mTopInset, 0, 0);
-            ViewCompat.postInvalidateOnAnimation(this);
-            return insets.consumeSystemWindowInsets();
-        });
         setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+    }
+
+    @Override
+    public WindowInsets onApplyWindowInsets(WindowInsets insets) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
+            mTopInset = insets.getSystemWindowInsetTop();
+            setPadding(0, mTopInset, 0, 0);
+        }
+        return super.onApplyWindowInsets(insets);
     }
 
     @Override

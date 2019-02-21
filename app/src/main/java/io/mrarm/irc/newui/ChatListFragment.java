@@ -51,7 +51,7 @@ public class ChatListFragment extends Fragment implements ChatListAdapter.Callba
 
     @Override
     public void onChatOpened(ServerConnectionInfo server, String channel) {
-        Fragment fragment = MessagesFragment.newInstance(server, channel);
+        Fragment fragment = MessagesSingleFragment.newInstance(server, channel);
         ((MainActivity) getActivity()).getContainer().push(fragment);
     }
 
