@@ -18,9 +18,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
+import io.mrarm.irc.util.UiThreadHelper;
 
 public class MessagesFragment extends Fragment
-        implements SlideableFragmentToolbar.FragmentToolbarCallback {
+        implements SlideableFragmentToolbar.FragmentToolbarCallback, MessagesData.Listener {
 
     protected static final String ARG_SERVER_UUID = "server_uuid";
     protected static final String ARG_CHANNEL_NAME = "channel";
@@ -60,6 +61,8 @@ public class MessagesFragment extends Fragment
 
         mUnreadData = new MessagesUnreadData(mConnection, mChannelName);
         mUnreadData.load();
+
+        mData.addListener(this);
     }
 
     @Override
@@ -96,6 +99,24 @@ public class MessagesFragment extends Fragment
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_chat, menu);
+    }
+
+    @Override
+    public void onReloaded() {
+    }
+
+    @Override
+    public void onItemsAdded(int pos, int count) {
+        UiThreadHelper.runOnUiThread(() -> {
+            if (pos + count == mData.size() && mRecyclerView != null &&
+                    mLayoutManager.findLastCompletelyVisibleItemPosition() >= pos - 1) {
+                mRecyclerView.scrollToPosition(mData.size() - 1);
+            }
+        });
+    }
+
+    @Override
+    public void onItemsRemoved(int pos, int count) {
     }
 
     public ServerConnectionInfo getConnection() {

@@ -27,7 +27,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.BaseHo
 
     public MessagesAdapter(MessagesData data) {
         mData = data;
-        mData.setListener(this);
+        mData.addListener(this);
     }
 
     public void setUnreadData(MessagesUnreadData data) {

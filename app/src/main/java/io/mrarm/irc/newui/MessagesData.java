@@ -5,6 +5,7 @@ import android.text.format.DateUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -29,7 +30,7 @@ public class MessagesData implements MessageListener {
     private final ServerConnectionInfo mConnection;
     private final MessageStorageApi mSource;
     private final String mChannel;
-    private Listener mListener;
+    private final List<Listener> mListeners = new ArrayList<>();
 
     private final TwoWayList<Item> mItems = new TwoWayList<>();
     private MessageFilterOptions mFilterOptions;
@@ -73,8 +74,12 @@ public class MessagesData implements MessageListener {
         return -1;
     }
 
-    public void setListener(Listener listener) {
-        mListener = listener;
+    public void addListener(Listener listener) {
+        mListeners.add(listener);
+    }
+
+    public void removeListener(Listener listener) {
+        mListeners.remove(listener);
     }
 
     public void load(MessageFilterOptions filterOptions) {
@@ -173,8 +178,8 @@ public class MessagesData implements MessageListener {
     private void appendMessage(MessageInfo m, MessageId mi) {
         int pos = mItems.size();
         int cnt = appendMessageInternal(m, mi);
-        if (mListener != null)
-            mListener.onItemsAdded(pos, cnt);
+        for (Listener listener : mListeners)
+            listener.onItemsAdded(pos, cnt);
     }
 
     private void appendMessages(List<MessageInfo> m, List<MessageId> mi) {
@@ -182,8 +187,8 @@ public class MessagesData implements MessageListener {
         int cnt = 0;
         for (int i = 0; i < m.size(); i++)
             cnt += appendMessageInternal(m.get(i), mi.get(i));
-        if (mListener != null)
-            mListener.onItemsAdded(pos, cnt);
+        for (Listener listener : mListeners)
+            listener.onItemsAdded(pos, cnt);
     }
 
     private void prependMessages(List<MessageInfo> m, List<MessageId> mi) {
@@ -191,8 +196,8 @@ public class MessagesData implements MessageListener {
         int cnt = 0;
         for (int i = m.size() - 1; i >= 0; i--)
             cnt += prependMessageInternal(m.get(i), mi.get(i));
-        if (mListener != null)
-            mListener.onItemsAdded(0, cnt);
+        for (Listener listener : mListeners)
+            listener.onItemsAdded(0, cnt);
         mDayMarkerHandler.onAfterMessagePrepend();
     }
 
@@ -201,8 +206,8 @@ public class MessagesData implements MessageListener {
         mDayMarkerHandler.onClear();
         for (int i = 0; i < m.size(); i++)
             appendMessageInternal(m.get(i), mi.get(i));
-        if (mListener != null)
-            mListener.onReloaded();
+        for (Listener listener : mListeners)
+            listener.onReloaded();
     }
 
     @Override
@@ -285,8 +290,8 @@ public class MessagesData implements MessageListener {
                 return;
             if (mData.mItems.get(0) instanceof DayMarkerItem) {
                 mData.mItems.removeFirst();
-                if (mData.mListener != null)
-                    mData.mListener.onItemsRemoved(0, 1);
+                for (Listener listener : mData.mListeners)
+                    listener.onItemsRemoved(0, 1);
             }
         }
 
