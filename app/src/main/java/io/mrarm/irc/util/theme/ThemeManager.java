@@ -5,6 +5,9 @@ import android.content.Context;
 
 import androidx.appcompat.app.AppCompatDelegate;
 
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.util.DisplayMetrics;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -51,7 +54,7 @@ public class ThemeManager {
     private BaseTheme fallbackTheme;
     private Map<String, BaseTheme> baseThemes = new HashMap<>();
     private Map<UUID, ThemeInfo> customThemes = new HashMap<>();
-    private boolean mNeedsApplyIrcColors;
+    private boolean mNeedsApplyIrcColors = true;
 
     public ThemeManager(Context context) {
         this.context = context;
@@ -194,6 +197,7 @@ public class ThemeManager {
                         theme.substring(PREF_THEME_CUSTOM_PREFIX.length()));
                 applyTheme(customThemes.get(uuid));
             } catch (IllegalArgumentException ignored) {
+                applyTheme(fallbackTheme);
             }
         } else {
             applyTheme(baseThemes.get(theme));
@@ -248,6 +252,19 @@ public class ThemeManager {
                     theme.getResTable());
             currentCustomThemePatcher = new Theme(context, themeFile.getAbsolutePath());
         }
+        if (mNeedsApplyIrcColors) {
+            Configuration c = new Configuration();
+            c.setToDefaults();
+            c.uiMode = Configuration.UI_MODE_TYPE_NORMAL;
+            c.uiMode |= Configuration.UI_MODE_NIGHT_YES;
+            Resources r = new Resources(currentCustomThemePatcher != null ?
+                    currentCustomThemePatcher.getAssetManager() : context.getAssets(),
+                    new DisplayMetrics(), c);
+            Resources.Theme t = r.newTheme();
+            t.applyStyle(currentTheme.getThemeResId(), true);
+            IRCColorUtils.loadColors(t, currentTheme.getIRCColorsResId());
+            mNeedsApplyIrcColors = false;
+        }
         if (currentCustomThemePatcher != null) {
             currentCustomThemePatcher.applyToActivity(activity);
         }
@@ -260,8 +277,6 @@ public class ThemeManager {
             else
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         }
-        if (mNeedsApplyIrcColors)
-            IRCColorUtils.loadColors(activity.getTheme(), currentTheme.getIRCColorsResId());
     }
 
     public int getThemeIdToApply(int appThemeId) {
