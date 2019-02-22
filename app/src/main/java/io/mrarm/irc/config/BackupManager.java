@@ -178,6 +178,7 @@ public class BackupManager {
                             fileHeader)));
                     ServerConfigData data = SettingsHelper.getGson().fromJson(reader,
                             ServerConfigData.class);
+                    data.migrateLegacyProperties();
                     reader.close();
                     ServerConfigManager.getInstance(context).saveServer(data);
                     removeLogServers.remove(data.uuid);
