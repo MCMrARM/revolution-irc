@@ -9,6 +9,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import android.os.Bundle;
 import androidx.appcompat.app.AlertDialog;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
@@ -386,9 +387,9 @@ public class EditServerActivity extends ThemedActivity {
         mEditServer.nicks = Arrays.asList(mServerNick.getItems());
         if (mEditServer.nicks.size() == 0)
             mEditServer.nicks = null;
-        mEditServer.user = mServerUser.getText().length() > 0 ? mServerUser.getText().toString() : null;
-        mEditServer.realname = mServerRealname.getText().length() > 0 ? mServerRealname.getText().toString() : null;
-        mEditServer.pass = mServerPass.getPassword().length() > 0 ? mServerPass.getPassword() : null;
+        mEditServer.user = nullifyIfEmpty(mServerUser.getText().toString());
+        mEditServer.realname = nullifyIfEmpty(mServerRealname.getText().toString());
+        mEditServer.pass = nullifyIfEmpty(mServerPass.getPassword());
         int authModeInt = mServerAuthMode.getSelectedItemPosition();
         mEditServer.authCertData = null;
         mEditServer.authCertPrivKey = null;
@@ -396,7 +397,7 @@ public class EditServerActivity extends ThemedActivity {
         if (authModeInt == 1) {
             mEditServer.authMode = ServerConfigData.AUTH_SASL;
             mEditServer.authUser = mServerAuthUser.getText().toString();
-            mEditServer.authPass = mServerAuthPass.getPassword();
+            mEditServer.authPass = nullifyIfEmpty(mServerAuthPass.getPassword());
         } else if (authModeInt == 2) {
             mEditServer.authMode = ServerConfigData.AUTH_SASL_EXTERNAL;
             mEditServer.authUser = null;
@@ -565,6 +566,12 @@ public class EditServerActivity extends ThemedActivity {
         mServerPrivKeyType = kp.getPrivate().getAlgorithm();
         mServerAuthSASLExtFP.setText(getString(R.string.server_sasl_ext_fp,
                 getCertificateFingerprint(mServerCert)));
+    }
+
+    private static String nullifyIfEmpty(String val) {
+        if (TextUtils.isEmpty(val))
+            return null;
+        return val;
     }
 
     private static class ResettablePasswordHelper {
