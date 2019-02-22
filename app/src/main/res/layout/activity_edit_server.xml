@@ -147,45 +147,14 @@
                 app:srcCompat="@drawable/ic_server_password"
                 style="@style/EditServerIcon.TextInput" />
 
-            <io.mrarm.irc.view.LabelLayout
-                android:id="@+id/server_auth_mode_ctr"
-                android:hint="@string/server_authentication_mode"
-                style="@style/EditServerTextInput">
-
-                <Spinner
-                    android:id="@+id/server_auth_mode"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    style="@style/AppTheme.Spinner" />
-
-            </io.mrarm.irc.view.LabelLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/server_username_ctr"
-                android:layout_below="@+id/server_auth_mode_ctr"
-                android:layout_marginTop="8dp"
-                android:visibility="gone"
-                style="@style/EditServerTextInput"
-                android:hint="@string/entry_username">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/server_username" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
             <RelativeLayout
                 android:id="@+id/server_password_main_ctr"
-                android:visibility="gone"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_below="@+id/server_username_ctr">
+                android:layout_height="wrap_content">
 
                 <io.mrarm.irc.view.StaticLabelTextInputLayout
                     android:id="@+id/server_password_ctr"
-                    android:hint="@string/entry_password"
+                    android:hint="@string/server_password"
                     app:hintEnabled="true"
                     app:hintTextAppearance="@style/TextAppearance.Design.Hint"
                     app:passwordToggleEnabled="true"
@@ -210,6 +179,71 @@
 
             </RelativeLayout>
 
+            <io.mrarm.irc.view.LabelLayout
+                android:id="@+id/server_auth_mode_ctr"
+                android:hint="@string/server_authentication_mode"
+                android:layout_below="@+id/server_password_main_ctr"
+                android:layout_marginTop="8dp"
+                style="@style/EditServerTextInput">
+
+                <Spinner
+                    android:id="@+id/server_auth_mode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/AppTheme.Spinner" />
+
+            </io.mrarm.irc.view.LabelLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/server_auth_username_ctr"
+                android:layout_below="@+id/server_auth_mode_ctr"
+                android:layout_marginTop="8dp"
+                android:visibility="gone"
+                style="@style/EditServerTextInput"
+                android:hint="@string/entry_username">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/server_auth_username" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <RelativeLayout
+                android:id="@+id/server_auth_password_main_ctr"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_below="@+id/server_auth_username_ctr">
+
+                <io.mrarm.irc.view.StaticLabelTextInputLayout
+                    android:id="@+id/server_auth_password_ctr"
+                    android:hint="@string/entry_password"
+                    app:hintEnabled="true"
+                    app:hintTextAppearance="@style/TextAppearance.Design.Hint"
+                    app:passwordToggleEnabled="true"
+                    style="@style/EditServerTextInput">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/server_auth_password"
+                        android:inputType="textPassword" />
+
+                </io.mrarm.irc.view.StaticLabelTextInputLayout>
+
+                <ImageButton
+                    android:id="@+id/server_auth_password_reset"
+                    app:srcCompat="@drawable/ic_close"
+                    style="@style/EditServerExtraAction"
+                    android:visibility="gone"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:contentDescription="@string/action_delete" />
+
+            </RelativeLayout>
+
             <LinearLayout
                 android:id="@+id/server_sasl_ext_main_ctr"
                 android:layout_width="match_parent"
@@ -218,7 +252,7 @@
                 android:orientation="vertical"
                 android:layout_marginLeft="50dp"
                 android:layout_marginStart="50dp"
-                android:layout_below="@+id/server_username_ctr">
+                android:layout_below="@+id/server_auth_username_ctr">
 
                 <TextView
                     android:id="@+id/server_sasl_ext_fp"

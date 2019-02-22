@@ -76,6 +76,7 @@ public class ServerConfigManager {
                 continue;
             try {
                 ServerConfigData data = SettingsHelper.getGson().fromJson(new BufferedReader(new FileReader(f)), ServerConfigData.class);
+                data.migrateLegacyProperties();
                 mServers.add(data);
                 mServersMap.put(data.uuid, data);
             } catch (IOException e) {

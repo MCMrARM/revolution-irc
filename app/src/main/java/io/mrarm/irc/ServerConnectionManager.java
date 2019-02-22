@@ -180,11 +180,12 @@ public class ServerConnectionManager {
         else
             request.setRealName(request.getNickList().get(0));
 
+        if (data.pass != null)
+            request.setServerPass(data.pass);
+
         SASLOptions saslOptions = null;
         UserKeyManager userKeyManager = null;
         if (data.authMode != null) {
-            if (data.authMode.equals(ServerConfigData.AUTH_PASSWORD) && data.authPass != null)
-                request.setServerPass(data.authPass);
             if (data.authMode.equals(ServerConfigData.AUTH_SASL) && data.authUser != null &&
                     data.authPass != null)
                 saslOptions = SASLOptions.createPlainAuth(data.authUser, data.authPass);

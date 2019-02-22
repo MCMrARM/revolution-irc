@@ -86,18 +86,16 @@ public class EditServerActivity extends ThemedActivity {
     private CheckBox mServerSSL;
     private View mServerSSLCertsButton;
     private TextView mServerSSLCertsLbl;
+    private ResettablePasswordHelper mServerPass;
     private Spinner mServerAuthMode;
     private EditText mServerAuthUser;
     private TextInputLayout mServerAuthUserCtr;
-    private EditText mServerAuthPass;
     private View mServerAuthSASLExt;
     private TextView mServerAuthSASLExtFP;
     private View mServerAuthSASLExtImportButton;
     private View mServerAuthSASLExtCreateButton;
-    private String mOldServerAuthPass;
-    private StaticLabelTextInputLayout mServerAuthPassCtr;
     private View mServerAuthPassMainCtr;
-    private View mServerAuthPassReset;
+    private ResettablePasswordHelper mServerAuthPass;
     private ChipsEditText mServerNick;
     private EditText mServerUser;
     private EditText mServerRealname;
@@ -129,27 +127,6 @@ public class EditServerActivity extends ThemedActivity {
         return getLaunchIntent(context, data, false);
     }
 
-    private TextWatcher mResetPasswordWatcher = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-            if (s.length() > 0) {
-                mServerAuthPassReset.setVisibility(View.GONE);
-                mServerAuthPassCtr.setPasswordVisibilityToggleEnabled(true);
-            } else {
-                mServerAuthPassReset.setVisibility(View.VISIBLE);
-                mServerAuthPassCtr.setPasswordVisibilityToggleEnabled(false);
-            }
-        }
-    };
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -170,13 +147,18 @@ public class EditServerActivity extends ThemedActivity {
         mServerSSL = findViewById(R.id.server_ssl_checkbox);
         mServerSSLCertsButton = findViewById(R.id.server_ssl_certs);
         mServerSSLCertsLbl = findViewById(R.id.server_ssl_cert_lbl);
+        mServerPass = new ResettablePasswordHelper(
+                findViewById(R.id.server_password_ctr),
+                findViewById(R.id.server_password),
+                findViewById(R.id.server_password_reset));
         mServerAuthMode = findViewById(R.id.server_auth_mode);
-        mServerAuthUser = findViewById(R.id.server_username);
-        mServerAuthUserCtr = findViewById(R.id.server_username_ctr);
-        mServerAuthPass = findViewById(R.id.server_password);
-        mServerAuthPassCtr = findViewById(R.id.server_password_ctr);
-        mServerAuthPassMainCtr = findViewById(R.id.server_password_main_ctr);
-        mServerAuthPassReset = findViewById(R.id.server_password_reset);
+        mServerAuthUser = findViewById(R.id.server_auth_username);
+        mServerAuthUserCtr = findViewById(R.id.server_auth_username_ctr);
+        mServerAuthPassMainCtr = findViewById(R.id.server_auth_password_main_ctr);
+        mServerAuthPass = new ResettablePasswordHelper(
+                findViewById(R.id.server_auth_password_ctr),
+                findViewById(R.id.server_auth_password),
+                findViewById(R.id.server_auth_password_reset));
         mServerAuthSASLExt = findViewById(R.id.server_sasl_ext_main_ctr);
         mServerAuthSASLExtFP = findViewById(R.id.server_sasl_ext_fp);
         mServerAuthSASLExtImportButton = findViewById(R.id.server_sasl_ext_import);
@@ -219,14 +201,10 @@ public class EditServerActivity extends ThemedActivity {
                     mServerAuthPassMainCtr.setVisibility(View.GONE);
                     mServerAuthSASLExt.setVisibility(View.GONE);
                 } else if (position == 1) {
-                    mServerAuthUserCtr.setVisibility(View.GONE);
-                    mServerAuthPassMainCtr.setVisibility(View.VISIBLE);
-                    mServerAuthSASLExt.setVisibility(View.GONE);
-                } else if (position == 2) {
                     mServerAuthUserCtr.setVisibility(View.VISIBLE);
                     mServerAuthPassMainCtr.setVisibility(View.VISIBLE);
                     mServerAuthSASLExt.setVisibility(View.GONE);
-                } else if (position == 3) {
+                } else if (position == 2) {
                     mServerAuthUserCtr.setVisibility(View.GONE);
                     mServerAuthPassMainCtr.setVisibility(View.GONE);
                     mServerAuthSASLExt.setVisibility(View.VISIBLE);
@@ -259,13 +237,6 @@ public class EditServerActivity extends ThemedActivity {
         encodingAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mServerEncoding.setAdapter(encodingAdapter);
 
-        mServerAuthPassReset.setOnClickListener((View view) -> {
-            mServerAuthPassCtr.setForceShowHint(false);
-            mServerAuthPassReset.setVisibility(View.GONE);
-            mServerAuthPassCtr.setPasswordVisibilityToggleEnabled(true);
-            mServerAuthPass.removeTextChangedListener(mResetPasswordWatcher);
-        });
-
         mServerPort.setText(String.valueOf(getDefaultPort(mServerSSL.isEnabled())));
         mServerSSL.setOnCheckedChangeListener((CompoundButton buttonView, boolean isChecked) -> {
             if (String.valueOf(getDefaultPort(!isChecked)).equals(mServerPort.getText().toString()))
@@ -279,14 +250,13 @@ public class EditServerActivity extends ThemedActivity {
             mServerPort.setText(String.valueOf(mEditServer.port));
             mServerRejoinChannels.setChecked(mEditServer.rejoinChannels);
 
+            if (mEditServer.pass != null) {
+                mServerPass.setHasProtectedPassword(mEditServer.pass);
+            }
+
             if (mEditServer.authPass != null) {
-                mServerAuthPassReset.setVisibility(View.VISIBLE);
-                mServerAuthPassCtr.setForceShowHint(true);
-                mServerAuthPass.setHint(R.string.server_password_unchanged);
-                mServerAuthPass.addTextChangedListener(mResetPasswordWatcher);
-                mServerAuthPassCtr.setPasswordVisibilityToggleEnabled(false);
+                mServerAuthPass.setHasProtectedPassword(mEditServer.authPass);
                 mServerAuthUser.setText(mEditServer.authUser);
-                mOldServerAuthPass = mEditServer.authPass;
             }
             mServerCert = mEditServer.getAuthCert();
             if (mServerCert != null) {
@@ -297,14 +267,11 @@ public class EditServerActivity extends ThemedActivity {
             mServerPrivKeyType = mEditServer.authCertPrivKeyType;
             if (mEditServer.authMode != null) {
                 switch (mEditServer.authMode) {
-                    case ServerConfigData.AUTH_PASSWORD:
+                    case ServerConfigData.AUTH_SASL:
                         mServerAuthMode.setSelection(1);
                         break;
-                    case ServerConfigData.AUTH_SASL:
-                        mServerAuthMode.setSelection(2);
-                        break;
                     case ServerConfigData.AUTH_SASL_EXTERNAL:
-                        mServerAuthMode.setSelection(3);
+                        mServerAuthMode.setSelection(2);
                         break;
                     default:
                         mServerAuthMode.setSelection(0);
@@ -404,7 +371,6 @@ public class EditServerActivity extends ThemedActivity {
         if (mEditServer == null) {
             mEditServer = new ServerConfigData();
             mEditServer.uuid = UUID.randomUUID();
-            mEditServer.authPass = mOldServerAuthPass;
         } else {
             ServerConnectionInfo conn = ServerConnectionManager.getInstance(this).getConnection(mEditServer.uuid);
             if (conn != null) {
@@ -422,20 +388,16 @@ public class EditServerActivity extends ThemedActivity {
             mEditServer.nicks = null;
         mEditServer.user = mServerUser.getText().length() > 0 ? mServerUser.getText().toString() : null;
         mEditServer.realname = mServerRealname.getText().length() > 0 ? mServerRealname.getText().toString() : null;
+        mEditServer.pass = mServerPass.getPassword().length() > 0 ? mServerPass.getPassword() : null;
         int authModeInt = mServerAuthMode.getSelectedItemPosition();
-        boolean authModePassword = false;
         mEditServer.authCertData = null;
         mEditServer.authCertPrivKey = null;
         mEditServer.authCertPrivKeyType = null;
         if (authModeInt == 1) {
-            mEditServer.authMode = ServerConfigData.AUTH_PASSWORD;
-            mEditServer.authUser = null;
-            authModePassword = true;
-        } else if (authModeInt == 2) {
             mEditServer.authMode = ServerConfigData.AUTH_SASL;
             mEditServer.authUser = mServerAuthUser.getText().toString();
-            authModePassword = true;
-        } else if (authModeInt == 3) {
+            mEditServer.authPass = mServerAuthPass.getPassword();
+        } else if (authModeInt == 2) {
             mEditServer.authMode = ServerConfigData.AUTH_SASL_EXTERNAL;
             mEditServer.authUser = null;
             mEditServer.authPass = null;
@@ -451,8 +413,6 @@ public class EditServerActivity extends ThemedActivity {
             mEditServer.authUser = null;
             mEditServer.authPass = null;
         }
-        if (mServerAuthPassReset.getVisibility() == View.GONE && authModePassword)
-            mEditServer.authPass = mServerAuthPass.getText().toString();
         mEditServer.autojoinChannels = Arrays.asList(mServerChannels.getItems());
         mEditServer.rejoinChannels = mServerRejoinChannels.isChecked();
         mEditServer.execCommandsConnected = mServerCommands.getText().length() > 0
@@ -605,6 +565,54 @@ public class EditServerActivity extends ThemedActivity {
         mServerPrivKeyType = kp.getPrivate().getAlgorithm();
         mServerAuthSASLExtFP.setText(getString(R.string.server_sasl_ext_fp,
                 getCertificateFingerprint(mServerCert)));
+    }
+
+    private static class ResettablePasswordHelper {
+
+        private StaticLabelTextInputLayout mContainer;
+        private EditText mEditText;
+        private View mResetButton;
+        private String mProtectedValue;
+
+        private final TextWatcher mResetWatcher = new SimpleTextWatcher((s) -> {
+            if (s.length() > 0) {
+                mResetButton.setVisibility(View.GONE);
+                mContainer.setPasswordVisibilityToggleEnabled(true);
+            } else {
+                mResetButton.setVisibility(View.VISIBLE);
+                mContainer.setPasswordVisibilityToggleEnabled(false);
+            }
+        });
+
+        public ResettablePasswordHelper(StaticLabelTextInputLayout ctr, EditText editText,
+                                        View resetBtn) {
+            mContainer = ctr;
+            mEditText = editText;
+            mResetButton = resetBtn;
+
+            mResetButton.setOnClickListener((v) -> {
+                mContainer.setForceShowHint(false);
+                mResetButton.setVisibility(View.GONE);
+                mContainer.setPasswordVisibilityToggleEnabled(true);
+                mEditText.removeTextChangedListener(mResetWatcher);
+            });
+        }
+
+        public void setHasProtectedPassword(String password) {
+            mResetButton.setVisibility(View.VISIBLE);
+            mContainer.setForceShowHint(true);
+            mEditText.setHint(R.string.server_password_unchanged);
+            mEditText.addTextChangedListener(mResetWatcher);
+            mContainer.setPasswordVisibilityToggleEnabled(false);
+            mProtectedValue = password;
+        }
+
+        public String getPassword() {
+            if (mResetButton.getVisibility() == View.VISIBLE)
+                return mProtectedValue;
+            return mEditText.getText().toString();
+        }
+
     }
 
 }
