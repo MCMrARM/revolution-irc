@@ -20,7 +20,7 @@ import io.mrarm.irc.util.SimpleWildcardPattern;
 
 public class ServerConfigData {
 
-    public static final String AUTH_PASSWORD = "password";
+    private static final String AUTH_LEGACY_PASSWORD = "password";
     public static final String AUTH_SASL = "sasl";
     public static final String AUTH_SASL_EXTERNAL = "sasl_external";
 
@@ -31,6 +31,7 @@ public class ServerConfigData {
     public int port;
     public boolean ssl;
     public String charset;
+    public String pass;
     public String authMode;
     public String authUser;
     public String authPass;
@@ -49,6 +50,14 @@ public class ServerConfigData {
     public List<IgnoreEntry> ignoreList;
 
     public long storageLimit;
+
+    public void migrateLegacyProperties() {
+        if (authMode != null && authMode.equals(AUTH_LEGACY_PASSWORD)) {
+            pass = authPass;
+            authPass = null;
+            authMode = null;
+        }
+    }
 
     public X509Certificate getAuthCert() {
         if (authCertData == null)

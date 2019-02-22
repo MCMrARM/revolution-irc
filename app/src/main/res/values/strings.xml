@@ -220,10 +220,10 @@
 
     <string-array name="server_auth_modes">
         <item>None</item>
-        <item>Server password</item>
         <item>Username with password (SASL)</item>
         <item>Client certificate (CertFP)</item>
     </string-array>
+    <string name="server_password">Server password</string>
 
     <!-- Certificate manager -->
 
