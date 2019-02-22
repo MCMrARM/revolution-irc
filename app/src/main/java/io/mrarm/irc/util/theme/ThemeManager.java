@@ -263,8 +263,9 @@ public class ThemeManager {
                     currentCustomThemePatcher.getAssetManager() : context.getAssets(),
                     new DisplayMetrics(), c);
             Resources.Theme t = r.newTheme();
-            t.applyStyle(currentTheme.getThemeResId(), true);
-            IRCColorUtils.loadColors(t, currentTheme.getIRCColorsResId());
+            ThemeResInfo resInfo = currentTheme != null ? currentTheme : fallbackTheme;
+            t.applyStyle(resInfo.getThemeResId(), true);
+            IRCColorUtils.loadColors(t, resInfo.getIRCColorsResId());
             mNeedsApplyIrcColors = false;
         }
         if (currentCustomThemePatcher != null) {
