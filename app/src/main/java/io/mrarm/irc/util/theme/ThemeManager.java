@@ -53,6 +53,7 @@ public class ThemeManager {
     private List<ThemeChangeListener> themeChangeListeners = new ArrayList<>();
     private BaseTheme fallbackTheme;
     private Map<String, BaseTheme> baseThemes = new HashMap<>();
+    private List<BaseTheme> baseThemeList = new ArrayList<>();
     private Map<UUID, ThemeInfo> customThemes = new HashMap<>();
     private boolean mNeedsApplyIrcColors = true;
 
@@ -63,7 +64,7 @@ public class ThemeManager {
         fallbackTheme = new BaseTheme("default", R.string.value_default,
                 R.style.AppTheme, R.style.AppTheme_NoActionBar, R.style.AppTheme_IRCColors,
                 false);
-        baseThemes.put(fallbackTheme.getId(), fallbackTheme);
+        addBaseTheme(fallbackTheme);
         addBaseTheme(new BaseTheme("default_dark", R.string.theme_default_dark,
                 R.style.AppTheme, R.style.AppTheme_NoActionBar, R.style.AppTheme_IRCColors,
                 true));
@@ -77,6 +78,7 @@ public class ThemeManager {
     }
 
     private void addBaseTheme(BaseTheme theme) {
+        baseThemeList.add(theme);
         baseThemes.put(theme.getId(), theme);
     }
 
@@ -151,7 +153,7 @@ public class ThemeManager {
     }
 
     public Collection<BaseTheme> getBaseThemes() {
-        return baseThemes.values();
+        return baseThemeList;
     }
 
     public BaseTheme getBaseThemeOrFallback(String name) {
