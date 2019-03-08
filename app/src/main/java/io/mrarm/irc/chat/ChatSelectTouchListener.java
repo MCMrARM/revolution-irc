@@ -195,7 +195,8 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
 
     @Override
     public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-        if (((ChatMessagesAdapter) mRecyclerView.getAdapter()).getSelectedItems().size() > 0)
+        if (mRecyclerView.getAdapter() instanceof ChatMessagesAdapter &&
+                ((ChatMessagesAdapter) mRecyclerView.getAdapter()).getSelectedItems().size() > 0)
             return false;
         if (e.getActionMasked() == MotionEvent.ACTION_DOWN) {
             mTouchDownX = e.getX();
@@ -244,7 +245,8 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
     public void startLongPressSelect() {
         clearSelection();
 
-        ((ChatMessagesAdapter) mRecyclerView.getAdapter()).clearSelection();
+        if (mRecyclerView.getAdapter() instanceof ChatMessagesAdapter)
+            ((ChatMessagesAdapter) mRecyclerView.getAdapter()).clearSelection();
         if (!mLastTouchInText && mMultiSelectListener != null) {
             mMultiSelectListener.startSelectMode(mRecyclerView.getAdapter().getItemId(
                     getItemPosition(mLastTouchTextId)));
@@ -516,7 +518,8 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
             mCurrentActionMode = mode;
             MenuInflater inflater = mode.getMenuInflater();
             inflater.inflate(R.menu.menu_context_messages, menu);
-            mActionModeStateCallback.onActionModeStateChanged(mode, true);
+            if (mActionModeStateCallback != null)
+                mActionModeStateCallback.onActionModeStateChanged(mode, true);
             return true;
         }
 
@@ -552,7 +555,8 @@ public class ChatSelectTouchListener implements RecyclerView.OnItemTouchListener
 
         @Override
         public void onDestroyActionMode(ActionMode mode) {
-            mActionModeStateCallback.onActionModeStateChanged(mode, false);
+            if (mActionModeStateCallback != null)
+                mActionModeStateCallback.onActionModeStateChanged(mode, false);
             mCurrentActionMode = null;
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M ||
                     mode.getType() != ActionMode.TYPE_FLOATING)

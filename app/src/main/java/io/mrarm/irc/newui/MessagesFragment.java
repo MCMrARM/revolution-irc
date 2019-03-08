@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
+import io.mrarm.irc.chat.ChatSelectTouchListener;
 import io.mrarm.irc.util.UiThreadHelper;
 
 public class MessagesFragment extends Fragment implements MessagesData.Listener {
@@ -82,6 +83,9 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener 
         adapter.setUnreadData(mUnreadData);
         mRecyclerView.setAdapter(adapter);
         mRecyclerView.addOnScrollListener(new MessagesScrollListener());
+        ChatSelectTouchListener selectListener = new ChatSelectTouchListener(mRecyclerView);
+        mRecyclerView.addOnItemTouchListener(selectListener);
+        adapter.setMessageLongPressListener((i) -> selectListener.startLongPressSelect());
         return rootView;
     }
 

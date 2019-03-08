@@ -17,7 +17,8 @@ import io.mrarm.irc.util.MessageBuilder;
 import io.mrarm.irc.util.UiThreadHelper;
 
 public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.BaseHolder<?>>
-        implements MessagesData.Listener, MessagesUnreadData.FirstUnreadMessageListener {
+        implements MessagesData.Listener, MessagesUnreadData.FirstUnreadMessageListener,
+        ChatSelectTouchListener.AdapterInterface{
 
     public static final int TYPE_MESSAGE = 0;
     public static final int TYPE_MESSAGE_WITH_NEW_MESSAGES_MARKER = 1;
@@ -26,11 +27,16 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.BaseHo
     private final MessagesData mData;
     private MessageId mFirstUnreadMessageId;
     private long mStableIdOffset = 1000000000;
+    private MessageLongPressListener mMessageLongPressListener;
 
     public MessagesAdapter(MessagesData data) {
         setHasStableIds(true);
         mData = data;
         mData.addListener(this);
+    }
+
+    public void setMessageLongPressListener(MessageLongPressListener listener) {
+        mMessageLongPressListener = listener;
     }
 
     public void setUnreadData(MessagesUnreadData data) {
@@ -87,6 +93,20 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.BaseHo
     @Override
     public long getItemId(int position) {
         return position + mStableIdOffset;
+    }
+
+    @Override
+    public int getItemPosition(long id) {
+        return (int) (id - mStableIdOffset);
+    }
+
+    @Override
+    public CharSequence getTextAt(int position) {
+        MessagesData.Item i = mData.get(position);
+        if (i instanceof MessagesData.MessageItem)
+            return MessageBuilder.getInstance(null)
+                    .buildMessage(((MessagesData.MessageItem) i).getMessage());
+        return null;
     }
 
     @Override
@@ -157,6 +177,13 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.BaseHo
             super(itemView);
             mText = itemView.findViewById(R.id.chat_message);
             mText.setMovementMethod(LinkMovementMethod.getInstance());
+            mText.setOnLongClickListener((v) -> {
+                if (mMessageLongPressListener != null) {
+                    mMessageLongPressListener.onMessageLongPressed(getAdapterPosition());
+                    return true;
+                }
+                return false;
+            });
         }
 
         private CharSequence buildMessage(MessagesData.MessageItem item) {
@@ -187,6 +214,12 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.BaseHo
         public void bind(MessagesData.DayMarkerItem item) {
             mText.setText(item.getMessageText(mText.getContext()));
         }
+
+    }
+
+    public interface MessageLongPressListener {
+
+        void onMessageLongPressed(int pos);
 
     }
 
