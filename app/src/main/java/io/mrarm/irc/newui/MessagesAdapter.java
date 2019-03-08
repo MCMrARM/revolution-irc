@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import io.mrarm.chatlib.dto.MessageId;
 import io.mrarm.irc.NotificationManager;
 import io.mrarm.irc.R;
+import io.mrarm.irc.chat.ChatSelectTouchListener;
 import io.mrarm.irc.util.AlignToPointSpan;
 import io.mrarm.irc.util.MessageBuilder;
 import io.mrarm.irc.util.UiThreadHelper;
@@ -24,8 +25,10 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.BaseHo
 
     private final MessagesData mData;
     private MessageId mFirstUnreadMessageId;
+    private long mStableIdOffset = 1000000000;
 
     public MessagesAdapter(MessagesData data) {
+        setHasStableIds(true);
         mData = data;
         mData.addListener(this);
     }
@@ -82,6 +85,11 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.BaseHo
     }
 
     @Override
+    public long getItemId(int position) {
+        return position + mStableIdOffset;
+    }
+
+    @Override
     public int getItemCount() {
         return mData.size();
     }
@@ -95,6 +103,9 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.BaseHo
     @Override
     public void onItemsAdded(int pos, int count) {
         UiThreadHelper.runOnUiThread(() -> {
+            // NOTE: Currently items can be only added at the start or the end, so this is safe.
+            if (pos == 0)
+                mStableIdOffset -= count;
             if (count > 1)
                 notifyItemRangeInserted(pos, count);
             else
@@ -105,6 +116,8 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.BaseHo
     @Override
     public void onItemsRemoved(int pos, int count) {
         UiThreadHelper.runOnUiThread(() -> {
+            if (pos == 0)
+                mStableIdOffset += count;
             notifyItemRangeRemoved(pos, count);
         });
     }
