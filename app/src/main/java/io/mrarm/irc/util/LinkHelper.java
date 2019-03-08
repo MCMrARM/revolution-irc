@@ -6,6 +6,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ClickableSpan;
+import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.view.View;
 
@@ -22,7 +23,7 @@ import io.mrarm.irc.dialog.MenuBottomSheetDialog;
 
 public class LinkHelper {
 
-    private static final Pattern sChannelLinksPattern = Pattern.compile("(^| )(#[a-zA-Z]*)(?=$| |,)");
+    private static final Pattern sChannelLinksPattern = Pattern.compile("(^| )(#[^ ,\u0007]+)");
 
     public static CharSequence addLinks(CharSequence spannable) {
         if (!(spannable instanceof Spannable))
@@ -33,6 +34,8 @@ public class LinkHelper {
             int start = matcher.start(2);
             int end = matcher.end(2);
             String text = matcher.group(2);
+            for (Object o : ((Spannable) spannable).getSpans(start, end, URLSpan.class))
+                ((Spannable) spannable).removeSpan(o);
             ((Spannable) spannable).setSpan(new ChannelLinkSpan(text), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         return spannable;
