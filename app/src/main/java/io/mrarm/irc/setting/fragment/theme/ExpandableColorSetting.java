@@ -169,6 +169,8 @@ public class ExpandableColorSetting extends MaterialColorSetting {
                 if (mChangingValue)
                     return;
                 try {
+                    if (s.length() == 0)
+                        return;
                     setColor(Color.parseColor(s.toString()), mValueHex, true);
                 } catch (IllegalArgumentException ignored) {
                 }
