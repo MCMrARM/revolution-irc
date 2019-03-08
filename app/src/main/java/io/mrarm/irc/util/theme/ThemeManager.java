@@ -5,6 +5,9 @@ import android.content.Context;
 
 import androidx.appcompat.app.AppCompatDelegate;
 
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.util.DisplayMetrics;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -50,8 +53,9 @@ public class ThemeManager {
     private List<ThemeChangeListener> themeChangeListeners = new ArrayList<>();
     private BaseTheme fallbackTheme;
     private Map<String, BaseTheme> baseThemes = new HashMap<>();
+    private List<BaseTheme> baseThemeList = new ArrayList<>();
     private Map<UUID, ThemeInfo> customThemes = new HashMap<>();
-    private boolean mNeedsApplyIrcColors;
+    private boolean mNeedsApplyIrcColors = true;
 
     public ThemeManager(Context context) {
         this.context = context;
@@ -60,7 +64,7 @@ public class ThemeManager {
         fallbackTheme = new BaseTheme("default", R.string.value_default,
                 R.style.AppTheme, R.style.AppTheme_NoActionBar, R.style.AppTheme_IRCColors,
                 false);
-        baseThemes.put(fallbackTheme.getId(), fallbackTheme);
+        addBaseTheme(fallbackTheme);
         addBaseTheme(new BaseTheme("default_dark", R.string.theme_default_dark,
                 R.style.AppTheme, R.style.AppTheme_NoActionBar, R.style.AppTheme_IRCColors,
                 true));
@@ -74,6 +78,7 @@ public class ThemeManager {
     }
 
     private void addBaseTheme(BaseTheme theme) {
+        baseThemeList.add(theme);
         baseThemes.put(theme.getId(), theme);
     }
 
@@ -148,7 +153,7 @@ public class ThemeManager {
     }
 
     public Collection<BaseTheme> getBaseThemes() {
-        return baseThemes.values();
+        return baseThemeList;
     }
 
     public BaseTheme getBaseThemeOrFallback(String name) {
@@ -194,6 +199,7 @@ public class ThemeManager {
                         theme.substring(PREF_THEME_CUSTOM_PREFIX.length()));
                 applyTheme(customThemes.get(uuid));
             } catch (IllegalArgumentException ignored) {
+                applyTheme(fallbackTheme);
             }
         } else {
             applyTheme(baseThemes.get(theme));
@@ -248,20 +254,33 @@ public class ThemeManager {
                     theme.getResTable());
             currentCustomThemePatcher = new Theme(context, themeFile.getAbsolutePath());
         }
-        if (currentCustomThemePatcher != null) {
-            currentCustomThemePatcher.applyToActivity(activity);
-        }
         ThemeResInfo currentBaseTheme = currentTheme;
         if (currentCustomTheme != null)
             currentBaseTheme = currentCustomTheme.baseThemeInfo;
+        if (mNeedsApplyIrcColors) {
+            Configuration c = new Configuration();
+            c.setToDefaults();
+            c.uiMode = Configuration.UI_MODE_TYPE_NORMAL;
+            if (currentBaseTheme instanceof BaseTheme && ((BaseTheme) currentBaseTheme).isDark)
+                c.uiMode |= Configuration.UI_MODE_NIGHT_YES;
+            Resources r = new Resources(currentCustomThemePatcher != null ?
+                    currentCustomThemePatcher.getAssetManager() : context.getAssets(),
+                    new DisplayMetrics(), c);
+            Resources.Theme t = r.newTheme();
+            ThemeResInfo resInfo = currentTheme != null ? currentTheme : fallbackTheme;
+            t.applyStyle(resInfo.getThemeResId(), true);
+            IRCColorUtils.loadColors(t, resInfo.getIRCColorsResId());
+            mNeedsApplyIrcColors = false;
+        }
+        if (currentCustomThemePatcher != null) {
+            currentCustomThemePatcher.applyToActivity(activity);
+        }
         if (currentBaseTheme instanceof BaseTheme) {
             if (((BaseTheme) currentBaseTheme).isDark)
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
             else
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         }
-        if (mNeedsApplyIrcColors)
-            IRCColorUtils.loadColors(activity.getTheme(), currentTheme.getIRCColorsResId());
     }
 
     public int getThemeIdToApply(int appThemeId) {

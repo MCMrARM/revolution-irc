@@ -61,6 +61,7 @@ public class ChatLogStorageManager implements ServerConfigManager.ConnectionsLis
         mServerConfigManager = ServerConfigManager.getInstance(context);
 
         SettingsHelper.registerCallbacks(this);
+        onSettingChanged();
 
         mExecutor = new PoolSerialExecutor();
 
