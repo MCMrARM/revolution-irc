@@ -450,6 +450,8 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
                 deleteChatLogDir(mDeleteServerLogs);
             } else {
                 File[] logFiles = ServerConfigManager.getInstance(mContext).getChatLogDir().listFiles();
+                if (logFiles == null)
+                    logFiles = new File[0];
                 for (File file : logFiles) {
                     try {
                         deleteChatLogDir(UUID.fromString(file.getName()));
