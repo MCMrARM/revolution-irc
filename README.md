@@ -4,7 +4,7 @@ Revolution IRC
 Revolution IRC Client is the next-generation IRC client for Android, made with design and functionality in mind. Let's start this revolution!
 
 <a href="https://f-droid.org/packages/io.mrarm.irc/" target="_blank">
-<img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80"/></a>
+<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80"/></a>
 <a href="https://play.google.com/store/apps/details?id=io.mrarm.irc" target="_blank">
 <img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" alt="Get it on Google Play" height="80"/></a>
 
