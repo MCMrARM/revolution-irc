@@ -46,11 +46,11 @@ public class ThemedActivity extends AppCompatActivity implements ThemeManager.Th
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
+        newConfig = new Configuration(newConfig);
         if (AppCompatDelegate.getDefaultNightMode() == mDarkMode) {
             if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES) {
                 newConfig.uiMode &= ~(Configuration.UI_MODE_NIGHT_MASK);
                 newConfig.uiMode |= Configuration.UI_MODE_NIGHT_YES;
-                getResources().updateConfiguration(newConfig, getResources().getDisplayMetrics());
             }
         }
         ThemeManager helper = ThemeManager.getInstance(this);
