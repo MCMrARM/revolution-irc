@@ -31,6 +31,7 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener 
     private String mChannelName;
     private MessagesData mData;
     private MessagesUnreadData mUnreadData;
+    private MessagesAdapter mAdapter;
 
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
@@ -62,6 +63,9 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener 
         mUnreadData.load();
 
         mData.addListener(this);
+
+        mAdapter = new MessagesAdapter(mData);
+        mAdapter.setUnreadData(mUnreadData);
     }
 
     @Override
@@ -79,13 +83,11 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener 
         mLayoutManager = new LinearLayoutManager(getContext());
         mLayoutManager.setStackFromEnd(true);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        MessagesAdapter adapter = new MessagesAdapter(mData);
-        adapter.setUnreadData(mUnreadData);
-        mRecyclerView.setAdapter(adapter);
+        mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.addOnScrollListener(new MessagesScrollListener());
         ChatSelectTouchListener selectListener = new ChatSelectTouchListener(mRecyclerView);
+        mAdapter.setMessageLongPressListener((i) -> selectListener.startLongPressSelect());
         mRecyclerView.addOnItemTouchListener(selectListener);
-        adapter.setMessageLongPressListener((i) -> selectListener.startLongPressSelect());
         return rootView;
     }
 
