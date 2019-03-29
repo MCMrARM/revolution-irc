@@ -14,9 +14,11 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import io.mrarm.chatlib.dto.MessageId;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
+import io.mrarm.irc.chat.ChannelUIData;
 import io.mrarm.irc.chat.ChatSelectTouchListener;
 import io.mrarm.irc.util.UiThreadHelper;
 
@@ -29,9 +31,11 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener 
 
     private ServerConnectionInfo mConnection;
     private String mChannelName;
+    private ChannelUIData mUIInfo;
     private MessagesData mData;
     private MessagesUnreadData mUnreadData;
     private MessagesAdapter mAdapter;
+    private MessageId mInitialMessageId;
 
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
@@ -56,8 +60,11 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener 
                 .getConnection(connectionUUID);
         mChannelName = getArguments().getString(ARG_CHANNEL_NAME);
 
+        mUIInfo = mConnection.getChatUIData().getOrCreateChannelData(mChannelName);
+        mInitialMessageId = mUIInfo.getFirstVisibleMessage();
+
         mData = new MessagesData(getContext(), mConnection, mChannelName);
-        mData.load(null);
+        mData.load(mInitialMessageId, null);
 
         mUnreadData = new MessagesUnreadData(mConnection, mChannelName);
         mUnreadData.load();
@@ -88,7 +95,44 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener 
         ChatSelectTouchListener selectListener = new ChatSelectTouchListener(mRecyclerView);
         mAdapter.setMessageLongPressListener((i) -> selectListener.startLongPressSelect());
         mRecyclerView.addOnItemTouchListener(selectListener);
+        if (mInitialMessageId != null) {
+            ScrollToMessageListener scrollTo = new ScrollToMessageListener();
+            mData.addListener(scrollTo);
+            scrollTo.check();
+        }
         return rootView;
+    }
+
+    private MessageId findFirstVisibleMessage() {
+        int mi = mLayoutManager.findFirstCompletelyVisibleItemPosition();
+        for (int i = mi; i < mLayoutManager.getItemCount(); i++) {
+            if (mData.get(i) instanceof MessagesData.MessageItem)
+                return ((MessagesData.MessageItem) mData.get(i)).getMessageId();
+        }
+        for (int i = mi - 1; i >= 0; --i) {
+            if (mData.get(i) instanceof MessagesData.MessageItem)
+                return ((MessagesData.MessageItem) mData.get(i)).getMessageId();
+        }
+        return null;
+    }
+
+    private void saveScrollPosition() {
+        if (mLayoutManager.findLastVisibleItemPosition() >= mLayoutManager.getItemCount() - 1)
+            mUIInfo.setFirstVisibleMessage(null);
+        else
+            mUIInfo.setFirstVisibleMessage(findFirstVisibleMessage());
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        saveScrollPosition();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        saveScrollPosition();
     }
 
     @Override
@@ -136,6 +180,31 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener 
             }
         }
 
+    }
+
+    private class ScrollToMessageListener implements MessagesData.Listener {
+
+        public void check() {
+            int iof = mData.findMessageWithId(mInitialMessageId);
+            if (iof != -1) {
+                mLayoutManager.scrollToPositionWithOffset(iof, 0);
+                mData.removeListener(this);
+            }
+        }
+
+        @Override
+        public void onReloaded() {
+            check();
+        }
+
+        @Override
+        public void onItemsAdded(int pos, int count) {
+            check();
+        }
+
+        @Override
+        public void onItemsRemoved(int pos, int count) {
+        }
     }
 
 }

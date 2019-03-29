@@ -3,6 +3,7 @@ package io.mrarm.irc.chat;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.mrarm.chatlib.dto.MessageId;
 import io.mrarm.irc.util.SpannableStringHelper;
 
 public class ChannelUIData {
@@ -11,6 +12,7 @@ public class ChannelUIData {
 
     private final List<CharSequence> mSentMessageHistory = new ArrayList<>();
     private CharSequence mCurrentText = null;
+    private MessageId mFirstVisibleMessage = null;
 
     public void setCurrentText(CharSequence currentText) {
         if (currentText == null || currentText.length() == 0)
@@ -33,4 +35,11 @@ public class ChannelUIData {
             mSentMessageHistory.remove(0);
     }
 
+    public MessageId getFirstVisibleMessage() {
+        return mFirstVisibleMessage;
+    }
+
+    public void setFirstVisibleMessage(MessageId value) {
+        this.mFirstVisibleMessage = value;
+    }
 }

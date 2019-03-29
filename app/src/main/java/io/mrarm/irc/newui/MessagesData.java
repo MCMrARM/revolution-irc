@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 
 import io.mrarm.chatlib.ResponseCallback;
+import io.mrarm.chatlib.ResponseErrorCallback;
 import io.mrarm.chatlib.dto.MessageFilterOptions;
 import io.mrarm.chatlib.dto.MessageId;
 import io.mrarm.chatlib.dto.MessageInfo;
@@ -83,7 +84,7 @@ public class MessagesData implements MessageListener {
         mListeners.remove(listener);
     }
 
-    public void load(MessageFilterOptions filterOptions) {
+    public void load(MessageId near, MessageFilterOptions filterOptions) {
         Log.d("MessagesData", "Loading messages");
         synchronized (this) {
             mFilterOptions = filterOptions;
@@ -110,12 +111,16 @@ public class MessagesData implements MessageListener {
                 }
             };
         }
-        mSource.getMessages(mChannel, ITEMS_ON_SCREEN, filterOptions, null, mLoadingMessages,
-                (e) -> {
-                    Toast.makeText(mContext, R.string.error_generic, Toast.LENGTH_SHORT).show();
-                    Log.e("MessagesData", "Failed to load messages");
-                    e.printStackTrace();
-                });
+        ResponseErrorCallback errorCb = (e) -> {
+            Toast.makeText(mContext, R.string.error_generic, Toast.LENGTH_SHORT).show();
+            Log.e("MessagesData", "Failed to load messages");
+            e.printStackTrace();
+        };
+        if (near != null) {
+            mSource.getMessagesNear(mChannel, near, filterOptions, mLoadingMessages, errorCb);
+        } else {
+            mSource.getMessages(mChannel, ITEMS_ON_SCREEN, filterOptions, null, mLoadingMessages, errorCb);
+        }
     }
 
     public void unload() {
