@@ -257,6 +257,11 @@ public class ThemeManager {
         ThemeResInfo currentBaseTheme = currentTheme;
         if (currentCustomTheme != null)
             currentBaseTheme = currentCustomTheme.baseThemeInfo;
+        boolean isThemeDark = currentBaseTheme instanceof BaseTheme &&
+                ((BaseTheme) currentBaseTheme).isDark;
+        if (currentCustomThemePatcher == null && isThemeDark) {
+            currentCustomThemePatcher = new Theme(activity.getAssets());
+        }
         if (mNeedsApplyIrcColors) {
             Configuration c = new Configuration();
             c.setToDefaults();
@@ -275,12 +280,10 @@ public class ThemeManager {
         if (currentCustomThemePatcher != null) {
             currentCustomThemePatcher.applyToActivity(activity);
         }
-        if (currentBaseTheme instanceof BaseTheme) {
-            if (((BaseTheme) currentBaseTheme).isDark)
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-            else
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-        }
+        if (isThemeDark)
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        else
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
     }
 
     public int getThemeIdToApply(int appThemeId) {

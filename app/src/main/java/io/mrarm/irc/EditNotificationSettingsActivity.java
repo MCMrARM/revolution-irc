@@ -253,7 +253,8 @@ public class EditNotificationSettingsActivity extends ThemedActivity {
 
     private void loadNotificationRuleSettings() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O ||
-                mEditingRule == null || mEditingRule.settings.notificationChannelId == null)
+                mEditingRule == null || mEditingRule.settings == null ||
+                mEditingRule.settings.notificationChannelId == null)
             return;
         android.app.NotificationManager mgr = (android.app.NotificationManager)
                 getSystemService(NOTIFICATION_SERVICE);
