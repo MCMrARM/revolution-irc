@@ -41,6 +41,8 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener 
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
 
+    private JumpToRecentButton mJumpButton;
+
     public static MessagesFragment newInstance(ServerConnectionInfo server,
                                                    String channelName) {
         MessagesFragment fragment = new MessagesFragment();
@@ -101,8 +103,8 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener 
             mData.addListener(scrollTo);
             scrollTo.check();
         }
-        JumpToRecentButton button = rootView.findViewById(R.id.jump_to_recent);
-        button.setOnClickListener((v) -> scrollToBottom());
+        mJumpButton = rootView.findViewById(R.id.jump_to_recent);
+        mJumpButton.setOnClickListener((v) -> scrollToBottom());
         return rootView;
     }
 
@@ -183,6 +185,8 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener 
 
     private class MessagesScrollListener extends RecyclerView.OnScrollListener {
 
+        private boolean mJumpVisiblity;
+
         @Override
         public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
             int firstVisible = mLayoutManager.findFirstVisibleItemPosition();
@@ -192,6 +196,11 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener 
             }
             if (lastVisible >= mLayoutManager.getItemCount() - LOAD_MORE_REMAINING_ITEM_COUNT) {
                 mData.loadMoreMessages(true);
+            }
+            boolean newJumpVisibility = lastVisible < mLayoutManager.getItemCount() - 1;
+            if (newJumpVisibility != mJumpVisiblity) {
+                mJumpButton.setVisibleAnimated(newJumpVisibility);
+                mJumpVisiblity = newJumpVisibility;
             }
         }
 
