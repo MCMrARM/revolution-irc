@@ -21,6 +21,7 @@ import io.mrarm.irc.ServerConnectionManager;
 import io.mrarm.irc.chat.ChannelUIData;
 import io.mrarm.irc.chat.ChatSelectTouchListener;
 import io.mrarm.irc.util.UiThreadHelper;
+import io.mrarm.irc.view.JumpToRecentButton;
 
 public class MessagesFragment extends Fragment implements MessagesData.Listener {
 
@@ -100,6 +101,8 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener 
             mData.addListener(scrollTo);
             scrollTo.check();
         }
+        JumpToRecentButton button = rootView.findViewById(R.id.jump_to_recent);
+        button.setOnClickListener((v) -> scrollToBottom());
         return rootView;
     }
 
@@ -121,6 +124,18 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener 
             mUIInfo.setFirstVisibleMessage(null);
         else
             mUIInfo.setFirstVisibleMessage(findFirstVisibleMessage());
+    }
+
+    private void scrollToBottom() {
+        if (mAdapter.getItemCount() - mLayoutManager.findLastCompletelyVisibleItemPosition() <= 50) {
+            mRecyclerView.smoothScrollToPosition(mAdapter.getItemCount() - 1);
+        } else {
+            if (mData.hasMoreMessages(true)) {
+                mData.load(null, null);
+            } else {
+                mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
+            }
+        }
     }
 
     @Override

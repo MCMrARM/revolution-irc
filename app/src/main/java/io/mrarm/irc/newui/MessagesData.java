@@ -141,6 +141,11 @@ public class MessagesData implements MessageListener {
         }
     }
 
+    public boolean hasMoreMessages(boolean newer) {
+        MessageListAfterIdentifier after = newer ? mNewerMessages : mOlderMessages;
+        return after != null;
+    }
+
     public synchronized boolean loadMoreMessages(boolean newer) {
         Log.d("MessagesData", "Loading more messages " + (newer ? "(newer)" : "(older)"));
         MessageListAfterIdentifier after = newer ? mNewerMessages : mOlderMessages;
