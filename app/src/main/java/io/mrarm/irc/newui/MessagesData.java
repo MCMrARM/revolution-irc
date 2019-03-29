@@ -21,6 +21,7 @@ import io.mrarm.chatlib.message.MessageStorageApi;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.util.TwoWayList;
+import io.mrarm.irc.util.UiThreadHelper;
 
 public class MessagesData implements MessageListener {
 
@@ -55,15 +56,15 @@ public class MessagesData implements MessageListener {
         return mChannel;
     }
 
-    public synchronized Item get(int i) {
+    public Item get(int i) {
         return mItems.get(i);
     }
 
-    public synchronized int size() {
+    public int size() {
         return mItems.size();
     }
 
-    public synchronized int findMessageWithId(MessageId id) {
+    public int findMessageWithId(MessageId id) {
         if (id == null)
             return -1;
         for (int i = mItems.size() - 1; i >= 0; --i) {
@@ -90,6 +91,9 @@ public class MessagesData implements MessageListener {
             mLoadingMessages = new CancellableMessageListCallback() {
                 @Override
                 public void onResponse(MessageList l) {
+                    UiThreadHelper.runOnUiThread(() -> onResponseUI(l));
+                }
+                private void onResponseUI(MessageList l) {
                     synchronized (MessagesData.this) {
                         if (isCancelled())
                             return;
@@ -140,6 +144,9 @@ public class MessagesData implements MessageListener {
         mLoadingMessages = new CancellableMessageListCallback() {
             @Override
             public void onResponse(MessageList l) {
+                UiThreadHelper.runOnUiThread(() -> onResponseUI(l));
+            }
+            private void onResponseUI(MessageList l) {
                 synchronized (MessagesData.this) {
                     if (isCancelled())
                         return;
@@ -212,8 +219,10 @@ public class MessagesData implements MessageListener {
 
     @Override
     public synchronized void onMessage(String channel, MessageInfo message, MessageId messageId) {
-        if (mNewerMessages == null)
-            appendMessage(message, messageId);
+        UiThreadHelper.runOnUiThread(() -> {
+            if (mNewerMessages == null)
+                appendMessage(message, messageId);
+        });
     }
 
     public static class Item {

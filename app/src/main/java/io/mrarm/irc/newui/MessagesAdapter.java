@@ -14,7 +14,6 @@ import io.mrarm.irc.R;
 import io.mrarm.irc.chat.ChatSelectTouchListener;
 import io.mrarm.irc.util.AlignToPointSpan;
 import io.mrarm.irc.util.MessageBuilder;
-import io.mrarm.irc.util.UiThreadHelper;
 
 public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.BaseHolder<?>>
         implements MessagesData.Listener, MessagesUnreadData.FirstUnreadMessageListener,
@@ -117,42 +116,36 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.BaseHo
 
     @Override
     public void onReloaded() {
-        UiThreadHelper.runOnUiThread(this::notifyDataSetChanged);
+        notifyDataSetChanged();
     }
 
     @Override
     public void onItemsAdded(int pos, int count) {
-        UiThreadHelper.runOnUiThread(() -> {
-            // NOTE: Currently items can be only added at the start or the end, so this is safe.
-            if (pos == 0)
-                mStableIdOffset -= count;
-            if (count > 1)
-                notifyItemRangeInserted(pos, count);
-            else
-                notifyItemInserted(pos);
-        });
+        // NOTE: Currently items can be only added at the start or the end, so this is safe.
+        if (pos == 0)
+            mStableIdOffset -= count;
+        if (count > 1)
+            notifyItemRangeInserted(pos, count);
+        else
+            notifyItemInserted(pos);
     }
 
     @Override
     public void onItemsRemoved(int pos, int count) {
-        UiThreadHelper.runOnUiThread(() -> {
-            if (pos == 0)
-                mStableIdOffset += count;
-            notifyItemRangeRemoved(pos, count);
-        });
+        if (pos == 0)
+            mStableIdOffset += count;
+        notifyItemRangeRemoved(pos, count);
     }
 
     @Override
     public void onFirstUnreadMesssageSet(MessageId m) {
-        UiThreadHelper.runOnUiThread(() -> {
-            int oldI = mData.findMessageWithId(mFirstUnreadMessageId);
-            mFirstUnreadMessageId = m;
-            int newI = mData.findMessageWithId(m);
-            if (oldI != -1)
-                notifyItemChanged(oldI);
-            if (newI != -1)
-                notifyItemChanged(newI);
-        });
+        int oldI = mData.findMessageWithId(mFirstUnreadMessageId);
+        mFirstUnreadMessageId = m;
+        int newI = mData.findMessageWithId(m);
+        if (oldI != -1)
+            notifyItemChanged(oldI);
+        if (newI != -1)
+            notifyItemChanged(newI);
     }
 
     public abstract static class BaseHolder<T extends MessagesData.Item>
