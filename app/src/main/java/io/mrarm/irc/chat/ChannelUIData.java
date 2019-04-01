@@ -13,6 +13,7 @@ public class ChannelUIData {
     private final List<CharSequence> mSentMessageHistory = new ArrayList<>();
     private CharSequence mCurrentText = null;
     private MessageId mFirstVisibleMessage = null;
+    private boolean mHasUnreadMessagesAbove = false;
 
     public void setCurrentText(CharSequence currentText) {
         if (currentText == null || currentText.length() == 0)
@@ -41,5 +42,13 @@ public class ChannelUIData {
 
     public void setFirstVisibleMessage(MessageId value) {
         this.mFirstVisibleMessage = value;
+    }
+
+    public boolean hasUnreadMessagesAbove() {
+        return mHasUnreadMessagesAbove;
+    }
+
+    public void setHasUnreadMessagesAbove(boolean value) {
+        mHasUnreadMessagesAbove = value;
     }
 }

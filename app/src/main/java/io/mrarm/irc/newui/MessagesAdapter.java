@@ -17,7 +17,7 @@ import io.mrarm.irc.util.MessageBuilder;
 
 public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.BaseHolder<?>>
         implements MessagesData.Listener, MessagesUnreadData.FirstUnreadMessageListener,
-        ChatSelectTouchListener.AdapterInterface{
+        ChatSelectTouchListener.AdapterInterface {
 
     public static final int TYPE_MESSAGE = 0;
     public static final int TYPE_MESSAGE_WITH_NEW_MESSAGES_MARKER = 1;

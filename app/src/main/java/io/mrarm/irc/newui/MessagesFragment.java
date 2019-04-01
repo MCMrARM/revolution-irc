@@ -23,7 +23,8 @@ import io.mrarm.irc.chat.ChatSelectTouchListener;
 import io.mrarm.irc.util.UiThreadHelper;
 import io.mrarm.irc.view.JumpToRecentButton;
 
-public class MessagesFragment extends Fragment implements MessagesData.Listener {
+public class MessagesFragment extends Fragment implements MessagesData.Listener,
+        MessagesUnreadData.UnreadMessageCountListener {
 
     protected static final String ARG_SERVER_UUID = "server_uuid";
     protected static final String ARG_CHANNEL_NAME = "channel";
@@ -70,6 +71,7 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener 
         mData.load(mInitialMessageId, null);
 
         mUnreadData = new MessagesUnreadData(mConnection, mChannelName);
+        mUnreadData.setUnreadMessageCountListener(this);
         mUnreadData.load();
 
         mData.addListener(this);
@@ -105,6 +107,7 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener 
         }
         mJumpButton = rootView.findViewById(R.id.jump_to_recent);
         mJumpButton.setOnClickListener((v) -> scrollToBottom());
+        onUnreadMessageCountChanged(mUnreadData.getUnreadCount());
         return rootView;
     }
 
@@ -175,6 +178,19 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener 
     public void onItemsRemoved(int pos, int count) {
     }
 
+    @Override
+    public void onUnreadMessageCountChanged(int count) {
+        UiThreadHelper.runOnUiThread(() -> {
+            if (mJumpButton == null)
+                return;
+            if (mUIInfo.hasUnreadMessagesAbove()) {
+                mJumpButton.setCounter(0);
+            } else {
+                mJumpButton.setCounter(count);
+            }
+        });
+    }
+
     public ServerConnectionInfo getConnection() {
         return mConnection;
     }
@@ -202,6 +218,7 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener 
                 mJumpButton.setVisibleAnimated(newJumpVisibility);
                 mJumpVisiblity = newJumpVisibility;
             }
+            saveScrollPosition();
         }
 
     }
