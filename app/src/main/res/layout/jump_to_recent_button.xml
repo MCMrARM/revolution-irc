@@ -3,15 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <ImageView
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/button"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:background="@drawable/jump_to_bottom_background"
-        app:backgroundTint="#10000000"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:fabSize="mini"
+        app:backgroundTint="#FFF"
         android:padding="8dp"
         app:srcCompat="@drawable/ic_arrow_down"
-        android:tint="@color/iconColor" />
+        android:tint="@color/iconColor"
+        app:elevation="2dp" />
 
     <TextView
         android:id="@+id/counter"
@@ -23,6 +24,8 @@
         app:backgroundTint="?attr/colorAccent"
         android:textColor="#fff"
         tools:text="7"
-        android:gravity="center" />
+        android:gravity="center"
+        android:elevation="1dp"
+        android:translationZ="16dp" />
 
 </merge>
