@@ -6,6 +6,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.util.UUID;
 
@@ -43,6 +44,8 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener,
     private LinearLayoutManager mLayoutManager;
 
     private JumpToRecentButton mJumpButton;
+    private View mUnreadView;
+    private TextView mUnreadCounter;
 
     public static MessagesFragment newInstance(ServerConnectionInfo server,
                                                    String channelName) {
@@ -92,6 +95,10 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.chat_messages_fragment, container, false);
         mRecyclerView = rootView.findViewById(R.id.messages);
+        mJumpButton = rootView.findViewById(R.id.jump_to_recent);
+        mUnreadView = rootView.findViewById(R.id.unread_counter_ctr);
+        mUnreadCounter = rootView.findViewById(R.id.unread_counter);
+
         mLayoutManager = new LinearLayoutManager(getContext());
         mLayoutManager.setStackFromEnd(true);
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -100,13 +107,11 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener,
         ChatSelectTouchListener selectListener = new ChatSelectTouchListener(mRecyclerView);
         mAdapter.setMessageLongPressListener((i) -> selectListener.startLongPressSelect());
         mRecyclerView.addOnItemTouchListener(selectListener);
-        if (mInitialMessageId != null) {
-            ScrollToMessageListener scrollTo = new ScrollToMessageListener();
-            mData.addListener(scrollTo);
-            scrollTo.check();
-        }
-        mJumpButton = rootView.findViewById(R.id.jump_to_recent);
+        if (mInitialMessageId != null)
+            scrollToMessage(mInitialMessageId);
         mJumpButton.setOnClickListener((v) -> scrollToBottom());
+        mUnreadView.setOnClickListener((v) -> scrollToMessage(
+                mUnreadData.getFirstUnreadMessageId()));
         onUnreadMessageCountChanged(mUnreadData.getUnreadCount());
         return rootView;
     }
@@ -140,6 +145,14 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener,
             } else {
                 mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
             }
+        }
+    }
+
+    private void scrollToMessage(MessageId msg) {
+        ScrollToMessageListener scrollTo = new ScrollToMessageListener(msg);
+        mData.addListener(scrollTo);
+        if (!scrollTo.check()) {
+            mData.load(msg, null);
         }
     }
 
@@ -185,8 +198,12 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener,
                 return;
             if (mUIInfo.hasUnreadMessagesAbove()) {
                 mJumpButton.setCounter(0);
+                mUnreadView.setVisibility(View.VISIBLE);
+                mUnreadCounter.setText(getResources().getQuantityString(
+                        R.plurals.unread_message_counter, count, count));
             } else {
                 mJumpButton.setCounter(count);
+                mUnreadView.setVisibility(View.GONE);
             }
         });
     }
@@ -225,12 +242,20 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener,
 
     private class ScrollToMessageListener implements MessagesData.Listener {
 
-        public void check() {
-            int iof = mData.findMessageWithId(mInitialMessageId);
+        private MessageId mMessageId;
+
+        public ScrollToMessageListener(MessageId msg) {
+            mMessageId = msg;
+        }
+
+        public boolean check() {
+            int iof = mData.findMessageWithId(mMessageId);
             if (iof != -1) {
                 mLayoutManager.scrollToPositionWithOffset(iof, 0);
                 mData.removeListener(this);
+                return true;
             }
+            return false;
         }
 
         @Override
