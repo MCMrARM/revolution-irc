@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <ImageView
+        android:id="@+id/button"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:background="@drawable/jump_to_bottom_background"
@@ -10,5 +12,17 @@
         android:padding="8dp"
         app:srcCompat="@drawable/ic_arrow_down"
         android:tint="@color/iconColor" />
+
+    <TextView
+        android:id="@+id/counter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="16dp"
+        android:background="@drawable/jump_to_bottom_text"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+        app:backgroundTint="?attr/colorAccent"
+        android:textColor="#fff"
+        tools:text="7"
+        android:gravity="center" />
 
 </merge>
