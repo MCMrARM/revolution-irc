@@ -47,6 +47,8 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener,
     private View mUnreadView;
     private TextView mUnreadCounter;
 
+    private ClearUnreadsScrollListener mClearUnreadsListener = new ClearUnreadsScrollListener();
+
     public static MessagesFragment newInstance(ServerConnectionInfo server,
                                                    String channelName) {
         MessagesFragment fragment = new MessagesFragment();
@@ -75,6 +77,7 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener,
 
         mUnreadData = new MessagesUnreadData(mConnection, mChannelName);
         mUnreadData.setUnreadMessageCountListener(this);
+        mUnreadData.addFirstUnreadMessageListener(mClearUnreadsListener);
         mUnreadData.load();
 
         mData.addListener(this);
@@ -113,6 +116,7 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener,
         mUnreadView.setOnClickListener((v) -> scrollToMessage(
                 mUnreadData.getFirstUnreadMessageId()));
         onUnreadMessageCountChanged(mUnreadData.getUnreadCount());
+        mClearUnreadsListener.onRecyclerViewSet();
         return rootView;
     }
 
@@ -238,6 +242,52 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener,
             saveScrollPosition();
         }
 
+    }
+
+    private class ClearUnreadsScrollListener extends RecyclerView.OnScrollListener
+            implements MessagesUnreadData.FirstUnreadMessageListener {
+
+        private MessageId mLookForMessage;
+        private long mFirstVisible = -1;
+        private long mLastVisible = -1;
+
+        @Override
+        public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+            long newFirst = mAdapter.getItemId(
+                    mLayoutManager.findFirstCompletelyVisibleItemPosition());
+            long newLast = mAdapter.getItemId(
+                    mLayoutManager.findLastCompletelyVisibleItemPosition());
+            for (long i = newFirst; i <= newLast; i++) {
+                if (i >= mFirstVisible && i <= mLastVisible) {
+                    i = mLastVisible;
+                    continue;
+                }
+                MessagesData.Item item = mData.get(mAdapter.getItemPosition(i));
+                if (item instanceof MessagesData.MessageItem &&
+                        mLookForMessage.equals(((MessagesData.MessageItem) item).getMessageId())) {
+                    mUnreadData.clearUnreads();
+                    mLookForMessage = null;
+                    mRecyclerView.removeOnScrollListener(this);
+                    break;
+                }
+            }
+            mFirstVisible = newFirst;
+            mLastVisible = newLast;
+        }
+
+        @Override
+        public void onFirstUnreadMesssageSet(MessageId m) {
+            if (m != null) {
+                mLookForMessage = m;
+                if (mRecyclerView != null)
+                    mRecyclerView.addOnScrollListener(this);
+            }
+        }
+
+        public void onRecyclerViewSet() {
+            if (mLookForMessage != null)
+                mRecyclerView.addOnScrollListener(this);
+        }
     }
 
     private class ScrollToMessageListener implements MessagesData.Listener {

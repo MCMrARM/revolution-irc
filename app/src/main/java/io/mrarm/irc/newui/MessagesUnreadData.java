@@ -1,5 +1,8 @@
 package io.mrarm.irc.newui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.mrarm.chatlib.dto.MessageId;
 import io.mrarm.irc.ChannelNotificationManager;
 import io.mrarm.irc.NotificationManager;
@@ -12,7 +15,7 @@ public final class MessagesUnreadData implements NotificationManager.UnreadMessa
     private final ChannelNotificationManager mNotificationManager;
     private final ChannelUIData mUIInfo;
     private MessageId mFirstUnreadMessageId;
-    private FirstUnreadMessageListener mFirstUnreadMessageListener;
+    private final List<FirstUnreadMessageListener> mFirstUnreadMessageListener = new ArrayList<>();
     private UnreadMessageCountListener mUnreadMessageCountListener;
 
     public MessagesUnreadData(ServerConnectionInfo connection, String channel) {
@@ -22,8 +25,8 @@ public final class MessagesUnreadData implements NotificationManager.UnreadMessa
         mUIInfo = connection.getChatUIData().getChannelData(channel);
     }
 
-    public void setFirstUnreadMessageListener(FirstUnreadMessageListener listener) {
-        mFirstUnreadMessageListener = listener;
+    public void addFirstUnreadMessageListener(FirstUnreadMessageListener listener) {
+        mFirstUnreadMessageListener.add(listener);
     }
 
     public void setUnreadMessageCountListener(UnreadMessageCountListener listener) {
@@ -49,8 +52,8 @@ public final class MessagesUnreadData implements NotificationManager.UnreadMessa
             mFirstUnreadMessageId = newUnreadMessageId;
             if (mUIInfo.getFirstVisibleMessage() == null && newUnreadMessageId != null)
                 mUIInfo.setHasUnreadMessagesAbove(true);
-            if (mFirstUnreadMessageListener != null)
-                mFirstUnreadMessageListener.onFirstUnreadMesssageSet(newUnreadMessageId);
+            for (FirstUnreadMessageListener l : mFirstUnreadMessageListener)
+                l.onFirstUnreadMesssageSet(newUnreadMessageId);
         }
     }
 
@@ -64,6 +67,11 @@ public final class MessagesUnreadData implements NotificationManager.UnreadMessa
         updateFirstUnreadMessage();
         if (mUnreadMessageCountListener != null)
             mUnreadMessageCountListener.onUnreadMessageCountChanged(messageCount);
+    }
+
+    public void clearUnreads() {
+        mNotificationManager.clearUnreadMessages();
+        mUIInfo.setHasUnreadMessagesAbove(false);
     }
 
     public interface FirstUnreadMessageListener {

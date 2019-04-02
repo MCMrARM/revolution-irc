@@ -39,7 +39,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.BaseHo
     }
 
     public void setUnreadData(MessagesUnreadData data) {
-        data.setFirstUnreadMessageListener(this);
+        data.addFirstUnreadMessageListener(this);
         mFirstUnreadMessageId = data.getFirstUnreadMessageId();
     }
 
