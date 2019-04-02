@@ -93,7 +93,7 @@ public class JumpToRecentButton extends ViewGroup {
     private Animator.AnimatorListener mHideListener = new AnimatorListenerAdapter() {
         @Override
         public void onAnimationEnd(Animator animation) {
-            setVisibility(View.GONE);
+            setVisibility(View.INVISIBLE);
         }
     };
 
