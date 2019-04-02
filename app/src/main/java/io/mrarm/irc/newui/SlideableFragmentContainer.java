@@ -254,6 +254,7 @@ public class SlideableFragmentContainer extends FrameLayout {
         deelevateView(mDragView);
         mDragView = null;
         mDragParentView = null;
+        mTouchDragActive = false;
         for (DragListener l : mDragListeners)
             l.onDragEnded();
     }
