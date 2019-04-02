@@ -183,12 +183,10 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener,
 
     @Override
     public void onItemsAdded(int pos, int count) {
-        UiThreadHelper.runOnUiThread(() -> {
-            if (pos + count == mData.size() && mRecyclerView != null &&
-                    mLayoutManager.findLastCompletelyVisibleItemPosition() >= pos - 1) {
-                mRecyclerView.scrollToPosition(mData.size() - 1);
-            }
-        });
+        if (pos + count == mData.size() && mRecyclerView != null &&
+                mLayoutManager.findLastCompletelyVisibleItemPosition() >= pos - 1) {
+            mRecyclerView.scrollToPosition(mData.size() - 1);
+        }
     }
 
     @Override
