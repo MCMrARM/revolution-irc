@@ -12,6 +12,7 @@ import io.mrarm.irc.chat.ChannelUIData;
 public final class MessagesUnreadData implements NotificationManager.UnreadMessageCountCallback {
 
     private final ServerConnectionInfo mConnection;
+    private final String mChannel;
     private final ChannelNotificationManager mNotificationManager;
     private final ChannelUIData mUIInfo;
     private MessageId mFirstUnreadMessageId;
@@ -20,6 +21,7 @@ public final class MessagesUnreadData implements NotificationManager.UnreadMessa
 
     public MessagesUnreadData(ServerConnectionInfo connection, String channel) {
         mConnection = connection;
+        mChannel = channel;
         mNotificationManager = connection.getNotificationManager().getChannelManager(
                 channel, true);
         mUIInfo = connection.getChatUIData().getChannelData(channel);
@@ -64,6 +66,8 @@ public final class MessagesUnreadData implements NotificationManager.UnreadMessa
     @Override
     public void onUnreadMessageCountChanged(ServerConnectionInfo info, String channel,
                                             int messageCount, int oldMessageCount) {
+        if (!channel.equalsIgnoreCase(mChannel))
+            return;
         updateFirstUnreadMessage();
         if (mUnreadMessageCountListener != null)
             mUnreadMessageCountListener.onUnreadMessageCountChanged(messageCount);
