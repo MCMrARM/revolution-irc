@@ -84,7 +84,7 @@ public class MessagesData implements MessageListener {
         mListeners.remove(listener);
     }
 
-    public void load(MessageId near, MessageFilterOptions filterOptions) {
+    public void load(MessageId near, MessageFilterOptions filterOptions, Runnable cb) {
         Log.d("MessagesData", "Loading messages");
         synchronized (this) {
             mFilterOptions = filterOptions;
@@ -108,6 +108,8 @@ public class MessagesData implements MessageListener {
                                 mChannel, MessagesData.this, null, null);
                         mListenerRegistered = true;
                     }
+                    if (cb != null)
+                        cb.run();
                 }
             };
         }
@@ -121,6 +123,10 @@ public class MessagesData implements MessageListener {
         } else {
             mSource.getMessages(mChannel, ITEMS_ON_SCREEN, filterOptions, null, mLoadingMessages, errorCb);
         }
+    }
+
+    public void load(MessageId near, MessageFilterOptions filterOptions) {
+        load(near, filterOptions, null);
     }
 
     public void unload() {

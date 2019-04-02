@@ -141,14 +141,14 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener,
     }
 
     private void scrollToBottom() {
-        if (mAdapter.getItemCount() - mLayoutManager.findLastCompletelyVisibleItemPosition() <= 50) {
+        if (mData.hasMoreMessages(true)) {
+            mData.load(null, null,
+                    () -> mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1));
+        } else if (mAdapter.getItemCount() -
+                mLayoutManager.findLastCompletelyVisibleItemPosition() <= 50) {
             mRecyclerView.smoothScrollToPosition(mAdapter.getItemCount() - 1);
         } else {
-            if (mData.hasMoreMessages(true)) {
-                mData.load(null, null);
-            } else {
-                mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
-            }
+            mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
         }
     }
 
