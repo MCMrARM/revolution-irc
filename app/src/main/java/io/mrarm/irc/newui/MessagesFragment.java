@@ -202,7 +202,7 @@ public class MessagesFragment extends Fragment implements MessagesData.Listener,
                 return;
             if (mUIInfo.hasUnreadMessagesAbove()) {
                 mJumpButton.setCounter(0);
-                mUnreadView.setVisibility(View.VISIBLE);
+                mUnreadView.setVisibility(count > 0 ? View.VISIBLE : View.GONE);
                 mUnreadCounter.setText(getResources().getQuantityString(
                         R.plurals.unread_message_counter, count, count));
             } else {
