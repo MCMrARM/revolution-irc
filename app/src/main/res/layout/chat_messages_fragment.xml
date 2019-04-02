@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.recyclerview.widget.RecyclerView
+    <io.mrarm.irc.view.AlwaysInterceptRecyclerView
         android:id="@+id/messages"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
