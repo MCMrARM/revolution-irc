@@ -14,6 +14,7 @@ import io.mrarm.irc.R;
 import io.mrarm.irc.chat.ChatSelectTouchListener;
 import io.mrarm.irc.util.AlignToPointSpan;
 import io.mrarm.irc.util.MessageBuilder;
+import io.mrarm.irc.util.UiThreadHelper;
 
 public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.BaseHolder<?>>
         implements MessagesData.Listener, MessagesUnreadData.FirstUnreadMessageListener,
@@ -139,13 +140,15 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.BaseHo
 
     @Override
     public void onFirstUnreadMesssageSet(MessageId m) {
-        int oldI = mData.findMessageWithId(mFirstUnreadMessageId);
-        mFirstUnreadMessageId = m;
-        int newI = mData.findMessageWithId(m);
-        if (oldI != -1)
-            notifyItemChanged(oldI);
-        if (newI != -1)
-            notifyItemChanged(newI);
+        UiThreadHelper.runOnUiThread(() -> {
+            int oldI = mData.findMessageWithId(mFirstUnreadMessageId);
+            mFirstUnreadMessageId = m;
+            int newI = mData.findMessageWithId(m);
+            if (oldI != -1)
+                notifyItemChanged(oldI);
+            if (newI != -1)
+                notifyItemChanged(newI);
+        });
     }
 
     public abstract static class BaseHolder<T extends MessagesData.Item>
