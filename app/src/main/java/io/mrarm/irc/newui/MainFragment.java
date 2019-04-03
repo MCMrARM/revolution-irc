@@ -8,6 +8,7 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.annotation.NonNull;
@@ -15,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
 import io.mrarm.irc.DCCActivity;
 import io.mrarm.irc.IRCApplication;
@@ -24,21 +26,44 @@ import io.mrarm.irc.SettingsActivity;
 public class MainFragment extends Fragment
         implements SlideableFragmentToolbar.FragmentToolbarCallback {
 
-    private SectionsPagerAdapter mSectionsPagerAdapter;
-    private ViewPager mViewPager;
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_newui_main_fragment, container, false);
+        BottomNavigationView navigation = view.findViewById(R.id.navigation);
 
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getChildFragmentManager());
-
-        mViewPager = view.findViewById(R.id.main_container);
-        mViewPager.setId(R.id.main_content);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
-
+        setActiveView(navigation.getSelectedItemId());
+        navigation.setOnNavigationItemSelectedListener((i) -> {
+            setActiveView(i.getItemId());
+            return true;
+        });
         return view;
+    }
+
+    public Fragment createFragment(int selectedId) {
+        if (selectedId == R.id.item_recents)
+            return ChatListFragment.newInstance();
+        if (selectedId == R.id.item_chats)
+            return ServerListFragment.newInstance();
+        return null;
+    }
+
+    private void setActiveView(int selectedId) {
+        Fragment f = null;
+        for (Fragment ff : getChildFragmentManager().getFragments()) {
+            if (ff.isVisible())
+                f = ff;
+        }
+        FragmentTransaction tr = getChildFragmentManager().beginTransaction();
+        if (f != null)
+            tr.hide(f);
+        String newFragmentTag = "main:" + selectedId;
+        f = getChildFragmentManager().findFragmentByTag(newFragmentTag);
+        if (f != null)
+            tr.show(f);
+        else
+            tr.add(R.id.main_container, createFragment(selectedId), newFragmentTag);
+        tr.commit();
     }
 
     @Override
@@ -66,46 +91,6 @@ public class MainFragment extends Fragment
                 new SlideableFragmentToolbar.SimpleToolbarHolder(toolbar);
         holder.addMenu(R.id.action_menu_view, this);
 
-        TabLayout tabs = holder.getView().findViewById(R.id.tabs);
-        tabs.setupWithViewPager(mViewPager);
-
-        mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
-        tabs.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
-
-        holder.addAnimationElement(tabs, 0.f, -0.2f);
-
         return holder;
     }
-
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
-
-        public SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            if (position == 0)
-                return ChatListFragment.newInstance();
-            if (position == 1)
-                return ServerListFragment.newInstance();
-            return null;
-        }
-
-        @Nullable
-        @Override
-        public CharSequence getPageTitle(int position) {
-            if (position == 0)
-                return getString(R.string.main_tab_chats);
-            if (position == 1)
-                return getString(R.string.main_tab_servers);
-            return null;
-        }
-
-        @Override
-        public int getCount() {
-            return 2;
-        }
-    }
-
 }

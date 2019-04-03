@@ -35,7 +35,7 @@ public class OpaqueStatusBarRelativeLayout extends RelativeLayout {
         TypedArray ta = context.obtainStyledAttributes(
                 attrs, R.styleable.OpaqueStatusBarRelativeLayout, defStyleAttr, 0);
         mInsetDrawable =
-                ta.getDrawable(R.styleable.OpaqueStatusBarRelativeLayout_colorPrimaryDark);
+                ta.getDrawable(R.styleable.OpaqueStatusBarRelativeLayout_statusBarColor);
         ta.recycle();
 
         setWillNotDraw(false);

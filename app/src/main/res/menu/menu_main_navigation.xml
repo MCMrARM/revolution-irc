@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/item_recents"
+        android:icon="@drawable/ic_history"
+        android:title="@string/main_tab_recents" />
+
+    <item
+        android:id="@+id/item_chats"
+        android:icon="@drawable/ic_notification_message"
+        android:title="@string/main_tab_chats" />
+
+    <item
+        android:id="@+id/item_servers"
+        android:icon="@drawable/ic_server_connected"
+        android:title="@string/main_tab_servers" />
+
+</menu>
