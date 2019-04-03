@@ -18,6 +18,9 @@
         <item name="actionBarTextColorPrimary">@color/abc_primary_text_material_dark</item>
         <item name="actionBarTextColorSecondary">@color/abc_secondary_text_material_dark</item>
 
+        <item name="statusBarColor">#fff</item>
+        <item name="toolbarBackground">#fff</item>
+        <item name="android:statusBarColor">#fff</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
 

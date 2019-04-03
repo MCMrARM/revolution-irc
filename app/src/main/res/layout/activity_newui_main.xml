@@ -20,7 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
-        android:background="?attr/colorPrimary"
+        android:background="?attr/toolbarBackground"
         android:elevation="4dp" />
 
 </io.mrarm.irc.view.OpaqueStatusBarRelativeLayout>

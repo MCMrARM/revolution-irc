@@ -10,6 +10,9 @@
     <attr name="textFormatBarStyle" type="reference" />
     <attr name="recyclerViewScrollbarStyle" type="reference" />
 
+    <attr name="statusBarColor" type="color" />
+    <attr name="toolbarBackground" type="color" />
+
     <declare-styleable name="MaterialColorPicker">
         <attr name="maxWidth" format="dimension" />
     </declare-styleable>
@@ -39,7 +42,7 @@
     </declare-styleable>
 
     <declare-styleable name="OpaqueStatusBarRelativeLayout">
-        <attr name="colorPrimaryDark" />
+        <attr name="statusBarColor" />
     </declare-styleable>
 
     <declare-styleable name="IRCColors">

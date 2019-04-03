@@ -738,6 +738,7 @@
     <string name="dcc_error_no_activity">No application found to open the specified file</string>
 
     <!-- New UI / Main -->
+    <string name="main_tab_recents">Recents</string>
     <string name="main_tab_chats">Chats</string>
     <string name="main_tab_servers">Servers</string>
 

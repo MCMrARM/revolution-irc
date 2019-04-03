@@ -4,8 +4,8 @@
     <color name="iconColor">#89000000</color>
     <color name="iconColorText">#000000</color>
 
-    <color name="colorPrimary">#fff</color>
-    <color name="colorPrimaryDark">#fff</color>
+    <color name="colorPrimary">#00897b</color>
+    <color name="colorPrimaryDark">#005b4f</color>
     <color name="colorAccent">#00bfa5</color>
 
     <color name="rippleColor">@color/ripple_material_light</color>
