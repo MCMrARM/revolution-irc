@@ -1,11 +1,11 @@
 <resources>
 
-    <style name="AppTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
 
-        <item name="actionBarTheme">@style/AppTheme.AppBarOverlay</item>
+        <item name="actionBarTheme">@style/AppTheme.LightAppBarOverlay</item>
 
         <item name="textFormatBarStyle">@style/TextFormatBar</item>
         <item name="recyclerViewScrollbarStyle">@style/RecyclerViewScrollbar</item>
@@ -17,6 +17,8 @@
 
         <item name="actionBarTextColorPrimary">@color/abc_primary_text_material_dark</item>
         <item name="actionBarTextColorSecondary">@color/abc_secondary_text_material_dark</item>
+
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
