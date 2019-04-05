@@ -43,12 +43,22 @@ public class ServerChannelListAdapter extends RecyclerView.Adapter<ServerChannel
         mInterface = callbackInterface;
     }
 
+    private boolean areHeadersVisible() {
+        return mChannelData.getGroups().size() > 1;
+    }
+
+    public int getGroupsStart() {
+        return 0;
+    }
+
     private int getGroupItemCount(Group g) {
+        if (!areHeadersVisible())
+            return g.size();
         return GROUP_ITEMS_BEFORE_CHANNELS + g.size();
     }
 
     private Group<ChannelEntry> findGroupAt(int index) {
-        int i = 0;
+        int i = getGroupsStart();
         for (Group<ChannelEntry> g : mChannelData.getGroups()) {
             i += getGroupItemCount(g);
             if (index < i)
@@ -58,7 +68,7 @@ public class ServerChannelListAdapter extends RecyclerView.Adapter<ServerChannel
     }
 
     private int findGroupStartPosition(Group<ChannelEntry> findGroup) {
-        int i = 0;
+        int i = getGroupsStart();
         for (Group<ChannelEntry> g : mChannelData.getGroups()) {
             if (findGroup == g)
                 return i;
@@ -69,7 +79,7 @@ public class ServerChannelListAdapter extends RecyclerView.Adapter<ServerChannel
 
     @Override
     public int getItemCount() {
-        int cnt = 0;
+        int cnt = getGroupsStart();
         for (Group<ChannelEntry> g : mChannelData.getGroups()) {
             cnt += getGroupItemCount(g);
         }
@@ -80,7 +90,7 @@ public class ServerChannelListAdapter extends RecyclerView.Adapter<ServerChannel
     public int getItemViewType(int position) {
         Group<ChannelEntry> g = findGroupAt(position);
         int sPos = position - findGroupStartPosition(g);
-        if (sPos == 0)
+        if (sPos == 0 && areHeadersVisible())
             return TYPE_HEADER;
         return TYPE_CHANNEL;
     }
@@ -89,7 +99,7 @@ public class ServerChannelListAdapter extends RecyclerView.Adapter<ServerChannel
     public boolean isItemElevated(int position) {
         Group<ChannelEntry> g = findGroupAt(position);
         int sPos = position - findGroupStartPosition(g);
-        return sPos != 0;
+        return sPos != 0 || !areHeadersVisible();
     }
 
     @Override
@@ -130,7 +140,8 @@ public class ServerChannelListAdapter extends RecyclerView.Adapter<ServerChannel
             Group<ChannelEntry> g = findGroupAt(position);
             if (g != null) {
                 int p = findGroupStartPosition(g);
-                ((ChannelHolder) holder).bind(g.get(position - p - GROUP_ITEMS_BEFORE_CHANNELS));
+                ((ChannelHolder) holder).bind(g.get(position - p -
+                        (areHeadersVisible() ? GROUP_ITEMS_BEFORE_CHANNELS : 0)));
             }
         }
     }
@@ -144,12 +155,16 @@ public class ServerChannelListAdapter extends RecyclerView.Adapter<ServerChannel
     public void onGroupAdded(Group<ChannelEntry> group) {
         int pos = findGroupStartPosition(group);
         notifyItemRangeInserted(pos, getGroupItemCount(group));
+        if (mChannelData.getGroups().size() == 2)
+            notifyItemInserted(getGroupsStart());
     }
 
     @Override
     public void onGroupRemoved(Group<ChannelEntry> group) {
         int pos = findGroupStartPosition(group);
         notifyItemRangeRemoved(pos, getGroupItemCount(group));
+        if (mChannelData.getGroups().size() == 1)
+            notifyItemRemoved(getGroupsStart());
     }
 
     @Override
