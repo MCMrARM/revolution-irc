@@ -1,7 +1,6 @@
 package io.mrarm.irc.newui;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,34 +12,28 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
-import io.mrarm.irc.ServerConnectionManager;
-import io.mrarm.irc.config.ServerConfigData;
 
-public class ServerListFragment extends Fragment implements ServerListAdapter.CallbackInterface {
+public class ServerListFragment extends Fragment implements ServerChannelListAdapter.CallbackInterface {
 
     public static ServerListFragment newInstance() {
         return new ServerListFragment();
     }
 
-    private ServerListChannelData mChannelData;
-    private ServerListData mServerData;
-    private ServerListAdapter mAdapter;
+    private ServerChannelListData mChannelData;
+    private ServerChannelListAdapter mAdapter;
     private ServerIconListData mIconData;
     private ServerIconListAdapter mIconAdapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mChannelData = new ServerListChannelData(getContext());
-        mChannelData.load();
-        mServerData = new ServerListData(getContext());
-        mServerData.setFilter(new ServerListData.ConnectedFilter(getContext()));
-        mServerData.load();
-        mAdapter = new ServerListAdapter(getContext(), mChannelData, mServerData);
-        mAdapter.setCallbackInterface(this);
         mIconData = new ServerIconListData(getContext());
         mIconAdapter = new ServerIconListAdapter(mIconData);
         mIconData.load();
+        mChannelData = new ServerChannelListData(getContext(), mIconData.get(0));
+        mChannelData.load();
+        mAdapter = new ServerChannelListAdapter(getContext(), mChannelData);
+        mAdapter.setCallbackInterface(this);
     }
 
     @Nullable
@@ -64,8 +57,6 @@ public class ServerListFragment extends Fragment implements ServerListAdapter.Ca
         super.onDestroy();
         mChannelData.unload();
         mChannelData = null;
-        mServerData.unload();
-        mServerData = null;
         mIconData.unload();
         mIconData = null;
         mAdapter = null;
@@ -75,12 +66,5 @@ public class ServerListFragment extends Fragment implements ServerListAdapter.Ca
     public void onChatOpened(ServerConnectionInfo server, String channel) {
         Fragment fragment = MessagesSingleFragment.newInstance(server, channel);
         ((MainActivity) getActivity()).getContainer().push(fragment);
-    }
-
-    @Override
-    public void onServerClicked(ServerConfigData d) {
-        ServerConnectionManager mgr = ServerConnectionManager.getInstance(getContext());
-        if (!mgr.hasConnection(d.uuid))
-            mgr.createConnection(d);
     }
 }

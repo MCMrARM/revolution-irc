@@ -742,4 +742,6 @@
     <string name="main_tab_chats">Chats</string>
     <string name="main_tab_servers">Servers</string>
 
+    <string name="server_list_uncategorized">Uncategorized</string>
+
 </resources>
