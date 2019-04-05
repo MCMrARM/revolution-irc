@@ -28,6 +28,10 @@ public class ServerChannelListData implements ServerConnectionInfo.DetailedChann
         mConnection = connection;
     }
 
+    public String getName() {
+        return mConnection.getName();
+    }
+
     public void load() {
         if (mListeners.size() > 0)
             throw new IllegalStateException("mListeners must be null");

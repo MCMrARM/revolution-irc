@@ -25,8 +25,11 @@ public class ServerChannelListAdapter extends RecyclerView.Adapter<ServerChannel
      */
     private static final int GROUP_ITEMS_BEFORE_CHANNELS = 1;
 
+    private static final int ITEMS_BEFORE_GROUPS = 1;
+
     public static final int TYPE_HEADER = 0;
     public static final int TYPE_CHANNEL = 1;
+    public static final int TYPE_SERVER_TITLE = 2;
 
     private final ServerChannelListData mChannelData;
     private final RecyclerViewElevationDecoration mDecoration;
@@ -48,7 +51,7 @@ public class ServerChannelListAdapter extends RecyclerView.Adapter<ServerChannel
     }
 
     public int getGroupsStart() {
-        return 0;
+        return ITEMS_BEFORE_GROUPS;
     }
 
     private int getGroupItemCount(Group g) {
@@ -88,6 +91,8 @@ public class ServerChannelListAdapter extends RecyclerView.Adapter<ServerChannel
 
     @Override
     public int getItemViewType(int position) {
+        if (position == 0)
+            return TYPE_SERVER_TITLE;
         Group<ChannelEntry> g = findGroupAt(position);
         int sPos = position - findGroupStartPosition(g);
         if (sPos == 0 && areHeadersVisible())
@@ -123,6 +128,10 @@ public class ServerChannelListAdapter extends RecyclerView.Adapter<ServerChannel
             View v = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.main_server_list_channel, parent, false);
             return new ChannelHolder(v);
+        } else if (viewType == TYPE_SERVER_TITLE) {
+            View v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.main_server_list_title, parent, false);
+            return new HeaderHolder(v);
         }
         throw new IllegalArgumentException("Invalid viewType");
     }
@@ -130,11 +139,13 @@ public class ServerChannelListAdapter extends RecyclerView.Adapter<ServerChannel
     @Override
     public void onBindViewHolder(@NonNull Holder holder, int position) {
         if (holder instanceof HeaderHolder) {
+            if (position == 0) {
+                ((HeaderHolder) holder).bind(mChannelData.getName());
+                return;
+            }
             Group<ChannelEntry> g = findGroupAt(position);
             if (g != null)
                 ((HeaderHolder) holder).bind(g);
-            else
-                ((HeaderHolder) holder).bindInactiveConnections();
         }
         if (holder instanceof ChannelHolder) {
             Group<ChannelEntry> g = findGroupAt(position);
@@ -210,8 +221,8 @@ public class ServerChannelListAdapter extends RecyclerView.Adapter<ServerChannel
             mTextView.setText(g.getName());
         }
 
-        public void bindInactiveConnections() {
-            mTextView.setText(R.string.server_list_header_inactive);
+        public void bind(String name) {
+            mTextView.setText(name);
         }
 
     }
