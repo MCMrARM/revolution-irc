@@ -1,6 +1,7 @@
 package io.mrarm.irc.newui;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,8 @@ public class ServerListFragment extends Fragment implements ServerListAdapter.Ca
     private ServerListChannelData mChannelData;
     private ServerListData mServerData;
     private ServerListAdapter mAdapter;
+    private ServerIconListData mIconData;
+    private ServerIconListAdapter mIconAdapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -35,6 +38,9 @@ public class ServerListFragment extends Fragment implements ServerListAdapter.Ca
         mServerData.load();
         mAdapter = new ServerListAdapter(getContext(), mChannelData, mServerData);
         mAdapter.setCallbackInterface(this);
+        mIconData = new ServerIconListData(getContext());
+        mIconAdapter = new ServerIconListAdapter(mIconData);
+        mIconData.load();
     }
 
     @Nullable
@@ -49,6 +55,10 @@ public class ServerListFragment extends Fragment implements ServerListAdapter.Ca
         return view;
     }
 
+    public void setServerIconView(RecyclerView rv) {
+        rv.setAdapter(mIconAdapter);
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -56,6 +66,8 @@ public class ServerListFragment extends Fragment implements ServerListAdapter.Ca
         mChannelData = null;
         mServerData.unload();
         mServerData = null;
+        mIconData.unload();
+        mIconData = null;
         mAdapter = null;
     }
 
