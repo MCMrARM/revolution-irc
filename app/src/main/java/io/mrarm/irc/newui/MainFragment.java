@@ -113,7 +113,7 @@ public class MainFragment extends Fragment
         mToolbarServerIcons.animate().setDuration(200L).setInterpolator(new AccelerateDecelerateInterpolator());
 
         mToolbarServerIcons.setLayoutManager(new LinearLayoutManager(getContext(),
-                RecyclerView.VERTICAL, false));
+                RecyclerView.HORIZONTAL, false));
 
         holder.addAnimationElement(mToolbarAppTitle, 0.f, -0.2f);
         holder.addAnimationElement(mToolbarServerIcons, 0.f, -0.2f);
