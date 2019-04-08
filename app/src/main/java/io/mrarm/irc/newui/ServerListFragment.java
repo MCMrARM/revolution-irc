@@ -46,6 +46,7 @@ public class ServerListFragment extends Fragment implements ServerChannelListAda
         view.setAdapter(new MyAdapter(getChildFragmentManager(), mIconData));
         mIconIndicator = new ServerIconListIndicator(view.getContext());
         view.addOnPageChangeListener(mIconIndicator);
+        mIconAdapter.setClickListener(view::setCurrentItem);
 
         return view;
     }

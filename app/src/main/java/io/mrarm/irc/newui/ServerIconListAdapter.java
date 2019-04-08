@@ -13,9 +13,14 @@ import io.mrarm.irc.ServerConnectionInfo;
 public class ServerIconListAdapter extends RecyclerView.Adapter<ServerIconListAdapter.ServerIcon> {
 
     private final ServerIconListData mData;
+    private IconClickListener mClickListener;
 
     public ServerIconListAdapter(ServerIconListData data) {
         mData = data;
+    }
+
+    public void setClickListener(IconClickListener listener) {
+        mClickListener = listener;
     }
 
     @NonNull
@@ -36,17 +41,21 @@ public class ServerIconListAdapter extends RecyclerView.Adapter<ServerIconListAd
         return mData.size();
     }
 
-    public abstract static class ServerIcon extends RecyclerView.ViewHolder {
+    public abstract class ServerIcon extends RecyclerView.ViewHolder {
 
         public ServerIcon(@NonNull View itemView) {
             super(itemView);
+            itemView.setOnClickListener((v) -> {
+                if (mClickListener != null)
+                    mClickListener.onIconClicked(getAdapterPosition());
+            });
         }
 
         public abstract void bind(ServerConnectionInfo server);
 
     }
 
-    public static class TextServerIcon extends ServerIcon {
+    public class TextServerIcon extends ServerIcon {
 
         private TextView mTextView;
 
@@ -59,6 +68,12 @@ public class ServerIconListAdapter extends RecyclerView.Adapter<ServerIconListAd
         public void bind(ServerConnectionInfo server) {
             mTextView.setText(server.getName().substring(0, 1).toUpperCase());
         }
+
+    }
+
+    public interface IconClickListener {
+
+        void onIconClicked(int index);
 
     }
 
