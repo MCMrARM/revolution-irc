@@ -81,14 +81,14 @@ public class ServerListFragment extends Fragment implements ServerChannelListAda
         public Fragment getItem(int position) {
             MyFragment fragment = new MyFragment();
             Bundle b = new Bundle();
-            b.putString(MyFragment.ARG_SERVER, mData.get(position).getUUID().toString());
+            b.putString(MyFragment.ARG_SERVER, mData.getList().get(position).getUUID().toString());
             fragment.setArguments(b);
             return fragment;
         }
 
         @Override
         public int getCount() {
-            return mData.size();
+            return mData.getList().size();
         }
 
     }

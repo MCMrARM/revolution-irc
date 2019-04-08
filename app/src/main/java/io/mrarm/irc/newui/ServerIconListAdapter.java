@@ -6,17 +6,36 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 
-public class ServerIconListAdapter extends RecyclerView.Adapter<ServerIconListAdapter.ServerIcon> {
+public class ServerIconListAdapter extends ListAdapter<ServerConnectionInfo,
+        ServerIconListAdapter.ServerIcon> {
 
     private final ServerIconListData mData;
     private IconClickListener mClickListener;
 
     public ServerIconListAdapter(ServerIconListData data) {
+        super(new DiffUtil.ItemCallback<ServerConnectionInfo>() {
+            @Override
+            public boolean areItemsTheSame(@NonNull ServerConnectionInfo oldItem,
+                                           @NonNull ServerConnectionInfo newItem) {
+                return oldItem.getUUID().equals(newItem.getUUID());
+            }
+
+            @Override
+            public boolean areContentsTheSame(@NonNull ServerConnectionInfo oldItem,
+                                              @NonNull ServerConnectionInfo newItem) {
+                return oldItem.getUUID().equals(newItem.getUUID()) &&
+                        oldItem.getName().equalsIgnoreCase(newItem.getName());
+            }
+        });
         mData = data;
+        submitList(mData.getList());
+        mData.addListener(() -> submitList(mData.getList()));
     }
 
     public void setClickListener(IconClickListener listener) {
@@ -33,12 +52,7 @@ public class ServerIconListAdapter extends RecyclerView.Adapter<ServerIconListAd
 
     @Override
     public void onBindViewHolder(@NonNull ServerIcon holder, int position) {
-        holder.bind(mData.get(position));
-    }
-
-    @Override
-    public int getItemCount() {
-        return mData.size();
+        holder.bind(getItem(position));
     }
 
     public abstract class ServerIcon extends RecyclerView.ViewHolder {

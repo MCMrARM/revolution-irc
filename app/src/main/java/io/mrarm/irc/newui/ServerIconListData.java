@@ -2,6 +2,7 @@ package io.mrarm.irc.newui;
 
 import android.content.Context;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.mrarm.irc.ServerConnectionInfo;
@@ -12,9 +13,14 @@ public class ServerIconListData implements ServerConnectionManager.ConnectionsLi
 
     private final ServerConnectionManager mManager;
     private List<ServerConnectionInfo> mConnections;
+    private final List<Runnable> mListeners = new ArrayList<>();
 
     public ServerIconListData(Context context) {
         mManager = ServerConnectionManager.getInstance(context);
+    }
+
+    public void addListener(Runnable r) {
+        mListeners.add(r);
     }
 
     public void load() {
@@ -26,17 +32,15 @@ public class ServerIconListData implements ServerConnectionManager.ConnectionsLi
         mManager.removeListener(this);
     }
 
-    public int size() {
-        return mConnections.size();
-    }
-
-    public ServerConnectionInfo get(int i) {
-        return mConnections.get(i);
+    public List<ServerConnectionInfo> getList() {
+        return mConnections;
     }
 
     private void updateConnections() {
         UiThreadHelper.runOnUiThread(() -> {
             mConnections = mManager.getConnections();
+            for (Runnable r : mListeners)
+                r.run();
         });
     }
 
