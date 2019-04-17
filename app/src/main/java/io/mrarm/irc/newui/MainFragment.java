@@ -57,6 +57,8 @@ public class MainFragment extends Fragment
             return ChatListFragment.newInstance();
         if (selectedId == R.id.item_chats)
             return ServerChannelListFragment.newInstance();
+        if (selectedId == R.id.item_servers)
+            return ServerListFragment.newInstance();
         return null;
     }
 
