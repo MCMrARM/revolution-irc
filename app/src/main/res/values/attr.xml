@@ -45,6 +45,11 @@
         <attr name="statusBarColor" />
     </declare-styleable>
 
+    <declare-styleable name="ServerIconView">
+        <attr name="android:textSize" />
+        <attr name="serverName" format="string" />
+    </declare-styleable>
+
     <declare-styleable name="IRCColors">
         <attr name="colorBlack" format="color" />
         <attr name="colorWhite" format="color" />

@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
+import io.mrarm.irc.view.ServerIconView;
 
 public class ServerIconListAdapter extends ListAdapter<ServerConnectionInfo,
         ServerIconListAdapter.ServerIcon> {
@@ -71,16 +72,16 @@ public class ServerIconListAdapter extends ListAdapter<ServerConnectionInfo,
 
     public class TextServerIcon extends ServerIcon {
 
-        private TextView mTextView;
+        private ServerIconView mIcon;
 
         public TextServerIcon(@NonNull View itemView) {
             super(itemView);
-            mTextView = itemView.findViewById(R.id.text);
+            mIcon = itemView.findViewById(R.id.icon);
         }
 
         @Override
         public void bind(ServerConnectionInfo server) {
-            mTextView.setText(server.getName().substring(0, 1).toUpperCase());
+            mIcon.setServerName(server.getName().substring(0, 1).toUpperCase());
         }
 
     }

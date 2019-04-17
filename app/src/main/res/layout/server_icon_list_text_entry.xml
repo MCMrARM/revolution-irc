@@ -6,17 +6,13 @@
     android:layout_height="match_parent"
     android:background="?attr/selectableItemBackground">
 
-    <TextView
-        android:id="@+id/text"
+    <io.mrarm.irc.view.ServerIconView
+        android:id="@+id/icon"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_gravity="center"
         android:layout_margin="8dp"
-        android:background="@drawable/circle"
-        app:backgroundTint="?attr/colorAccent"
-        android:textAppearance="@style/TextAppearance.AppCompat.Title"
-        android:textColor="?android:attr/textColorPrimaryInverse"
-        android:gravity="center"
-        tools:text="M" />
+        android:textSize="20sp"
+        tools:serverName="M" />
 
 </FrameLayout>
