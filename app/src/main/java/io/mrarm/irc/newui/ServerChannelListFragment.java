@@ -19,10 +19,10 @@ import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
 
-public class ServerListFragment extends Fragment implements ServerChannelListAdapter.CallbackInterface {
+public class ServerChannelListFragment extends Fragment implements ServerChannelListAdapter.CallbackInterface {
 
-    public static ServerListFragment newInstance() {
-        return new ServerListFragment();
+    public static ServerChannelListFragment newInstance() {
+        return new ServerChannelListFragment();
     }
 
     private ServerIconListData mIconData;

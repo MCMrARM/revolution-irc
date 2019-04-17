@@ -8,21 +8,16 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AccelerateInterpolator;
 import android.widget.TextView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.tabs.TabLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager.widget.ViewPager;
 import io.mrarm.irc.DCCActivity;
 import io.mrarm.irc.IRCApplication;
 import io.mrarm.irc.R;
@@ -61,7 +56,7 @@ public class MainFragment extends Fragment
         if (selectedId == R.id.item_recents)
             return ChatListFragment.newInstance();
         if (selectedId == R.id.item_chats)
-            return ServerListFragment.newInstance();
+            return ServerChannelListFragment.newInstance();
         return null;
     }
 
@@ -127,8 +122,8 @@ public class MainFragment extends Fragment
         if (mToolbarAppTitle == null)
             return;
         Fragment af = getActiveFragment();
-        if (af instanceof ServerListFragment) {
-            ((ServerListFragment) af).setServerIconView(mToolbarServerIcons);
+        if (af instanceof ServerChannelListFragment) {
+            ((ServerChannelListFragment) af).setServerIconView(mToolbarServerIcons);
             ViewFadeHelper.showView(mToolbarServerIcons);
             ViewFadeHelper.hideView(mToolbarAppTitle);
         } else {
