@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
+import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.util.RecyclerViewElevationDecoration;
 
 public class ServerListAdapter extends RecyclerView.Adapter implements
@@ -18,11 +19,13 @@ public class ServerListAdapter extends RecyclerView.Adapter implements
 
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_ACTIVE_SERVER = 1;
+    private static final int TYPE_INACTIVE_SERVER = 2;
 
     private final RecyclerViewElevationDecoration mDecoration;
     private final ServerActiveListData mActiveData;
     private final ServerInactiveListData mInactiveData;
     private boolean mActiveHeaderVisible;
+    private boolean mInactiveHeaderVisible;
 
     public ServerListAdapter(Context context, ServerActiveListData activeData,
                              ServerInactiveListData inactiveData) {
@@ -32,6 +35,7 @@ public class ServerListAdapter extends RecyclerView.Adapter implements
         mInactiveData.setListener(this);
         mDecoration = new RecyclerViewElevationDecoration(context, this);
         updateActiveListHeaderVisibility();
+        updateInactiveListHeaderVisibility();
     }
 
     @Override
@@ -47,7 +51,7 @@ public class ServerListAdapter extends RecyclerView.Adapter implements
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        if (viewType == TYPE_ACTIVE_SERVER) {
+        if (viewType == TYPE_ACTIVE_SERVER || viewType == TYPE_INACTIVE_SERVER) {
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.main_server_list_channel, parent, false);
             return new ActiveServerItem(view);
@@ -67,6 +71,8 @@ public class ServerListAdapter extends RecyclerView.Adapter implements
                     : R.string.server_list_header_inactive);
         } else if (type == TYPE_ACTIVE_SERVER) {
             ((ActiveServerItem) holder).bind(mActiveData.get(position - getActiveListStart()));
+        } else if (type == TYPE_INACTIVE_SERVER) {
+            ((ActiveServerItem) holder).bind(mInactiveData.get(position - getInactiveListStart()));
         }
     }
 
@@ -74,19 +80,23 @@ public class ServerListAdapter extends RecyclerView.Adapter implements
     public int getItemViewType(int position) {
         if (position == 0 && mActiveHeaderVisible)
             return TYPE_HEADER;
-        return TYPE_ACTIVE_SERVER;
+        if (position == getActiveListStart() + mActiveData.size() && mActiveHeaderVisible)
+            return TYPE_HEADER;
+        return position >= getInactiveListStart() ? TYPE_INACTIVE_SERVER : TYPE_ACTIVE_SERVER;
     }
 
     @Override
     public boolean isItemElevated(int index) {
         if (index == 0 && mActiveHeaderVisible)
             return false;
+        if (index == getActiveListStart() + mActiveData.size() && mInactiveHeaderVisible)
+            return false;
         return true;
     }
 
     @Override
     public int getItemCount() {
-        return (mActiveHeaderVisible ? 1 : 0) + mActiveData.size();
+        return getInactiveListStart() + mInactiveData.size();
     }
 
     public int getActiveListStart() {
@@ -102,6 +112,22 @@ public class ServerListAdapter extends RecyclerView.Adapter implements
             notifyItemInserted(0);
         else
             notifyItemRemoved(0);
+    }
+
+    public int getInactiveListStart() {
+        return getActiveListStart() + mActiveData.size() + (mInactiveHeaderVisible ? 1 : 0);
+    }
+
+    public void updateInactiveListHeaderVisibility() {
+        boolean newVisibility = mInactiveData.size() > 0;
+        if (newVisibility == mInactiveHeaderVisible)
+            return;
+        mInactiveHeaderVisible = newVisibility;
+        int index = getActiveListStart() + mActiveData.size();
+        if (mInactiveHeaderVisible)
+            notifyItemInserted(index);
+        else
+            notifyItemRemoved(index);
     }
 
 
@@ -160,6 +186,10 @@ public class ServerListAdapter extends RecyclerView.Adapter implements
 
         public void bind(ServerConnectionInfo conn) {
             mName.setText(conn.getName());
+        }
+
+        public void bind(ServerConfigData conn) {
+            mName.setText(conn.name);
         }
 
     }
