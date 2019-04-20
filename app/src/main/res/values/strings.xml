@@ -744,4 +744,15 @@
 
     <string name="server_list_uncategorized">Uncategorized</string>
 
+    <plurals name="server_list_channel_counter">
+        <item quantity="zero">No channels</item>
+        <item quantity="one">1 channel</item>
+        <item quantity="other">%d channels</item>
+    </plurals>
+    <string name="server_list_channel_counter_with_state">%s, %s</string>
+    <string name="server_list_state_connected">connected</string>
+    <string name="server_list_state_connecting">connecting…</string>
+    <string name="server_list_state_reconnecting">reconnecting…</string>
+    <string name="server_list_state_disconnected">disconnected</string>
+
 </resources>

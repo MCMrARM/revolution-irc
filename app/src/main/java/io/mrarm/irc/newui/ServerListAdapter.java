@@ -12,6 +12,7 @@ import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.util.RecyclerViewElevationDecoration;
+import io.mrarm.irc.view.ServerIconView;
 
 public class ServerListAdapter extends RecyclerView.Adapter implements
         ServerActiveListData.Listener, ServerInactiveListData.Listener,
@@ -53,7 +54,7 @@ public class ServerListAdapter extends RecyclerView.Adapter implements
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == TYPE_ACTIVE_SERVER || viewType == TYPE_INACTIVE_SERVER) {
             View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.main_server_list_channel, parent, false);
+                    .inflate(R.layout.main_server_list_server, parent, false);
             return new ActiveServerItem(view);
         } else if (viewType == TYPE_HEADER) {
             View v = LayoutInflater.from(parent.getContext())
@@ -176,19 +177,36 @@ public class ServerListAdapter extends RecyclerView.Adapter implements
 
     public static class ActiveServerItem extends RecyclerView.ViewHolder {
 
+        private ServerIconView mServerIcon;
         private TextView mName;
+        private TextView mDescription;
 
         public ActiveServerItem(@NonNull View itemView) {
             super(itemView);
+            mServerIcon = itemView.findViewById(R.id.icon);
             mName = itemView.findViewById(R.id.name);
-            itemView.findViewById(R.id.topic).setVisibility(View.GONE);
+            mDescription = itemView.findViewById(R.id.desc);
         }
 
         public void bind(ServerConnectionInfo conn) {
+            mServerIcon.setServerName(conn.getName().substring(0, 1));
             mName.setText(conn.getName());
+            int statusId = R.string.server_list_state_disconnected;
+            if (conn.isConnected())
+                statusId = R.string.server_list_state_connected;
+            else if (conn.isConnecting())
+                statusId = R.string.server_list_state_connecting;
+            int channelCount = conn.getChannels().size();
+            String channelCounter = mDescription.getResources().getQuantityString(
+                    R.plurals.server_list_channel_counter, channelCount, channelCount);
+
+            mDescription.setText(mDescription.getResources().getString(
+                    R.string.server_list_channel_counter_with_state,
+                    channelCounter, mDescription.getResources().getString(statusId)));
         }
 
         public void bind(ServerConfigData conn) {
+            mServerIcon.setServerName(conn.name.substring(0, 1));
             mName.setText(conn.name);
         }
 
