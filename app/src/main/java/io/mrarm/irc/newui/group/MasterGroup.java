@@ -2,6 +2,7 @@ package io.mrarm.irc.newui.group;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.UUID;
 public class MasterGroup {
 
     @SerializedName("uuid")
-    private UUID mUUID;
+    UUID mUUID;
     @SerializedName("name")
     private String mName;
     @SerializedName("owner")
@@ -21,10 +22,6 @@ public class MasterGroup {
 
     public UUID getUUID() {
         return mUUID;
-    }
-
-    public void setUUID(UUID uuid) {
-        mUUID = uuid;
     }
 
     public String getName() {
@@ -57,4 +54,22 @@ public class MasterGroup {
     public List<SubGroup> getSubGroups() {
         return Collections.unmodifiableList(mSubGroups);
     }
+
+    public void addSubGroup(SubGroup sg) {
+        if (sg.mUUID == null)
+            throw new InvalidParameterException("The sub group must first be registered in " +
+                    "the GroupManager");
+        if (sg.mParent != null)
+            throw new InvalidParameterException("The sub group already has a parent");
+        sg.mParent = this;
+        mSubGroups.add(sg);
+    }
+
+    public void removeSubGroup(SubGroup sg) {
+        if (sg.mParent != this)
+            throw new InvalidParameterException("Wrong sub group parent");
+        mSubGroups.remove(sg);
+        sg.mParent = null;
+    }
+
 }

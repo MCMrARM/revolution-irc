@@ -7,12 +7,17 @@ import java.util.UUID;
 public class SubGroup {
 
     @SerializedName("uuid")
-    private UUID mUUID;
+    UUID mUUID;
     @SerializedName("name")
     private String mName;
     @SerializedName("owner")
     UUID mOwnerUUID;
     private transient ServerGroupData mOwner;
+    MasterGroup mParent;
+
+    public MasterGroup getParent() {
+        return mParent;
+    }
 
     public UUID getUUID() {
         return mUUID;
