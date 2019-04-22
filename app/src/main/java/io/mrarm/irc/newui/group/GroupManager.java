@@ -6,10 +6,14 @@ import android.util.Log;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +63,11 @@ public class GroupManager implements ServerConfigManager.ConnectionsListener {
         ConfigFileData data;
         try (BufferedReader reader = new BufferedReader(new FileReader(mConfigFile))) {
             data = SettingsHelper.getGson().fromJson(reader, ConfigFileData.class);
+        } catch (FileNotFoundException ignored) {
+            return;
         } catch (Exception e) {
+            Log.e(TAG, "Failed to load groups from file");
+            e.printStackTrace();
             return;
         }
         if (data == null)
@@ -108,6 +116,24 @@ public class GroupManager implements ServerConfigManager.ConnectionsListener {
         mDefaultGroupingMethod = data.options.defaultGroupingMethod;
         mDefaultMasterGroup = mMasterGroupMap.get(data.options.defaultMasterGroupUUID);
         mDefaultSubGroup = mSubGroupMap.get(data.options.defaultSubGroupUUID);
+    }
+
+    public void save() {
+        ConfigFileData data = new ConfigFileData();
+        data.options = new DefaultOptions();
+        data.options.defaultGroupingMethod = mDefaultGroupingMethod;
+        if (mDefaultMasterGroup != null)
+            data.options.defaultMasterGroupUUID = mDefaultMasterGroup.mUUID;
+        if (mDefaultSubGroup != null)
+            data.options.defaultSubGroupUUID = mDefaultSubGroup.mUUID;
+        data.masterGroups = mMasterGroups;
+        data.servers = mServerMap.values();
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(mConfigFile))) {
+            SettingsHelper.getGson().toJson(data, writer);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to write groups to file");
+            e.printStackTrace();
+        }
     }
 
     private void addServer(ServerConfigData s) {
@@ -271,7 +297,7 @@ public class GroupManager implements ServerConfigManager.ConnectionsListener {
     private static class ConfigFileData {
 
         public DefaultOptions options;
-        public List<ServerGroupData> servers;
+        public Collection<ServerGroupData> servers;
         public List<MasterGroup> masterGroups;
 
     }
