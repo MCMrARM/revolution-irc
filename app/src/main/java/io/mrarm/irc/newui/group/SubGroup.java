@@ -2,7 +2,10 @@ package io.mrarm.irc.newui.group;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
 import java.util.UUID;
+
+import io.mrarm.irc.util.ObservableList;
 
 public class SubGroup {
 
@@ -14,6 +17,7 @@ public class SubGroup {
     UUID mOwnerUUID;
     private transient ServerGroupData mOwner;
     MasterGroup mParent;
+    transient final ObservableList<String> mCurrentChannels = new ObservableList<>(new ArrayList<>());
 
     public MasterGroup getParent() {
         return mParent;
@@ -45,4 +49,7 @@ public class SubGroup {
         }
     }
 
+    public ObservableList<String> getCurrentChannels() {
+        return mCurrentChannels;
+    }
 }

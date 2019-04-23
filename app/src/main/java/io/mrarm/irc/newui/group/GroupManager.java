@@ -34,7 +34,7 @@ public class GroupManager implements ServerConfigManager.ConnectionsListener {
 
     public static GroupManager getInstance(Context ctx) {
         if (sInstance == null)
-            sInstance = new GroupManager(ctx);
+            sInstance = new GroupManager(ctx.getApplicationContext());
         return sInstance;
     }
 
@@ -57,6 +57,10 @@ public class GroupManager implements ServerConfigManager.ConnectionsListener {
             if (!mServerMap.containsKey(s.uuid))
                 addServer(s);
         }
+    }
+
+    public Context getContext() {
+        return mContext;
     }
 
     private void load() {
@@ -260,6 +264,10 @@ public class GroupManager implements ServerConfigManager.ConnectionsListener {
             throw new InvalidParameterException("The specified sub group has not been added " +
                     "to the manager");
         mSubGroupMap.remove(g.mUUID);
+    }
+
+    public ServerGroupData getServerData(UUID uuid) {
+        return mServerMap.get(uuid);
     }
 
     @Override
