@@ -78,7 +78,7 @@ public class ServerConnectionInfo {
                 setChannels(channels);
                 synchronized (mDetailedChannelListListeners) {
                     for (DetailedChannelListListener l : mDetailedChannelListListeners)
-                        l.onChannelListReset(channels);
+                        l.onChannelListReset(ServerConnectionInfo.this, channels);
                 }
             }, null);
             api.subscribeChannelList(new ChannelListListener() {
@@ -473,7 +473,7 @@ public class ServerConnectionInfo {
 
         void onChannelLeft(ServerConnectionInfo connection, String channel);
 
-        void onChannelListReset(List<String> channels);
+        void onChannelListReset(ServerConnectionInfo connection, List<String> channels);
     }
 
 }

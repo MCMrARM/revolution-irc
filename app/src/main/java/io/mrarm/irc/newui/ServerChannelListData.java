@@ -38,7 +38,7 @@ public class ServerChannelListData implements ServerConnectionInfo.DetailedChann
         mConnection.addChannelListListener(this);
         mGroups.clear();
         mGroups.add(new ChannelGroup(mContext.getString(R.string.server_list_uncategorized)));
-        onChannelListReset(mConnection.getChannels());
+        onChannelListReset(mConnection, mConnection.getChannels());
     }
 
     public void unload() {
@@ -80,7 +80,7 @@ public class ServerChannelListData implements ServerConnectionInfo.DetailedChann
     }
 
     @Override
-    public void onChannelListReset(List<String> channels) {
+    public void onChannelListReset(ServerConnectionInfo connection, List<String> channels) {
         UiThreadHelper.runOnUiThread(() -> {
             ChannelGroup group = mGroups.get(0);
             int oldCount = group.mChannels.size();
