@@ -1,4 +1,4 @@
-package io.mrarm.irc.util;
+package io.mrarm.irc.util.collection;
 
 import androidx.recyclerview.widget.RecyclerView;
 
