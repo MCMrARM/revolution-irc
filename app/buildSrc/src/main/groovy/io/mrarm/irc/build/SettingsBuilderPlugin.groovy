@@ -12,7 +12,7 @@ public class SettingsBuilderPlugin implements Plugin<Project> {
 
         def genDir = new File(project.getBuildDir(), "generated/source/settings")
         def genTask = project.task("generateSettings")
-        genTask << {
+        genTask.doFirst {
             SettingsBuilder.generateJavaFiles(project.file("settings.yml"), genDir)
         }
         android.applicationVariants.all { v ->
