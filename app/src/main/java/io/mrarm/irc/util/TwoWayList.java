@@ -1,4 +1,4 @@
-package io.mrarm.irc.util.collection;
+package io.mrarm.irc.util;
 
 import java.util.ArrayList;
 import java.util.List;

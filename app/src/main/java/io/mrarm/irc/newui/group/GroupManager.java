@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import androidx.databinding.ObservableArrayList;
+import androidx.databinding.ObservableList;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.config.SettingsHelper;
@@ -41,7 +43,7 @@ public class GroupManager implements ServerConfigManager.ConnectionsListener {
     private final Context mContext;
     private final File mConfigFile;
     private final Map<UUID, ServerGroupData> mServerMap = new HashMap<>();
-    private final List<MasterGroup> mMasterGroups = new ArrayList<>(); // used for ordering
+    private final ObservableList<MasterGroup> mMasterGroups = new ObservableArrayList<>(); // used for ordering
     private final Map<UUID, MasterGroup> mMasterGroupMap = new HashMap<>();
     private final Map<UUID, SubGroup> mSubGroupMap = new HashMap<>();
 
