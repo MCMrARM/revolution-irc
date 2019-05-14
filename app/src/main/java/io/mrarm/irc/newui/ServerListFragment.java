@@ -28,7 +28,6 @@ public class ServerListFragment extends Fragment {
         mActiveData = new ServerActiveListData(getContext());
         mInactiveData = new ServerInactiveListData(getContext());
         mActiveData.load();
-        mInactiveData.setFilter(new ServerInactiveListData.ConnectedFilter(getContext()));
         mInactiveData.load();
 
         mAdapter = new ServerListAdapter(getContext(), mActiveData, mInactiveData);

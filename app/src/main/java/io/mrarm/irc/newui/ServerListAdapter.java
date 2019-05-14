@@ -3,40 +3,40 @@ package io.mrarm.irc.newui;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import io.mrarm.dataadapter.DataAdapter;
+import io.mrarm.dataadapter.DataFragment;
+import io.mrarm.dataadapter.DataMerger;
+import io.mrarm.dataadapter.ListData;
+import io.mrarm.dataadapter.SimpleViewHolder;
+import io.mrarm.dataadapter.SingleItemData;
+import io.mrarm.dataadapter.ViewHolderType;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.util.RecyclerViewElevationDecoration;
 import io.mrarm.irc.view.ServerIconView;
 
-public class ServerListAdapter extends RecyclerView.Adapter implements
-        ServerActiveListData.Listener, ServerInactiveListData.Listener,
+public class ServerListAdapter extends DataAdapter implements
         RecyclerViewElevationDecoration.ItemElevationCallback {
 
-    private static final int TYPE_HEADER = 0;
-    private static final int TYPE_ACTIVE_SERVER = 1;
-    private static final int TYPE_INACTIVE_SERVER = 2;
-
     private final RecyclerViewElevationDecoration mDecoration;
-    private final ServerActiveListData mActiveData;
-    private final ServerInactiveListData mInactiveData;
-    private boolean mActiveHeaderVisible;
-    private boolean mInactiveHeaderVisible;
+    private DataFragment mSource;
 
     public ServerListAdapter(Context context, ServerActiveListData activeData,
                              ServerInactiveListData inactiveData) {
-        mActiveData = activeData;
-        mInactiveData = inactiveData;
-        mActiveData.setListener(this);
-        mInactiveData.setListener(this);
         mDecoration = new RecyclerViewElevationDecoration(context, this);
-        updateActiveListHeaderVisibility();
-        updateInactiveListHeaderVisibility();
+
+        mSource = new DataMerger()
+                .add(new SingleItemData<>(R.string.server_list_header_active, HeaderHolder.TYPE))
+                .add(new ListData<Object>(activeData.getConnections(), ActiveServerHolder.TYPE))
+                .add(new SingleItemData<>(R.string.server_list_header_inactive, HeaderHolder.TYPE))
+                .add(new ListData<Object>(inactiveData.getInactiveConnections(), ActiveServerHolder.TYPE));
+        setSource(mSource);
     }
 
     @Override
@@ -49,117 +49,19 @@ public class ServerListAdapter extends RecyclerView.Adapter implements
         recyclerView.removeItemDecoration(mDecoration);
     }
 
-    @NonNull
-    @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        if (viewType == TYPE_ACTIVE_SERVER || viewType == TYPE_INACTIVE_SERVER) {
-            View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.main_server_list_server, parent, false);
-            return new ActiveServerItem(view);
-        } else if (viewType == TYPE_HEADER) {
-            View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.main_server_list_header, parent, false);
-            return new HeaderHolder(v);
-        }
-        throw new IllegalStateException("Bad viewType");
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        int type = holder.getItemViewType();
-        if (type == TYPE_HEADER) {
-            ((HeaderHolder) holder).bind(position == 0 ? R.string.server_list_header_active
-                    : R.string.server_list_header_inactive);
-        } else if (type == TYPE_ACTIVE_SERVER) {
-            ((ActiveServerItem) holder).bind(mActiveData.get(position - getActiveListStart()));
-        } else if (type == TYPE_INACTIVE_SERVER) {
-            ((ActiveServerItem) holder).bind(mInactiveData.get(position - getInactiveListStart()));
-        }
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        if (position == 0 && mActiveHeaderVisible)
-            return TYPE_HEADER;
-        if (position == getActiveListStart() + mActiveData.size() && mActiveHeaderVisible)
-            return TYPE_HEADER;
-        return position >= getInactiveListStart() ? TYPE_INACTIVE_SERVER : TYPE_ACTIVE_SERVER;
-    }
-
     @Override
     public boolean isItemElevated(int index) {
-        if (index == 0 && mActiveHeaderVisible)
-            return false;
-        if (index == getActiveListStart() + mActiveData.size() && mInactiveHeaderVisible)
-            return false;
-        return true;
-    }
-
-    @Override
-    public int getItemCount() {
-        return getInactiveListStart() + mInactiveData.size();
-    }
-
-    public int getActiveListStart() {
-        return mActiveHeaderVisible ? 1 : 0;
-    }
-
-    public void updateActiveListHeaderVisibility() {
-        boolean newVisibility = mActiveData.size() > 0;
-        if (newVisibility == mActiveHeaderVisible)
-            return;
-        mActiveHeaderVisible = newVisibility;
-        if (mActiveHeaderVisible)
-            notifyItemInserted(0);
-        else
-            notifyItemRemoved(0);
-    }
-
-    public int getInactiveListStart() {
-        return getActiveListStart() + mActiveData.size() + (mInactiveHeaderVisible ? 1 : 0);
-    }
-
-    public void updateInactiveListHeaderVisibility() {
-        boolean newVisibility = mInactiveData.size() > 0;
-        if (newVisibility == mInactiveHeaderVisible)
-            return;
-        mInactiveHeaderVisible = newVisibility;
-        int index = getActiveListStart() + mActiveData.size();
-        if (mInactiveHeaderVisible)
-            notifyItemInserted(index);
-        else
-            notifyItemRemoved(index);
+        return mSource.getHolderTypeFor(index) != HeaderHolder.TYPE;
     }
 
 
-    @Override
-    public void onActiveConnectionAdded(int index) {
-        updateActiveListHeaderVisibility();
-        notifyItemInserted(getActiveListStart() + index);
-    }
+    public static class HeaderHolder extends SimpleViewHolder<Integer> {
 
-    @Override
-    public void onActiveConnectionRemoved(int index) {
-        notifyItemRemoved(getActiveListStart() + index);
-        updateActiveListHeaderVisibility();
-    }
-
-    @Override
-    public void onServerAdded(int index) {
-
-    }
-
-    @Override
-    public void onServerRemoved(int index) {
-
-    }
-
-    @Override
-    public void onServerUpdated(int index) {
-
-    }
-
-    public static class HeaderHolder extends RecyclerView.ViewHolder {
+        public static final ViewHolderType<Integer> TYPE = ViewHolderType.from((ctx, parent) -> {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.main_server_list_header, parent, false);
+            return new HeaderHolder(view);
+        });
 
         private TextView mTextView;
 
@@ -168,24 +70,39 @@ public class ServerListAdapter extends RecyclerView.Adapter implements
             mTextView = itemView.findViewById(R.id.title);
         }
 
-        public void bind(int nameRes) {
-            mTextView.setText(nameRes);
+        @Override
+        public void bind(Integer integer) {
+            mTextView.setText(integer);
         }
 
     }
 
 
-    public static class ActiveServerItem extends RecyclerView.ViewHolder {
+    public static class ActiveServerHolder extends SimpleViewHolder<Object> {
+
+        public static final ViewHolderType TYPE = ViewHolderType.from((ctx, parent) -> {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.main_server_list_server, parent, false);
+            return new ActiveServerHolder(view);
+        });
 
         private ServerIconView mServerIcon;
         private TextView mName;
         private TextView mDescription;
 
-        public ActiveServerItem(@NonNull View itemView) {
+        public ActiveServerHolder(@NonNull View itemView) {
             super(itemView);
             mServerIcon = itemView.findViewById(R.id.icon);
             mName = itemView.findViewById(R.id.name);
             mDescription = itemView.findViewById(R.id.desc);
+        }
+
+        @Override
+        public void bind(Object o) {
+            if (o instanceof ServerConnectionInfo)
+                bind((ServerConnectionInfo) o);
+            if (o instanceof ServerConfigData)
+                bind((ServerConfigData) o);
         }
 
         public void bind(ServerConnectionInfo conn) {
