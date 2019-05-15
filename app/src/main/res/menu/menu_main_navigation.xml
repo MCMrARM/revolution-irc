@@ -8,12 +8,12 @@
 
     <item
         android:id="@+id/item_chats"
-        android:icon="@drawable/ic_notification_message"
+        android:icon="@drawable/ic_chats"
         android:title="@string/main_tab_chats" />
 
     <item
         android:id="@+id/item_servers"
-        android:icon="@drawable/ic_server_connected"
+        android:icon="@drawable/ic_server_network"
         android:title="@string/main_tab_servers" />
 
 </menu>

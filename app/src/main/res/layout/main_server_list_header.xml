@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:id="@+id/title"
-    android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-    android:textColor="?android:attr/textColorSecondary"
-    android:layout_marginLeft="@dimen/setting_horizontal_padding"
-    android:layout_marginRight="@dimen/setting_horizontal_padding"
-    android:layout_marginTop="12dp"
-    android:layout_marginBottom="8dp"
-    tools:text="Title Placeholder" />
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable name="titleId" type="int"/>
+    </data>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/title"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textColor="?android:attr/textColorSecondary"
+        android:layout_marginLeft="@dimen/setting_horizontal_padding"
+        android:layout_marginRight="@dimen/setting_horizontal_padding"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="8dp"
+        android:text="@{titleId}"
+        tools:text="Title Placeholder" />
+</layout>

@@ -43,7 +43,12 @@ public class ServerIconView extends View {
     }
 
     public void setServerName(String name) {
-        mServerName = name;
+        if (name != null) {
+            mServerName = name.substring(0, 1);
+        } else {
+            mServerName = null;
+        }
+        invalidate();
     }
 
     @Override
@@ -53,6 +58,9 @@ public class ServerIconView extends View {
                 getWidth() - getPaddingRight(), getHeight() - getPaddingBottom());
         mPaint.setColor(mBgColor);
         canvas.drawOval(mTmpRectF, mPaint);
+
+        if (mServerName == null || mServerName.isEmpty())
+            return;
 
         mPaint.setColor(0xFFFFFFFF);
         mPaint.setTextSize(mTextSize);
