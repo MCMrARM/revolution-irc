@@ -31,12 +31,14 @@ public class ServerListFragment extends Fragment {
         mInactiveData.load();
 
         mAdapter = new ServerListAdapter(getContext(), mActiveData, mInactiveData);
+        mAdapter.getSource().bind();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
 
+        mAdapter.getSource().unbind();
         mActiveData.unload();
         mInactiveData.unload();
     }

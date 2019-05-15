@@ -9,7 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import io.mrarm.dataadapter.DataAdapter;
-import io.mrarm.dataadapter.DataFragment;
 import io.mrarm.dataadapter.DataMerger;
 import io.mrarm.dataadapter.ListData;
 import io.mrarm.dataadapter.SimpleViewHolder;
@@ -25,18 +24,17 @@ public class ServerListAdapter extends DataAdapter implements
         RecyclerViewElevationDecoration.ItemElevationCallback {
 
     private final RecyclerViewElevationDecoration mDecoration;
-    private DataFragment mSource;
 
     public ServerListAdapter(Context context, ServerActiveListData activeData,
                              ServerInactiveListData inactiveData) {
         mDecoration = new RecyclerViewElevationDecoration(context, this);
 
-        mSource = new DataMerger()
+        DataMerger source = new DataMerger()
                 .add(new SingleItemData<>(R.string.server_list_header_active, HeaderHolder.TYPE))
                 .add(new ListData<Object>(activeData.getConnections(), ActiveServerHolder.TYPE))
                 .add(new SingleItemData<>(R.string.server_list_header_inactive, HeaderHolder.TYPE))
                 .add(new ListData<Object>(inactiveData.getInactiveConnections(), ActiveServerHolder.TYPE));
-        setSource(mSource);
+        setSource(source, false);
     }
 
     @Override
@@ -51,7 +49,7 @@ public class ServerListAdapter extends DataAdapter implements
 
     @Override
     public boolean isItemElevated(int index) {
-        return mSource.getHolderTypeFor(index) != HeaderHolder.TYPE;
+        return getSource().getHolderTypeFor(index) != HeaderHolder.TYPE;
     }
 
 
