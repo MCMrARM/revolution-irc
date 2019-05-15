@@ -6,8 +6,10 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.databinding.ObservableBoolean;
 import androidx.recyclerview.widget.RecyclerView;
 
+import io.mrarm.dataadapter.ConditionalDataFragment;
 import io.mrarm.dataadapter.DataAdapter;
 import io.mrarm.dataadapter.DataMerger;
 import io.mrarm.dataadapter.ListData;
@@ -19,6 +21,8 @@ import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.util.RecyclerViewElevationDecoration;
 import io.mrarm.irc.view.ServerIconView;
+import io.mrarm.observabletransform.ObservableLists;
+import io.mrarm.observabletransform.Observables;
 
 public class ServerListAdapter extends DataAdapter implements
         RecyclerViewElevationDecoration.ItemElevationCallback {
@@ -29,11 +33,16 @@ public class ServerListAdapter extends DataAdapter implements
                              ServerInactiveListData inactiveData) {
         mDecoration = new RecyclerViewElevationDecoration(context, this);
 
+        ObservableBoolean showActiveHeader = Observables.booleanTransform(
+                ObservableLists.size(activeData.getConnections()), (x) -> x > 0);
+        ObservableBoolean showInactiveHeader = Observables.booleanTransform(
+                ObservableLists.size(inactiveData.getInactiveConnections()), (x) -> x > 0);
+
         DataMerger source = new DataMerger()
-                .add(new SingleItemData<>(R.string.server_list_header_active, HeaderHolder.TYPE))
-                .add(new ListData<Object>(activeData.getConnections(), ActiveServerHolder.TYPE))
-                .add(new SingleItemData<>(R.string.server_list_header_inactive, HeaderHolder.TYPE))
-                .add(new ListData<Object>(inactiveData.getInactiveConnections(), ActiveServerHolder.TYPE));
+                .add(new ConditionalDataFragment<>(new SingleItemData<>(R.string.server_list_header_active, HeaderHolder.TYPE), showActiveHeader))
+                .add(new ListData<>(activeData.getConnections(), ActiveServerHolder.TYPE))
+                .add(new ConditionalDataFragment<>(new SingleItemData<>(R.string.server_list_header_inactive, HeaderHolder.TYPE), showInactiveHeader))
+                .add(new ListData<>(inactiveData.getInactiveConnections(), ActiveServerHolder.TYPE));
         setSource(source, false);
     }
 
@@ -78,7 +87,7 @@ public class ServerListAdapter extends DataAdapter implements
 
     public static class ActiveServerHolder extends SimpleViewHolder<Object> {
 
-        public static final ViewHolderType TYPE = ViewHolderType.from((ctx, parent) -> {
+        public static final ViewHolderType<Object> TYPE = ViewHolderType.from((ctx, parent) -> {
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.main_server_list_server, parent, false);
             return new ActiveServerHolder(view);
