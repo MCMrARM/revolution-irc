@@ -4,6 +4,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import androidx.annotation.UiThread;
+import androidx.databinding.ObservableInt;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,6 +33,7 @@ import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.util.IgnoreListMessageFilter;
 import io.mrarm.irc.util.StubMessageStorageApi;
+import io.mrarm.irc.util.UiThreadHelper;
 import io.mrarm.irc.util.UserAutoRunCommandHelper;
 
 public class ServerConnectionInfo {
@@ -39,6 +43,7 @@ public class ServerConnectionInfo {
     private ServerConnectionManager mManager;
     private ServerConfigData mServerConfig;
     private List<String> mChannels;
+    private final ObservableInt mChannelCount = new ObservableInt();
     private ChatApi mApi;
     private IRCConnectionRequest mConnectionRequest;
     private SASLOptions mSASLOptions;
@@ -48,6 +53,7 @@ public class ServerConnectionInfo {
     private boolean mConnecting = false;
     private boolean mDisconnecting = false;
     private boolean mUserDisconnectRequest = false;
+    private ObservableInt mStatusResId;
     private long mReconnectQueueTime = -1L;
     private NotificationManager.ConnectionManager mNotificationData;
     private UserAutoRunCommandHelper mAutoRunHelper;
@@ -69,6 +75,7 @@ public class ServerConnectionInfo {
         mChannels = joinChannels;
         if (mChannels != null)
             Collections.sort(mChannels, String::compareToIgnoreCase);
+        mChannelCount.set(mChannels != null ? mChannels.size() : 0);
     }
 
     private void setApi(ChatApi api) {
@@ -360,6 +367,30 @@ public class ServerConnectionInfo {
         }
     }
 
+    @UiThread
+    public ObservableInt getChannelCount() {
+        return mChannelCount;
+    }
+
+    @UiThread
+    public ObservableInt getStatusResId() {
+        if (mStatusResId == null) {
+            mStatusResId = new ObservableInt() {
+                @Override
+                public int get() {
+                    if (isConnected())
+                        return R.string.server_list_state_connected;
+                    else if (isConnecting())
+                        return R.string.server_list_state_connecting;
+                    return R.string.server_list_state_disconnected;
+                }
+            };
+            addOnChannelInfoChangeListener((c) ->
+                    UiThreadHelper.runOnUiThread(() -> mStatusResId.notifyChange()));
+        }
+        return mStatusResId;
+    }
+
     public boolean hasChannel(String channel) {
         synchronized (this) {
             for (String c : mChannels) {
@@ -371,6 +402,7 @@ public class ServerConnectionInfo {
     }
 
     private void setChannels(List<String> channels) {
+        UiThreadHelper.runOnUiThread(() -> mChannelCount.set(channels.size()));
         Collections.sort(channels, String::compareToIgnoreCase);
         synchronized (this) {
             mChannels = channels;

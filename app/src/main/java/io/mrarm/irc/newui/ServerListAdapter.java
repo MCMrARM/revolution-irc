@@ -1,7 +1,6 @@
 package io.mrarm.irc.newui;
 
 import android.content.Context;
-import android.content.res.Resources;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.ObservableBoolean;
@@ -17,7 +16,6 @@ import io.mrarm.irc.BR;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.config.ServerConfigData;
-import io.mrarm.irc.databinding.MainServerListServerBinding;
 import io.mrarm.irc.util.RecyclerViewElevationDecoration;
 import io.mrarm.observabletransform.ObservableLists;
 import io.mrarm.observabletransform.Observables;
@@ -66,31 +64,13 @@ public class ServerListAdapter extends DataAdapter implements
                     .build();
 
     public static final ViewHolderType<ServerConnectionInfo> ACTIVE_SERVER_TYPE =
-            ViewHolderType.<ServerConnectionInfo>fromDataBinding(R.layout.main_server_list_server)
-                    .<MainServerListServerBinding>onBind((holder, binding, data) -> {
-                        binding.setServerName(data.getName());
-
-                        Resources res = holder.getContext().getResources();
-                        int statusId = R.string.server_list_state_disconnected;
-                        if (data.isConnected())
-                            statusId = R.string.server_list_state_connected;
-                        else if (data.isConnecting())
-                            statusId = R.string.server_list_state_connecting;
-                        int channelCount = data.getChannels().size();
-                        String channelCounter = res.getQuantityString(
-                                R.plurals.server_list_channel_counter, channelCount, channelCount);
-
-                        binding.setServerDescription(res.getString(
-                                R.string.server_list_channel_counter_with_state,
-                                channelCounter, res.getString(statusId)));
-                    })
+            ViewHolderType.<ServerConnectionInfo>fromDataBinding(R.layout.main_server_list_server_active)
+                    .setValueVarId(BR.server)
                     .build();
 
     public static final ViewHolderType<ServerConfigData> INACTIVE_SERVER_TYPE =
-            ViewHolderType.<ServerConfigData>fromDataBinding(R.layout.main_server_list_server)
-                    .<MainServerListServerBinding>onBind((holder, binding, data) -> {
-                        binding.setServerName(data.name);
-                    })
+            ViewHolderType.<ServerConfigData>fromDataBinding(R.layout.main_server_list_server_inactive)
+                    .setValueVarId(BR.server)
                     .build();
 
 }
