@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
-        <variable name="server" type="io.mrarm.irc.config.ServerConfigData"/>
+        <variable name="server" type="io.mrarm.irc.persistence.ServerUIInfo"/>
     </data>
 
     <LinearLayout
@@ -19,7 +19,7 @@
             android:layout_gravity="center"
             android:layout_margin="12dp"
             android:textSize="20sp"
-            app:serverName="@{server.name}"
+            app:serverName="@{server.cachedName}"
             tools:serverName="M" />
 
         <LinearLayout
@@ -33,14 +33,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:text="@{server.name}"
+                android:text="@{server.cachedName}"
                 tools:text="Server name" />
 
             <TextView
                 android:id="@+id/desc"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text=""
+                android:text="@{server.getLastInteractionText(context)}"
                 tools:text="Description" />
 
         </LinearLayout>

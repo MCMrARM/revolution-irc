@@ -754,5 +754,8 @@
     <string name="server_list_state_connecting">connecting…</string>
     <string name="server_list_state_reconnecting">reconnecting…</string>
     <string name="server_list_state_disconnected">disconnected</string>
+    <string name="server_list_last_connected">Last connected %s</string>
+    <string name="server_list_last_edited">Edited %s</string>
+    <string name="server_list_last_created">Created %s</string>
 
 </resources>

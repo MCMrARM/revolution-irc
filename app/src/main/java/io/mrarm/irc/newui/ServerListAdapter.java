@@ -15,7 +15,7 @@ import io.mrarm.dataadapter.ViewHolderType;
 import io.mrarm.irc.BR;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
-import io.mrarm.irc.config.ServerConfigData;
+import io.mrarm.irc.persistence.ServerUIInfo;
 import io.mrarm.irc.util.RecyclerViewElevationDecoration;
 import io.mrarm.observabletransform.ObservableLists;
 import io.mrarm.observabletransform.Observables;
@@ -68,8 +68,8 @@ public class ServerListAdapter extends DataAdapter implements
                     .setValueVarId(BR.server)
                     .build();
 
-    public static final ViewHolderType<ServerConfigData> INACTIVE_SERVER_TYPE =
-            ViewHolderType.<ServerConfigData>fromDataBinding(R.layout.main_server_list_server_inactive)
+    public static final ViewHolderType<ServerUIInfo> INACTIVE_SERVER_TYPE =
+            ViewHolderType.<ServerUIInfo>fromDataBinding(R.layout.main_server_list_server_inactive)
                     .setValueVarId(BR.server)
                     .build();
 
