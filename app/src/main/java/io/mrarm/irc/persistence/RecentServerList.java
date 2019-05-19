@@ -15,6 +15,8 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import io.mrarm.irc.ServerConnectionInfo;
+import io.mrarm.irc.ServerConnectionManager;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.util.UiThreadHelper;
@@ -24,7 +26,8 @@ import io.reactivex.schedulers.Schedulers;
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @SuppressLint("CheckResult")
 @Singleton
-public class RecentServerList implements ServerConfigManager.ConnectionsListener {
+public class RecentServerList implements ServerConfigManager.ConnectionsListener,
+        ServerConnectionManager.ConnectionsListener {
 
     private final ServerConfigManager mServerConfigManager;
     private final UIDatabase mDatabase;
@@ -32,10 +35,12 @@ public class RecentServerList implements ServerConfigManager.ConnectionsListener
     private boolean loadRequested = false;
 
     @Inject
-    public RecentServerList(ServerConfigManager serverConfigManager, UIDatabase database) {
+    public RecentServerList(ServerConfigManager serverConfigManager,
+                            ServerConnectionManager serverConnectionManager, UIDatabase database) {
         mServerConfigManager = serverConfigManager;
         mDatabase = database;
         mServerConfigManager.addListener(this);
+        serverConnectionManager.addListener(this);
     }
 
     public ObservableList<ServerUIInfo> getServers() {
@@ -149,4 +154,19 @@ public class RecentServerList implements ServerConfigManager.ConnectionsListener
         });
     }
 
+    // Active connections
+
+    @Override
+    public void onConnectionAdded(ServerConnectionInfo connection) {
+        UiThreadHelper.runOnUiThread(() -> {
+            makeInteraction(connection.getUUID(), ServerUIInfo.INTERACTION_TYPE_CONNECT);
+        });
+    }
+
+    @Override
+    public void onConnectionRemoved(ServerConnectionInfo connection) {
+        UiThreadHelper.runOnUiThread(() -> {
+            makeInteraction(connection.getUUID(), ServerUIInfo.INTERACTION_TYPE_CONNECT);
+        });
+    }
 }
