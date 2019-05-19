@@ -278,6 +278,7 @@
     <string name="error_file_open">Failed to open the file.</string>
 
     <string name="time_now">now</string>
+    <string name="time_just_now">just now</string>
 
     <!-- Time -->
 

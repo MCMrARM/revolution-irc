@@ -9,7 +9,6 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-import java.text.DateFormat;
 import java.util.Date;
 import java.util.UUID;
 
@@ -47,16 +46,18 @@ public class ServerUIInfo {
     public String getLastInteractionText(Context context) {
         if (lastInteractionType == null || lastInteractionTime == null)
             return "";
-        String interactionTimeStr = DateUtils.getRelativeDateTimeString(context,
-                lastInteractionTime.getTime(), DateUtils.MINUTE_IN_MILLIS,
-                DateUtils.WEEK_IN_MILLIS, 0).toString();
+        long now = System.currentTimeMillis();
+        String interactionTimeStr = DateUtils.getRelativeTimeSpanString(
+                lastInteractionTime.getTime(), now, DateUtils.MINUTE_IN_MILLIS, 0).toString();
+        if (now - lastInteractionTime.getTime() < 2 * 60 * 1000L) // 2 minutes
+            interactionTimeStr = context.getString(R.string.time_just_now);
         switch (lastInteractionType) {
             case INTERACTION_TYPE_ADD:
                 return context.getString(R.string.server_list_last_created, interactionTimeStr);
             case INTERACTION_TYPE_EDIT:
                 return context.getString(R.string.server_list_last_edited, interactionTimeStr);
             case INTERACTION_TYPE_CONNECT:
-                return context.getString(R.string.server_list_last_edited, interactionTimeStr);
+                return context.getString(R.string.server_list_last_connected, interactionTimeStr);
         }
         return "";
     }
