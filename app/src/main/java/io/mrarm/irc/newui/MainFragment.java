@@ -18,13 +18,15 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import dagger.android.support.DaggerFragment;
 import io.mrarm.irc.DCCActivity;
 import io.mrarm.irc.IRCApplication;
 import io.mrarm.irc.R;
 import io.mrarm.irc.SettingsActivity;
 import io.mrarm.irc.util.ViewFadeHelper;
 
-public class MainFragment extends Fragment
+public class MainFragment extends DaggerFragment
         implements SlideableFragmentToolbar.FragmentToolbarCallback {
 
     private RecyclerView mToolbarServerIcons;

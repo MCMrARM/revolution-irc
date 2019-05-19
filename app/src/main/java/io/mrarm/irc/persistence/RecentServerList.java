@@ -1,7 +1,6 @@
 package io.mrarm.irc.persistence;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.util.Log;
 
 import androidx.databinding.ObservableArrayList;
@@ -13,6 +12,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.util.UiThreadHelper;
@@ -21,6 +23,7 @@ import io.reactivex.schedulers.Schedulers;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @SuppressLint("CheckResult")
+@Singleton
 public class RecentServerList implements ServerConfigManager.ConnectionsListener {
 
     private final ServerConfigManager mServerConfigManager;
@@ -28,14 +31,10 @@ public class RecentServerList implements ServerConfigManager.ConnectionsListener
     private final ObservableList<ServerUIInfo> mServers = new ObservableArrayList<>();
     private boolean loadRequested = false;
 
+    @Inject
     public RecentServerList(ServerConfigManager serverConfigManager, UIDatabase database) {
         mServerConfigManager = serverConfigManager;
         mDatabase = database;
-    }
-
-    public RecentServerList(Context context) {
-        mServerConfigManager = ServerConfigManager.getInstance(context);
-        mDatabase = UIStorage.getInstance(context).getDatabase();
     }
 
     public ObservableList<ServerUIInfo> getServers() {

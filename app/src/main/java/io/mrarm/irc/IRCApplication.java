@@ -7,9 +7,20 @@ import android.os.Bundle;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.mrarm.irc.config.SettingsHelper;
+import javax.inject.Inject;
 
-public class IRCApplication extends Application implements Application.ActivityLifecycleCallbacks {
+import dagger.android.AndroidInjector;
+import dagger.android.DispatchingAndroidInjector;
+import dagger.android.HasActivityInjector;
+import io.mrarm.irc.config.SettingsHelper;
+import io.mrarm.irc.dagger.AppComponent;
+import io.mrarm.irc.dagger.DaggerAppComponent;
+
+public class IRCApplication extends Application implements Application.ActivityLifecycleCallbacks,
+        HasActivityInjector {
+
+    @Inject
+    DispatchingAndroidInjector<Activity> mDispatchingActivityInjector;
 
     private List<Activity> mActivities = new ArrayList<>();
     private List<PreExitCallback> mPreExitCallbacks = new ArrayList<>();
@@ -18,6 +29,9 @@ public class IRCApplication extends Application implements Application.ActivityL
     @Override
     public void onCreate() {
         super.onCreate();
+        AppComponent appComponent = DaggerAppComponent.factory().create(this);
+        appComponent.inject(this);
+        appComponent.createEagerSingletons();
         SettingsHelper.getInstance(this);
         NotificationManager.createDefaultChannels(this);
         registerActivityLifecycleCallbacks(this);
@@ -82,6 +96,11 @@ public class IRCApplication extends Application implements Application.ActivityL
 
     @Override
     public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+    }
+
+    @Override
+    public AndroidInjector<Activity> activityInjector() {
+        return mDispatchingActivityInjector;
     }
 
 

@@ -7,18 +7,22 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class ServerListFragment extends Fragment {
+import javax.inject.Inject;
+
+import dagger.android.support.DaggerFragment;
+
+public class ServerListFragment extends DaggerFragment {
 
     public static ServerListFragment newInstance() {
         return new ServerListFragment();
     }
 
     private ServerActiveListData mActiveData;
-    private ServerInactiveListData mInactiveData;
+    @Inject
+    ServerInactiveListData mInactiveData;
     private ServerListAdapter mAdapter;
 
     @Override
@@ -26,7 +30,6 @@ public class ServerListFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         mActiveData = new ServerActiveListData(getContext());
-        mInactiveData = new ServerInactiveListData(getContext());
         mActiveData.load();
         mInactiveData.load();
 

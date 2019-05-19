@@ -3,15 +3,16 @@ package io.mrarm.irc.newui;
 import android.os.Bundle;
 
 import io.mrarm.irc.R;
-import io.mrarm.irc.ThemedActivity;
+import io.mrarm.irc.dagger.DaggerThemedActivity;
 
-public class MainActivity extends ThemedActivity {
+public class MainActivity extends DaggerThemedActivity {
 
     private SlideableFragmentContainer mContainer;
     private SlideableFragmentToolbar mToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_newui_main);
 

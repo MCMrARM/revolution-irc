@@ -4,25 +4,19 @@ import android.content.Context;
 
 import androidx.room.Room;
 
+import javax.inject.Singleton;
+
+import dagger.Module;
+import dagger.Provides;
+import io.mrarm.irc.dagger.AppQualifier;
+
+@Module
 public class UIStorage {
 
-    private static UIStorage singleton;
-
-    public static UIStorage getInstance(Context context) {
-        if (singleton == null)
-            singleton = new UIStorage(context.getApplicationContext());
-        return singleton;
-    }
-
-
-    private UIDatabase database;
-
-    public UIStorage(Context context) {
-        database = Room.databaseBuilder(context, UIDatabase.class, "ui-storage").build();
-    }
-
-    public UIDatabase getDatabase() {
-        return database;
+    @Provides
+    @Singleton
+    public UIDatabase getDatabase(@AppQualifier Context context) {
+        return Room.databaseBuilder(context, UIDatabase.class, "ui-storage").build();
     }
 
 }
