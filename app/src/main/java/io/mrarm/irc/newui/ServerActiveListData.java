@@ -1,36 +1,34 @@
 package io.mrarm.irc.newui;
 
-import android.content.Context;
-
 import androidx.databinding.ObservableArrayList;
 import androidx.databinding.ObservableList;
 
+import javax.inject.Inject;
+
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
+import io.mrarm.irc.dagger.FragmentScope;
 
+@FragmentScope
 public class ServerActiveListData implements ServerConnectionManager.ConnectionsListener {
 
-    private final Context mContext;
+    @Inject ServerConnectionManager mConnManager;
     private final ObservableList<ServerConnectionInfo> mConnections = new ObservableArrayList<>();
 
-    public ServerActiveListData(Context context) {
-        mContext = context;
-    }
+    @Inject ServerActiveListData() { }
 
     public ObservableList<ServerConnectionInfo> getConnections() {
         return mConnections;
     }
 
     public void load() {
-        ServerConnectionManager connManager = ServerConnectionManager.getInstance(mContext);
-        connManager.addListener(this);
+        mConnManager.addListener(this);
         mConnections.clear();
-        mConnections.addAll(connManager.getConnections());
+        mConnections.addAll(mConnManager.getConnections());
     }
 
     public void unload() {
-        ServerConnectionManager connManager = ServerConnectionManager.getInstance(mContext);
-        connManager.removeListener(this);
+        mConnManager.removeListener(this);
     }
 
     @Override

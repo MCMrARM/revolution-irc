@@ -20,7 +20,8 @@ public class ServerListFragment extends DaggerFragment {
         return new ServerListFragment();
     }
 
-    private ServerActiveListData mActiveData;
+    @Inject
+    ServerActiveListData mActiveData;
     @Inject
     ServerInactiveListData mInactiveData;
     private ServerListAdapter mAdapter;
@@ -29,7 +30,6 @@ public class ServerListFragment extends DaggerFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mActiveData = new ServerActiveListData(getContext());
         mActiveData.load();
         mInactiveData.load();
 
