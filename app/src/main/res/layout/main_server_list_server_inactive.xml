@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="?attr/colorBackgroundFloating">
+        android:background="@drawable/main_list_white_selectable_item_background">
 
         <io.mrarm.irc.view.ServerIconView
             android:id="@+id/icon"
@@ -23,8 +23,9 @@
             tools:serverName="M" />
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:orientation="vertical"
             android:layout_gravity="center">
 
@@ -44,6 +45,13 @@
                 tools:text="Description" />
 
         </LinearLayout>
+
+        <io.mrarm.irc.view.OverflowButton
+            android:id="@+id/actions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:tint="?attr/iconColorOpaque"/>
 
     </LinearLayout>
 

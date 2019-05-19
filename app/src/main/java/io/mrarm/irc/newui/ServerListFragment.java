@@ -62,15 +62,12 @@ public class ServerListFragment extends DaggerFragment {
             });
             menu.show();
         });
-        mAdapter.setInactiveItemClickListener((server) -> {
+        mAdapter.setInactiveItemClickListener((server) -> handleConnectAction(server.uuid));
+        mAdapter.setInactiveItemMenuClickListener((server) -> {
             BottomSheetMenu menu = new BottomSheetMenu(getContext());
             getActivity().getMenuInflater().inflate(R.menu.menu_newui_server_list_inactive, menu);
-            menu.findItem(R.id.action_connect).setOnMenuItemClickListener((m) -> {
-                ServerConfigData data = serverConfigManager.findServer(server.uuid);
-                ServerConnectionManager.getInstance(getContext())
-                        .tryCreateConnection(data, getActivity());
-                return true;
-            });
+            menu.findItem(R.id.action_connect).setOnMenuItemClickListener(
+                    (m) -> handleConnectAction(server.uuid));
             menu.findItem(R.id.action_edit).setOnMenuItemClickListener(
                     (m) -> handleEditAction(server.uuid, false));
             menu.findItem(R.id.action_clone).setOnMenuItemClickListener(
@@ -83,6 +80,13 @@ public class ServerListFragment extends DaggerFragment {
     private boolean handleEditAction(UUID uuid, boolean clone) {
         ServerConfigData data = serverConfigManager.findServer(uuid);
         startActivity(EditServerActivity.getLaunchIntent(getContext(), data, clone));
+        return true;
+    }
+
+    private boolean handleConnectAction(UUID uuid) {
+        ServerConfigData data = serverConfigManager.findServer(uuid);
+        ServerConnectionManager.getInstance(getContext())
+                .tryCreateConnection(data, getActivity());
         return true;
     }
 

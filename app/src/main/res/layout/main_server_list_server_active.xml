@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="?attr/colorBackgroundFloating">
+        android:background="@drawable/main_list_white_selectable_item_background">
 
         <io.mrarm.irc.view.ServerIconView
             android:id="@+id/icon"

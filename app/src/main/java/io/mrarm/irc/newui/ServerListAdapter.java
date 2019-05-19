@@ -16,6 +16,7 @@ import io.mrarm.dataadapter.ViewHolderType;
 import io.mrarm.irc.BR;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
+import io.mrarm.irc.databinding.MainServerListServerInactiveBinding;
 import io.mrarm.irc.persistence.ServerUIInfo;
 import io.mrarm.irc.util.RecyclerViewElevationDecoration;
 import io.mrarm.observabletransform.ObservableLists;
@@ -27,6 +28,7 @@ public class ServerListAdapter extends DataAdapter implements
     private final RecyclerViewElevationDecoration mDecoration;
     private ItemClickListener<ServerConnectionInfo> mActiveItemClickListener;
     private ItemClickListener<ServerUIInfo> mInactiveItemClickListener;
+    private ItemClickListener<ServerUIInfo> mInactiveItemMenuClickListener;
 
     public ServerListAdapter(Context context, ServerActiveListData activeData,
                              ServerInactiveListData inactiveData) {
@@ -52,6 +54,10 @@ public class ServerListAdapter extends DataAdapter implements
 
     public void setInactiveItemClickListener(ItemClickListener<ServerUIInfo> listener) {
         this.mInactiveItemClickListener = listener;
+    }
+
+    public void setInactiveItemMenuClickListener(ItemClickListener<ServerUIInfo> listener) {
+        this.mInactiveItemMenuClickListener = listener;
     }
 
     @Override
@@ -87,9 +93,15 @@ public class ServerListAdapter extends DataAdapter implements
     public static final ViewHolderType<ServerUIInfo> INACTIVE_SERVER_TYPE =
             ViewHolderType.<ServerUIInfo>fromDataBinding(R.layout.main_server_list_server_inactive)
                     .setValueVarId(BR.server)
-                    .<ServerListAdapter, ViewDataBinding>onBind((h, b, item, context) -> {
+                    .<ServerListAdapter, MainServerListServerInactiveBinding>onBind((h, b, item, context) -> {
                         h.itemView.setOnClickListener((v) ->
                                 context.mInactiveItemClickListener.onItemClicked(item));
+                        b.actions.setOnClickListener((v) ->
+                                context.mInactiveItemMenuClickListener.onItemClicked(item));
+                        h.itemView.setOnLongClickListener((v) -> {
+                            context.mInactiveItemMenuClickListener.onItemClicked(item);
+                            return true;
+                        });
                     })
                     .build();
 
