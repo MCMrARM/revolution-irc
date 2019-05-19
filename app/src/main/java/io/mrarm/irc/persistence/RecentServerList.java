@@ -35,6 +35,7 @@ public class RecentServerList implements ServerConfigManager.ConnectionsListener
     public RecentServerList(ServerConfigManager serverConfigManager, UIDatabase database) {
         mServerConfigManager = serverConfigManager;
         mDatabase = database;
+        mServerConfigManager.addListener(this);
     }
 
     public ObservableList<ServerUIInfo> getServers() {
@@ -71,7 +72,6 @@ public class RecentServerList implements ServerConfigManager.ConnectionsListener
         Set<UUID> alreadyExistingUUIDs = new HashSet<>();
         for (ServerUIInfo s : mServers)
             alreadyExistingUUIDs.add(s.uuid);
-        mServerConfigManager.addListener(this);
         for (ServerConfigData srv : mServerConfigManager.getServers()) {
             if (alreadyExistingUUIDs.contains(srv.uuid))
                 continue;
@@ -101,7 +101,6 @@ public class RecentServerList implements ServerConfigManager.ConnectionsListener
     }
 
     public void unload() {
-        mServerConfigManager.removeListener(this);
     }
 
     private int findConnection(UUID uuid) {
