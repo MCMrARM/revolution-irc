@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/action_edit"
+        android:icon="@drawable/ic_edit"
+        android:title="@string/action_edit" />
+
+    <item
+        android:id="@+id/action_clone"
+        android:icon="@drawable/ic_content_copy"
+        android:title="@string/action_clone" />
+
+    <item
+        android:id="@+id/action_disconnect_and_close"
+        android:icon="@drawable/ic_close"
+        android:title="@string/action_disconnect_and_close" />
+
+</menu>

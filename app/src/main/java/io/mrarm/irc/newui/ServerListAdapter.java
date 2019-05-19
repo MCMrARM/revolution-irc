@@ -4,6 +4,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.ObservableBoolean;
+import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.RecyclerView;
 
 import io.mrarm.dataadapter.ConditionalDataFragment;
@@ -24,6 +25,8 @@ public class ServerListAdapter extends DataAdapter implements
         RecyclerViewElevationDecoration.ItemElevationCallback {
 
     private final RecyclerViewElevationDecoration mDecoration;
+    private ItemClickListener<ServerConnectionInfo> mActiveItemClickListener;
+    private ItemClickListener<ServerUIInfo> mInactiveItemClickListener;
 
     public ServerListAdapter(Context context, ServerActiveListData activeData,
                              ServerInactiveListData inactiveData) {
@@ -39,7 +42,16 @@ public class ServerListAdapter extends DataAdapter implements
                 .add(new ListData<>(activeData.getConnections(), ACTIVE_SERVER_TYPE))
                 .add(new ConditionalDataFragment<>(new SingleItemData<>(R.string.server_list_header_inactive, HEADER_TYPE), showInactiveHeader))
                 .add(new ListData<>(inactiveData.getInactiveConnections(), INACTIVE_SERVER_TYPE));
+        source.setContext(this);
         setSource(source, false);
+    }
+
+    public void setActiveItemClickListener(ItemClickListener<ServerConnectionInfo> listener) {
+        this.mActiveItemClickListener = listener;
+    }
+
+    public void setInactiveItemClickListener(ItemClickListener<ServerUIInfo> listener) {
+        this.mInactiveItemClickListener = listener;
     }
 
     @Override
@@ -66,11 +78,23 @@ public class ServerListAdapter extends DataAdapter implements
     public static final ViewHolderType<ServerConnectionInfo> ACTIVE_SERVER_TYPE =
             ViewHolderType.<ServerConnectionInfo>fromDataBinding(R.layout.main_server_list_server_active)
                     .setValueVarId(BR.server)
+                    .<ServerListAdapter, ViewDataBinding>onBind((h, b, item, context) -> {
+                        h.itemView.setOnClickListener((v) ->
+                                context.mActiveItemClickListener.onItemClicked(item));
+                    })
                     .build();
 
     public static final ViewHolderType<ServerUIInfo> INACTIVE_SERVER_TYPE =
             ViewHolderType.<ServerUIInfo>fromDataBinding(R.layout.main_server_list_server_inactive)
                     .setValueVarId(BR.server)
+                    .<ServerListAdapter, ViewDataBinding>onBind((h, b, item, context) -> {
+                        h.itemView.setOnClickListener((v) ->
+                                context.mInactiveItemClickListener.onItemClicked(item));
+                    })
                     .build();
+
+    public interface ItemClickListener<T> {
+        void onItemClicked(T item);
+    }
 
 }
