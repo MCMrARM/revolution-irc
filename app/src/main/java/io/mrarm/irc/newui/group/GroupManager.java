@@ -21,24 +21,22 @@ import java.util.UUID;
 
 import androidx.databinding.ObservableArrayList;
 import androidx.databinding.ObservableList;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.config.SettingsHelper;
+import io.mrarm.irc.dagger.AppQualifier;
 import io.mrarm.irc.util.UiThreadHelper;
 
+@Singleton
 public class GroupManager implements ServerConfigManager.ConnectionsListener {
 
     private static final String TAG = "GroupManager";
 
     private static final String CONFIG_PATH = "ui_groups.json";
-
-    private static GroupManager sInstance;
-
-    public static GroupManager getInstance(Context ctx) {
-        if (sInstance == null)
-            sInstance = new GroupManager(ctx.getApplicationContext());
-        return sInstance;
-    }
 
     private final Context mContext;
     private final File mConfigFile;
@@ -51,7 +49,8 @@ public class GroupManager implements ServerConfigManager.ConnectionsListener {
     private MasterGroup mDefaultMasterGroup;
     private SubGroup mDefaultSubGroup;
 
-    public GroupManager(Context context) {
+    @Inject
+    public GroupManager(@AppQualifier Context context) {
         mContext = context;
         mConfigFile = new File(context.getFilesDir(), CONFIG_PATH);
         load();

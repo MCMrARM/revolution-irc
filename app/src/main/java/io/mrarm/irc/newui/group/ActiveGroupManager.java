@@ -1,33 +1,27 @@
 package io.mrarm.irc.newui.group;
 
-import android.content.Context;
-
 import java.util.Collections;
 import java.util.List;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import io.mrarm.irc.ServerConnectionInfo;
 import io.mrarm.irc.ServerConnectionManager;
 import io.mrarm.irc.util.UiThreadHelper;
 
+@Singleton
 public class ActiveGroupManager implements ServerConnectionManager.ConnectionsListener,
         ServerConnectionInfo.DetailedChannelListListener {
-
-    private static ActiveGroupManager sInstance;
-
-    public static ActiveGroupManager getInstance(Context ctx) {
-        if (sInstance == null)
-            sInstance = new ActiveGroupManager(GroupManager.getInstance(ctx));
-        return sInstance;
-    }
 
     private final GroupManager mGroupManager;
     private final UiThreadWrapper mUiThreadWrapper = new UiThreadWrapper();
 
-    public ActiveGroupManager(GroupManager groupManager) {
+    @Inject
+    public ActiveGroupManager(GroupManager groupManager, ServerConnectionManager connectionManager) {
         mGroupManager = groupManager;
-        ServerConnectionManager mgr = ServerConnectionManager.getInstance(groupManager.getContext());
-        mgr.addListener(this);
-        for (ServerConnectionInfo server : mgr.getConnections())
+        connectionManager.addListener(this);
+        for (ServerConnectionInfo server : connectionManager.getConnections())
             onConnectionAdded(server);
     }
 
