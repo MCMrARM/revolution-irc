@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
+import io.mrarm.irc.dagger.LegacySingletons;
 import io.mrarm.irc.dialog.MenuBottomSheetDialog;
 
 public class ServerListFragment extends Fragment {
@@ -96,6 +97,7 @@ public class ServerListFragment extends Fragment {
                 builder2.setTitle(R.string.action_delete_confirm_title);
                 builder2.setMessage(getString(R.string.action_delete_confirm_body, data.name));
                 builder2.setPositiveButton(R.string.action_delete, (DialogInterface dialog2, int which2) -> {
+                    LegacySingletons.get(getContext()).chatLogManager().deleteServerLogs(data.uuid);
                     ServerConfigManager.getInstance(getContext()).deleteServer(data);
                 });
                 builder2.setNegativeButton(R.string.action_cancel, null);

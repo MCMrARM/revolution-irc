@@ -9,7 +9,7 @@ import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.config.SettingsHelper;
 
 @Module
-public class LegacySingletonsModule {
+public class LegacySingletonsProviderModule {
 
     @Provides
     SettingsHelper settingsHelper(@AppQualifier Context context) {

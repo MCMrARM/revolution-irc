@@ -26,9 +26,11 @@ import io.mrarm.chatlib.irc.ServerConnectionApi;
 import io.mrarm.irc.config.CommandAliasManager;
 import io.mrarm.irc.config.NotificationCountStorage;
 import io.mrarm.irc.config.NotificationRuleManager;
+import io.mrarm.irc.config.ServerChatLogManager;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.config.SettingsHelper;
+import io.mrarm.irc.dagger.LegacySingletons;
 import io.mrarm.irc.dialog.MenuBottomSheetDialog;
 import io.mrarm.irc.dialog.ServerStorageLimitDialog;
 import io.mrarm.irc.dialog.StorageLimitsDialog;
@@ -303,12 +305,14 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
     private static class SpaceCalculateTask extends AsyncTask<Void, Object, Void> {
 
         private WeakReference<StorageSettingsAdapter> mAdapter;
-        private ServerConfigManager mServerManager;
+        private List<ServerConfigData> mServers;
+        private ServerChatLogManager mChatLogManager;
         private File mDataDir;
         private StatFs mStatFs;
 
         public SpaceCalculateTask(Context context, StorageSettingsAdapter adapter) {
-            mServerManager = ServerConfigManager.getInstance(context);
+            mServers = ServerConfigManager.getInstance(context).getServers();
+            mChatLogManager = LegacySingletons.get(context).chatLogManager();
             mDataDir = new File(context.getApplicationInfo().dataDir);
             mAdapter = new WeakReference<>(adapter);
         }
@@ -324,10 +328,10 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
             }
             publishProgress(dataSize);
             List<File> processedDirs = new ArrayList<>();
-            for (ServerConfigData data : mServerManager.getServers()) {
+            for (ServerConfigData data : mServers) {
                 if (mAdapter.get() == null)
                     return null;
-                File file = mServerManager.getServerChatLogDir(data.uuid);
+                File file = mChatLogManager.getServerChatLogDir(data.uuid);
                 processedDirs.add(file);
                 if (!file.exists())
                     continue;
@@ -336,7 +340,7 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
                     continue;
                 publishProgress(new ServerLogsEntry(data.name, data.uuid, size));
             }
-            File[] files = mServerManager.getChatLogDir().listFiles();
+            File[] files = mChatLogManager.getChatLogDir().listFiles();
             if (files != null) {
                 for (File file : files) {
                     if (processedDirs.contains(file))
@@ -431,7 +435,7 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
                 else
                     new File(ctx.getFilesDir(),
                             ServerConnectionManager.CONNECTED_SERVERS_FILE_PATH).delete();
-                ServerConfigManager.getInstance(ctx).deleteAllServers(true);
+                ServerConfigManager.getInstance(ctx).deleteAllServers();
                 NotificationRuleManager.getUserRules(ctx).clear();
                 CommandAliasManager.getInstance(ctx).getUserAliases().clear();
                 SettingsHelper.getInstance(ctx).clear();
@@ -449,7 +453,8 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
             if (mDeleteServerLogs != null) {
                 deleteChatLogDir(mDeleteServerLogs);
             } else {
-                File[] logFiles = ServerConfigManager.getInstance(mContext).getChatLogDir().listFiles();
+                File[] logFiles = LegacySingletons.get(mContext).chatLogManager()
+                        .getChatLogDir().listFiles();
                 if (logFiles == null)
                     logFiles = new File[0];
                 for (File file : logFiles) {
@@ -484,7 +489,7 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
                 storageApi.close();
                 ((ServerConnectionApi) connection.getApiInstance()).getServerConnectionData().setMessageStorageApi(new StubMessageStorageApi());
             }
-            File file = ServerConfigManager.getInstance(mContext).getServerChatLogDir(uuid);
+            File file = LegacySingletons.get(mContext).chatLogManager().getServerChatLogDir(uuid);
             deleteRecursive(file);
             if (storageApi != null) {
                 storageApi.open();

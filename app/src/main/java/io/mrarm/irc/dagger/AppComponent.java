@@ -11,7 +11,7 @@ import io.mrarm.irc.newui.MainActivityModule;
 import io.mrarm.irc.persistence.UIStorage;
 
 @Component(modules = {AndroidInjectionModule.class, AppModule.class, UIStorage.class,
-        MainActivityModule.class, LegacySingletonsModule.class})
+        MainActivityModule.class, LegacySingletonsProviderModule.class})
 @Singleton
 public interface AppComponent extends AndroidInjector<IRCApplication> {
     @Component.Factory

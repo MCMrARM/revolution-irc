@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import io.mrarm.irc.ServerConnectionManager;
+import io.mrarm.irc.dagger.LegacySingletons;
 import io.mrarm.irc.setting.ListWithCustomSetting;
 import io.mrarm.irc.util.theme.ThemeInfo;
 import io.mrarm.irc.util.theme.ThemeManager;
@@ -157,7 +158,7 @@ public class BackupManager {
             ServerConnectionManager.getInstance(context).disconnectAndRemoveAllConnections(true);
             for (ServerConfigData server : ServerConfigManager.getInstance(context).getServers())
                 removeLogServers.add(server.uuid);
-            ServerConfigManager.getInstance(context).deleteAllServers(false);
+            ServerConfigManager.getInstance(context).deleteAllServers();
 
             ThemeManager themeManager = ThemeManager.getInstance(context);
             File themeDir = themeManager.getThemesDir();
@@ -222,7 +223,7 @@ public class BackupManager {
             }
 
             for (UUID uuid : removeLogServers) {
-                File f = ServerConfigManager.getInstance(context).getServerChatLogDir(uuid);
+                File f = LegacySingletons.get(context).chatLogManager().getServerChatLogDir(uuid);
                 File[] files = f.listFiles();
                 if (files != null) {
                     for (File ff : files)

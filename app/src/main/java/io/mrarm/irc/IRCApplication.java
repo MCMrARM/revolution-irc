@@ -15,12 +15,16 @@ import dagger.android.HasActivityInjector;
 import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.dagger.AppComponent;
 import io.mrarm.irc.dagger.DaggerAppComponent;
+import io.mrarm.irc.dagger.LegacySingletons;
 
 public class IRCApplication extends Application implements Application.ActivityLifecycleCallbacks,
         HasActivityInjector {
 
     @Inject
     DispatchingAndroidInjector<Activity> mDispatchingActivityInjector;
+
+    @Inject
+    LegacySingletons legacySingletons;
 
     private List<Activity> mActivities = new ArrayList<>();
     private List<PreExitCallback> mPreExitCallbacks = new ArrayList<>();
@@ -35,6 +39,10 @@ public class IRCApplication extends Application implements Application.ActivityL
         SettingsHelper.getInstance(this);
         NotificationManager.createDefaultChannels(this);
         registerActivityLifecycleCallbacks(this);
+    }
+
+    public LegacySingletons getLegacySingletons() {
+        return legacySingletons;
     }
 
     public void addPreExitCallback(PreExitCallback c) {

@@ -29,8 +29,10 @@ import io.mrarm.chatlib.irc.handlers.MessageCommandHandler;
 import io.mrarm.chatlib.message.MessageStorageApi;
 import io.mrarm.irc.chat.ChatUIData;
 import io.mrarm.irc.config.AppSettings;
+import io.mrarm.irc.config.ServerChatLogManager;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
+import io.mrarm.irc.dagger.LegacySingletons;
 import io.mrarm.irc.util.IgnoreListMessageFilter;
 import io.mrarm.irc.util.StubMessageStorageApi;
 import io.mrarm.irc.util.UiThreadHelper;
@@ -134,9 +136,9 @@ public class ServerConnectionInfo {
         boolean createdNewConnection = false;
         if (mApi == null || !(mApi instanceof IRCConnection)) {
             connection = new IRCConnection();
-            ServerConfigManager configManager = ServerConfigManager.getInstance(mManager.getContext());
-            connection.getServerConnectionData().setMessageStorageApi(new SQLiteMessageStorageApi(configManager.getServerChatLogDir(getUUID())));
-            mSQLiteMiscStorage = new SQLiteMiscStorage(configManager.getServerMiscDataFile(getUUID()));
+            ServerChatLogManager chatLogManager = LegacySingletons.get(mManager.getContext()).chatLogManager();
+            connection.getServerConnectionData().setMessageStorageApi(new SQLiteMessageStorageApi(chatLogManager.getServerChatLogDir(getUUID())));
+            mSQLiteMiscStorage = new SQLiteMiscStorage(chatLogManager.getServerMiscDataFile(getUUID()));
             connection.getServerConnectionData().setChannelDataStorage(new SQLiteChannelDataStorage(mSQLiteMiscStorage));
             connection.getServerConnectionData().getMessageFilterList().addMessageFilter(new IgnoreListMessageFilter(mServerConfig));
             if (mSASLOptions != null)

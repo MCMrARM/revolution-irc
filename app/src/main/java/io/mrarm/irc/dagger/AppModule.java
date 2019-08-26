@@ -7,6 +7,8 @@ import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
 import io.mrarm.irc.IRCApplication;
+import io.mrarm.irc.config.AppServerChatLogManager;
+import io.mrarm.irc.config.ServerChatLogManager;
 
 @Module(includes = {AppModule.BindsModule.class})
 public class AppModule {
@@ -21,6 +23,9 @@ public class AppModule {
     public interface BindsModule {
         @Binds
         Application application(IRCApplication app);
+
+        @Binds
+        ServerChatLogManager chatLogManager(AppServerChatLogManager mgr);
     }
 
 }

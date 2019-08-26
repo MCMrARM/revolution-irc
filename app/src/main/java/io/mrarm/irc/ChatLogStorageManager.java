@@ -1,7 +1,6 @@
 package io.mrarm.irc;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.StatFs;
 import androidx.annotation.NonNull;
@@ -21,10 +20,12 @@ import java.util.UUID;
 import java.util.concurrent.Executor;
 
 import io.mrarm.irc.config.AppSettings;
+import io.mrarm.irc.config.ServerChatLogManager;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.config.SettingChangeCallback;
 import io.mrarm.irc.config.SettingsHelper;
+import io.mrarm.irc.dagger.LegacySingletons;
 import io.mrarm.irc.util.PoolSerialExecutor;
 
 public class ChatLogStorageManager implements ServerConfigManager.ConnectionsListener {
@@ -45,8 +46,9 @@ public class ChatLogStorageManager implements ServerConfigManager.ConnectionsLis
         return sInstance;
     }
 
-    private ServerConnectionManager mConnectionManager;
-    private ServerConfigManager mServerConfigManager;
+    private final ServerConnectionManager mConnectionManager;
+    private final ServerConfigManager mServerConfigManager;
+    private final ServerChatLogManager mServerChatLogManager;
     private long mBlockSize = 0L;
     private Map<UUID, ServerManager> mServerManagers = new HashMap<>();
     private int mGlobalMessageCounter = 0;
@@ -59,6 +61,7 @@ public class ChatLogStorageManager implements ServerConfigManager.ConnectionsLis
     public ChatLogStorageManager(Context context) {
         mConnectionManager = ServerConnectionManager.getInstance(context);
         mServerConfigManager = ServerConfigManager.getInstance(context);
+        mServerChatLogManager = LegacySingletons.get(context).chatLogManager();
 
         SettingsHelper.registerCallbacks(this);
         onSettingChanged();
@@ -165,7 +168,7 @@ public class ChatLogStorageManager implements ServerConfigManager.ConnectionsLis
 
     private long getBlockSize() {
         if (mBlockSize == 0L) {
-            File chatLogDir = mServerConfigManager.getChatLogDir();
+            File chatLogDir = mServerChatLogManager.getChatLogDir();
             if (!chatLogDir.exists())
                 return 0L;
             StatFs statFs = new StatFs(chatLogDir.getAbsolutePath());
@@ -215,7 +218,7 @@ public class ChatLogStorageManager implements ServerConfigManager.ConnectionsLis
         public ServerManager(ServerConfigData config) {
             mServerConfig = config;
             mCurrentLogTime = Calendar.getInstance();
-            mLogsDir = mServerConfigManager.getServerChatLogDir(config.uuid);
+            mLogsDir = mServerChatLogManager.getServerChatLogDir(config.uuid);
             reload();
         }
 
