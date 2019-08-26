@@ -13,7 +13,6 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
-import android.os.Message;
 import android.util.Log;
 
 import java.util.HashMap;
@@ -72,7 +71,7 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
 
         WarningHelper.setAppContext(getApplicationContext());
 
-        ChatLogStorageManager.getInstance(getApplicationContext());
+        ServerChatLogDeleter.getInstance(getApplicationContext());
 
         for (ServerConnectionInfo connection : ServerConnectionManager.getInstance(this).getConnections())
             onConnectionAdded(connection);
@@ -154,7 +153,7 @@ public class IRCService extends Service implements ServerConnectionManager.Conne
     private void onMessage(ServerConnectionInfo connection, String channel, MessageInfo info,
                            MessageId messageId) {
         NotificationManager.getInstance().processMessage(this, connection, channel, info, messageId);
-        ChatLogStorageManager.getInstance(this).onMessage(connection);
+        ServerChatLogDeleter.getInstance(this).onMessage(connection);
     }
 
     @Override

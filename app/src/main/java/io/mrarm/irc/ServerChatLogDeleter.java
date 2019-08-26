@@ -28,7 +28,7 @@ import io.mrarm.irc.config.SettingsHelper;
 import io.mrarm.irc.dagger.LegacySingletons;
 import io.mrarm.irc.util.PoolSerialExecutor;
 
-public class ChatLogStorageManager implements ServerConfigManager.ConnectionsListener {
+public class ServerChatLogDeleter implements ServerConfigManager.ConnectionsListener {
 
     private static final int MIN_GLOBAL_MESSAGES_UPDATE = 1024;
     private static final int MIN_SERVER_MESSAGES_UPDATE = 128;
@@ -38,11 +38,11 @@ public class ChatLogStorageManager implements ServerConfigManager.ConnectionsLis
 
     private static final SimpleDateFormat sFileNameFormat = new SimpleDateFormat("'messages-'yyyy-MM-dd'.db'", Locale.getDefault());
 
-    private static ChatLogStorageManager sInstance;
+    private static ServerChatLogDeleter sInstance;
 
-    public static ChatLogStorageManager getInstance(Context context) {
+    public static ServerChatLogDeleter getInstance(Context context) {
         if (sInstance == null)
-            sInstance = new ChatLogStorageManager(context);
+            sInstance = new ServerChatLogDeleter(context);
         return sInstance;
     }
 
@@ -58,7 +58,7 @@ public class ChatLogStorageManager implements ServerConfigManager.ConnectionsLis
     private long mDefaultServerLimit;
     private Executor mExecutor;
 
-    public ChatLogStorageManager(Context context) {
+    public ServerChatLogDeleter(Context context) {
         mConnectionManager = ServerConnectionManager.getInstance(context);
         mServerConfigManager = ServerConfigManager.getInstance(context);
         mServerChatLogManager = LegacySingletons.get(context).chatLogManager();

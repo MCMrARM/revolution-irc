@@ -138,7 +138,7 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
             view.findViewById(R.id.set_limits).setOnClickListener((View v) -> {
                 StorageLimitsDialog dialog = new StorageLimitsDialog(v.getContext());
                 dialog.setOnDismissListener((DialogInterface di) -> {
-                    ChatLogStorageManager.getInstance(v.getContext()).requestUpdate(null, () -> {
+                    ServerChatLogDeleter.getInstance(v.getContext()).requestUpdate(null, () -> {
                         v.post(() -> refreshServerLogs(v.getContext()));
                     });
                 });
