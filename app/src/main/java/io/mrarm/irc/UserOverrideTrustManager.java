@@ -28,10 +28,10 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.X509TrustManager;
 
+import io.mrarm.chatlib.util.SettableFuture;
 import io.mrarm.irc.config.ServerCertificateManager;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
-import io.mrarm.irc.util.SettableFuture;
 import io.mrarm.irc.util.WarningHelper;
 
 public class UserOverrideTrustManager implements X509TrustManager, HostnameVerifier {

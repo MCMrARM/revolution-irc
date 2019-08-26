@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
-import io.mrarm.irc.util.SettableFuture;
+import io.mrarm.chatlib.util.SettableFuture;
 
 public class NotificationCountStorage {
 

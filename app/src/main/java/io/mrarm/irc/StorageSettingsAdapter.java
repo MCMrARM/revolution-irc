@@ -37,6 +37,7 @@ import io.mrarm.irc.dialog.StorageLimitsDialog;
 import io.mrarm.irc.util.ColoredTextBuilder;
 import io.mrarm.irc.util.StubMessageStorageApi;
 import io.mrarm.irc.util.StyledAttributesHelper;
+import io.mrarm.irc.util.UiThreadHelper;
 import io.mrarm.irc.view.SimpleBarChart;
 
 public class StorageSettingsAdapter extends RecyclerView.Adapter {
@@ -435,6 +436,9 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
                 else
                     new File(ctx.getFilesDir(),
                             ServerConnectionManager.CONNECTED_SERVERS_FILE_PATH).delete();
+                UiThreadHelper.runOnUiThread(() -> {
+                    //
+                });
                 ServerConfigManager.getInstance(ctx).deleteAllServers();
                 NotificationRuleManager.getUserRules(ctx).clear();
                 CommandAliasManager.getInstance(ctx).getUserAliases().clear();
