@@ -20,3 +20,9 @@ This client features a modern Material design as well as many other awesome feat
 * Customization: custom command aliases, notification rules, reconnection interval, chat font, message format, app colors
 
 ...and much more!
+
+## roboirc's plans:
+
+Compile in Android Studio on Linux
+
+- Make improvements in revolution-irc as I see fit for menus etc.
