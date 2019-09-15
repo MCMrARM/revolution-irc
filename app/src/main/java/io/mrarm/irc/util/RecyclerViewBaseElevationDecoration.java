@@ -41,25 +41,43 @@ public abstract class RecyclerViewBaseElevationDecoration extends RecyclerView.I
     @Override
     public void onDraw(@NonNull Canvas c, @NonNull RecyclerView parent,
                        @NonNull RecyclerView.State state) {
+        float bgDrawStartY = parent.getBottom();
+        boolean bgDrawStartYAssigned = false;
         for (int i = parent.getChildCount() - 1; i >= 0; --i) {
             View v = parent.getChildAt(i);
             int pos = parent.getChildAdapterPosition(v);
-            if (isItemElevated(pos)) {
-                if (pos - 1 < 0 || !isItemElevated(pos - 1)) {
-                    mPaint.setShader(mStartGradient);
-                    c.save();
-                    c.translate(0, v.getTop() - mStartHeight);
-                    c.drawRect(v.getLeft(), 0, v.getRight(), mStartHeight, mPaint);
-                    c.restore();
-                }
+            if (pos != -1 && isItemElevated(pos)) {
                 if (pos + 1 >= parent.getAdapter().getItemCount() || !isItemElevated(pos + 1)) {
                     mPaint.setShader(mEndGradient);
+                    View v2 = i < parent.getChildCount() - 1 ? parent.getChildAt(i + 1) : null;
+                    float ty = v2 != null ? v2.getTranslationY() : 0.f;
                     c.save();
-                    c.translate(0, v.getBottom());
+                    c.translate(0, v.getBottom() + ty);
                     c.drawRect(v.getLeft(), 0, v.getRight(), mEndHeight, mPaint);
                     c.restore();
+
+                    bgDrawStartY = v.getBottom() + ty;
+                    bgDrawStartYAssigned = true;
+                }
+                if (pos - 1 < 0 || !isItemElevated(pos - 1)) {
+                    mPaint.setShader(mStartGradient);
+                    View v2 = i > 0 ? parent.getChildAt(i - 1) : null;
+                    float ty = v2 != null ? v2.getTranslationY() : 0.f;
+                    c.save();
+                    c.translate(0, v.getTop() - mStartHeight + ty);
+                    c.drawRect(v.getLeft(), 0, v.getRight(), mStartHeight, mPaint);
+                    c.restore();
+
+                    mPaint.setShader(null);
+                    mPaint.setColor(0xFFFFFFFF);
+                    c.drawRect(0, v.getTop() + ty, parent.getWidth(), bgDrawStartY, mPaint);
                 }
             }
+        }
+        if (bgDrawStartYAssigned) {
+            mPaint.setShader(null);
+            mPaint.setColor(0xFFFFFFFF);
+            c.drawRect(0, 0, parent.getWidth(), bgDrawStartY, mPaint);
         }
     }
 
