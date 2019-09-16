@@ -43,27 +43,27 @@ public class ActiveGroupManager implements ServerConnectionManager.ConnectionsLi
     @Override
     public void onChannelJoined(ServerConnectionInfo connection, String channel) {
         ServerGroupData serverData = mGroupManager.getServerData(connection.getUUID());
-        if (serverData != null && serverData.mDefaultSubGroup != null) {
-            serverData.mDefaultSubGroup.mCurrentChannels.add(channel);
+        if (serverData != null) {
+            serverData.onChannelJoined(channel);
         }
     }
 
     @Override
     public void onChannelLeft(ServerConnectionInfo connection, String channel) {
         ServerGroupData serverData = mGroupManager.getServerData(connection.getUUID());
-        if (serverData != null && serverData.mDefaultSubGroup != null) {
-            serverData.mDefaultSubGroup.mCurrentChannels.remove(channel);
+        if (serverData != null) {
+            serverData.onChannelLeft(channel);
         }
     }
 
     @Override
     public void onChannelListReset(ServerConnectionInfo connection, List<String> channels) {
         ServerGroupData serverData = mGroupManager.getServerData(connection.getUUID());
-        if (serverData != null && serverData.mDefaultSubGroup != null) {
-            serverData.mDefaultSubGroup.mCurrentChannels.clear();
+        if (serverData != null) {
+            serverData.onChannelListReset();
         }
 
-        for (String channel : connection.getChannels())
+        for (String channel : channels)
             onChannelJoined(connection, channel);
     }
 

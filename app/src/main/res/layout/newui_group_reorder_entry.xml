@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
-        <variable name="group" type="io.mrarm.irc.newui.group.v2.Group"/>
+        <variable name="group" type="io.mrarm.irc.newui.group.Group"/>
     </data>
 
     <LinearLayout

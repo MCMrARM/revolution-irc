@@ -8,6 +8,7 @@ import dagger.android.ContributesAndroidInjector;
 import io.mrarm.irc.dagger.ActivityScope;
 import io.mrarm.irc.dagger.FragmentModule;
 import io.mrarm.irc.dagger.FragmentScope;
+import io.mrarm.irc.newui.settings.GroupReorderFragment;
 
 @Module
 public abstract class MainActivityModule {
@@ -29,5 +30,9 @@ public abstract class MainActivityModule {
     @FragmentScope
     @ContributesAndroidInjector(modules = {ServerListFragmentModule.class, FragmentModule.class})
     public abstract ServerListFragment contributeServerListFragment();
+
+
+    @ContributesAndroidInjector
+    abstract GroupReorderFragment contributeGroupReorderFragment();
 
 }

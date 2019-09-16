@@ -1,6 +1,6 @@
 package io.mrarm.irc.newui.group;
 
-import com.google.gson.annotations.SerializedName;
+import androidx.databinding.ObservableList;
 
 import java.util.UUID;
 
@@ -8,32 +8,47 @@ import io.mrarm.irc.config.ServerConfigData;
 
 public class ServerGroupData {
 
-    @SerializedName("uuid")
-    UUID mServerUUID;
+    private GroupManager mGroupManager;
+    private UUID mUUID;
+    private DefaultServerGroup mDefaultGroup;
 
-    transient ServerConfigData mServer;
-    transient MasterGroup mOwnedMasterGroup;
-    transient SubGroup mOwnedSubGroup;
-
-    UUID mDefaultSubGroupUUID;
-    transient SubGroup mDefaultSubGroup;
-    @SerializedName("defaultGroupCustom")
-    boolean mDefaultSubGroupCustom;
-
-    public ServerGroupData() {
+    public ServerGroupData(GroupManager mgr, UUID uuid) {
+        mGroupManager = mgr;
+        mUUID = uuid;
     }
 
-    public ServerGroupData(ServerConfigData server) {
-        mServerUUID = server.uuid;
-        mServer = server;
+    public DefaultServerGroup createDefaultGroup() {
+        mDefaultGroup = new DefaultServerGroup(this);
+        return mDefaultGroup;
     }
 
     public String getName() {
-        return mServer.name;
+        ServerConfigData data = mGroupManager.mConfigManager.findServer(mUUID);
+        return data != null ? data.name : null;
     }
 
-    public void setDefaultSubGroup(SubGroup group) {
-        mDefaultSubGroup = group;
-        mDefaultSubGroupUUID = group != null ? group.getUUID() : null;
+    public DefaultServerGroup getDefaultGroup() {
+        return mDefaultGroup;
     }
+
+
+    public void onChannelListReset() {
+        getDefaultGroup().getChannels().clear();
+    }
+
+    public void onChannelJoined(String channel) {
+        getDefaultGroup().getChannels().add(new ServerChannelPair(mUUID, channel));
+    }
+
+    public void onChannelLeft(String channel) {
+        ObservableList<ServerChannelPair> l = getDefaultGroup().getChannels();
+        for (int i = 0; i < l.size(); i++) {
+            ServerChannelPair p = l.get(i);
+            if (p.getServer().equals(this.mUUID) && p.getChannel().equals(channel)) {
+                l.remove(i);
+                break;
+            }
+        }
+    }
+
 }

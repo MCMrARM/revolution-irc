@@ -1,4 +1,4 @@
-package io.mrarm.irc.newui.group.v2;
+package io.mrarm.irc.newui.group;
 
 abstract class BaseGroup implements Group {
 

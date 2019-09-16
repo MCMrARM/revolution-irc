@@ -14,33 +14,28 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import javax.inject.Inject;
+
+import dagger.android.support.DaggerFragment;
 import io.mrarm.irc.R;
 import io.mrarm.irc.newui.SlideableFragmentToolbar;
-import io.mrarm.irc.newui.group.v2.CustomGroup;
-import io.mrarm.irc.newui.group.v2.MasterGroup;
+import io.mrarm.irc.newui.group.GroupManager;
+import io.mrarm.irc.newui.group.MasterGroup;
 import io.mrarm.irc.util.GroupItemTouchHelperCallback;
 
-public class GroupReorderFragment extends Fragment
+public class GroupReorderFragment extends DaggerFragment
         implements SlideableFragmentToolbar.FragmentToolbarCallback {
 
-    private ObservableList<MasterGroup> groups = new ObservableArrayList<>();
+    @Inject
+    GroupManager groupManager;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.simple_list, container, false);
-        MasterGroup mg = new MasterGroup();
-        mg.add(new CustomGroup("Test Group"));
-        mg.add(new CustomGroup("Another Group"));
-        groups.add(mg);
-        mg = new MasterGroup();
-        mg.add(new CustomGroup("Yet Another Group"));
-        groups.add(mg);
-        mg = new MasterGroup();
-        mg.add(new CustomGroup("Something Else"));
-        groups.add(mg);
 
+        ObservableList<MasterGroup> groups = groupManager.getMasterGroups();
         GroupReorderAdapter adapter = new GroupReorderAdapter(getContext(), groups);
 
         ((RecyclerView) view).setLayoutManager(new LinearLayoutManager(getContext()));
