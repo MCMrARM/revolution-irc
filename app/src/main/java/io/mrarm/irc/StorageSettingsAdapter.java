@@ -436,12 +436,11 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
                 else
                     new File(ctx.getFilesDir(),
                             ServerConnectionManager.CONNECTED_SERVERS_FILE_PATH).delete();
-                UiThreadHelper.runOnUiThread(() -> {
-                    //
+                UiThreadHelper.runOnUiThreadSync(() -> {
+                    ServerConfigManager.getInstance(ctx).deleteAllServers();
+                    NotificationRuleManager.getUserRules(ctx).clear();
+                    CommandAliasManager.getInstance(ctx).getUserAliases().clear();
                 });
-                ServerConfigManager.getInstance(ctx).deleteAllServers();
-                NotificationRuleManager.getUserRules(ctx).clear();
-                CommandAliasManager.getInstance(ctx).getUserAliases().clear();
                 SettingsHelper.getInstance(ctx).clear();
                 NotificationCountStorage.getInstance(ctx).close();
 

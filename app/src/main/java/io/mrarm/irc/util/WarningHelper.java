@@ -74,7 +74,8 @@ public class WarningHelper {
                     warning.showDialog(mActivity);
                 });
             } else {
-                warning.showNotification(mAppContext);
+                UiThreadHelper.runOnUiThread(() ->
+                        warning.showNotification(mAppContext));
             }
         }
     }
