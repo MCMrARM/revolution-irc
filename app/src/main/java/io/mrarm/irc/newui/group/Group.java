@@ -4,6 +4,7 @@ import android.content.Context;
 
 import androidx.databinding.ObservableList;
 
+import io.mrarm.irc.newui.group.view.GroupView;
 import io.mrarm.irc.view.ServerIconView;
 
 public interface Group {
@@ -17,6 +18,9 @@ public interface Group {
 
     ServerIconView.CustomizationInfo getIconCustomization(Context ctx);
 
+
     ObservableList<ServerChannelPair> getChannels();
+
+    void setGroupView(GroupView groupView);
 
 }

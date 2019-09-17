@@ -60,11 +60,8 @@ public class ActiveGroupManager implements ServerConnectionManager.ConnectionsLi
     public void onChannelListReset(ServerConnectionInfo connection, List<String> channels) {
         ServerGroupData serverData = mGroupManager.getServerData(connection.getUUID());
         if (serverData != null) {
-            serverData.onChannelListReset();
+            serverData.onChannelListReset(channels);
         }
-
-        for (String channel : channels)
-            onChannelJoined(connection, channel);
     }
 
     private class UiThreadWrapper implements ServerConnectionInfo.DetailedChannelListListener {

@@ -1,7 +1,7 @@
 package io.mrarm.irc.newui.group;
 
-import androidx.databinding.ObservableList;
-
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import io.mrarm.irc.config.ServerConfigData;
@@ -32,23 +32,19 @@ public class ServerGroupData {
     }
 
 
-    public void onChannelListReset() {
-        getDefaultGroup().getChannels().clear();
+    public void onChannelListReset(List<String> channels) {
+        List<ServerChannelPair> sch = new ArrayList<>();
+        for (String c : channels)
+            sch.add(new ServerChannelPair(mUUID, c));
+        getDefaultGroup().getGroupView().setChannels(sch);
     }
 
     public void onChannelJoined(String channel) {
-        getDefaultGroup().getChannels().add(new ServerChannelPair(mUUID, channel));
+        getDefaultGroup().getGroupView().addChannel(new ServerChannelPair(mUUID, channel));
     }
 
     public void onChannelLeft(String channel) {
-        ObservableList<ServerChannelPair> l = getDefaultGroup().getChannels();
-        for (int i = 0; i < l.size(); i++) {
-            ServerChannelPair p = l.get(i);
-            if (p.getServer().equals(this.mUUID) && p.getChannel().equals(channel)) {
-                l.remove(i);
-                break;
-            }
-        }
+        getDefaultGroup().getGroupView().removeChannel(new ServerChannelPair(mUUID, channel));
     }
 
 }
