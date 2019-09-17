@@ -45,7 +45,7 @@ public class UiThreadHelper {
 
     public static <T> T runOnUiThreadSync(SyncRunFn<T> r) {
         if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
-            r.run();
+            return r.run();
         } else {
             SettableFuture<T> f = new SettableFuture<>();
             sUiHandler.post(() -> {

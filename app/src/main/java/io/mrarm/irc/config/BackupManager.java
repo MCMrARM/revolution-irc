@@ -357,7 +357,7 @@ public class BackupManager {
                 .subscribeOn(AndroidSchedulers.from(Looper.myLooper()))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(c, (e) -> {
-                    result.setExecutionException((Exception) e);
+                    result.setExecutionException(e);
                     Looper.myLooper().quit();
                 }, () -> Looper.myLooper().quit());
         try {
