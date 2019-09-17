@@ -3,8 +3,10 @@ package io.mrarm.irc.config;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.util.Pair;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -31,12 +33,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
+import io.mrarm.chatlib.util.SettableFuture;
 import io.mrarm.irc.ServerConnectionManager;
 import io.mrarm.irc.dagger.LegacySingletons;
 import io.mrarm.irc.setting.ListWithCustomSetting;
+import io.mrarm.irc.util.Box;
+import io.mrarm.irc.util.UiThreadHelper;
 import io.mrarm.irc.util.theme.ThemeInfo;
 import io.mrarm.irc.util.theme.ThemeManager;
+import io.reactivex.Observable;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
 
 public class BackupManager {
 
@@ -55,6 +65,8 @@ public class BackupManager {
     public static void createBackup(Context context, File file, String password) throws IOException {
         try {
             Log.d("BackupManager", "createBackup: " + file.getAbsolutePath());
+
+            Looper.prepare();
 
             ZipFile zipFile = new ZipFile(file);
             ZipParameters params = new ZipParameters();
@@ -76,23 +88,31 @@ public class BackupManager {
                 zipFile.addFile(f, params);
             }
 
-            StringWriter writer;
-
+            // Back up the servers
             ServerConfigManager configManager = ServerConfigManager.getInstance(context);
-            for (ServerConfigData data : configManager.getServers()) {
-                writer = new StringWriter();
-                SettingsHelper.getGson().toJson(data, writer);
-                params.setFileNameInZip(BACKUP_SERVER_PREFIX + data.uuid + BACKUP_SERVER_SUFFIX);
-                zipFile.addStream(new ByteArrayInputStream(writer.toString().getBytes()), params);
-                File sslCertsFile = configManager.getServerSSLCertsFile(data.uuid);
+            BackupManager.<Pair<UUID, String>>withMainThreadData(s -> {
+                StringWriter writer = new StringWriter();
+                for (ServerConfigData data : configManager.getServers()) {
+                    writer.getBuffer().delete(0, writer.getBuffer().length());
+                    SettingsHelper.getGson().toJson(data, writer);
+                    s.onNext(new Pair<>(data.uuid, writer.toString()));
+                }
+                s.onComplete();
+            }, p -> {
+                params.setFileNameInZip(BACKUP_SERVER_PREFIX + p.first + BACKUP_SERVER_SUFFIX);
+                zipFile.addStream(new ByteArrayInputStream(p.second.getBytes()), params);
+                File sslCertsFile = configManager.getServerSSLCertsFile(p.first);
                 if (sslCertsFile.exists()) {
-                    synchronized (ServerCertificateManager.get(sslCertsFile)) { // lock the helper to prevent any writes to the file
-                        params.setFileNameInZip(BACKUP_SERVER_CERTS_PREFIX + data.uuid + BACKUP_SERVER_CERTS_SUFFIX);
+                    // lock the helper to prevent any writes to the file
+                    synchronized (ServerCertificateManager.get(sslCertsFile)) {
+                        params.setFileNameInZip(
+                                BACKUP_SERVER_CERTS_PREFIX + p.first + BACKUP_SERVER_CERTS_SUFFIX);
                         zipFile.addFile(sslCertsFile, params);
                     }
                 }
-            }
+            });
 
+            StringWriter writer;
             writer = new StringWriter();
             NotificationRuleManager.saveUserRuleSettings(context, writer);
             params.setFileNameInZip(BACKUP_NOTIFICATION_RULES_PATH);
@@ -156,9 +176,12 @@ public class BackupManager {
 
             List<UUID> removeLogServers = new ArrayList<>();
             ServerConnectionManager.getInstance(context).disconnectAndRemoveAllConnections(true);
-            for (ServerConfigData server : ServerConfigManager.getInstance(context).getServers())
-                removeLogServers.add(server.uuid);
-            ServerConfigManager.getInstance(context).deleteAllServers();
+
+            UiThreadHelper.runOnUiThreadSync(() -> {
+                for (ServerConfigData server : ServerConfigManager.getInstance(context).getServers())
+                    removeLogServers.add(server.uuid);
+                ServerConfigManager.getInstance(context).deleteAllServers();
+            });
 
             ThemeManager themeManager = ThemeManager.getInstance(context);
             File themeDir = themeManager.getThemesDir();
@@ -169,21 +192,28 @@ public class BackupManager {
             }
             themeDir.mkdir();
 
-            for (Object header : zipFile.getFileHeaders()) {
-                if (!(header instanceof FileHeader))
-                    continue;
-                FileHeader fileHeader = (FileHeader) header;
-                if (fileHeader.getFileName().startsWith(BACKUP_SERVER_PREFIX) &&
-                        fileHeader.getFileName().endsWith(BACKUP_SERVER_SUFFIX)) {
-                    reader = new BufferedReader(new InputStreamReader(zipFile.getInputStream(
-                            fileHeader)));
-                    ServerConfigData data = SettingsHelper.getGson().fromJson(reader,
-                            ServerConfigData.class);
-                    data.migrateLegacyProperties();
-                    reader.close();
-                    ServerConfigManager.getInstance(context).saveServer(data);
-                    removeLogServers.remove(data.uuid);
+            BackupManager.<ServerConfigData>withUiRestoreData(s -> {
+                for (Object header : zipFile.getFileHeaders()) {
+                    FileHeader fileHeader = (FileHeader) header;
+                    if (fileHeader.getFileName().startsWith(BACKUP_SERVER_PREFIX) &&
+                            fileHeader.getFileName().endsWith(BACKUP_SERVER_SUFFIX)) {
+                        Reader rdr = new BufferedReader(new InputStreamReader(zipFile.getInputStream(
+                                fileHeader)));
+                        ServerConfigData data = SettingsHelper.getGson().fromJson(rdr,
+                                ServerConfigData.class);
+                        data.migrateLegacyProperties();
+                        rdr.close();
+                        s.onNext(data);
+                        removeLogServers.remove(data.uuid);
+                    }
                 }
+                s.onComplete();
+            }, data -> {
+                ServerConfigManager.getInstance(context).saveServer(data);
+            });
+
+            for (Object header : zipFile.getFileHeaders()) {
+                FileHeader fileHeader = (FileHeader) header;
                 if (fileHeader.getFileName().startsWith(BACKUP_SERVER_CERTS_PREFIX) &&
                         fileHeader.getFileName().endsWith(BACKUP_SERVER_CERTS_SUFFIX)) {
                     String uuid = fileHeader.getFileName();
@@ -297,6 +327,51 @@ public class BackupManager {
             }
         }
         prefs.commit(); // This will be called asynchronously
+    }
+
+    @SuppressLint("CheckResult")
+    private static <T> void withMainThreadData(ObservableOnSubscribe<T> s, Consumer<T> c)
+            throws IOException {
+        Box<Throwable> pendingException = new Box<>();
+        Observable.create(s)
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .observeOn(AndroidSchedulers.from(Looper.myLooper()))
+                .subscribe(c, (e) -> {
+                    pendingException.set(e);
+                    Looper.myLooper().quit();
+                }, () -> Looper.myLooper().quit());
+        Looper.loop();
+        if (pendingException.get() instanceof RuntimeException)
+            throw (RuntimeException) pendingException.get();
+        else if (pendingException.get() instanceof IOException)
+            throw (IOException) pendingException.get();
+        else
+            throw new RuntimeException(pendingException.get());
+    }
+
+    @SuppressLint("CheckResult")
+    private static <T> void withUiRestoreData(ObservableOnSubscribe<T> s, Consumer<T> c)
+            throws IOException {
+        SettableFuture<Void> result = new SettableFuture<>();
+        Observable.create(s)
+                .subscribeOn(AndroidSchedulers.from(Looper.myLooper()))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(c, (e) -> {
+                    result.setExecutionException((Exception) e);
+                    Looper.myLooper().quit();
+                }, () -> Looper.myLooper().quit());
+        try {
+            result.get();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof RuntimeException)
+                throw (RuntimeException) e.getCause();
+            else if (e.getCause() instanceof IOException)
+                throw (IOException) e.getCause();
+            else
+                throw new RuntimeException(e.getCause());
+        }
     }
 
 }

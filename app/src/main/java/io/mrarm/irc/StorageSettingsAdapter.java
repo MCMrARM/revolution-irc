@@ -312,7 +312,7 @@ public class StorageSettingsAdapter extends RecyclerView.Adapter {
         private StatFs mStatFs;
 
         public SpaceCalculateTask(Context context, StorageSettingsAdapter adapter) {
-            mServers = ServerConfigManager.getInstance(context).getServers();
+            mServers = new ArrayList<>(ServerConfigManager.getInstance(context).getServers());
             mChatLogManager = LegacySingletons.get(context).chatLogManager();
             mDataDir = new File(context.getApplicationInfo().dataDir);
             mAdapter = new WeakReference<>(adapter);

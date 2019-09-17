@@ -43,4 +43,32 @@ public class UiThreadHelper {
         }
     }
 
+    public static <T> T runOnUiThreadSync(SyncRunFn<T> r) {
+        if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
+            r.run();
+        } else {
+            SettableFuture<T> f = new SettableFuture<>();
+            sUiHandler.post(() -> {
+                try {
+                    f.set(r.run());
+                } catch (Exception e) {
+                    f.setExecutionException(e);
+                }
+            });
+            try {
+                return f.get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                if (e.getCause() instanceof RuntimeException)
+                    throw (RuntimeException) e.getCause();
+                throw new RuntimeException(e.getCause());
+            }
+        }
+    }
+
+    public interface SyncRunFn<T> {
+        T run();
+    }
+
 }
