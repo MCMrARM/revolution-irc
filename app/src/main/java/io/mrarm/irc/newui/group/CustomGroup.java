@@ -1,5 +1,7 @@
 package io.mrarm.irc.newui.group;
 
+import android.content.Context;
+
 import androidx.databinding.ObservableArrayList;
 import androidx.databinding.ObservableList;
 
@@ -13,7 +15,7 @@ public class CustomGroup extends BaseGroup {
     }
 
     @Override
-    public String getName() {
+    public String getName(Context ctx) {
         return name;
     }
 

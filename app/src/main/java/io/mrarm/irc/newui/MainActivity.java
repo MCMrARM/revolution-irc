@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import io.mrarm.irc.R;
 import io.mrarm.irc.dagger.DaggerThemedActivity;
+import io.mrarm.irc.newui.settings.GroupReorderFragment;
 
 public class MainActivity extends DaggerThemedActivity {
 
@@ -27,7 +28,8 @@ public class MainActivity extends DaggerThemedActivity {
                 mContainer.popAnim();
         });
 
-        mContainer.push(new MainFragment());
+        //mContainer.push(new MainFragment());
+        mContainer.push(new GroupReorderFragment());
     }
 
     public SlideableFragmentContainer getContainer() {

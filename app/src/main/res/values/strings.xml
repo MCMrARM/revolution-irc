@@ -759,4 +759,7 @@
     <string name="server_list_last_edited">Edited %s</string>
     <string name="server_list_last_created">Created %s</string>
 
+    <!-- New UI / Settings / Groups -->
+    <string name="group_default_insert_before">New servers will be placed here</string>
+
 </resources>

@@ -19,7 +19,8 @@
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:textSize="20sp"
-            app:serverName="@{group.name}"
+            app:serverName="@{group.getName(context)}"
+            app:iconCustomization="@{group.getIconCustomization(context)}"
             tools:serverName="T" />
 
         <TextView
@@ -28,7 +29,7 @@
             android:layout_weight="1"
             android:gravity="center_vertical"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-            android:text="@{group.name}"
+            android:text="@{group.getName(context)}"
             tools:text="Test Server" />
 
         <ImageView
