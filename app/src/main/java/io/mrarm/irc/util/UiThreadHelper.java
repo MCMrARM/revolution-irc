@@ -11,6 +11,11 @@ public class UiThreadHelper {
 
     private static final Handler sUiHandler = new Handler(Looper.getMainLooper());
 
+    public static void assertOnUiThread() {
+        if (Looper.getMainLooper().getThread() != Thread.currentThread())
+            throw new AssertionError("Not on UI thread");
+    }
+
     public static void runOnUiThread(Runnable r) {
         if (Looper.getMainLooper().getThread() == Thread.currentThread())
             r.run();
