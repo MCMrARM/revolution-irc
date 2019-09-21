@@ -1,6 +1,5 @@
 package io.mrarm.irc.newui.group;
 
-import androidx.databinding.ObservableArrayList;
 import androidx.databinding.ObservableList;
 
 import java.util.HashMap;
@@ -12,19 +11,36 @@ import javax.inject.Singleton;
 
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
+import io.mrarm.irc.util.ExtendedObservableArrayList;
+import io.mrarm.irc.util.ExtendedObservableList;
 
 @Singleton
 public class GroupManager {
 
     ServerConfigManager mConfigManager;
 
-    private final ObservableList<MasterGroup> mMasterGroups = new ObservableArrayList<>();
+    private final ExtendedObservableList<MasterGroup> mMasterGroups = new ExtendedObservableArrayList<>();
+    private final Map<UUID, MasterGroup> mMasterGroupUUIDMap = new HashMap<>();
     private final Map<UUID, ServerGroupData> mServerData = new HashMap<>();
     private DefaultInsertBeforeGroup mDefaultInsertBefore;
 
     @Inject
     public GroupManager(ServerConfigManager configManager) {
         mConfigManager = configManager;
+        mMasterGroups.addExtendedListener(new ExtendedObservableList.SimpleExtendedListener<
+                ExtendedObservableList<MasterGroup>, MasterGroup>() {
+
+            @Override
+            public void onAdded(ExtendedObservableList<MasterGroup> source, int index, MasterGroup value) {
+                mMasterGroupUUIDMap.put(value.getUUID(), value);
+            }
+
+            @Override
+            public void onRemove(ExtendedObservableList<MasterGroup> source, int index, MasterGroup value) {
+                mMasterGroupUUIDMap.remove(value.getUUID());
+            }
+
+        });
         initDefault();
     }
 
@@ -43,6 +59,10 @@ public class GroupManager {
 
     public ObservableList<MasterGroup> getMasterGroups() {
         return mMasterGroups;
+    }
+
+    private MasterGroup getMasterGroup(UUID uuid) {
+        return mMasterGroupUUIDMap.get(uuid);
     }
 
     private void createServerData(UUID uuid) {
