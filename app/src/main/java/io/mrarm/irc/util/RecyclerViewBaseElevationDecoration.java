@@ -71,6 +71,7 @@ public abstract class RecyclerViewBaseElevationDecoration extends RecyclerView.I
                     mPaint.setShader(null);
                     mPaint.setColor(0xFFFFFFFF);
                     c.drawRect(0, v.getTop() + ty, parent.getWidth(), bgDrawStartY, mPaint);
+                    bgDrawStartYAssigned = false;
                 }
             }
         }
