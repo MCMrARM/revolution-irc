@@ -32,7 +32,7 @@ public class GroupManager {
         mMasterGroups.clear();
         mServerData.clear();
         mDefaultInsertBefore = new DefaultInsertBeforeGroup();
-        MasterGroup mg = new MasterGroup();
+        MasterGroup mg = new MasterGroup(UUID.randomUUID());
         mg.add(mDefaultInsertBefore);
         mMasterGroups.add(mg);
 

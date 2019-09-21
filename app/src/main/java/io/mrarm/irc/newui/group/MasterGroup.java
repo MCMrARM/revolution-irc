@@ -5,6 +5,8 @@ import android.content.Context;
 import androidx.databinding.ObservableArrayList;
 import androidx.databinding.ObservableList;
 
+import java.util.UUID;
+
 import io.mrarm.irc.R;
 import io.mrarm.irc.view.CircleIconView;
 import io.mrarm.observabletransform.BindableObservableBoolean;
@@ -13,16 +15,21 @@ import io.mrarm.observabletransform.ObservableLists;
 public class MasterGroup {
 
     private final ObservableList<Group> mGroups = new ObservableArrayList<>();
+    private UUID mUUID;
     private String mName;
     private CircleIconView.CustomizationInfo mIconCustomization;
     private BindableObservableBoolean mContainsDefaultGroup;
 
-    public MasterGroup() {
+    public MasterGroup(UUID uuid) {
+        mUUID = uuid;
         mContainsDefaultGroup = ObservableLists.containsMatching(mGroups,
                 (v) -> v instanceof DefaultInsertBeforeGroup);
         mContainsDefaultGroup.bind();
     }
 
+    public UUID getUUID() {
+        return mUUID;
+    }
 
     public ObservableList<Group> getGroups() {
         return mGroups;

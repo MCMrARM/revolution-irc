@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.UUID;
+
 import javax.inject.Inject;
 
 import dagger.android.support.DaggerFragment;
@@ -52,7 +54,7 @@ public class GroupReorderFragment extends DaggerFragment
 
             @Override
             public void createGroup(int groupPos) {
-                groups.add(groupPos, new MasterGroup());
+                groups.add(groupPos, new MasterGroup(UUID.randomUUID()));
             }
 
             @Override
