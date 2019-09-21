@@ -18,7 +18,7 @@ import io.mrarm.irc.BR;
 import io.mrarm.irc.R;
 import io.mrarm.irc.util.StyledAttributesHelper;
 
-public class ServerIconView extends View {
+public class CircleIconView extends View {
 
     private final Paint mPaint = new Paint();
     private final Rect mTmpRect = new Rect();
@@ -36,20 +36,20 @@ public class ServerIconView extends View {
                 }
             };
 
-    public ServerIconView(Context context) {
+    public CircleIconView(Context context) {
         this(context, null);
     }
 
-    public ServerIconView(Context context, @Nullable AttributeSet attrs) {
+    public CircleIconView(Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public ServerIconView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public CircleIconView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.ServerIconView);
+        TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.CircleIconView);
         mTextSize = ta.getDimensionPixelSize(R.styleable.ServerIconView_android_textSize, 0);
-        mServerName = ta.getString(R.styleable.ServerIconView_serverName);
+        mServerName = ta.getString(R.styleable.CircleIconView_serverName);
         ta.recycle();
 
         mPaint.setAntiAlias(true);

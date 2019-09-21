@@ -12,7 +12,7 @@
         android:layout_height="48dp"
         android:background="?attr/colorBackgroundFloating">
 
-        <io.mrarm.irc.view.ServerIconView
+        <io.mrarm.irc.view.CircleIconView
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_gravity="center"

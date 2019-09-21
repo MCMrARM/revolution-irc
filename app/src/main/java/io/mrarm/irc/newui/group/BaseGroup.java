@@ -7,7 +7,7 @@ import androidx.databinding.ObservableList;
 import io.mrarm.irc.newui.group.view.AlphabeticalView;
 import io.mrarm.irc.newui.group.view.GroupView;
 import io.mrarm.irc.util.BoxedObservableList;
-import io.mrarm.irc.view.ServerIconView;
+import io.mrarm.irc.view.CircleIconView;
 
 abstract class BaseGroup implements Group {
 
@@ -17,7 +17,7 @@ abstract class BaseGroup implements Group {
             new BoxedObservableList<>(null);
 
     @Override
-    public ServerIconView.CustomizationInfo getIconCustomization(Context ctx) {
+    public CircleIconView.CustomizationInfo getIconCustomization(Context ctx) {
         return null;
     }
 

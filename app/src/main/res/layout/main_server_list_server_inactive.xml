@@ -12,7 +12,7 @@
         android:orientation="horizontal"
         android:background="@drawable/main_list_white_selectable_item_background">
 
-        <io.mrarm.irc.view.ServerIconView
+        <io.mrarm.irc.view.CircleIconView
             android:id="@+id/icon"
             android:layout_width="32dp"
             android:layout_height="32dp"

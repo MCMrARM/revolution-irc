@@ -45,7 +45,7 @@
         <attr name="statusBarColor" />
     </declare-styleable>
 
-    <declare-styleable name="ServerIconView">
+    <declare-styleable name="CircleIconView">
         <attr name="android:textSize" />
         <attr name="serverName" format="string" />
     </declare-styleable>

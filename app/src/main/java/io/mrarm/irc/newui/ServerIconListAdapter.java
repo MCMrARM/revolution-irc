@@ -3,7 +3,6 @@ package io.mrarm.irc.newui;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
@@ -11,7 +10,7 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
-import io.mrarm.irc.view.ServerIconView;
+import io.mrarm.irc.view.CircleIconView;
 
 public class ServerIconListAdapter extends ListAdapter<ServerConnectionInfo,
         ServerIconListAdapter.ServerIcon> {
@@ -72,7 +71,7 @@ public class ServerIconListAdapter extends ListAdapter<ServerConnectionInfo,
 
     public class TextServerIcon extends ServerIcon {
 
-        private ServerIconView mIcon;
+        private CircleIconView mIcon;
 
         public TextServerIcon(@NonNull View itemView) {
             super(itemView);

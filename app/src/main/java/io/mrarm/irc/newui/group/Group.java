@@ -5,7 +5,7 @@ import android.content.Context;
 import androidx.databinding.ObservableList;
 
 import io.mrarm.irc.newui.group.view.GroupView;
-import io.mrarm.irc.view.ServerIconView;
+import io.mrarm.irc.view.CircleIconView;
 
 public interface Group {
 
@@ -16,7 +16,7 @@ public interface Group {
 
     String getName(Context ctx);
 
-    ServerIconView.CustomizationInfo getIconCustomization(Context ctx);
+    CircleIconView.CustomizationInfo getIconCustomization(Context ctx);
 
 
     ObservableList<ServerChannelPair> getChannels();

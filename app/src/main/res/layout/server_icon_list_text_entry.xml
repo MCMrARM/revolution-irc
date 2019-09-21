@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="?attr/selectableItemBackground">
 
-    <io.mrarm.irc.view.ServerIconView
+    <io.mrarm.irc.view.CircleIconView
         android:id="@+id/icon"
         android:layout_width="32dp"
         android:layout_height="32dp"
