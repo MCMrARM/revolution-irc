@@ -8,7 +8,6 @@ import androidx.databinding.ObservableList;
 public class CustomGroup extends BaseGroup {
 
     private String name;
-    private final ObservableList<ServerChannelPair> channels = new ObservableArrayList<>();
 
     public CustomGroup(String name) {
         this.name = name;
@@ -21,11 +20,6 @@ public class CustomGroup extends BaseGroup {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    @Override
-    public ObservableList<ServerChannelPair> getChannels() {
-        return channels;
     }
 
 }

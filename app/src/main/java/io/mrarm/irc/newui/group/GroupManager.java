@@ -61,7 +61,7 @@ public class GroupManager {
         return mMasterGroups;
     }
 
-    private MasterGroup getMasterGroup(UUID uuid) {
+    public MasterGroup getMasterGroup(UUID uuid) {
         return mMasterGroupUUIDMap.get(uuid);
     }
 

@@ -8,7 +8,6 @@ import androidx.databinding.ObservableList;
 public class DefaultServerGroup extends BaseGroup {
 
     private ServerGroupData mServerData;
-    private final ObservableList<ServerChannelPair> channels = new ObservableArrayList<>();
 
     DefaultServerGroup(ServerGroupData data) {
         mServerData = data;
@@ -18,11 +17,6 @@ public class DefaultServerGroup extends BaseGroup {
     @Override
     public String getName(Context ctx) {
         return mServerData.getName();
-    }
-
-    @Override
-    public ObservableList<ServerChannelPair> getChannels() {
-        return channels;
     }
 
 }
