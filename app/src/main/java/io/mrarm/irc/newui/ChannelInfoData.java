@@ -19,7 +19,7 @@ import io.mrarm.irc.util.UiThreadHelper;
  * specific events of use to the UI.
  * This class additionally manages sorting members by rank and name.
  *
- * TODO: Maybe merge this with ServerChannelListData.ChannelEntry
+ * TODO: Maybe merge this with GroupChannelListData.ChannelEntry
  */
 public class ChannelInfoData implements ChannelInfoListener {
 

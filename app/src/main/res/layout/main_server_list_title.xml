@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:id="@+id/title"
-    android:textAppearance="@style/TextAppearance.AppCompat.Title"
-    android:layout_marginLeft="@dimen/setting_horizontal_padding"
-    android:layout_marginRight="@dimen/setting_horizontal_padding"
-    android:layout_marginTop="12dp"
-    android:layout_marginBottom="12dp"
-    tools:text="Title Placeholder" />
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable name="titleStr" type="String"/>
+    </data>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/title"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        android:layout_marginLeft="@dimen/setting_horizontal_padding"
+        android:layout_marginRight="@dimen/setting_horizontal_padding"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp"
+        android:text="@{titleStr}"
+        tools:text="Title Placeholder" />
+</layout>

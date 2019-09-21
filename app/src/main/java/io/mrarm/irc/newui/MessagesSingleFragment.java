@@ -13,17 +13,24 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import java.util.UUID;
+
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
 
 public class MessagesSingleFragment extends MessagesFragment
         implements SlideableFragmentToolbar.FragmentToolbarCallback {
 
-    public static MessagesSingleFragment newInstance(ServerConnectionInfo server,
-                                                     String channelName) {
+    public static MessagesSingleFragment newInstance(
+            ServerConnectionInfo server, String channelName) {
+        return newInstance(server.getUUID(), channelName);
+    }
+
+    public static MessagesSingleFragment newInstance(UUID server, String channelName) {
         MessagesSingleFragment fragment = new MessagesSingleFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_SERVER_UUID, server.getUUID().toString());
+        args.putString(ARG_SERVER_UUID, server.toString());
         if (channelName != null)
             args.putString(ARG_CHANNEL_NAME, channelName);
         fragment.setArguments(args);

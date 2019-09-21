@@ -58,7 +58,7 @@ public class MainFragment extends DaggerFragment
         if (selectedId == R.id.item_recents)
             return ChatListFragment.newInstance();
         if (selectedId == R.id.item_chats)
-            return ServerChannelListFragment.newInstance();
+            return GroupChannelListFragment.newInstance();
         if (selectedId == R.id.item_servers)
             return ServerListFragment.newInstance();
         return null;
@@ -126,8 +126,8 @@ public class MainFragment extends DaggerFragment
         if (mToolbarAppTitle == null)
             return;
         Fragment af = getActiveFragment();
-        if (af instanceof ServerChannelListFragment) {
-            ((ServerChannelListFragment) af).setServerIconView(mToolbarServerIcons);
+        if (af instanceof GroupChannelListFragment) {
+            ((GroupChannelListFragment) af).setServerIconView(mToolbarServerIcons);
             ViewFadeHelper.showView(mToolbarServerIcons);
             ViewFadeHelper.hideView(mToolbarAppTitle);
         } else {

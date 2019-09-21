@@ -21,6 +21,12 @@ public abstract class MainActivityModule {
     @ContributesAndroidInjector
     abstract MainFragment contributeMainFragment();
 
+    @ContributesAndroidInjector
+    abstract GroupChannelListFragment contributeGroupChannelList();
+
+    @ContributesAndroidInjector
+    abstract GroupChannelListFragment.MyFragment contributeGroupChannelListSubFragment();
+
     @Module
     interface ServerListFragmentModule {
         @Binds

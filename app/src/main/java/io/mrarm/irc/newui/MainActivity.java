@@ -28,8 +28,8 @@ public class MainActivity extends DaggerThemedActivity {
                 mContainer.popAnim();
         });
 
-        //mContainer.push(new MainFragment());
-        mContainer.push(new GroupReorderFragment());
+        mContainer.push(new MainFragment());
+        //mContainer.push(new GroupReorderFragment());
     }
 
     public SlideableFragmentContainer getContainer() {

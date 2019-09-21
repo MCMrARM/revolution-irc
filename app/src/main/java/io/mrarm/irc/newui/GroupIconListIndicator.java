@@ -11,7 +11,7 @@ import androidx.viewpager.widget.ViewPager;
 import io.mrarm.irc.R;
 import io.mrarm.irc.util.StyledAttributesHelper;
 
-public class ServerIconListIndicator extends RecyclerView.ItemDecoration
+public class GroupIconListIndicator extends RecyclerView.ItemDecoration
         implements ViewPager.OnPageChangeListener {
 
     private final Paint mPaint = new Paint();
@@ -20,7 +20,7 @@ public class ServerIconListIndicator extends RecyclerView.ItemDecoration
     private float mActiveOffset = 0;
     private RecyclerView mRecyclerView;
 
-    public ServerIconListIndicator(Context ctx) {
+    public GroupIconListIndicator(Context ctx) {
         mIndicatorHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4,
                 ctx.getResources().getDisplayMetrics());
         mPaint.setColor(StyledAttributesHelper.getColor(ctx, R.attr.colorAccent, 0));
