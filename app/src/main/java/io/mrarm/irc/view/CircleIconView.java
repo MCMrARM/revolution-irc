@@ -48,7 +48,7 @@ public class CircleIconView extends View {
         super(context, attrs, defStyleAttr);
 
         TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.CircleIconView);
-        mTextSize = ta.getDimensionPixelSize(R.styleable.ServerIconView_android_textSize, 0);
+        mTextSize = ta.getDimensionPixelSize(R.styleable.CircleIconView_android_textSize, 0);
         mServerName = ta.getString(R.styleable.CircleIconView_serverName);
         ta.recycle();
 
