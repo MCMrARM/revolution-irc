@@ -1,0 +1,39 @@
+name: Bash
+
+# Relevant to events - https://help.github.com/en/actions/automating-your-workflow-with-github-actions/events-that-trigger-workflows
+on: 
+  pull_request:
+    types: [synchronize, opened, reopened, ready_for_review]
+    paths:
+    - '**.bash'
+    - "gradlew"
+
+jobs:
+  # Linting
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Installing dependencies..
+        run: if ! apt list --installed 2>/dev/null | grep -q ".*shellcheck.*"; then apt install -y shellcheck; fi
+      - name: Linting..
+        run: |
+          cd "$GITHUB_WORKSPACE" # Change dir in required workspace
+
+          # Process files
+          for file in $(git ls-tree --name-only -r ${{ github.sha }} | grep '\.bash$'); do
+            # Gradlew can be a bash file
+            if [ "$file" = gradlew ]; then
+              case "$(head -n1 "$file")" in
+                "\#!/usr/bin/env bash" | "\#!/bin/bash")
+                  printf 'linting bash file %s' "$file"
+                  shellcheck --external-sources --shell=bash "$file"
+              esac
+            elif [ "$file" != gradlew ]; then
+              printf 'linting bash file %s' "$file"
+              shellcheck --external-sources --shell=bash "$file"
+            else
+              printf 'UNEXPECTED: %s\n' "Unexpected happend while processing file '$file'"
+              exit 255
+            fi
+          done
