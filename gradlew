@@ -1,54 +1,64 @@
 #!/usr/bin/env bash
+# Created by unknown under unknown
+# Refactored by Jacob Hrbek <kreyren@rixotstudio.cz> under original license in 2020
 
-##############################################################################
-##
-##  Gradle start up script for UN*X
-##
-##############################################################################
+: "
+  Gradle start up script for UN*X
+
+  FIXME: Abstract
+"
+
+# Master unset -- Used to ensure that script does not export unwanted env variables
+masterUnset="DEFAULT_JVM_OPTS APP_NAME APP_BASE_NAME MAX_FD cygwin msys darwin cygwin darwin msys PRG ls link PRG PRG SAVED APP_HOME CLASSPATH JAVACMD JAVACMD JAVACMD MAX_FD_LIMIT MAX_FD GRADLE_OPTS name icon APP_HOME CLASSPATH JAVACMD ROOTDIRSRAW SEP ROOTDIRS SEP OURCYGPATTERN OURCYGPATTERN CHECK CHECK2 JVM_OPTS appname masterUnset"
+
+# Functions
+ewarn() { printf 'WARN: %s\n' "$1" ;}
+
+die() {
+    printf 'FATAL: %s\n' "$2"
+
+    # masterUnset - Do not double-quote since spaces are expected
+    for envVar in $masterUnset; do
+      [ -n "$envVar" ] && unset "$envVar"
+    done
+
+    exit "$1"
+}
+
+# Metadata?
 
 # Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
 DEFAULT_JVM_OPTS=""
 
 APP_NAME="Gradle"
-APP_BASE_NAME=`basename "$0"`
+# FIXME-SHELL: What is expected here?
+APP_BASE_NAME="$(basename "$0")"
 
 # Use the maximum available, or set MAX_FD != -1 to use that value.
 MAX_FD="maximum"
 
-warn ( ) {
-    echo "$*"
-}
 
-die ( ) {
-    echo
-    echo "$*"
-    echo
-    exit 1
-}
 
 # OS specific support (must be 'true' or 'false').
+# FIXME-QA: Should read from a config file instead
+# FIXME-QA: Why it has to be false? Unsetting it would be better
 cygwin=false
 msys=false
 darwin=false
-case "`uname`" in
-  CYGWIN* )
-    cygwin=true
-    ;;
-  Darwin* )
-    darwin=true
-    ;;
-  MINGW* )
-    msys=true
-    ;;
+case "$(uname)" in
+  CYGWIN* ) cygwin=true ;;
+  Darwin* ) darwin=true ;;
+  MINGW* ) msys=true ;;
+  *) die 255 "Unexpected '$(uname)' has been parsed in OS check"
 esac
 
-# Attempt to set APP_HOME
+# Attempt to set APP_HOME | FIXME-QA: Why?
 # Resolve links: $0 may be a link
 PRG="$0"
 # Need this for relative symlinks.
 while [ -h "$PRG" ] ; do
-    ls=`ls -ld "$PRG"`
-    link=`expr "$ls" : '.*-> \(.*\)$'`
+    ls="$(ls -ld "$PRG")"
+    link="$(expr "$ls" : '.*-> \(.*\)$')"
     if expr "$link" : '/.*' > /dev/null; then
         PRG="$link"
     else
@@ -60,7 +70,7 @@ cd "`dirname \"$PRG\"`/" >/dev/null
 APP_HOME="`pwd -P`"
 cd "$SAVED" >/dev/null
 
-CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
+CLASSPATH="$APP_HOME/gradle/wrapper/gradle-wrapper.jar"
 
 # Determine the Java command to use to start the JVM.
 if [ -n "$JAVA_HOME" ] ; then
