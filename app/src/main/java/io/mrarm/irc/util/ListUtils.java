@@ -16,15 +16,15 @@ public class ListUtils {
      */
     public static <T extends Comparable<T>> int lowerBound(List<T> list, T value) {
         int a = 0, b = list.size();
-        while (b - a > 1) {
+        while (a != b) {
             int m = (a + b) / 2;
             if (list.get(m).compareTo(value) >= 0) {
                 b = m;
             } else {
-                a = m;
+                a = m + 1;
             }
         }
-        return b;
+        return a;
     }
 
     /**
@@ -39,15 +39,15 @@ public class ListUtils {
      */
     public static <T> int lowerBound(List<T> list, T value, Comparator<T> comparator) {
         int a = 0, b = list.size();
-        while (b - a > 1) {
+        while (a != b) {
             int m = (a + b) / 2;
             if (comparator.compare(list.get(m), value) >= 0) {
                 b = m;
             } else {
-                a = m;
+                a = m + 1;
             }
         }
-        return b;
+        return a;
     }
 
 }
