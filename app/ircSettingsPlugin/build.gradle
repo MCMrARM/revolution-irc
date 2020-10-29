@@ -7,6 +7,7 @@ version = '1.0'
 repositories {
     mavenCentral()
     google()
+    jcenter()
 }
 
 gradlePlugin {
@@ -19,7 +20,7 @@ gradlePlugin {
 }
 
 dependencies {
-    implementation 'com.android.tools.build:gradle:3.3.1'
+    implementation 'com.android.tools.build:gradle:4.0.2'
     implementation 'org.yaml:snakeyaml:1.23'
     implementation 'com.squareup:javawriter:2.5.1'
 }

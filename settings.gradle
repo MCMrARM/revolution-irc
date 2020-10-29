@@ -1,2 +1,2 @@
-includeBuild 'app/buildSrc'
+includeBuild 'app/ircSettingsPlugin'
 include ':app'

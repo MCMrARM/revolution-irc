@@ -6,6 +6,7 @@
 /.idea/libraries
 /.idea/caches
 /.idea/assetWizardSettings.xml
+/.idea/modules.xml
 .DS_Store
 /build
 /captures
