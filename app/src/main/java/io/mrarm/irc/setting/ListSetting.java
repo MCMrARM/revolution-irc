@@ -53,6 +53,8 @@ public class ListSetting extends SimpleSetting {
 
     public ListSetting linkSetting(SharedPreferences prefs, String pref) {
         mSelectedOption = getPrefValueIndex((String) SettingsHelper.getDefaultValue(pref));
+        if (mSelectedOption != -1)
+            mValue = mOptions[mSelectedOption];
         return linkPreference(prefs, pref);
     }
 
