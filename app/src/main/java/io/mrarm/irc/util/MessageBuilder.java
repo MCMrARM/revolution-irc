@@ -368,6 +368,9 @@ public class MessageBuilder {
                 return processFormat(mEventMessageFormat, message.getDate(), null,
                         buildModeMessage(senderNick, ((ChannelModeMessageInfo) message).getEntries()));
             case TOPIC: {
+                if (message.getMessage() == null)
+                    return processFormat(mEventMessageFormat, message.getDate(), null,
+                            SpannableStringHelper.getText(mContext, R.string.message_topic_none));
                 CharSequence topicText = buildColoredMessage(LinkHelper.addLinks(
                         IRCColorUtils.getFormattedString(mContext, message.getMessage())),
                         IRCColorUtils.getTopicTextColor(mContext), true);
