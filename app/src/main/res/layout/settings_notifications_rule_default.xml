@@ -30,8 +30,6 @@
         android:id="@+id/name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toLeftOf="@id/reorder"
-        android:layout_toStartOf="@id/reorder"
         android:layout_centerVertical="true"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         android:paddingTop="16dp"
