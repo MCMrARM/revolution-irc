@@ -20,6 +20,10 @@
         android:visible="false"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_members"
+        android:title="@string/channel_members"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_ignore_list"
         android:title="@string/title_activity_ignore_list"
         app:showAsAction="never" />

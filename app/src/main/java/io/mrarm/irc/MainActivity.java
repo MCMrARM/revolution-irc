@@ -415,6 +415,8 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
                 }
                 hasChanges = true;
             }
+            menu.findItem(R.id.action_members).setVisible(
+                    mDrawerLayout.getDrawerLockMode(GravityCompat.END) != DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             if (fragment.getSendMessageHelper().hasSendMessageTextSelection() !=
                     menu.findItem(R.id.action_format).isVisible()) {
                 menu.findItem(R.id.action_format).setVisible(fragment.getSendMessageHelper()
@@ -495,6 +497,8 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType("*/*");
             startActivityForResult(intent, REQUEST_CODE_PICK_FILE_DCC);
+        } else if (id == R.id.action_members) {
+            mDrawerLayout.openDrawer(GravityCompat.END);
         } else if (id == R.id.action_ignore_list) {
             ServerConnectionInfo info = ((ChatFragment) getCurrentFragment()).getConnectionInfo();
             Intent intent = new Intent(this, IgnoreListActivity.class);
