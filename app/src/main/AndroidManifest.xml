@@ -48,6 +48,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data android:scheme="irc" />
+                <data android:scheme="ircs" />
             </intent-filter>
         </activity>
         <activity
