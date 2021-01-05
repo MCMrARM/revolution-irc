@@ -58,7 +58,12 @@ public class IRCLinkActivity extends ThemedActivity {
             iof++;
         str = str.substring(iof);
         iof = str.indexOf('/');
-        if (iof == -1) {
+        if (iof == -1 || iof == str.length() - 1) {
+            Intent intent = new Intent(this, EditServerActivity.class);
+            intent.putExtra(EditServerActivity.ARG_NAME, str);
+            intent.putExtra(EditServerActivity.ARG_ADDRESS, str);
+            startActivity(intent);
+
             finish();
             return;
         }
