@@ -1,6 +1,5 @@
 package io.mrarm.irc.view;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
@@ -28,6 +27,7 @@ public class ListSearchView extends FrameLayout {
     private RecyclerView mRecyclerView;
     private BackButtonListenerEditText mSearchText;
     private View mSearchTextClear;
+    private Toolbar mToolbar;
     private int mStatusBarColor;
     private QueryListener mQueryListener;
 
@@ -48,11 +48,12 @@ public class ListSearchView extends FrameLayout {
         super(context, attrs, defStyleAttr);
 
         LayoutInflater.from(context).inflate(R.layout.dialog_search, this);
+        setFitsSystemWindows(true);
 
         mRootView = findViewById(R.id.root);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setNavigationOnClickListener((View v) -> {
+        mToolbar = findViewById(R.id.toolbar);
+        mToolbar.setNavigationOnClickListener((View v) -> {
             if (mQueryListener != null)
                 mQueryListener.onCancelled();
         });
@@ -89,10 +90,6 @@ public class ListSearchView extends FrameLayout {
         mStatusBarColor = getResources().getColor(R.color.searchColorPrimaryDark);
     }
 
-    private Activity getActivity() {
-        return (Activity) getContext();
-    }
-
     public void setDialog(Dialog dialog) {
         mDialog = dialog;
     }
@@ -111,7 +108,7 @@ public class ListSearchView extends FrameLayout {
         else
             hideKeyboard();
         if (Build.VERSION.SDK_INT >= 23 & isLightColor(mStatusBarColor)) {
-            View decorView = getActivity().getWindow().getDecorView();
+            View decorView = mDialog.getWindow().getDecorView();
             if (mDialog != null)
                 decorView = mDialog.getWindow().getDecorView();
             int vis = decorView.getSystemUiVisibility();
@@ -121,8 +118,8 @@ public class ListSearchView extends FrameLayout {
                 vis = vis & ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
             decorView.setSystemUiVisibility(vis);
         }
-        if (getActivity() != null && Build.VERSION.SDK_INT >= 21)
-            getActivity().getWindow().setStatusBarColor(isVisible ? mStatusBarColor : 0);
+        if (mDialog != null && Build.VERSION.SDK_INT >= 21)
+            mDialog.getWindow().setStatusBarColor(isVisible ? mStatusBarColor : 0);
     }
 
     @Override

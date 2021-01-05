@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 
+import io.mrarm.irc.R;
 import io.mrarm.irc.view.ListSearchView;
 
 public abstract class SearchDialog extends AppCompatDialog implements ListSearchView.QueryListener {
@@ -20,7 +21,9 @@ public abstract class SearchDialog extends AppCompatDialog implements ListSearch
     private ListSearchView mSearchView;
 
     public SearchDialog(@NonNull Context context) {
-        super(context);
+        super(context, R.style.ThemeOverlay_AppCompat);
+
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
 
         mSearchView = new ListSearchView(context, this);
         mSearchView.setDialog(this);
@@ -55,7 +58,7 @@ public abstract class SearchDialog extends AppCompatDialog implements ListSearch
                     ViewGroup.LayoutParams.MATCH_PARENT);
             window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
             window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
         }
     }
