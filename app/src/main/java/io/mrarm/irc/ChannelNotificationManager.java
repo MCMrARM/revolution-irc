@@ -165,7 +165,7 @@ public class ChannelNotificationManager implements NotificationCountStorage.OnCh
         if (rule.settings.notificationChannelId == null)
             createChannel(context, rule);
 
-        String title = getChannel() + " (" + mConnection.getName() + ")"; // TODO: Move to strings.xml
+        String title = context.getString(R.string.notification_title, getChannel(), mConnection.getName());
         RemoteViews notificationsView = createCollapsedMessagesView(context, title, lastMessage);
         RemoteViews notificationsViewBig = createMessagesView(context, title);
         NotificationCompat.Builder notification = new NotificationCompat.Builder(context,

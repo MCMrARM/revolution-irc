@@ -515,6 +515,7 @@
     <string name="notification_priority">Priority</string>
     <string name="notification_color">LED Color</string>
     <string name="notification_android_settings_link">More settings…</string>
+    <string name="notification_title">%s (%s)</string>
 
     <string-array name="notification_vibration_options">
         <item>Default</item>
