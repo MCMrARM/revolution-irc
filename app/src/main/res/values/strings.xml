@@ -664,6 +664,21 @@
 
     <string name="user_info_copied">Copied %s to clipboard.</string>
 
+    <!-- Operator actions -->
+
+    <string name="operator_actions">Operator actions</string>
+    <string name="operator_actions_kick_reason">Kick reason</string>
+    <string name="operator_actions_ban_host">Ban host</string>
+
+    <string-array name="operator_actions_items">
+        <item>Give voice</item>
+        <item>Take voice</item>
+        <item>Give ops</item>
+        <item>Take ops</item>
+        <item>Kick</item>
+        <item>Ban</item>
+    </string-array>
+
     <!-- Color picker -->
 
     <string name="color_picker_title">Pick a color</string>
