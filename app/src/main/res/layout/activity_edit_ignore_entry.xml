@@ -23,7 +23,7 @@
                 android:id="@+id/nick"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/value_any" />
+                android:hint="@string/value_any_re_glob" />
 
         </io.mrarm.irc.view.LabelLayout>
 
@@ -42,7 +42,7 @@
                 android:id="@+id/user"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/value_any" />
+                android:hint="@string/value_any_re_glob" />
 
         </io.mrarm.irc.view.LabelLayout>
 
@@ -61,7 +61,7 @@
                 android:id="@+id/host"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/value_any" />
+                android:hint="@string/value_any_re_glob" />
 
         </io.mrarm.irc.view.LabelLayout>
 
@@ -69,7 +69,7 @@
             android:id="@+id/channel_messages"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/host_ctr"
+            android:layout_below="@+id/mesg_ctr"
             android:layout_marginTop="@dimen/edit_command_alias_spacing"
             android:layout_marginLeft="@dimen/activity_horizontal_margin_s4"
             android:layout_marginRight="@dimen/activity_horizontal_margin_s4"
@@ -105,6 +105,24 @@
             android:layout_marginRight="@dimen/activity_horizontal_margin_s4"
             android:text="@string/notification_rule_notice"
             android:checked="true" />
+
+        <io.mrarm.irc.view.LabelLayout
+            android:id="@+id/mesg_ctr"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/host_ctr"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin_s4"
+            android:layout_marginTop="@dimen/edit_command_alias_spacing"
+            android:layout_marginRight="@dimen/activity_horizontal_margin_s4"
+            android:hint="@string/mesg_match"
+            app:doNotExpand="true">
+
+            <EditText
+                android:id="@+id/mesg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/value_any_re_glob" />
+        </io.mrarm.irc.view.LabelLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/comment_ctr"

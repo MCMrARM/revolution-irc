@@ -7,8 +7,8 @@ android {
         applicationId "io.mrarm.irc"
         minSdkVersion 17
         targetSdkVersion 30
-        versionCode 12
-        versionName "0.5.4"
+        versionCode 16
+        versionName "0.5.4d"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary true
