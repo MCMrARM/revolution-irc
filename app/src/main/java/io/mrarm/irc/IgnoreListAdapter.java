@@ -115,6 +115,17 @@ public class IgnoreListAdapter extends RecyclerView.Adapter<IgnoreListAdapter.It
                 builder.append(" ");
                 builder.append(entry.comment, new ForegroundColorSpan(mTextColorSecondary));
             }
+
+            if (entry.mesg != null) {
+                if( builder.getSpannable().length() != 0 ) builder.append(" " );
+                int len = entry.mesg.length();
+                if( len < 10 ) {
+                    builder.append( entry.mesg );
+                } else {
+                    builder.append(entry.mesg.substring(0, 10));
+                    builder.append(" ...");
+                }
+            }
             mText.setText(builder.getSpannable());
         }
 

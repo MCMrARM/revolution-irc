@@ -9,13 +9,12 @@ import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.security.spec.EncodedKeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
-import io.mrarm.irc.R;
 import io.mrarm.irc.util.SimpleWildcardPattern;
 
 public class ServerConfigData {
@@ -92,20 +91,38 @@ public class ServerConfigData {
         public String nick;
         public String user;
         public String host;
+        public String mesg;
         public String comment;
         public transient Pattern nickRegex;
         public transient Pattern userRegex;
         public transient Pattern hostRegex;
+        public transient Pattern mesgRegex;
 
         public boolean matchDirectMessages = true;
         public boolean matchDirectNotices = true;
         public boolean matchChannelMessages = true;
         public boolean matchChannelNotices = true;
 
-        public void updateRegexes() {
-            nickRegex = SimpleWildcardPattern.compile(nick);
-            userRegex = SimpleWildcardPattern.compile(user);
-            hostRegex = SimpleWildcardPattern.compile(host);
+        public boolean isBad = false;
+
+        public void nullRegexes() {
+            nickRegex = null;
+            userRegex = null;
+            hostRegex = null;
+            mesgRegex = null;
+        }
+  
+        public void updateRegexes() throws PatternSyntaxException {
+            nullRegexes();
+            try {
+                if(nick != null) nickRegex = SimpleWildcardPattern.pattCompile(nick);
+                if(user != null) userRegex = SimpleWildcardPattern.pattCompile(user);
+                if(host != null) hostRegex = SimpleWildcardPattern.pattCompile(host);
+                if(mesg != null) mesgRegex = SimpleWildcardPattern.pattCompile(mesg);
+            } catch(PatternSyntaxException e) {
+                nullRegexes();
+                throw e;
+            }
         }
 
     }

@@ -258,6 +258,7 @@
     <string name="value_custom_specific">Custom (%s)</string>
     <string name="value_none">None</string>
     <string name="value_any">Any</string>
+    <string name="value_any_re_glob">Any ?glob? or /re/</string>
     <string name="value_always">Always</string>
     <string name="value_never">Never</string>
     <string name="value_preset">Preset</string>
@@ -661,6 +662,10 @@
     <string name="user_away">Away message</string>
 
     <string name="user_info_copied">Copied %s to clipboard.</string>
+
+    <!-- Ignore message text regexp -->
+
+    <string name="mesg_match">Message text</string>
 
     <!-- Color picker -->
 
