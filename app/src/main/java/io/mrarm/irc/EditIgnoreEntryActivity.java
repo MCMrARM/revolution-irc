@@ -11,6 +11,7 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.regex.PatternSyntaxException;
 
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
@@ -25,6 +26,7 @@ public class EditIgnoreEntryActivity extends ThemedActivity {
     private EditText mNick;
     private EditText mUser;
     private EditText mHost;
+    private EditText mMesg;
     private EditText mComment;
     private CheckBox mChannelMessages;
     private CheckBox mChannelNotices;
@@ -45,6 +47,7 @@ public class EditIgnoreEntryActivity extends ThemedActivity {
         mNick = findViewById(R.id.nick);
         mUser = findViewById(R.id.user);
         mHost = findViewById(R.id.host);
+        mMesg = findViewById(R.id.mesg);
         mComment = findViewById(R.id.comment);
 
         mChannelMessages = findViewById(R.id.channel_messages);
@@ -56,6 +59,7 @@ public class EditIgnoreEntryActivity extends ThemedActivity {
             mNick.setText(mEntry.nick);
             mUser.setText(mEntry.user);
             mHost.setText(mEntry.host);
+            mMesg.setText(mEntry.mesg);
             mComment.setText(mEntry.comment);
             mChannelMessages.setChecked(mEntry.matchChannelMessages);
             mChannelNotices.setChecked(mEntry.matchChannelNotices);
@@ -76,12 +80,21 @@ public class EditIgnoreEntryActivity extends ThemedActivity {
         mEntry.nick = mNick.getText().length() > 0 ? mNick.getText().toString() : null;
         mEntry.user = mUser.getText().length() > 0 ? mUser.getText().toString() : null;
         mEntry.host = mHost.getText().length() > 0 ? mHost.getText().toString() : null;
+        mEntry.mesg = mMesg.getText().length() > 0 ? mMesg.getText().toString() : null;
         mEntry.comment = mComment.getText().length() > 0 ? mComment.getText().toString() : null;
         mEntry.matchChannelMessages = mChannelMessages.isChecked();
         mEntry.matchChannelNotices = mChannelNotices.isChecked();
         mEntry.matchDirectMessages = mDirectMessages.isChecked();
         mEntry.matchDirectNotices = mDirectNotices.isChecked();
-        mEntry.updateRegexes();
+        try {
+            mEntry.isBad = false; // assume, should already be so
+            mEntry.updateRegexes();
+        } catch (PatternSyntaxException e) { // only this one should be propagated from updateRegexes()
+            mEntry.isBad = true;
+            Toast.makeText( this,"Regexp pattern error in:\n"
+                    + e.getPattern() + "\n" + e.getMessage(), Toast.LENGTH_LONG).show();
+            // do not fail on return here else user needs to re-enter everything from scratch
+        }
         try {
             ServerConfigManager.getInstance(this).saveServer(mServer);
         } catch (IOException e) {

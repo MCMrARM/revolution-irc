@@ -85,6 +85,7 @@ public class EditServerActivity extends ThemedActivity {
     private EditText mServerPort;
     private TextInputLayout mServerPortCtr;
     private CheckBox mServerSSL;
+    private CheckBox mServerCtcpVersion;
     private View mServerSSLCertsButton;
     private TextView mServerSSLCertsLbl;
     private ResettablePasswordHelper mServerPass;
@@ -146,6 +147,7 @@ public class EditServerActivity extends ThemedActivity {
         mServerPort = findViewById(R.id.server_address_port);
         mServerPortCtr = findViewById(R.id.server_address_port_ctr);
         mServerSSL = findViewById(R.id.server_ssl_checkbox);
+        mServerCtcpVersion = findViewById(R.id.server_ctcp_mode_checkbox);
         mServerSSLCertsButton = findViewById(R.id.server_ssl_certs);
         mServerSSLCertsLbl = findViewById(R.id.server_ssl_cert_lbl);
         mServerPass = new ResettablePasswordHelper(
@@ -248,6 +250,7 @@ public class EditServerActivity extends ThemedActivity {
             mServerName.setText(mEditServer.name);
             mServerAddress.setText(mEditServer.address);
             mServerSSL.setChecked(mEditServer.ssl);
+            mServerCtcpVersion.setChecked(mEditServer.censeCtcpVersion);
             mServerPort.setText(String.valueOf(mEditServer.port));
             mServerRejoinChannels.setChecked(mEditServer.rejoinChannels);
 
@@ -384,6 +387,7 @@ public class EditServerActivity extends ThemedActivity {
         mEditServer.address = mServerAddress.getText().toString();
         mEditServer.port = Integer.parseInt(mServerPort.getText().toString());
         mEditServer.ssl = mServerSSL.isChecked();
+        mEditServer.censeCtcpVersion = mServerCtcpVersion.isChecked();
         mEditServer.nicks = Arrays.asList(mServerNick.getItems());
         if (mEditServer.nicks.size() == 0)
             mEditServer.nicks = null;

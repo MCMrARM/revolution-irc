@@ -1,8 +1,10 @@
 package io.mrarm.irc;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -129,12 +131,29 @@ public class ServerConnectionInfo {
             DCCManager dccManager = DCCManager.getInstance(getConnectionManager().getContext());
             messageHandler.setDCCServerManager(dccManager.getServer());
             messageHandler.setDCCClientManager(dccManager.createClient(this));
-            messageHandler.setCtcpVersionReply(mManager.getContext()
-                    .getString(R.string.app_name), BuildConfig.VERSION_NAME, "Android");
+            {
+                String appname;
+                String appver;
+
+                if (mServerConfig.censeCtcpVersion) {
+                    appname = "IRC client";
+                    appver = "default";
+                } else {
+                    appname = mManager.getContext().getString(R.string.app_name);
+                    appver = BuildConfig.VERSION_NAME;
+                }
+                messageHandler.setCtcpVersionReply(appname, appver, "Android");
+            }
             connection.addDisconnectListener((IRCConnection conn, Exception reason) -> {
                 notifyDisconnected();
             });
             createdNewConnection = true;
+            if (mServerConfig.badCount != 0) {
+                Context ctx = this.getConnectionManager().getContext();
+                String errstr = ctx.getString(R.string.notification_server_connection_info_badcount, mServerConfig.badCount);
+                Toast.makeText(ctx, errstr, Toast.LENGTH_LONG).show();
+                Log.d("ServerConnectionInfo", errstr);
+            }
         } else {
             connection = (IRCConnection) mApi;
         }

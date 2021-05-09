@@ -95,12 +95,19 @@
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@id/server_ssl_icon"
                 android:layout_toEndOf="@id/server_ssl_icon"
-                android:layout_centerVertical="true"
                 android:text="@string/server_ssl"
                 android:checked="true" />
 
-        </RelativeLayout>
+            <CheckBox
+                android:id="@+id/server_ctcp_mode_checkbox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/server_ssl_icon"
+                android:layout_below="@id/server_ssl_checkbox"
+                android:text="@string/server_ctcp_version_mode"
+                android:checked="false" />
 
+        </RelativeLayout>
 
         <RelativeLayout
             android:id="@+id/server_ssl_certs"
