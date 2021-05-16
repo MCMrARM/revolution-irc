@@ -2,6 +2,8 @@ package io.mrarm.irc.util;
 
 import android.util.Log;
 
+import java.util.regex.PatternSyntaxException;
+
 import io.mrarm.chatlib.dto.MessageInfo;
 import io.mrarm.chatlib.irc.MessageFilter;
 import io.mrarm.chatlib.irc.ServerConnectionData;
@@ -19,15 +21,15 @@ public class IgnoreListMessageFilter implements MessageFilter {
     public boolean filter(ServerConnectionData serverConnectionData, String channel, MessageInfo message) {
         if (mConfig.ignoreList != null && message.getSender() != null) {
             for (ServerConfigData.IgnoreEntry entry : mConfig.ignoreList) {
-                if (entry.nick == null && entry.user == null && entry.host == null)
+                if (entry.isBad || ((entry.nick == null && entry.user == null && entry.host == null && entry.mesg == null)))
                     continue;
-                if (entry.nickRegex == null && entry.userRegex == null && entry.hostRegex == null)
-                    entry.updateRegexes();
                 if (entry.nickRegex != null && !entry.nickRegex.matcher(message.getSender().getNick()).matches())
                     continue;
                 if (entry.userRegex != null && (message.getSender().getUser() == null || !entry.userRegex.matcher(message.getSender().getUser()).matches()))
                     continue;
                 if (entry.hostRegex != null && (message.getSender().getHost() == null || !entry.hostRegex.matcher(message.getSender().getHost()).matches()))
+                    continue;
+                if (entry.mesgRegex != null && (message.getMessage() == null || !entry.mesgRegex.matcher(message.getMessage()).matches()))
                     continue;
                 Log.d("IgnoreListMessageFilter", "Ignore message: " + message.getSender().getNick() + " " + message.getMessage());
                 return false;

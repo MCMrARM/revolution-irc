@@ -4,7 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.graphics.Typeface;
+import android.graphics.fonts.Font;
+import android.text.style.CharacterStyle;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +18,7 @@ import android.widget.Toast;
 
 import java.io.IOException;
 
+import io.mrarm.arsc.chunks.ResValue;
 import io.mrarm.irc.config.ServerConfigData;
 import io.mrarm.irc.config.ServerConfigManager;
 import io.mrarm.irc.dialog.MenuBottomSheetDialog;
@@ -94,6 +100,10 @@ public class IgnoreListAdapter extends RecyclerView.Adapter<IgnoreListAdapter.It
 
         public void bind(ServerConfigData.IgnoreEntry entry) {
             ColoredTextBuilder builder = new ColoredTextBuilder();
+            if (entry.isBad)
+               builder.append(mText.getContext().getString(R.string.notifcation_ignore_list_adapter_badre_marker),
+                       new ForegroundColorSpan(Color.RED), new StyleSpan(Typeface.BOLD));
+
             if (entry.nick == null || entry.nick.equals("*"))
                 builder.append("*", new ForegroundColorSpan(mTextColorSecondary));
             else
@@ -111,10 +121,17 @@ public class IgnoreListAdapter extends RecyclerView.Adapter<IgnoreListAdapter.It
             else
                 builder.append(entry.host, new ForegroundColorSpan(mTextColorHost));
 
+            if (entry.mesg != null) {
+                if (builder.getSpannable().length() != 0)
+                    builder.append(" " );
+                builder.append(entry.mesg);
+            }
+
             if (entry.comment != null) {
                 builder.append(" ");
                 builder.append(entry.comment, new ForegroundColorSpan(mTextColorSecondary));
             }
+
             mText.setText(builder.getSpannable());
         }
 
