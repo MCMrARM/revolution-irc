@@ -1,10 +1,11 @@
 package io.mrarm.irc.util;
 
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 public class SimpleWildcardPattern {
 
-    public static Pattern compile(String str) {
+    private static String parseGlob(String str) {
         if (str == null)
             return null;
         StringBuilder ret = new StringBuilder();
@@ -25,7 +26,18 @@ public class SimpleWildcardPattern {
         if (str.length() > pi)
             ret.append(Pattern.quote(str.substring(pi)));
         ret.append('$');
-        return Pattern.compile(ret.toString());
+        return ret.toString();
     }
 
+    private static String strGlobRe(String str) {
+        if (str.startsWith("/") && str.endsWith("/"))
+            return str.substring(1, str.length() - 1);
+        if (str.startsWith("?") && str.endsWith("?"))
+            return parseGlob(str.substring(1, str.length() - 1));
+        return parseGlob(str);
+    }
+
+    public static Pattern pattCompile(String str) throws PatternSyntaxException {
+        return Pattern.compile(strGlobRe(str));
+    }
 }
