@@ -515,6 +515,7 @@
     <string name="notification_priority">Priority</string>
     <string name="notification_color">LED Color</string>
     <string name="notification_android_settings_link">More settings…</string>
+    <string name="notification_title">%s (%s)</string>
 
     <string-array name="notification_vibration_options">
         <item>Default</item>
@@ -662,6 +663,19 @@
     <string name="user_away">Away message</string>
 
     <string name="user_info_copied">Copied %s to clipboard.</string>
+
+    <!-- Operator actions -->
+
+    <string name="operator_actions">Operator actions</string>
+    <string name="operator_actions_kick_reason">Kick reason</string>
+    <string name="operator_actions_ban_host">Ban host</string>
+
+    <string name="operator_actions_give_voice">Give voice</string>
+    <string name="operator_actions_take_voice">Take voice</string>
+    <string name="operator_actions_give_ops">Give ops</string>
+    <string name="operator_actions_take_ops">Take ops</string>
+    <string name="operator_actions_kick">Kick</string>
+    <string name="operator_actions_ban">Ban</string>
 
     <!-- Color picker -->
 

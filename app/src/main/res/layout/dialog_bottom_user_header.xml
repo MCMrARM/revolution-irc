@@ -57,12 +57,23 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
+        android:layout_toLeftOf="@id/operator_actions_button"
         android:padding="16dp"
         android:background="?attr/actionBarItemBackground"
         app:tint="@color/abc_primary_text_material_dark"
         app:srcCompat="@drawable/ic_message" />
+
+    <ImageButton
+        android:id="@+id/operator_actions_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:background="?attr/actionBarItemBackground"
+        android:padding="16dp"
+        app:srcCompat="@drawable/ic_more_vert"
+        app:tint="@color/abc_primary_text_material_dark" />
 
 
 </RelativeLayout>

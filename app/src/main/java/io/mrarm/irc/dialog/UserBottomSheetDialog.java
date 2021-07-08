@@ -5,9 +5,11 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import android.content.DialogInterface;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,7 +27,9 @@ import io.mrarm.chatlib.dto.WhoisInfo;
 import io.mrarm.irc.MainActivity;
 import io.mrarm.irc.R;
 import io.mrarm.irc.ServerConnectionInfo;
+import io.mrarm.irc.chat.ChatFragment;
 import io.mrarm.irc.util.AdvancedDividerItemDecoration;
+import io.mrarm.irc.util.OperatorActions;
 
 public class UserBottomSheetDialog {
 
@@ -35,9 +39,11 @@ public class UserBottomSheetDialog {
     private ItemAdapter mAdapter;
 
     private ServerConnectionInfo mConnection;
+    private String mChannel;
     private String mNick;
     private String mUser;
     private String mRealName;
+    private String mHostname;
     private boolean mAway;
     private List<Pair<String, String>> mEntries = new ArrayList<>();
 
@@ -52,7 +58,7 @@ public class UserBottomSheetDialog {
     }
 
     public void requestData(String nick, ChatApi connection) {
-        setUser(nick, null, null, false);
+        setUser(nick, null, null, null, false);
         connection.sendWhois(nick, (WhoisInfo info) -> {
             mRecyclerView.post(() -> {
                 setData(info);
@@ -62,7 +68,7 @@ public class UserBottomSheetDialog {
 
     public void setData(WhoisInfo info) {
         mEntries.clear();
-        setUser(info.getNick(), info.getUser(), info.getRealName(), (info.getAwayMessage() != null));
+        setUser(info.getNick(), info.getUser(), info.getRealName(), info.getHost(), (info.getAwayMessage() != null));
         if (info.getAwayMessage() != null)
             addEntry(R.string.user_away, info.getAwayMessage());
         addEntry(R.string.user_hostname, info.getHost());
@@ -107,10 +113,11 @@ public class UserBottomSheetDialog {
         return mContext.getResources().getQuantityString(R.plurals.time_seconds, seconds, seconds);
     }
 
-    public void setUser(String nick, String user, String realName, boolean away) {
+    public void setUser(String nick, String user, String realName, String hostname, boolean away) {
         mNick = nick;
         mUser = user;
         mRealName = realName;
+        mHostname = hostname;
         mAway = away;
         updateDialogStatusBarColor();
         if (mHeader != null)
@@ -147,6 +154,12 @@ public class UserBottomSheetDialog {
         mAdapter = new ItemAdapter();
         mRecyclerView.setAdapter(mAdapter);
 
+        if (mContext instanceof MainActivity) {
+            mChannel = ((ChatFragment) ((MainActivity) mContext).getCurrentFragment()).getCurrentChannel();
+        } else {
+            mChannel = null;
+        }
+
         view.findViewById(R.id.message_button).setOnClickListener((View v) -> {
             List<String> l = new ArrayList<>();
             l.add(mNick);
@@ -157,6 +170,17 @@ public class UserBottomSheetDialog {
                     mDialog.cancel();
                 });
             }, null);
+        });
+
+        view.findViewById(R.id.operator_actions_button).setOnClickListener((View v) -> {
+            OperatorActions operatorActions = new OperatorActions(mContext, mConnection, mNick, mHostname, mChannel, mDialog);
+            new AlertDialog.Builder(mContext)
+                    .setTitle(R.string.operator_actions)
+                    .setNegativeButton(R.string.action_cancel, null)
+                    .setItems(operatorActions.getItems(), (DialogInterface dialog, int action) -> {
+                        operatorActions.executeAction(action);
+                    })
+                    .show();
         });
 
         mDialog = new StatusBarColorBottomSheetDialog(mContext);
