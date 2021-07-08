@@ -670,14 +670,12 @@
     <string name="operator_actions_kick_reason">Kick reason</string>
     <string name="operator_actions_ban_host">Ban host</string>
 
-    <string-array name="operator_actions_items">
-        <item>Give voice</item>
-        <item>Take voice</item>
-        <item>Give ops</item>
-        <item>Take ops</item>
-        <item>Kick</item>
-        <item>Ban</item>
-    </string-array>
+    <string name="operator_actions_give_voice">Give voice</string>
+    <string name="operator_actions_take_voice">Take voice</string>
+    <string name="operator_actions_give_ops">Give ops</string>
+    <string name="operator_actions_take_ops">Take ops</string>
+    <string name="operator_actions_kick">Kick</string>
+    <string name="operator_actions_ban">Ban</string>
 
     <!-- Color picker -->
 

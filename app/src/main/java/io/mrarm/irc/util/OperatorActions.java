@@ -40,11 +40,22 @@ public class OperatorActions {
     }
 
     public String[] getItems() {
-        return mContext.getResources().getStringArray(R.array.operator_actions_items);
+        String[] items = new String[6];
+        items[ACTION_GIVE_VOICE] = mContext.getResources().getString(R.string.operator_actions_give_voice);
+        items[ACTION_TAKE_VOICE] = mContext.getResources().getString(R.string.operator_actions_take_voice);
+        items[ACTION_GIVE_OPS] = mContext.getResources().getString(R.string.operator_actions_give_ops);
+        items[ACTION_TAKE_OPS] = mContext.getResources().getString(R.string.operator_actions_take_ops);
+        items[ACTION_KICK] = mContext.getResources().getString(R.string.operator_actions_kick);
+        items[ACTION_BAN] = mContext.getResources().getString(R.string.operator_actions_ban);
+        return items;
     }
 
     public void executeAction(int action) {
         String command = null;
+        if (mChannel == null || mNick == null) {
+            mDialog.cancel();
+            return;
+        }
         switch (action) {
             case ACTION_GIVE_VOICE:
                 command = "MODE " + mChannel + " +v " + mNick;
