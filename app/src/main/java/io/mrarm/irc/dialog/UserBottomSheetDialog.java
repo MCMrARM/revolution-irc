@@ -58,7 +58,7 @@ public class UserBottomSheetDialog {
     }
 
     public void requestData(String nick, ChatApi connection) {
-        setUser(nick, null, null, false, null);
+        setUser(nick, null, null, null, false);
         connection.sendWhois(nick, (WhoisInfo info) -> {
             mRecyclerView.post(() -> {
                 setData(info);
@@ -68,7 +68,7 @@ public class UserBottomSheetDialog {
 
     public void setData(WhoisInfo info) {
         mEntries.clear();
-        setUser(info.getNick(), info.getUser(), info.getRealName(), (info.getAwayMessage() != null), info.getHost());
+        setUser(info.getNick(), info.getUser(), info.getRealName(), info.getHost(), (info.getAwayMessage() != null));
         if (info.getAwayMessage() != null)
             addEntry(R.string.user_away, info.getAwayMessage());
         addEntry(R.string.user_hostname, info.getHost());
@@ -113,12 +113,12 @@ public class UserBottomSheetDialog {
         return mContext.getResources().getQuantityString(R.plurals.time_seconds, seconds, seconds);
     }
 
-    public void setUser(String nick, String user, String realName, boolean away, String hostname) {
+    public void setUser(String nick, String user, String realName, String hostname, boolean away) {
         mNick = nick;
         mUser = user;
         mRealName = realName;
-        mAway = away;
         mHostname = hostname;
+        mAway = away;
         updateDialogStatusBarColor();
         if (mHeader != null)
             mHeader.bind();
