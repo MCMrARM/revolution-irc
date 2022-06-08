@@ -575,6 +575,11 @@ public class ChatMessagesFragment extends Fragment implements StatusMessageListe
             mRecyclerView.scrollToPosition(count - 1);
     }
 
+    public void jumpToBottom() {
+        int count = mAdapter == null ? mStatusAdapter.getItemCount() : mAdapter.getItemCount();
+        mRecyclerView.smoothScrollToPosition(count);
+    }
+
     @Override
     public void onMessage(String channel, MessageInfo messageInfo, MessageId messageId) {
         updateMessageList(() -> {

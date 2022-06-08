@@ -121,6 +121,7 @@
     <string name="action_rename">Rename</string>
     <string name="action_export">Export</string>
     <string name="action_import_theme">Import theme</string>
+    <string name="action_jump_to_bottom">Jump to bottom</string>
 
     <string name="action_delete_confirm_title">Are you sure?</string>
     <string name="action_delete_confirm_body">Are you sure you want to delete %s? This cannot be undone.</string>

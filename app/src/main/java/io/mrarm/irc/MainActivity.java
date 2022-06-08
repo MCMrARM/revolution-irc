@@ -47,6 +47,7 @@ import io.mrarm.chatlib.irc.dcc.DCCServer;
 import io.mrarm.chatlib.irc.dcc.DCCUtils;
 import io.mrarm.irc.chat.ChannelInfoAdapter;
 import io.mrarm.irc.chat.ChatFragment;
+import io.mrarm.irc.chat.ChatMessagesFragment;
 import io.mrarm.irc.config.AppSettings;
 import io.mrarm.irc.config.ChatSettings;
 import io.mrarm.irc.dialog.UserSearchDialog;
@@ -504,6 +505,10 @@ public class MainActivity extends ThemedActivity implements IRCApplication.ExitC
             Intent intent = new Intent(this, IgnoreListActivity.class);
             intent.putExtra(IgnoreListActivity.ARG_SERVER_UUID, info.getUUID().toString());
             startActivity(intent);
+        } else if (id == R.id.action_jump_to_bottom) {
+            ChatFragment cf = (ChatFragment) getCurrentFragment();
+            ChatMessagesFragment cmf = (ChatMessagesFragment) cf.getCurrentItem();
+            cmf.jumpToBottom();
         } else if (id == R.id.action_disconnect) {
             ((ChatFragment) getCurrentFragment()).getConnectionInfo().disconnect();
         } else if (id == R.id.action_disconnect_and_close || id == R.id.action_close) {
