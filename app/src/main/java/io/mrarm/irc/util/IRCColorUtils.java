@@ -196,7 +196,7 @@ public class IRCColorUtils {
                         builder.endSpans(BackgroundColorSpan.class);
                         continue;
                     }
-                    if (((fg < 0 || fg > COLOR_IDS.length) && fg != 99))
+                    if (((fg < 0 || fg >= COLOR_IDS.length) && fg != 99))
                         throw new RuntimeException("Invalid formatting");
 
                     builder.endSpans(ForegroundColorSpan.class);
@@ -212,8 +212,8 @@ public class IRCColorUtils {
                             break;
                         bg = bg * 10 + string.charAt(i) - '0';
                     }
-                    if (((bg < 0 || bg > COLOR_IDS.length) && bg != 99) ||
-                            ((fg < 0 || fg > COLOR_IDS.length) && fg != 99))
+                    if (((bg < 0 || bg >= COLOR_IDS.length) && bg != 99) ||
+                            ((fg < 0 || fg >= COLOR_IDS.length) && fg != 99))
                         throw new RuntimeException("Invalid formatting");
 
                     builder.endSpans(BackgroundColorSpan.class);
