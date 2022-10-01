@@ -27,7 +27,11 @@ public class IRCColorUtils {
     public static final int COLOR_MEMBER_VOICE = R.styleable.IRCColors_colorMemberVoice;
     public static final int COLOR_MEMBER_NORMAL = R.styleable.IRCColors_colorMemberNormal;
 
-    private static int[] COLOR_IDS = new int[] {
+    private static final int COLOR_SPACE_MIRC      = 0x1000000;
+    private static final int COLOR_SPACE_ANSI      = 0x2000000;
+    private static final int COLOR_SPACE_TRUECOLOR = 0x4000000;
+
+    private static int[] MIRC_COLOR_IDS = new int[] {
             R.styleable.IRCColors_colorWhite,
             R.styleable.IRCColors_colorBlack,
             R.styleable.IRCColors_colorBlue,
@@ -35,7 +39,7 @@ public class IRCColorUtils {
             R.styleable.IRCColors_colorLightRed,
             R.styleable.IRCColors_colorBrown,
             R.styleable.IRCColors_colorPurple,
-            R.styleable.IRCColors_colorOrange,
+            R.styleable.IRCColors_colorOrange,      /* only in mIRC color-space */
             R.styleable.IRCColors_colorYellow,
             R.styleable.IRCColors_colorLightGreen,
 
@@ -105,7 +109,10 @@ public class IRCColorUtils {
     }
 
     public static int getIrcColor(Context context, int colorId) {
-        return getColorById(context, COLOR_IDS[colorId]);
+        int c = MIRC_COLOR_IDS[colorId];
+        if (c & COLOR_SPACE_TRUECOLOR)
+            return c | 0xff000000; /* fully opaque */
+        return getColorById(context, c);
     }
 
     public static int getStatusTextColor(Context context) {
@@ -138,7 +145,7 @@ public class IRCColorUtils {
     public static int findNearestIRCColor(Context context, int color) {
         int ret = -1;
         int retDiff = -1;
-        for (int i = 0; i < COLOR_IDS.length; i++) {
+        for (int i = 0; i < MIRC_COLOR_IDS.length; i++) {
             int c = getIrcColor(context, i);
             int diff = Math.abs(Color.red(c) - Color.red(color)) + Math.abs(Color.green(c) - Color.green(color)) + Math.abs(Color.blue(c) - Color.blue(color));
             if (diff < retDiff || retDiff == -1) {
@@ -159,6 +166,10 @@ public class IRCColorUtils {
         }
     }
 
+    private static bool isAsciiDigit(char c) {
+        return c >= '0' && c <= '9';
+    }
+
     public static void appendFormattedString(Context context, ColoredTextBuilder builder,
                                              String string) {
         int fg = 99,
@@ -169,106 +180,189 @@ public class IRCColorUtils {
         SpannableStringBuilder spannable = builder.getSpannable();
         int len = string.length();
         for (int i = 0; i < len; ) {
-            switch (string.charAt(i)) {
-                case 0x02: { // bold
-                    i++;
+            int ofg = fg, obg = bg;
+            boolean obold = bold, oitalic = italic, ounderline = underline;
+            char c = string.charAt(i);
+            i++;
+            switch (c) {
+                case 0x02: { // ^B, bold
                     bold = !bold;
-                    if (bold)
-                        builder.setSpan(new StyleSpan(Typeface.BOLD));
-                    else
-                        builder.endSpans(StyleSpan.class,
-                                (StyleSpan s) -> s.getStyle() == Typeface.BOLD);
                     break;
                 }
-                case 0x1D: { // italic
-                    i++;
-                    italic = !italic;
-                    if (italic)
-                        builder.setSpan(new StyleSpan(Typeface.ITALIC));
-                    else
-                        builder.endSpans(StyleSpan.class,
-                                (StyleSpan s) -> s.getStyle() == Typeface.ITALIC);
+                case 0x03: { // ^C, color
+                    if (i < len && isAsciiDigit(c = string.charAt(i))) {
+                        i++;
+                        fg = c - '0';
+                        if (i < len && isAsciiDigit(c = string.charAt(i))) {
+                            i++;
+                            fg *= 10;
+                            fg += c - '0';
+                        }
+                        if (i+1 < len && string.charAt(i) == ',' && isAsciiDigit(c = string.charAt(i+1))) {
+                            i+=2;
+                            bg = c - '0';
+                            if (i < len && isAsciiDigit(c = string.charAt(i))) {
+                                i++;
+                                bg *= 10;
+                                bg += c - '0';
+                            }
+                        }
+                    } else
+                        fg = bg = 99;
                     break;
                 }
-                case 0x1F: { // underline
-                    i++;
-                    underline = !underline;
-                    if (underline)
-                        builder.setSpan(new UnderlineSpan());
-                    else
-                        builder.endSpans(UnderlineSpan.class);
-                    break;
-                }
-                case 0x0F: { // reset
-                    i++;
-                    builder.endSpans(Object.class);
+                case '\n': { // ^J, newline
+                    spannable.append('\n');
                     fg = bg = 99;
                     bold = italic = underline = false;
                     break;
                 }
-                case '\n': { // newline
-                    i++;
-                    spannable.append('\n');
-                    builder.endSpans(Object.class);
+                case 0x0F: { // ^O, reset
+                reset_all:
+                    fg = bg = 99;
+                    bold = italic = underline = false;
                     break;
                 }
-                case 0x03: { // color
-                    fg = -1;
-                    i++;
-                    for (int j = 0; j < 2 && i < len; i++, j++) {
-                        if (string.charAt(i) < '0' || string.charAt(i) > '9')
-                            break;
-                        fg = Math.max(fg, 0) * 10 + string.charAt(i) - '0';
-                    }
-                    if (fg == -1) {
-                        fg = bg = 99;
-                        builder.endSpans(ForegroundColorSpan.class);
-                        builder.endSpans(BackgroundColorSpan.class);
-                        continue;
-                    }
-                    if (((fg < 0 || fg >= COLOR_IDS.length) && fg != 99))
-                        throw new RuntimeException("Invalid formatting");
-
-                    builder.endSpans(ForegroundColorSpan.class);
-                    if (fg != 99)
-                        builder.setSpan(new ForegroundColorSpan(getIrcColor(context, fg)));
-
-                    if (string.charAt(i) != ',')
-                        break;
-                    i++;
-                    bg = 0;
-                    for (int j = 0; j < 2 && i < len; i++, j++) {
-                        if (string.charAt(i) < '0' || string.charAt(i) > '9')
-                            break;
-                        bg = bg * 10 + string.charAt(i) - '0';
-                    }
-                    if (((bg < 0 || bg >= COLOR_IDS.length) && bg != 99) ||
-                            ((fg < 0 || fg >= COLOR_IDS.length) && fg != 99))
-                        throw new RuntimeException("Invalid formatting");
-
-                    builder.endSpans(BackgroundColorSpan.class);
-                    if (bg != 99)
-                        builder.setSpan(new BackgroundColorSpan(getIrcColor(context, bg)));
+                case 0x16: { // ^W, swap bg and fg
+                    fg = obg;
+                    bg = ofg;
                     break;
                 }
-                case 0x16: { // swap bg and fg
-                    i++;
-                    int tmp = fg;
-                    fg = bg;
-                    bg = tmp;
-
-                    builder.endSpans(ForegroundColorSpan.class);
-                    builder.endSpans(BackgroundColorSpan.class);
-                    if (fg != 99)
-                        builder.setSpan(new ForegroundColorSpan(getIrcColor(context, fg)));
-                    if (bg != 99)
-                        builder.setSpan(new BackgroundColorSpan(getIrcColor(context, bg)));
+                case 0x1B: { // ^[, ESC
+                    int oi = i;
+                    if (i+1 < len && string.charAt(i) == '[') {
+                        i++;
+                        /* in C we could write the following loop as just:
+                         * i += strspn(string+i, " !\"#$%&'()*+,-./0123456789:;<=>?"); */
+                        usable = true;
+                        while (i < len && (c = string.charAt(i++)) >= 0x20 && c <= 0x3f)
+                            if (!isAsciiDigit(c) && c != ';')
+                                usable = false;
+                        if (c >= 0x40 && c <= 0x7f) {
+                            /* We have a syntactically valid ANSI escape sequence */
+                            if (c == 'm' && usable) {
+                                /* Attribute setting ... */
+                                ArrayList<int> params = new ArrayList<int>();
+                                int x = 0;
+                                for (int j=oi+1 ; j<i-1; ++j)
+                                    if ((c = string.charAt(j)) == ';') {
+                                        params.add(x);
+                                        x = 0;
+                                    } else {
+                                        x *= 10;
+                                        x += c - '0';
+                                    }
+                                params.add(x);
+                                for (int j = 0 ; j<params.length; j++ ) {
+                                    int p = params.get(j);
+                                    switch (p) {
+                                        case 0: {
+                                            /* Reset everything */
+                                            fg = bg = 99;
+                                            bold = italic = underline = false;
+                                        }
+                                        case  1: bold = true;  break;
+                                        case 22: bold = false; break;
+                                        case  5: underline = true;  break;
+                                        case 25: underline = false; break;
+                                        case  6: italic = true;  break;
+                                        case 26: italic = false; break;
+                                        case 30: fg = 0; break;     // fg white
+                                        case 31: fg = 4; break;     // fg red
+                                        case 32: fg = 3; break;     // fg green
+                                        case 33: fg = 8; break;     // fg yellow
+                                        case 34: fg = 2; break;     // fg blue
+                                        case 35: fg = 6; break;     // fg purple
+                                        case 36: fg = 10; break;    // fg cyan
+                                        case 37: fg = 1; break;     // fg white
+                                        case 39: fg = 99; break;    // fg default
+                                        case 40: bg = 0; break;     // bg white
+                                        case 41: bg = 4; break;     // bg red
+                                        case 42: bg = 3; break;     // bg green
+                                        case 43: bg = 8; break;     // bg yellow
+                                        case 44: bg = 2; break;     // bg blue
+                                        case 45: bg = 6; break;     // bg purple
+                                        case 46: bg = 10; break;    // bg cyan
+                                        case 47: bg = 1; break;     // bg white
+                                        case 49: bg = 99; break;    // bg default
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                    }
+                    i = oi;
+                    spannable.append(0x241b);
+                    continue;
+                }
+                case 0x1D: { // ^], italic
+                    italic = !italic;
+                    break;
+                }
+                case 0x1F: { // ^_, underline
+                    underline = !underline;
                     break;
                 }
                 default: {
-                    spannable.append(string.charAt(i));
-                    i++;
+                    if (c < ' ')
+                        c += 0x2400;
+                    spannable.append(c);
+                    continue;
                 }
+            }
+
+            /* Skip if no changes */
+            if (   fg        == ofg
+                && bg        == obg
+                && bold      == obold
+                && italic    == oitalic
+                && underline == ounderline )
+                continue;
+
+            if (fg == 99 && bg == 99 && ! bold && ! italic && ! underline) {
+                /* Quickly reset everything to defaults: by closing all spans */
+                builder.endSpans(Object.class);
+                continue;
+            }
+
+            if (italic != oitalic) {
+                if (italic)
+                    builder.setSpan(new StyleSpan(Typeface.ITALIC));
+                else
+                    builder.endSpans(StyleSpan.class,
+                            (StyleSpan s) -> s.getStyle() == Typeface.ITALIC);
+            }
+            if (bold != obold) {
+                if (bold)
+                    builder.setSpan(new StyleSpan(Typeface.BOLD));
+                else
+                    builder.endSpans(StyleSpan.class,
+                            (StyleSpan s) -> s.getStyle() == Typeface.BOLD);
+            }
+            if (underline != ounderline) {
+                if (underline)
+                    builder.setSpan(new UnderlineSpan());
+                else
+                    builder.endSpans(UnderlineSpan.class);
+            }
+            /* Change fg and/or bg */
+            if (bg != obg) {
+                /* Use this if spans have to nest properly */
+                if (false && ofg != 99) {
+                    builder.endSpans(ForegroundColorSpan.class);
+                    ofg = 99;
+                }
+                /* end nesting enforcement */
+                if (obg != 99)
+                    builder.endSpans(BackgroundColorSpan.class);
+                if (bg != 99)
+                    builder.setSpan(new BackgroundColorSpan(getIrcColor(context, bg)));
+            }
+            if (fg != ofg) {
+                if (ofg != 99)
+                    builder.endSpans(ForegroundColorSpan.class);
+                if (fg != 99)
+                    builder.setSpan(new ForegroundColorSpan(getIrcColor(context, fg)));
             }
         }
     }
