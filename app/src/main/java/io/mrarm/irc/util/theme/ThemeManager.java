@@ -274,7 +274,7 @@ public class ThemeManager {
             Resources.Theme t = r.newTheme();
             ThemeResInfo resInfo = currentTheme != null ? currentTheme : fallbackTheme;
             t.applyStyle(resInfo.getThemeResId(), true);
-            IRCColorUtils.loadColors(t, resInfo.getIRCColorsResId());
+            IRCColorUtils.loadColorIdMap(t, resInfo.getIRCColorsResId());
             mNeedsApplyIrcColors = false;
         }
         if (currentCustomThemePatcher != null) {

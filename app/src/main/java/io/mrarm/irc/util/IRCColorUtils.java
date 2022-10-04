@@ -18,6 +18,28 @@ import java.util.Arrays;
 
 import io.mrarm.irc.R;
 
+/*
+ * NOTE: colours are referred to in several different ways:
+ *   1. "Color": a 32-bit value comprising 4 8-bit values, A,R,G,B. This is the
+ *      native Android "Color" type.
+ *   2. "Color ID": an opaque value that we can retrieve a value from the
+ *      runtime configuration. (Essentially it's a protobuf index number that's
+ *      assigned when compiling the attr.xml resources file.)
+ *   3. "Color Code": a 32-bit int that decomposes into 8 tag bits (bits 31-24)
+ *      and a 24-bit value (bits 23-0). The interpretation of the 'value' then
+ *      depends on the tag bits: which are checked in this order:
+ *        → bit 27 means use the default color (and the value and the other
+ *          tag bits are ignored when the color code is interpreted, but should
+ *          be set to mIRC color index 99 with both bits 27 and 24 set)
+ *        → bit 26 means the value is an ANSI color index between 0 and 255;
+ *        → bit 25 means the value is an mIRC color index between 0 and 98;
+ *        → bit 24 means the value is an RGB value (with A is fixed as 255);
+ *        → if all bits 24-31 are 0, treat the value is a color-ID (as above);
+ *        ← any other value is illegal and will raise an exception
+ *  The "fg" and "bg" variables hold "tagged color codes", so that the logic
+ *  that sets them doesn't have to do mapping between colour spaces.
+ */
+
 public class IRCColorUtils {
 
     public static final int COLOR_MEMBER_OWNER = R.styleable.IRCColors_colorMemberOwner;
@@ -27,11 +49,22 @@ public class IRCColorUtils {
     public static final int COLOR_MEMBER_VOICE = R.styleable.IRCColors_colorMemberVoice;
     public static final int COLOR_MEMBER_NORMAL = R.styleable.IRCColors_colorMemberNormal;
 
-    private static final int COLOR_SPACE_MIRC      = 0x1000000;
-    private static final int COLOR_SPACE_ANSI      = 0x2000000;
-    private static final int COLOR_SPACE_TRUECOLOR = 0x4000000;
+    private static final int COLOR_SPACE_24BIT  = 0x1000000;
+    private static final int COLOR_SPACE_MIRC   = 0x2000000;
+    private static final int COLOR_SPACE_ANSI   = 0x4000000;
+    private static final int COLOR_SPACE_DEFAULT = 0x8000000;
+    private static final int COLOR_DEFAULT      = COLOR_SPACE_DEFAULT|COLOR_SPACE_MIRC|99;
 
-    private static int[] MIRC_COLOR_IDS = new int[] {
+    private static class BaseColorException extends RuntimeException {};
+    private static class InvalidColorCodeException extends BaseColorException {
+        InvalidColorCodeException(int c) { super("Invalid color code "+Integer.toHexString(c)); }
+    };
+    private static class MissingThemeColorException extends BaseColorException {
+        MissingThemeColorException(String m) { super(m); }
+        MissingThemeColorException() { super(); }
+    };
+
+    private static int[] MIRC_COLOR_MAP_TEMPLATE = new int[] {
             R.styleable.IRCColors_colorWhite,
             R.styleable.IRCColors_colorBlack,
             R.styleable.IRCColors_colorBlue,
@@ -76,7 +109,9 @@ public class IRCColorUtils {
             0xff9f9f9f, 0xffbcbcbc, 0xffe2e2e2, 0xffffffff
     };
 
-    private static int[] ANSI_COLOR_IDS = new int[] {
+    private static int[] MIRC_COLOR_MAP = null;
+
+    private static int[] ANSI_COLOR_MAP_TEMPLATE = new int[] {
             R.styleable.IRCColors_colorBlack,
             R.styleable.IRCColors_colorRed,     /* only in ANSI color-space */
             R.styleable.IRCColors_colorGreen,
@@ -84,7 +119,7 @@ public class IRCColorUtils {
             R.styleable.IRCColors_colorBlue,
             R.styleable.IRCColors_colorPurple,
             R.styleable.IRCColors_colorCyan,
-            R.styleable.IRCColors_colorLightGray
+            R.styleable.IRCColors_colorLightGray,
 
             R.styleable.IRCColors_colorGray,
             R.styleable.IRCColors_colorLightRed,
@@ -145,11 +180,17 @@ public class IRCColorUtils {
             0xffbcbcbc, 0xffc6c6c6, 0xffd0d0d0, 0xffdadada, 0xffe4e4e4, 0xffeeeeee
     };
 
+    private static int[] ANSI_COLOR_MAP = null;
+
+    private static int colorMapResId = R.style.AppTheme_IRCColors;
+
     private static int[] NICK_COLORS = new int[] { 3, 4, 7, 8, 9, 10, 11, 12, 13 };
 
-    private static int[] sColorValues = null;
+    //private static int[] sColorValues = null;
 
-    public static void loadColors(Resources.Theme theme, int resId) {
+    /* loadColorIdMap makes a fast cached version of the ColorId to Color
+     * mappings in the Styling resources; */
+    public static void loadColorIdMap(Resources.Theme theme, int resId) {
         TypedArray ta = theme.obtainStyledAttributes(resId, R.styleable.IRCColors);
         sColorValues = new int[R.styleable.IRCColors.length];
         for (int i = 0; i < sColorValues.length; i++) {
@@ -165,23 +206,61 @@ public class IRCColorUtils {
             }
         }
         ta.recycle();
-    }
-
-    private static void loadColors(Context context) {
-        loadColors(context.getTheme(), R.style.AppTheme_IRCColors);
+        // invalidate the color code maps
+        MIRC_COLOR_MAP = null;
+        ANSI_COLOR_MAP = null;
     }
 
     public static int getColorById(Context context, int colorId) {
         if (sColorValues == null)
-            loadColors(context);
+            loadColorIdMap(context.getTheme(), R.style.AppTheme_IRCColors);
         return sColorValues[colorId];
     }
 
-    public static int getIrcColor(Context context, int colorId) {
-        int c = MIRC_COLOR_IDS[colorId];
-        if (c & COLOR_SPACE_TRUECOLOR)
-            return c | 0xff000000; /* fully opaque */
-        return getColorById(context, c);
+    private static int[] fillColorMapTemplate(Context context, int[] map_template) {
+        int[] newmap = new int[map_template.length];
+        int i;
+        for (i=0;i<map_template.length;++i) {
+            int v = map_template[i];
+            try {
+                if ((v & COLOR_SPACE_24BIT) != 0)
+                    newmap[i] = v | 0xff000000;
+                else if ((v & 0xff000000) == 0)
+                    newmap[i] = getColorById(context, v);
+                else
+                    newmap[i] = 0x80ff7777; /* semi-transparent red as a warning */
+            } catch (Exception e) {}
+        }
+        return newmap;
+    }
+
+    /* This should not be called for a "default" color */
+    public static int getIrcColor(Context context, int colorCode) {
+        int f = colorCode & ~0xffffff;
+        int v = colorCode & 0xffffff;
+        if ((f & COLOR_SPACE_24BIT) != 0)
+            return v | 0xff000000; /* fully opaque */
+        if ((f & COLOR_SPACE_DEFAULT) != 0)
+            throw new InvalidColorCodeException(colorCode); /* never call this function with a "default" color */
+        if ((f & COLOR_SPACE_MIRC) != 0) {
+            if (MIRC_COLOR_MAP == null)
+                MIRC_COLOR_MAP = fillColorMapTemplate(context, MIRC_COLOR_MAP_TEMPLATE);
+            if (v >= MIRC_COLOR_MAP.length)
+                throw new InvalidColorCodeException(colorCode);
+            return MIRC_COLOR_MAP[v];
+        }
+        if ((f & COLOR_SPACE_ANSI) != 0) {
+            if (ANSI_COLOR_MAP == null)
+                ANSI_COLOR_MAP = fillColorMapTemplate(context, ANSI_COLOR_MAP_TEMPLATE);
+            if (v >= ANSI_COLOR_MAP.length)
+                throw new InvalidColorCodeException(colorCode);
+            return ANSI_COLOR_MAP[v];
+        }
+        try {
+            if (f==0)
+                return getColorById(context, v);
+        } catch(Exception e) {}
+        throw new InvalidColorCodeException(colorCode);
     }
 
     public static int getStatusTextColor(Context context) {
@@ -201,7 +280,7 @@ public class IRCColorUtils {
     }
 
     public static int getBanMaskColor(Context context) {
-        return getIrcColor(context, 4 /* light red */);
+        return getColorById(context, R.styleable.IRCColors_colorLightRed);
     }
 
     public static int getNickColor(Context context, String nick) {
@@ -215,7 +294,7 @@ public class IRCColorUtils {
         int ret = -1;
         int retDiff = -1;
         for (int i = 0; i < MIRC_COLOR_IDS.length; i++) {
-            int c = getIrcColor(context, i);
+            int c = getIrcColor(context, i|COLOR_SPACE_MIRC);
             int diff = Math.abs(Color.red(c) - Color.red(color)) + Math.abs(Color.green(c) - Color.green(color)) + Math.abs(Color.blue(c) - Color.blue(color));
             if (diff < retDiff || retDiff == -1) {
                 retDiff = diff;
@@ -241,16 +320,24 @@ public class IRCColorUtils {
 
     public static void appendFormattedString(Context context, ColoredTextBuilder builder,
                                              String string) {
-        int fg = 99,
-            bg = 99;
-        boolean bold = false,
+        int fg = COLOR_DEFAULT,
+            bg = COLOR_DEFAULT;
+        boolean ansi_inverse = false,
+                bold = false,
                 italic = false,
                 underline = false;
         SpannableStringBuilder spannable = builder.getSpannable();
         int len = string.length();
         for (int i = 0; i < len; ) {
-            int ofg = fg, obg = bg;
-            boolean obold = bold, oitalic = italic, ounderline = underline;
+            int ofg = fg,
+                obg = bg;
+            if (ansi_inverse) {
+                ofg = bg;
+                obg = fg;
+            }
+            boolean oBold = bold,
+                    oItalic = italic,
+                    oUnderline = underline;
             char c = string.charAt(i);
             i++;
             switch (c) {
@@ -267,6 +354,8 @@ public class IRCColorUtils {
                             fg *= 10;
                             fg += c - '0';
                         }
+                        fg = fg == 99 ? COLOR_DEFAULT
+                                      : fg | COLOR_SPACE_MIRC;
                         if (i+1 < len && string.charAt(i) == ',' && isAsciiDigit(c = string.charAt(i+1))) {
                             i+=2;
                             bg = c - '0';
@@ -275,32 +364,35 @@ public class IRCColorUtils {
                                 bg *= 10;
                                 bg += c - '0';
                             }
+                            bg = bg == 99 ? COLOR_DEFAULT
+                                          : bg | COLOR_SPACE_MIRC;
                         }
                     } else
-                        fg = bg = 99;
+                        fg = bg = COLOR_DEFAULT;
                     break;
                 }
-                case '\n': { // ^J, newline
+                case '\n': { // ^J, newline, \n
                     spannable.append('\n');
-                    fg = bg = 99;
+                    fg = bg = COLOR_DEFAULT;
                     bold = italic = underline = false;
                     break;
                 }
                 case 0x0F: { // ^O, reset
                 reset_all:
-                    fg = bg = 99;
+                    fg = bg = COLOR_DEFAULT;
                     bold = italic = underline = false;
                     break;
                 }
                 case 0x16: { // ^W, swap bg and fg
-                    fg = obg;
-                    bg = ofg;
+                    fg = pBg;
+                    bg = pFg;
                     break;
                 }
-                case 0x1B: { // ^[, ESC
+                case 0x1B: { // ^[, ESC, \e
                     int oi = i;
                     if (i+1 < len && string.charAt(i) == '[') {
                         i++;
+                        /* we have seen CSI (the start of an ANSI sequence, "\e[") */
                         /* in C we could write the following loop as just:
                          * i += strspn(string+i, " !\"#$%&'()*+,-./0123456789:;<=>?"); */
                         usable = true;
@@ -321,47 +413,105 @@ public class IRCColorUtils {
                                         x *= 10;
                                         x += c - '0';
                                     }
+                                // (empty parameter list "\e[m" is correctly treated as "\e[0m")
                                 params.add(x);
-                                for (int j = 0 ; j<params.length; j++ ) {
+                                for (int j = 0 ; j<params.length; j++) {
                                     int p = params.get(j);
                                     switch (p) {
                                         case 0: {
                                             /* Reset everything */
-                                            fg = bg = 99;
+                                            fg = bg = COLOR_DEFAULT;
+                                            ansi_inverse =
                                             bold = italic = underline = false;
                                         }
-                                        case  1: bold = true;  break;
-                                        case 22: bold = false; break;
-                                        case  5: underline = true;  break;
-                                        case 25: underline = false; break;
-                                        case  6: italic = true;  break;
-                                        case 26: italic = false; break;
-                                        case 30: fg = 0; break;     // fg white
-                                        case 31: fg = 4; break;     // fg red
-                                        case 32: fg = 3; break;     // fg green
-                                        case 33: fg = 8; break;     // fg yellow
-                                        case 34: fg = 2; break;     // fg blue
-                                        case 35: fg = 6; break;     // fg purple
-                                        case 36: fg = 10; break;    // fg cyan
-                                        case 37: fg = 1; break;     // fg white
-                                        case 39: fg = 99; break;    // fg default
-                                        case 40: bg = 0; break;     // bg white
-                                        case 41: bg = 4; break;     // bg red
-                                        case 42: bg = 3; break;     // bg green
-                                        case 43: bg = 8; break;     // bg yellow
-                                        case 44: bg = 2; break;     // bg blue
-                                        case 45: bg = 6; break;     // bg purple
-                                        case 46: bg = 10; break;    // bg cyan
-                                        case 47: bg = 1; break;     // bg white
-                                        case 49: bg = 99; break;    // bg default
+                                        case  1: bold         = true;  break;
+                                        case 22: bold         = false; break;
+                                        case  3: italic       = true;  break;
+                                        case 23: italic       = false; break;
+                                        case  4: underline    = true;  break;
+                                        case 24: underline    = false; break;
+                                        case  7: ansi_inverse = true;  break;
+                                        case 27: ansi_inverse = false; break;
+
+                                        case 30: case 31: case 32: case 33: case 34: case 35: case 36: case 37: {
+                                            fg = p-30 | COLOR_SPACE_ANSI;
+                                            break;
+                                        }
+                                        case 38: {
+                                            if (j+4 < params.length && params.get(j+1) == 2) {
+                                                /* direct RGB specification  ESC [ 38 ; 2 ; R ; G ; B m */
+                                                fg = params.get(j+2) << 16
+                                                   | params.get(j+3) << 8
+                                                   | params.get(j+4)
+                                                   | COLOR_SPACE_24BIT;
+                                                j += 4;
+                                                break;
+                                            }
+                                            if (j+2 < params.length && params.get(j+1) == 5) {
+                                                /* ANSI colour lookup  ESC [ 38 ; 5 ; LOOKUP m */
+                                                fg = params.get[j+2] | COLOR_SPACE_ANSI;
+                                                j+=2;
+                                                break;
+                                            }
+                                            /* ANSI colour with unknown colourspace */
+                                            j = params.length;  /* immediately stop */
+                                            fg = COLOR_DEFAULT;
+                                            break;
+                                        }
+                                        case 39: fg = COLOR_DEFAULT; break;    // foreground default
+                                        case 90: case 91: case 92: case 93: case 94: case 95: case 96: case 97: {
+                                            /* bright foreground */
+                                            fg = p-90  | 8 | COLOR_SPACE_ANSI;
+                                            break;
+                                        }
+
+                                        case 40: case 41: case 42: case 43: case 44: case 45: case 46: case 47: {
+                                            /* standard background */
+                                            bg = p-40 | COLOR_SPACE_ANSI;
+                                            break;
+                                        }
+                                        case 48: {
+                                            if (j+4 < params.length && params.get(j+1) == 2) {
+                                                /* direct RGB specification  ESC [ 48 ; 2 ; R ; G ; B m */
+                                                bg = params.get(j+2) << 16
+                                                   | params.get(j+3) << 8
+                                                   | params.get(j+4)
+                                                   | COLOR_SPACE_24BIT;
+                                                j += 4;
+                                                break;
+                                            }
+                                            if (j+2 < params.length && params.get(j+1) == 5) {
+                                                /* ANSI colour lookup  ESC [ 48 ; 5 ; LOOKUP m */
+                                                bg = params.get[j+2] | COLOR_SPACE_ANSI;
+                                                j+=2;
+                                                break;
+                                            }
+                                            /* ANSI colour with unknown colourspace */
+                                            j = params.length; /* immediately stop */
+                                            bg = COLOR_DEFAULT;
+                                            break;
+                                        }
+                                        case 49: bg = COLOR_DEFAULT; break;    // background default
+                                        case 100: case 101: case 102: case 103: case 104: case 105: case 106: case 107: {
+                                            /* bright background */
+                                            bg = p-100 | 8 | COLOR_SPACE_ANSI;
+                                            break;
+                                        }
+
                                     }
                                 }
+                                /* We've seen a valid attribute-setting escape
+                                 * sequence, so resume parsing from the the char
+                                 * after the 'm' */
+                                break;
                             }
-                            break;
                         }
                     }
+                    /* We've encountered a broken or invalid escape sequence */
+                    /*  (a) display a "printable ESC symbol" U+241B */
+                    spannable.append((char) 0x241b);
+                    /*  (b) resume parsing immediately following the ESC character. */
                     i = oi;
-                    spannable.append(0x241b);
                     continue;
                 }
                 case 0x1D: { // ^], italic
@@ -376,61 +526,75 @@ public class IRCColorUtils {
                     if (c < ' ')
                         c += 0x2400;
                     spannable.append(c);
+                    /* Only appending text; skip all the attribute checking logic below */
                     continue;
                 }
             }
 
+            if (ansi_inverse) {
+                /* The mIRC 'invert' code simply swaps the current foreground
+                 * and background colours.
+                 * In contrast, ANSI inverse is a flag that is either set or
+                 * reset; when it changes, the foreground & background colours
+                 * do swap, but that's not all: attempting to set the
+                 * foreground colour while ansi_inverse is 'on' will actually
+                 * set the background colour, and vice versa. */
+                int t = bg;
+                        bg = fg;
+                             fg = t;
+            }
+
             /* Skip if no changes */
-            if (   fg        == ofg
-                && bg        == obg
-                && bold      == obold
-                && italic    == oitalic
-                && underline == ounderline )
+            if (   fg        == pFg
+                && bg        == pBg
+                && bold      == oBold
+                && italic    == oItalic
+                && underline == oUnderline )
                 continue;
 
-            if (fg == 99 && bg == 99 && ! bold && ! italic && ! underline) {
+            if (fg == COLOR_DEFAULT && bg == COLOR_DEFAULT && ! bold && ! italic && ! underline) {
                 /* Quickly reset everything to defaults: by closing all spans */
                 builder.endSpans(Object.class);
                 continue;
             }
 
-            if (italic != oitalic) {
+            if (italic != oItalic) {
                 if (italic)
                     builder.setSpan(new StyleSpan(Typeface.ITALIC));
                 else
                     builder.endSpans(StyleSpan.class,
                             (StyleSpan s) -> s.getStyle() == Typeface.ITALIC);
             }
-            if (bold != obold) {
+            if (bold != oBold) {
                 if (bold)
                     builder.setSpan(new StyleSpan(Typeface.BOLD));
                 else
                     builder.endSpans(StyleSpan.class,
                             (StyleSpan s) -> s.getStyle() == Typeface.BOLD);
             }
-            if (underline != ounderline) {
+            if (underline != oUnderline) {
                 if (underline)
                     builder.setSpan(new UnderlineSpan());
                 else
                     builder.endSpans(UnderlineSpan.class);
             }
             /* Change fg and/or bg */
-            if (bg != obg) {
+            if (bg != pBg) {
                 /* Use this if spans have to nest properly */
-                if (false && ofg != 99) {
+                if (false && pFg != COLOR_DEFAULT) {
                     builder.endSpans(ForegroundColorSpan.class);
-                    ofg = 99;
+                    pFg = COLOR_DEFAULT;
                 }
                 /* end nesting enforcement */
-                if (obg != 99)
+                if (pBg != COLOR_DEFAULT)
                     builder.endSpans(BackgroundColorSpan.class);
-                if (bg != 99)
+                if (bg != COLOR_DEFAULT)
                     builder.setSpan(new BackgroundColorSpan(getIrcColor(context, bg)));
             }
-            if (fg != ofg) {
-                if (ofg != 99)
+            if (fg != pFg) {
+                if (pFg != COLOR_DEFAULT)
                     builder.endSpans(ForegroundColorSpan.class);
-                if (fg != 99)
+                if (fg != COLOR_DEFAULT)
                     builder.setSpan(new ForegroundColorSpan(getIrcColor(context, fg)));
             }
         }
@@ -438,8 +602,9 @@ public class IRCColorUtils {
 
     public static String convertSpannableToIRCString(Context context, Spannable spannable) {
         int n;
-        int fg = 99;
-        int bg = 99;
+<<<<<<< HEAD
+        int fg = COLOR_DEFAULT;
+        int bg = COLOR_DEFAULT;
         boolean bold = false;
         boolean italic = false;
         boolean underline = false;
@@ -451,6 +616,21 @@ public class IRCColorUtils {
             boolean nBold = false;
             boolean nItalic = false;
             boolean nUnderline = false;
+=======
+        int pFg = COLOR_DEFAULT;
+        int pBg = COLOR_DEFAULT;
+        boolean pBold = false;
+        boolean pItalic = false;
+        boolean pUnderline = false;
+        StringBuilder ret = new StringBuilder(spannable.length());
+        for (int i = 0; i < spannable.length(); i = n) {
+            n = spannable.nextSpanTransition(i, spannable.length(), Object.class);
+            int fg = COLOR_DEFAULT;
+            int bg = COLOR_DEFAULT;
+            boolean bold = false;
+            boolean italic = false;
+            boolean underline = false;
+>>>>>>> 566ae32... Convert "colour ID" tables to colour map templates
             for (Object span : spannable.getSpans(i, n, Object.class)) {
                 int flags = spannable.getSpanFlags(span);
                 if ((flags & Spannable.SPAN_COMPOSING) != 0)
