@@ -161,8 +161,11 @@ public class IRCColorUtils {
 
     public static void appendFormattedString(Context context, ColoredTextBuilder builder,
                                              String string) {
-        int fg = 99, bg = 99;
-        boolean bold = false, italic = false, underline = false;
+        int fg = 99,
+            bg = 99;
+        boolean bold = false,
+                italic = false,
+                underline = false;
         SpannableStringBuilder spannable = builder.getSpannable();
         for (int i = 0; i < string.length(); ) {
             switch (string.charAt(i)) {
@@ -271,63 +274,63 @@ public class IRCColorUtils {
 
     public static String convertSpannableToIRCString(Context context, Spannable spannable) {
         int n;
-        int pFg = 99;
-        int pBg = 99;
-        boolean pBold = false;
-        boolean pItalic = false;
-        boolean pUnderline = false;
+        int fg = 99;
+        int bg = 99;
+        boolean bold = false;
+        boolean italic = false;
+        boolean underline = false;
         StringBuilder ret = new StringBuilder(spannable.length());
         for (int i = 0; i < spannable.length(); i = n) {
             n = spannable.nextSpanTransition(i, spannable.length(), Object.class);
-            int fg = 99;
-            int bg = 99;
-            boolean bold = false;
-            boolean italic = false;
-            boolean underline = false;
+            int nFg = 99;
+            int nBg = 99;
+            boolean nBold = false;
+            boolean nItalic = false;
+            boolean nUnderline = false;
             for (Object span : spannable.getSpans(i, n, Object.class)) {
                 int flags = spannable.getSpanFlags(span);
                 if ((flags & Spannable.SPAN_COMPOSING) != 0)
                     continue;
                 if (span instanceof ForegroundColorSpan) {
-                    fg = findNearestIRCColor(context, ((ForegroundColorSpan) span).getForegroundColor());
+                    nFg = findNearestIRCColor(context, ((ForegroundColorSpan) span).getForegroundColor());
                 } else if (span instanceof BackgroundColorSpan) {
-                    bg = findNearestIRCColor(context, ((BackgroundColorSpan) span).getBackgroundColor());
+                    nBg = findNearestIRCColor(context, ((BackgroundColorSpan) span).getBackgroundColor());
                 } else if (span instanceof StyleSpan) {
                     int style = ((StyleSpan) span).getStyle();
                     if (style == Typeface.BOLD || style == Typeface.BOLD_ITALIC)
-                        bold = true;
+                        nBold = true;
                     if (style == Typeface.ITALIC || style == Typeface.BOLD_ITALIC)
-                        italic = true;
+                        nItalic = true;
                 } else if (span instanceof UnderlineSpan) {
-                    underline = true;
+                    nUnderline = true;
                 }
             }
-            if ((!bold && pBold) || (!italic && pItalic) || (!underline && pUnderline)) {
+            if ((!nBold && bold) || (!nItalic && italic) || (!nUnderline && underline)) {
                 ret.append((char) 0x0F);
-                pFg = -1;
-                pBg = -1;
-                pBold = false;
-                pItalic = false;
-                pUnderline = false;
+                fg = -1;
+                bg = -1;
+                bold = false;
+                italic = false;
+                underline = false;
             }
-            if (bold && !pBold)
+            if (nBold && !bold)
                 ret.append((char) 0x02);
-            if (italic && !pItalic)
+            if (nItalic && !italic)
                 ret.append((char) 0x1D);
-            if (underline && !pUnderline)
+            if (nUnderline && !underline)
                 ret.append((char) 0x1F);
-            if (fg != pFg || bg != pBg) {
+            if (nFg != fg || bg != bg) {
                 ret.append((char) 0x03);
-                ret.append(fg);
+                ret.append(nFg);
                 ret.append(',');
-                ret.append(bg);
+                ret.append(nBg);
             }
 
-            pFg = fg;
-            pBg = bg;
-            pBold = bold;
-            pItalic = italic;
-            pUnderline = underline;
+            fg = nFg;
+            bg = nBg;
+            bold = nBold;
+            italic = nItalic;
+            underline = nUnderline;
             ret.append(spannable, i, n);
         }
         return ret.toString();
