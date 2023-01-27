@@ -167,7 +167,8 @@ public class IRCColorUtils {
                 italic = false,
                 underline = false;
         SpannableStringBuilder spannable = builder.getSpannable();
-        for (int i = 0; i < string.length(); ) {
+        int len = string.length();
+        for (int i = 0; i < len; ) {
             switch (string.charAt(i)) {
                 case 0x02: { // bold
                     i++;
@@ -214,7 +215,7 @@ public class IRCColorUtils {
                 case 0x03: { // color
                     fg = -1;
                     i++;
-                    for (int j = 0; j < 2 && i < string.length(); i++, j++) {
+                    for (int j = 0; j < 2 && i < len; i++, j++) {
                         if (string.charAt(i) < '0' || string.charAt(i) > '9')
                             break;
                         fg = Math.max(fg, 0) * 10 + string.charAt(i) - '0';
@@ -236,7 +237,7 @@ public class IRCColorUtils {
                         break;
                     i++;
                     bg = 0;
-                    for (int j = 0; j < 2 && i < string.length(); i++, j++) {
+                    for (int j = 0; j < 2 && i < len; i++, j++) {
                         if (string.charAt(i) < '0' || string.charAt(i) > '9')
                             break;
                         bg = bg * 10 + string.charAt(i) - '0';
