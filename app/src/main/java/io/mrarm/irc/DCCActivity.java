@@ -78,7 +78,8 @@ public class DCCActivity extends ThemedActivity {
                             dccManager.setAlwaysUseApplicationDownloadDirectory(true);
                         } else if (which == 1) {
                             dccManager.setAlwaysUseApplicationDownloadDirectory(false);
-                            mDCCDialogHandler.askSystemDownloadsPermission(null);
+                            if (dccManager.needsAskSystemDownloadsPermission())
+                                mDCCDialogHandler.askSystemDownloadsPermission(null);
                         } else if (which == 2) {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);

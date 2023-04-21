@@ -2,6 +2,7 @@ package io.mrarm.irc;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -21,6 +22,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.appcompat.app.AlertDialog;
+
+import android.provider.MediaStore;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
@@ -87,6 +90,7 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
     private boolean mIsDownloadDirectoryOverrideURISystem;
     private final File mFallbackDownloadDirectory;
     private boolean mAlwaysUseFallbackDir;
+    private boolean mUseSystemDirectoryViaControlResolver;
     private boolean mHasSystemDirectoryAccess;
     private final DCCNotificationManager mNotificationManager;
 
@@ -141,8 +145,8 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
     }
 
     public boolean isSystemDownloadDirectoryUsed() {
-        return mHasSystemDirectoryAccess && (mDownloadDirectoryOverrideURI == null ||
-                mIsDownloadDirectoryOverrideURISystem);
+        return (mHasSystemDirectoryAccess || mUseSystemDirectoryViaControlResolver) &&
+                (mDownloadDirectoryOverrideURI == null || mIsDownloadDirectoryOverrideURISystem);
     }
 
     private void checkSystemDownloadsDirectoryAccess() {
@@ -150,6 +154,7 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
             DocumentFile dir = DocumentFile.fromTreeUri(mContext,
                     mDownloadDirectoryOverrideURI);
             mHasSystemDirectoryAccess = dir.exists() && dir.canWrite();
+            mUseSystemDirectoryViaControlResolver = false;
             return;
         }
 
@@ -158,9 +163,11 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
         if (downloadsDir != null && downloadsDir.canWrite() && !mAlwaysUseFallbackDir) {
             mDownloadDirectory = downloadsDir;
             mHasSystemDirectoryAccess = true;
+            mUseSystemDirectoryViaControlResolver = false;
         } else {
             mDownloadDirectory = mFallbackDownloadDirectory;
             mHasSystemDirectoryAccess = false;
+            mUseSystemDirectoryViaControlResolver = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q;
         }
         Log.d("DCCManager", "Download directory: " +
                 (mDownloadDirectory != null ? mDownloadDirectory.getAbsolutePath() : "null"));
@@ -170,6 +177,7 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
         if (!mHasSystemDirectoryAccess)
             checkSystemDownloadsDirectoryAccess();
         return !mHasSystemDirectoryAccess &&
+                !mUseSystemDirectoryViaControlResolver &&
                 !mPreferences.getBoolean(PREF_DCC_ASKED_FOR_PERMISSION, false) &&
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
     }
@@ -589,7 +597,16 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
             FileChannel file;
             String downloadFileName = getUnescapedFileName().replace('/', '_');
             String ext = getFileExtension();
-            if (mDownloadDirectoryOverrideURI != null && !mAlwaysUseFallbackDir) {
+            Uri downloadUri = null;
+            if (mUseSystemDirectoryViaControlResolver && mDownloadDirectoryOverrideURI == null &&
+                    !mAlwaysUseFallbackDir && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                ContentValues fileContent = new ContentValues();
+                fileContent.put(MediaStore.Downloads.DISPLAY_NAME, downloadFileName);
+                fileContent.put(MediaStore.Downloads.SIZE, getFileSize());
+
+                downloadUri = mContext.getContentResolver().insert(
+                        MediaStore.Downloads.EXTERNAL_CONTENT_URI, fileContent);
+            } if (mDownloadDirectoryOverrideURI != null && !mAlwaysUseFallbackDir) {
                 DocumentFile dir = DocumentFile.fromTreeUri(mContext,
                         mDownloadDirectoryOverrideURI);
                 String mime = ext != null ? MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext)
@@ -597,15 +614,18 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
                 if (mime == null)
                     mime = "application/octet-stream";
                 DocumentFile docFile = dir.createFile(mime, downloadFileName);
-                OutputStream stream = mContext.getContentResolver().openOutputStream(
-                        docFile.getUri());
+                downloadUri = docFile.getUri();
+            }
+
+            if (downloadUri != null) {
+                OutputStream stream = mContext.getContentResolver().openOutputStream(downloadUri);
                 if (!(stream instanceof FileOutputStream))
                     throw new IOException("stream is not a file");
                 file = ((FileOutputStream) stream).getChannel();
                 synchronized (this) {
-                    mDownloadedTo = docFile.getUri();
+                    mDownloadedTo = downloadUri;
                 }
-                Log.d("DCCManager", "Starting a download: " + docFile.getUri().toString());
+                Log.d("DCCManager", "Starting a download: " + downloadUri.toString());
             } else {
                 if (mDownloadDirectory == null)
                     throw new IOException("Download directory is null");
@@ -625,6 +645,7 @@ public class DCCManager implements DCCServerManager.UploadListener, DCCClient.Cl
                 }
                 Log.d("DCCManager", "Starting a download: " + filePath.getAbsolutePath());
             }
+
             try {
                 if (isReverse()) {
                     synchronized (this) {
