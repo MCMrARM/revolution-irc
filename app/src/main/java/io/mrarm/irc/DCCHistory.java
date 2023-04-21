@@ -137,6 +137,36 @@ public class DCCHistory {
         return entries;
     }
 
+    public synchronized Entry getEntry(long id) {
+        Cursor cursor = mDatabase.rawQuery("SELECT * FROM " + TABLE_DCC_HISTORY +
+                " WHERE " + COLUMN_ID + "=?", new String[] { String.valueOf(id) });
+        int columnId = cursor.getColumnIndex(COLUMN_ID);
+        int columnType = cursor.getColumnIndex(COLUMN_ENTRY_TYPE);
+        int columnDate = cursor.getColumnIndex(COLUMN_DATE);
+        int columnServerName = cursor.getColumnIndex(COLUMN_SERVER_NAME);
+        int columnServerUUID = cursor.getColumnIndex(COLUMN_SERVER_UUID);
+        int columnUserNick = cursor.getColumnIndex(COLUMN_USER_NICK);
+        int columnRemoteAddress = cursor.getColumnIndex(COLUMN_REMOTE_ADDRESS);
+        int columnFileName = cursor.getColumnIndex(COLUMN_FILE_NAME);
+        int columnFileSize = cursor.getColumnIndex(COLUMN_FILE_SIZE);
+        int columnFileUri = cursor.getColumnIndex(COLUMN_FILE_URI);
+
+        if (!cursor.moveToNext())
+            return null;
+        Entry entry = new Entry();
+        entry.entryId = cursor.getLong(columnId);
+        entry.entryType = cursor.getInt(columnType);
+        entry.date = new Date(cursor.getLong(columnDate));
+        entry.serverName = cursor.getString(columnServerName);
+        entry.setServerUUID(cursor.getBlob(columnServerUUID));
+        entry.userNick = cursor.getString(columnUserNick);
+        entry.remoteAddress = cursor.getString(columnRemoteAddress);
+        entry.fileName = cursor.getString(columnFileName);
+        entry.fileSize = cursor.getLong(columnFileSize);
+        entry.fileUri = cursor.getString(columnFileUri);
+        return entry;
+    }
+
     public interface HistoryListener {
 
         void onHistoryEntryCreated(Entry entry);

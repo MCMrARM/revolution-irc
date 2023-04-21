@@ -428,12 +428,9 @@ public class DCCTransferListAdapter extends RecyclerView.Adapter implements
 
         public void open() {
             if (mFileUri != null && mFileUri.length() > 0) {
-                Uri uri = Uri.parse(mFileUri);
-                if (uri.getScheme().equals("file"))
-                    uri = FileProvider.getUriForFile(itemView.getContext(),
-                            "io.mrarm.irc.fileprovider", new File(uri.getPath()));
+                Uri uri = Uri.parse("content://io.mrarm.irc.dccfileprovider/" + mEntryId);
                 String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
-                        MimeTypeMap.getFileExtensionFromUrl(uri.toString()));
+                        MimeTypeMap.getFileExtensionFromUrl(mFileUri));
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 intent.setDataAndType(uri, mimeType);
