@@ -24,7 +24,8 @@
             android:label="@string/app_name"
             android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustResize|stateHidden">
+            android:windowSoftInputMode="adjustResize|stateHidden"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -39,7 +40,8 @@
         <activity
             android:name=".IRCLinkActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|screenLayout"
-            android:label="@string/title_activity_irc_link">
+            android:label="@string/title_activity_irc_link"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -52,7 +54,8 @@
         </activity>
         <activity
             android:name=".ShareTargetActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
 
@@ -135,7 +138,8 @@
         <service
             android:name=".IRCChooserTargetService"
             android:label="@string/app_name"
-            android:permission="android.permission.BIND_CHOOSER_TARGET_SERVICE">
+            android:permission="android.permission.BIND_CHOOSER_TARGET_SERVICE"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.service.chooser.ChooserTargetService" />
             </intent-filter>

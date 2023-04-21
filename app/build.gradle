@@ -2,11 +2,11 @@ apply plugin: 'com.android.application'
 apply plugin: 'io.mrarm.irc.build.settings-builder'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 33
     defaultConfig {
         applicationId "io.mrarm.irc"
         minSdkVersion 17
-        targetSdkVersion 30
+        targetSdkVersion 33
         versionCode 12
         versionName "0.5.4"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -24,6 +24,9 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        debug {
+            multiDexEnabled true
+        }
     }
     namespace 'io.mrarm.irc'
 }
@@ -34,11 +37,11 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
-    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.documentfile:documentfile:1.0.1'
-    implementation 'com.google.android.material:material:1.2.1'
-    implementation 'com.google.android:flexbox:0.2.7'
+    implementation 'com.google.android.material:material:1.8.0'
+    implementation 'com.google.android:flexbox:2.0.1'
     implementation 'com.github.mcmrarm:chatlib:master-SNAPSHOT'
     implementation 'com.github.mcmrarm:chatlib-android-core:master-SNAPSHOT'
     implementation 'com.github.mcmrarm:chatlib-android-storage:master-SNAPSHOT'
@@ -49,5 +52,5 @@ dependencies {
     implementation 'com.madgag.spongycastle:bcpkix-jdk15on:1.58.0.0'
     implementation 'com.github.mcmrarm:arscwriter:master-SNAPSHOT'
     implementation 'com.github.mcmrarm:thememonkey:master-SNAPSHOT'
-    testImplementation 'junit:junit:4.13.1'
+    testImplementation 'junit:junit:4.13.2'
 }
