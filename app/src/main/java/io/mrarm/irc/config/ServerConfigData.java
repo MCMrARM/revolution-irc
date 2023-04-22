@@ -1,5 +1,6 @@
 package io.mrarm.irc.config;
 
+import android.app.Application;
 import android.util.Log;
 
 import java.io.ByteArrayInputStream;
@@ -9,13 +10,12 @@ import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.security.spec.EncodedKeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
-import io.mrarm.irc.R;
 import io.mrarm.irc.util.SimpleWildcardPattern;
 
 public class ServerConfigData {
@@ -46,6 +46,9 @@ public class ServerConfigData {
     public List<String> autojoinChannels;
     public boolean rejoinChannels = true;
     public List<String> execCommandsConnected;
+
+    public boolean censeCtcpVersion = false;
+    public transient int badCount = 0;
 
     public List<IgnoreEntry> ignoreList;
 
@@ -87,27 +90,66 @@ public class ServerConfigData {
         return null;
     }
 
+    public static int checkCompileIgnoreListEntries(ServerConfigData scfgd) {
+        scfgd.badCount = 0;
+        if (scfgd.ignoreList != null) {
+            for (ServerConfigData.IgnoreEntry entry : scfgd.ignoreList) {
+                if (   (entry.nick != null && entry.nickRegex == null)
+                    || (entry.user != null && entry.userRegex == null)
+                    || (entry.host != null && entry.userRegex == null)
+                    || (entry.mesg != null && entry.mesgRegex == null)
+                ) {
+                    try {
+                        entry.updatePatterns();
+                    } catch (PatternSyntaxException e) {
+                        ++scfgd.badCount;
+                    }
+                }
+            }
+        }
+        return scfgd.badCount;
+    }
+
     public static class IgnoreEntry {
 
         public String nick;
         public String user;
         public String host;
+        public String mesg;
         public String comment;
         public transient Pattern nickRegex;
         public transient Pattern userRegex;
         public transient Pattern hostRegex;
+        public transient Pattern mesgRegex;
 
         public boolean matchDirectMessages = true;
         public boolean matchDirectNotices = true;
         public boolean matchChannelMessages = true;
         public boolean matchChannelNotices = true;
 
-        public void updateRegexes() {
-            nickRegex = SimpleWildcardPattern.compile(nick);
-            userRegex = SimpleWildcardPattern.compile(user);
-            hostRegex = SimpleWildcardPattern.compile(host);
-        }
+        public boolean isBad = false;
 
+        public void resetPatterns() {
+            nickRegex = null;
+            userRegex = null;
+            hostRegex = null;
+            mesgRegex = null;
+        }
+  
+        public void updatePatterns() throws PatternSyntaxException {
+            resetPatterns();
+            isBad = false;
+            try {
+                if (nick != null) nickRegex = SimpleWildcardPattern.pattCompile(nick);
+                if (user != null) userRegex = SimpleWildcardPattern.pattCompile(user);
+                if (host != null) hostRegex = SimpleWildcardPattern.pattCompile(host);
+                if (mesg != null) mesgRegex = SimpleWildcardPattern.pattCompile(mesg);
+            } catch (PatternSyntaxException e) {
+                resetPatterns();
+                isBad = true;
+                throw e;
+            }
+        }
     }
 
 }
