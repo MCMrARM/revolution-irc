@@ -299,6 +299,10 @@ public class ChatFragment extends Fragment implements
         return mSectionsPagerAdapter.getChannel(mViewPager.getCurrentItem());
     }
 
+    public Fragment getCurrentItem() {
+        return ((Fragment) (mSectionsPagerAdapter.instantiateItem(mViewPager, mViewPager.getCurrentItem())));
+    }
+
     public ChatFragmentSendMessageHelper getSendMessageHelper() {
         return mSendHelper;
     }
